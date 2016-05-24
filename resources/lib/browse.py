@@ -1,9 +1,10 @@
-import requests
+import urllib2
+import urllib
 
 def Browse(url, objectID, flag, startingIndex, requestedCount):
 
     
-    headers = {'content-type': 'text/xml'}
+    headers = {'content-type': 'text/xml', 'accept': '*/*'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
   <s:Body>
@@ -16,15 +17,15 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
     body += '''</BrowseFlag>
       <Filter>*</Filter>
       <StartingIndex>'''
-    body += startingIndex
+    body += str(startingIndex)
     body += '''</StartingIndex>
       <RequestedCount>'''
-    body += requestedCount
+    body += str(requestedCount)
     body += '''</RequestedCount>
       <SortCriteria>dc:title</SortCriteria>
     </u:Browse>
   </s:Body>
 </s:Envelope>'''
-
-    response = requests.post(url,data=body,headers=headers)
-    return response.content
+    req = urllib2.Request(url, body, headers)
+    response = urllib2.urlopen(req).read()
+    return response
