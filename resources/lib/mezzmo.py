@@ -86,17 +86,21 @@ def handleBrowse(content, contenturl):
         for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
             title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text
             containerid = container.get('id')
+            icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+            if icon != None:
+                icon = icon.text
             itemurl = build_url({'mode': 'server', 'objectID': containerid, 'contentdirectory': contenturl})        
-            li = xbmcgui.ListItem(title, iconImage='DefaultVideo.png')
+            li = xbmcgui.ListItem(title, iconImage=icon)
             
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
         for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
             title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
             itemid = item.get('id')
+            icon = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI').text
             itemurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res').text        
-            li = xbmcgui.ListItem(title, iconImage='DefaultVideo.png')
-            
+            li = xbmcgui.ListItem(title, iconImage=icon)
+            li.setArt({'thumb': icon, 'poster': icon, 'fanart': 'fanart.jpg'})
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
     except Exception as e:
         message(e)
