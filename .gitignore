@@ -145,6 +145,7 @@ var
 sdist
 develop-eggs
 .installed.cfg
+*.pyo
 
 # Installer logs
 pip-log.txt
@@ -164,3 +165,5 @@ pip-log.txt
 
 ##PyCharm
 .idea
+
+*~

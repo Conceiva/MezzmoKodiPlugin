@@ -4,7 +4,7 @@ import urllib
 def Browse(url, objectID, flag, startingIndex, requestedCount):
 
     
-    headers = {'content-type': 'text/xml', 'accept': '*/*'}
+    headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
   <s:Body>

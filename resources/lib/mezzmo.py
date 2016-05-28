@@ -53,10 +53,15 @@ def listServers():
                         length = len(url)
                         
                         contenturl = url[:end-length] + contenturl
+                    else:
+                        end = url.rfind('/')
+                        length = len(url)
+                        
+                        contenturl = url[:end-length] + '/' + contenturl
 
             itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})        
             li = xbmcgui.ListItem(friendlyname, iconImage='DefaultVideo.png')
-            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li)
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         except Exception as e:
             message(e)
             pass
@@ -64,6 +69,39 @@ def listServers():
 
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
+
+def handleBrowse(content, contenturl):
+    try:
+        #xmlstring = re.sub(' xmlns="[^"]+"', '', content, count=1)
+        xml.etree.ElementTree.register_namespace("s", "http://schemas.xmlsoap.org/soap/envelope/")
+        xml.etree.ElementTree.register_namespace("u", "urn:schemas-upnp-org:service:ContentDirectory:1")
+        e = xml.etree.ElementTree.fromstring(content)
+        
+        body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
+        browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
+        result = browseresponse.find('Result')
+
+        elems = xml.etree.ElementTree.fromstring(result.text.decode())
+        
+        for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
+            title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text
+            containerid = container.get('id')
+            itemurl = build_url({'mode': 'server', 'objectID': containerid, 'contentdirectory': contenturl})        
+            li = xbmcgui.ListItem(title, iconImage='DefaultVideo.png')
+            
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+
+        for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
+            title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
+            itemid = item.get('id')
+            itemurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res').text        
+            li = xbmcgui.ListItem(title, iconImage='DefaultVideo.png')
+            
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+    except Exception as e:
+        message(e)
+        pass
+    xbmcplugin.endOfDirectory(addon_handle, updateListing=True)
 
 mode = args.get('mode', 'none')
 
@@ -74,7 +112,7 @@ elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
     objectID = args.get('objectID', '0')
     content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 10)
-    message(content)
+    handleBrowse(content, url[0])
 
 def start():
     listServers()

@@ -30,13 +30,13 @@ class SSDPResponse(object):
     def __repr__(self):
         return "<SSDPResponse({location}, {st}, {usn})>".format(**self.__dict__)
 
-def discover(service, timeout=2, retries=1):
+def discover(service, timeout=5, retries=1):
     group = ("239.255.255.250", 1900)
     message = "\r\n".join([
         'M-SEARCH * HTTP/1.1',
         'HOST: {0}:{1}',
         'MAN: "ssdp:discover"',
-        'ST: {st}','MX: 3','',''])
+        'ST: {st}','MX: 1','',''])
     socket.setdefaulttimeout(timeout)
     responses = {}
     for _ in range(retries):
