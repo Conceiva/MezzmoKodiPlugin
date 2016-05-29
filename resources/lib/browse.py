@@ -15,7 +15,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
       <BrowseFlag>'''
     body += flag
     body += '''</BrowseFlag>
-      <Filter>*</Filter>
+      <Filter>*,cva_richmetadata</Filter>
       <StartingIndex>'''
     body += str(startingIndex)
     body += '''</StartingIndex>

@@ -70,11 +70,13 @@ def listServers():
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
-def handleBrowse(content, contenturl):
+def handleBrowse(content, contenturl, objectID, parentID):
     try:
-        #xmlstring = re.sub(' xmlns="[^"]+"', '', content, count=1)
-        xml.etree.ElementTree.register_namespace("s", "http://schemas.xmlsoap.org/soap/envelope/")
-        xml.etree.ElementTree.register_namespace("u", "urn:schemas-upnp-org:service:ContentDirectory:1")
+        if objectID != parentID:
+            itemurl = build_url({'mode': 'server', 'objectID': parentID, 'contentdirectory': contenturl})        
+            li = xbmcgui.ListItem('Go back', iconImage='resources/media/go-up-md.png')
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+        
         e = xml.etree.ElementTree.fromstring(content)
         
         body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
@@ -89,7 +91,7 @@ def handleBrowse(content, contenturl):
             icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
             if icon != None:
                 icon = icon.text
-            itemurl = build_url({'mode': 'server', 'objectID': containerid, 'contentdirectory': contenturl})        
+            itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
             li = xbmcgui.ListItem(title, iconImage=icon)
             
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
@@ -99,8 +101,12 @@ def handleBrowse(content, contenturl):
             itemid = item.get('id')
             icon = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI').text
             itemurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res').text        
+            backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
+            if backdropurl != None:
+                backdropurl = backdropurl.text
+            
             li = xbmcgui.ListItem(title, iconImage=icon)
-            li.setArt({'thumb': icon, 'poster': icon, 'fanart': 'fanart.jpg'})
+            li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
     except Exception as e:
         message(e)
@@ -111,13 +117,16 @@ mode = args.get('mode', 'none')
 
 if mode[0] == 'serverlist':
     listServers()
+    message('serverlist')
 
 elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
     objectID = args.get('objectID', '0')
+    parentID = args.get('parentID', '0')
     content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 10)
-    handleBrowse(content, url[0])
+    handleBrowse(content, url[0], objectID[0], parentID[0])
 
 def start():
-    listServers()
+    if mode == 'none':
+        listServers()
 
