@@ -83,7 +83,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
         browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
         result = browseresponse.find('Result')
 
-        elems = xml.etree.ElementTree.fromstring(result.text.decode())
+        elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
         
         for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
             title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text
@@ -123,7 +123,7 @@ elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
     objectID = args.get('objectID', '0')
     parentID = args.get('parentID', '0')
-    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 10)
+    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500)
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
 def start():
