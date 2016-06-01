@@ -11,7 +11,9 @@ import re
 import xml.etree.ElementTree as ET
 import urlparse
 import browse
+import xbmc
 
+addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
@@ -26,7 +28,6 @@ def message(msg):
 
 def listServers():
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1")
-    xbmcplugin.setContent(addon_handle, 'movies')
     
 
     for server in servers:
@@ -70,11 +71,38 @@ def listServers():
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
+def setViewMode():
+   if not addon.getSetting('view_mode') == "0":
+       try:
+           if addon.getSetting('view_mode') == "1": # List
+               xbmc.executebuiltin('Container.SetViewMode(502)')
+           elif addon.getSetting('view_mode') == "2": # Big List
+               xbmc.executebuiltin('Container.SetViewMode(51)')
+           elif addon.getSetting('view_mode') == "3": # Thumbnails
+               xbmc.executebuiltin('Container.SetViewMode(500)')
+           elif addon.getSetting('view_mode') == "4": # Poster Wrap
+               xbmc.executebuiltin('Container.SetViewMode(501)')
+           elif addon.getSetting('view_mode') == "5": # Fanart
+               xbmc.executebuiltin('Container.SetViewMode(508)')
+           elif addon.getSetting('view_mode') == "6":  # Media info
+               xbmc.executebuiltin('Container.SetViewMode(504)')
+           elif addon.getSetting('view_mode') == "7": # Media info 2
+               xbmc.executebuiltin('Container.SetViewMode(503)')
+           elif addon.getSetting('view_mode') == "8": # Media info 3
+               xbmc.executebuiltin('Container.SetViewMode(515)')
+       except:
+           addon_log("SetViewMode Failed: "+addon.getSetting('view_mode'))
+           addon_log("Skin: "+xbmc.getSkinDir())
+
+
 def handleBrowse(content, contenturl, objectID, parentID):
+    xbmcplugin.setContent(addon_handle, 'movies')
     try:
         if objectID != parentID:
-            itemurl = build_url({'mode': 'server', 'objectID': parentID, 'contentdirectory': contenturl})        
-            li = xbmcgui.ListItem('Go back', iconImage='resources/media/go-up-md.png')
+            itemurl = build_url({'mode': 'server', 'objectID': parentID, 'contentdirectory': contenturl}) 
+            image = addon.getAddonInfo("path") + '/resources/media/go-up-md.png'
+          
+            li = xbmcgui.ListItem('Go back', iconImage=image)
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         
         e = xml.etree.ElementTree.fromstring(content)
@@ -93,6 +121,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 icon = icon.text
             itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
             li = xbmcgui.ListItem(title, iconImage=icon)
+            li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)') ])
             
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
@@ -112,6 +141,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
         message(e)
         pass
     xbmcplugin.endOfDirectory(addon_handle, updateListing=True)
+    setViewMode()
 
 mode = args.get('mode', 'none')
 

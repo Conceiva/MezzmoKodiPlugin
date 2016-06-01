@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
   
+    <!-- View -->
+    <category label="30300">
+	<setting id="view_mode" type="enum" label="30330" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="5"/>
+    </category>
 </settings>
