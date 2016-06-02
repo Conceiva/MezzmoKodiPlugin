@@ -12,19 +12,35 @@ import xml.etree.ElementTree as ET
 import urlparse
 import browse
 import xbmc
+import linecache
+import sys
+import datetime
+import time
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 
-
+def getSeconds(t):
+    x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
+    return datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+    
 def message(msg):
     __addon__ = xbmcaddon.Addon()
     __addonname__ = __addon__.getAddonInfo('name')
  
  
     xbmcgui.Dialog().ok(__addonname__, str(msg))
+
+def printexception():
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    message( 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
 def listServers():
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1")
@@ -128,17 +144,94 @@ def handleBrowse(content, contenturl, objectID, parentID):
         for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
             title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
             itemid = item.get('id')
-            icon = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI').text
-            itemurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res').text        
+            icon = None
+            albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+            if albumartUri != None:
+                icon = albumartUri.text  
+            res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
+            subtitleurl = None
+            duration_text = ''
+            
+            if res != None:
+                itemurl = res.text 
+                subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
+                duration_text = res.get('duration')
+                
             backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
             if backdropurl != None:
                 backdropurl = backdropurl.text
             
             li = xbmcgui.ListItem(title, iconImage=icon)
             li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
+            if subtitleurl != None:
+                li.setSubtitles([subtitleurl])
+                
+            genre_text = ''
+            genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
+            if genre != None:
+                genre_text = genre.text
+                
+            release_year_text = ''
+            release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
+            if release_year != None:
+                release_year_text = release_year.text
+            
+            description_text = ''
+            description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
+            if description != None:
+                description_text = description.text
+                
+            artist_text = ''
+            artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
+            if artist != None:
+                artist_text = artist.text
+                
+            creator_text = ''
+            creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
+            if creator != None:
+                creator_text = creator.text
+                
+            tagline_text = ''
+            tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
+            if tagline != None:
+                tagline_text = tagline.text
+                
+            writer_text = ''
+            writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
+            if writer != None:
+                writer_text = writer.text
+          
+            imdb_text = ''
+            imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
+            if imdb != None:
+                imdb_text = imdb.text
+          
+            rating_val = ''
+            rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
+            if rating != None:
+                rating_val = rating.text
+                rating_val = float(rating_val) / 2
+                rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+          
+            info = {
+                'duration': getSeconds(duration_text),
+                'genre': genre_text,
+                'year': release_year_text,
+                'title': title,
+                'plot': description_text,
+                'director': creator_text,
+                'tagline': tagline_text,
+                'writer': writer_text,
+                'artist': artist_text.split(),
+                'rating': rating_val,
+                'code': imdb_text,
+            }
+            li.setInfo('video', info)
+            
             xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
     except Exception as e:
         message(e)
+        printexception()
         pass
     xbmcplugin.endOfDirectory(addon_handle, updateListing=True)
     setViewMode()
