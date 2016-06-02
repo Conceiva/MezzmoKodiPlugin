@@ -45,6 +45,10 @@ def printexception():
 def listServers():
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1")
     
+    itemurl = build_url({'mode': 'serverList', 'refresh': True})        
+    li = xbmcgui.ListItem('Refresh', iconImage='DefaultVideo.png')
+    
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     for server in servers:
         url = server.location
@@ -238,6 +242,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
 mode = args.get('mode', 'none')
 
+refresh = args.get('refresh', 'False')
+
+if refresh[0] == 'True':
+    xbmc.executebuiltin('Container.Refresh')
+    
 if mode[0] == 'serverlist':
     listServers()
     message('serverlist')
