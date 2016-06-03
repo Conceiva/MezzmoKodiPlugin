@@ -200,6 +200,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if tagline != None:
                 tagline_text = tagline.text
                 
+            categories_text = 'movie'
+            categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
+            if categories != None and categories.text != None:
+                categories_text = categories.text
+                if categories_text == 'TV show':
+                    categories_text = 'tvshow'
+                    
             writer_text = ''
             writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
             if writer != None:
@@ -214,7 +221,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
             if rating != None:
                 rating_val = rating.text
-                rating_val = float(rating_val) / 2
+                rating_val = float(rating_val) * 2
                 rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
           
             info = {
@@ -229,6 +236,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 'artist': artist_text.split(),
                 'rating': rating_val,
                 'code': imdb_text,
+                'mediatype': categories_text.split(),
             }
             li.setInfo('video', info)
             
