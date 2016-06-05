@@ -24,7 +24,10 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
-    return datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+    seconds = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+    if seconds == None:
+        seconds = 0
+    return seconds
     
 def message(msg):
     __addon__ = xbmcaddon.Addon()
@@ -160,6 +163,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 itemurl = res.text 
                 subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
                 duration_text = res.get('duration')
+                if duration_text == None:
+                    duration_text = '00:00:00.000'
                 
             backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
             if backdropurl != None:
@@ -182,7 +187,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             
             description_text = ''
             description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
-            if description != None:
+            if description != None and description.text != None:
                 description_text = description.text
                 
             artist_text = ''
@@ -223,7 +228,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 rating_val = rating.text
                 rating_val = float(rating_val) * 2
                 rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
-          
+            
             info = {
                 'duration': getSeconds(duration_text),
                 'genre': genre_text,
