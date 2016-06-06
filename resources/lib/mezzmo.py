@@ -206,6 +206,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if categories_text == 'TV show':
                     categories_text = 'tvshow'
                     
+            episode_text = ''
+            episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
+            if episode != None:
+                episode_text = episode.text
+             
+            season_text = ''
+            season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
+            if season != None:
+                season_text = season.text
+                      
             writer_text = ''
             writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
             if writer != None:
@@ -236,6 +246,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 'rating': rating_val,
                 'code': imdb_text,
                 'mediatype': categories_text.split(),
+                'season': season_text,
+                'episode': episode_text,
             }
             li.setInfo('video', info)
             
