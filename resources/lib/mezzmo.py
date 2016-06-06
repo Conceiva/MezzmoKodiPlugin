@@ -121,12 +121,6 @@ def setViewMode():
 def handleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.setContent(addon_handle, 'movies')
     try:
-        if objectID != parentID:
-            itemurl = build_url({'mode': 'server', 'objectID': parentID, 'contentdirectory': contenturl}) 
-            image = addon.getAddonInfo("path") + '/resources/media/go-up-md.png'
-          
-            li = xbmcgui.ListItem('Go back', iconImage=image)
-            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         
         e = xml.etree.ElementTree.fromstring(content)
         
@@ -250,7 +244,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
         message(e)
         printexception()
         pass
-    xbmcplugin.endOfDirectory(addon_handle, updateListing=True)
+    xbmcplugin.endOfDirectory(addon_handle)
     setViewMode()
 
 mode = args.get('mode', 'none')

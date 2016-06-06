@@ -11,4 +11,4 @@ import mezzmo
 
 mezzmo.start()
 
-sys.modules.clear()
+#sys.modules.clear()
