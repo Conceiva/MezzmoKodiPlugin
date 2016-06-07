@@ -27,5 +27,5 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
   </s:Body>
 </s:Envelope>'''
     req = urllib2.Request(url, body, headers)
-    response = urllib2.urlopen(req, timeout=30).read()
+    response = urllib2.urlopen(req, timeout=60).read()
     return response
