@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-  
+    <category label="30339">
+	<setting id="ssdp_timeout" type="number" label="30340" default="5"/>
+    </category>
     <!-- View -->
     <category label="30300">
-	<setting id="view_mode" type="enum" label="30330" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="5"/>
+	<setting id="movies_view_mode" type="enum" label="30330" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="5"/>
+    <setting id="episodes_view_mode" type="enum" label="30341" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="7"/>
     </category>
 </settings>
