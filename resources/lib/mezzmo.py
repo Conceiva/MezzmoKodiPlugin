@@ -46,7 +46,8 @@ def printexception():
     message( 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
 
 def listServers():
-    timeoutval = addon.getSetting('ssdp_timeout')
+    timeoutval = float(addon.getSetting('ssdp_timeout'))
+    
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
     
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
