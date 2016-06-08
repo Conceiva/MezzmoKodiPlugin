@@ -24,7 +24,8 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
-    seconds = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec).total_seconds()
+    td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
+    seconds = int((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
     if seconds == None:
         seconds = 0
     return seconds
