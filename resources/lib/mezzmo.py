@@ -59,8 +59,8 @@ def listServers():
     for server in servers:
         url = server.location
         
-        response = urllib2.urlopen(url)
         try:
+            response = urllib2.urlopen(url)
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
