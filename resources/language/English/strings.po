@@ -120,4 +120,32 @@ msgctxt "#30341"
 msgid "TV Shows View"
 msgstr ""
 
+msgctxt "#30342"
+msgid "Folders View"
+msgstr ""
+
+msgctxt "#30343"
+msgid "Photos View"
+msgstr ""
+
+msgctxt "#30344"
+msgid "Servers View"
+msgstr ""
+
+msgctxt "#30345"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30346"
+msgid "Go up"
+msgstr ""
+
+msgctxt "#30347"
+msgid "Refresh"
+msgstr ""
+
+msgctxt "#30348"
+msgid "Details"
+msgstr ""
+
 

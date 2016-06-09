@@ -22,7 +22,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
       <RequestedCount>'''
     body += str(requestedCount)
     body += '''</RequestedCount>
-      <SortCriteria>dc:title</SortCriteria>
+      <SortCriteria></SortCriteria>
     </u:Browse>
   </s:Body>
 </s:Envelope>'''

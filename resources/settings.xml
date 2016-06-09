@@ -5,7 +5,10 @@
     </category>
     <!-- View -->
     <category label="30300">
-	<setting id="movies_view_mode" type="enum" label="30330" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="5"/>
-    <setting id="episodes_view_mode" type="enum" label="30341" lvalues="30331|30332|30333|30334|30335|30336|30337|30338" default="7"/>
+	<setting id="folders_view_mode" type="enum" label="30342" lvalues="30345|30331|30332|30333" default="3"/>
+	<setting id="files_view_mode" type="enum" label="30343" lvalues="30345|30331|30332|30333" default="3"/>
+	<setting id="servers_view_mode" type="enum" label="30344" lvalues="30345|30331|30332|30333" default="3"/>
+	<setting id="movies_view_mode" type="enum" label="30330" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="5"/>
+    <setting id="episodes_view_mode" type="enum" label="30341" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="7"/>
     </category>
 </settings>
