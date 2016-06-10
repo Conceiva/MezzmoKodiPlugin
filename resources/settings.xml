@@ -5,6 +5,8 @@
     </category>
     <!-- View -->
     <category label="30300">
+	<setting id="only_mezzmo_servers" type="bool" label="30350" default="true"/>
+	<setting id="top_view_mode" type="enum" label="30349" lvalues="30345|30331|30332|30333" default="1"/>
 	<setting id="folders_view_mode" type="enum" label="30342" lvalues="30345|30331|30332|30333" default="3"/>
 	<setting id="files_view_mode" type="enum" label="30343" lvalues="30345|30331|30332|30333" default="3"/>
 	<setting id="servers_view_mode" type="enum" label="30344" lvalues="30345|30331|30332|30333" default="3"/>

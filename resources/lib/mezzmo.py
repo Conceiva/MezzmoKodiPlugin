@@ -51,6 +51,8 @@ def listServers():
     
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
     
+    onlyShowMezzmo = addon.getSetting('only_mezzmo_servers')
+    
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
     li = xbmcgui.ListItem('Refresh', iconImage=addon.getAddonInfo("path") + '/resources/media/refresh.png')
     
@@ -71,9 +73,11 @@ def listServers():
             serviceList = device.find('serviceList')
             iconList = device.find('iconList')
             iconurl = ''
+            isMezzmo = False
             
             if manufacturer != None and manufacturer == 'Conceiva Pty. Ltd.':
                 iconurl = addon.getAddonInfo("path") + '/icon.png'   
+                isMezzmo = True
             elif iconList != None:
                 bestWidth = 0
                 for icon in iconList.findall('icon'):
@@ -95,29 +99,30 @@ def listServers():
                             iconurl = url[:end-length] + '/' + iconurl
             else:
                 iconurl = addon.getAddonInfo("path") + '/resources/media/otherserver.png'        
-                   
-            contenturl = ''
-            for service in serviceList.findall('service'):
-                serviceId = service.find('serviceId')
-                
-                if serviceId.text == 'urn:upnp-org:serviceId:ContentDirectory':
-                    contenturl = service.find('controlURL').text
-                    if contenturl.startswith('/'):
-                        end = url.find('/', 8)
-                        length = len(url)
-                        
-                        contenturl = url[:end-length] + contenturl
-                    else:
-                        end = url.rfind('/')
-                        length = len(url)
-                        
-                        contenturl = url[:end-length] + '/' + contenturl
-
-            itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
             
-            li = xbmcgui.ListItem(friendlyname, iconImage=iconurl)
-            li.setArt({'thumb': iconurl, 'poster': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
-            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+            if isMezzmo or onlyShowMezzmo == False:
+                contenturl = ''
+                for service in serviceList.findall('service'):
+                    serviceId = service.find('serviceId')
+                    
+                    if serviceId.text == 'urn:upnp-org:serviceId:ContentDirectory':
+                        contenturl = service.find('controlURL').text
+                        if contenturl.startswith('/'):
+                            end = url.find('/', 8)
+                            length = len(url)
+                            
+                            contenturl = url[:end-length] + contenturl
+                        else:
+                            end = url.rfind('/')
+                            length = len(url)
+                            
+                            contenturl = url[:end-length] + '/' + contenturl
+
+                itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
+                
+                li = xbmcgui.ListItem(friendlyname, iconImage=iconurl)
+                li.setArt({'thumb': iconurl, 'poster': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         except Exception as e:
             printexception()
             pass
@@ -185,7 +190,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)') ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
-                contentType = 'folders'
+                if parentID == '0':
+                    contentType = 'top'
+                else:
+                    contentType = 'folders'
                 
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
@@ -197,6 +205,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
+                video_width = 0
+                video_height = 0
+                aspect = 0.0
                 
                 if res != None:
                     itemurl = res.text 
@@ -204,7 +215,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     duration_text = res.get('duration')
                     if duration_text == None:
                         duration_text = '00:00:00.000'
-                    
+                    resolution_text = res.get('resolution')
+                    if resolution_text != None:
+                        mid = resolution_text.find('x')
+                        video_width = int(resolution_text[0:mid])
+                        video_height = int(resolution_text[mid + 1:])
+                        aspect = float(video_width / video_height)
+                        
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
@@ -302,6 +319,37 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     rating_val = float(rating_val) * 2
                     rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
                 
+                video_codec_text = ''
+                video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
+                if video_codec != None:
+                    video_codec_text = video_codec.text
+                
+                audio_codec_text = ''
+                audio_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_codec')
+                if audio_codec != None:
+                    audio_codec_text = audio_codec.text
+                
+                audio_channels_text = ''
+                audio_channels = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_channels')
+                if audio_channels != None:
+                    audio_channels_text = audio_channels.text
+                
+                audio_lang = ''
+                audio_streams = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio')
+                if audio_streams != None:
+                    for stream in audio_streams.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}stream'):
+                        if stream.get('selected') == 'auto' or stream.get('selected') == 'true':
+                            audio_lang = stream.get('lang')
+                            break
+                     
+                subtitle_lang = ''
+                captions_streams = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}captions')
+                if captions_streams != None:
+                    for stream in captions_streams.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}stream'):
+                        if stream.get('selected') == 'auto' or stream.get('selected') == 'true':
+                            subtitle_lang = stream.get('language')
+                            break
+                                   
                 #mediaClass 
                 mediaClass_text = 'video'
                 mediaClass = item.find('.//{urn:schemas-sony-com:av}mediaClass')
@@ -338,6 +386,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'mpaa':content_rating_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    video_info = {
+                        'codec': video_codec_text,
+                        'aspect': aspect,
+                        'width': video_width,
+                        'height': video_height,
+                    }
+                    li.addStreamInfo('video', video_info)
+                    li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
+                    li.addStreamInfo('subtitle', {'language': subtitle_lang})
+                    
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {
@@ -371,8 +429,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
             
             # get the next items
             offset = int(TotalMatches) - itemsleft
-            requestedCount = 50
-            if itemsleft < 50:
+            requestedCount = 500
+            if itemsleft < 500:
                 requestedCount = itemsleft
                
             content = browse.Browse(url[0], objectID, 'BrowseDirectChildren', offset, requestedCount)
@@ -399,7 +457,7 @@ elif mode[0] == 'server':
     objectID = args.get('objectID', '0')
     parentID = args.get('parentID', '0')
     
-    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 50)
+    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500)
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
 xbmcplugin.setPluginFanart(addon_handle, addon.getAddonInfo("path") + 'fanart.jpg', color2='0xFFFF3300')

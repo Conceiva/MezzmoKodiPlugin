@@ -148,4 +148,12 @@ msgctxt "#30348"
 msgid "Details"
 msgstr ""
 
+msgctxt "#30349"
+msgid "Top Folder View"
+msgstr ""
+
+msgctxt "#30350"
+msgid "Only Show Mezzmo Servers"
+msgstr ""
+
 
