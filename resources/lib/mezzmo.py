@@ -44,7 +44,7 @@ def printexception():
     filename = f.f_code.co_filename
     linecache.checkcache(filename)
     line = linecache.getline(filename, lineno, f.f_globals)
-    xbmc.log( 'EXCEPTION IN ({}, LINE {} "{}"): {}'.format(filename, lineno, line.strip(), exc_obj))
+    xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(), exc_obj))
 
 def listServers():
     timeoutval = float(addon.getSetting('ssdp_timeout'))
@@ -160,6 +160,7 @@ def setViewMode(contentType):
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1
+    addon.setSetting('contenturl', contenturl)
     
     try:
         while True:
@@ -220,7 +221,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mid = resolution_text.find('x')
                         video_width = int(resolution_text[0:mid])
                         video_height = int(resolution_text[mid + 1:])
-                        aspect = float(video_width / video_height)
+                        aspect = float(float(video_width) / float(video_height))
                         
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
@@ -296,7 +297,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
-                          
+                 
+                playcount = 0
+                last_played_text = ''
+                last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
+                if last_played != None:
+                    last_played_text = last_played.text
+                    if last_played_text != '0':
+                        playcount = 1
+                        
                 writer_text = ''
                 writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
                 if writer != None:
@@ -311,6 +320,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
+                
+                
+                dcmInfo_text = ''
+                dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
+                if dcmInfo != None:
+                    dcmInfo_text = dcmInfo.text
+                    valPos = dcmInfo_text.find('BM=') + 3
+                    dcmInfo_text = dcmInfo_text[valPos:]
               
                 rating_val = ''
                 rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
@@ -362,10 +379,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
                         
-                if mediaClass_text == 'video':        
+                if mediaClass_text == 'video':  
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
                     
                     info = {
+                        'id': '1234',
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
@@ -384,8 +402,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'lastplayed': lastplayed_text,
                         'aired': aired_text,
                         'mpaa':content_rating_text,
+                        'playcount':playcount,
+                        'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    li.setProperty('ResumeTime', dcmInfo_text)
+                    li.setProperty('TotalTime', str(getSeconds(duration_text)))
                     video_info = {
                         'codec': video_codec_text,
                         'aspect': aspect,
@@ -408,6 +430,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'discnumber': season_text,
                         'tracknumber': episode_text,
                         'album': album_text,
+                        'playcount':playcount,
+                        'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
                     contentType = 'songs'

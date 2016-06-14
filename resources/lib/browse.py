@@ -1,5 +1,6 @@
 import urllib2
 import urllib
+import xbmc
 
 def Browse(url, objectID, flag, startingIndex, requestedCount):
 
@@ -15,7 +16,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
       <BrowseFlag>'''
     body += flag
     body += '''</BrowseFlag>
-      <Filter>*,cva_richmetadata</Filter>
+      <Filter>*,cva_richmetadata,cva_bookmark</Filter>
       <StartingIndex>'''
     body += str(startingIndex)
     body += '''</StartingIndex>
@@ -27,5 +28,11 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
   </s:Body>
 </s:Envelope>'''
     req = urllib2.Request(url, body, headers)
-    response = urllib2.urlopen(req, timeout=60).read()
+    response = ''
+    try:
+        response = urllib2.urlopen(req, timeout=60).read()
+    except Exception as e:
+        xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
+        pass
+        
     return response

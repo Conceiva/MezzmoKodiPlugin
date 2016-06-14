@@ -1,0 +1,5 @@
+0.0.0.4:
+- Added Setting for top level folder view mode
+- Added video stream information (codec, channels, aspect ratio)
+- Increased browse item request from 50 to 500
+- Added Setting to only list Mezzmo servers
