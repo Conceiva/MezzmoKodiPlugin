@@ -830,13 +830,18 @@ def getSearchCriteria(term):
     return searchCriteria
     
 def promptSearch():
-    search_window = search.PopupWindow()
-    search_window.doModal()
-    term = search_window.term
-    isCancelled = search_window.isCancelled
-    del search_window
-    
-    if isCancelled == False:
+    term = ''
+    #search_window = search.PopupWindow()
+    #search_window.doModal()
+    #term = search_window.term
+    #isCancelled = search_window.isCancelled
+    #del search_window
+    kb = xbmc.Keyboard('', 'Search')
+    kb.setHeading('Enter Search text')
+    kb.doModal()
+    if (kb.isConfirmed()):
+        term = kb.getText()
+    if len(term) > 0:
         xbmc.executebuiltin("ActivateWindow(busydialog)")
         upnpClass = getUPnPClass()
         searchCriteria = getSearchCriteria(term)
