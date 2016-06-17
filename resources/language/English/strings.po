@@ -1,48 +1,20 @@
 # Kodi Media Center language file
-# Addon Name: Photo App
-# Addon id: plugin.image.photoapp
-# Addon Provider: stonebug
+# Addon Name: Mezzmo
+# Addon id: plugin.video.mezzmo
+# Addon Provider: Conceiva
 msgid ""
 msgstr ""
 "Project-Id-Version: XBMC Addons\n"
-"Report-Msgid-Bugs-To: PhotoApp.KodiPlugin@stonebug.com\n"
+"Report-Msgid-Bugs-To: support@conceiva.com\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Claude Marksteiner\n"
-"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"Last-Translator: Peter Edens\n"
+"Language-Team: English"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-
-msgctxt "#30000"
-msgid "Moments"
-msgstr ""
-
-msgctxt "#30001"
-msgid "Albums"
-msgstr ""
-
-msgctxt "#30002"
-msgid "Sildeshows"
-msgstr ""
-
-msgctxt "#30100"
-msgid "No items"
-msgstr ""
-
-msgctxt "#30200"
-msgid "General"
-msgstr ""
-
-msgctxt "#30210"
-msgid "Photo-Library"
-msgstr ""
-
-msgctxt "#30220"
-msgid "Make a local copy of the Photo-Library"
-msgstr ""
 
 msgctxt "#30300"
 msgid "View"
@@ -154,6 +126,46 @@ msgstr ""
 
 msgctxt "#30350"
 msgid "Only Show Mezzmo Servers"
+msgstr ""
+
+msgctxt "#30351"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30352"
+msgid "Video"
+msgstr ""
+
+msgctxt "#30353"
+msgid "Music"
+msgstr ""
+
+msgctxt "#30354"
+msgid "Photo"
+msgstr ""
+
+msgctxt "#30355"
+msgid "Album"
+msgstr ""
+
+msgctxt "#30356"
+msgid "Artist"
+msgstr ""
+
+msgctxt "#30357"
+msgid "Tagline"
+msgstr ""
+
+msgctxt "#30358"
+msgid "Description"
+msgstr ""
+
+msgctxt "#30359"
+msgid "Keywords"
+msgstr ""
+
+msgctxt "#30360"
+msgid "Title"
 msgstr ""
 
 

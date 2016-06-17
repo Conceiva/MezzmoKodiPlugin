@@ -11,6 +11,7 @@ import re
 import xml.etree.ElementTree as ET
 import urlparse
 import browse
+import search
 import xbmc
 import linecache
 import sys
@@ -51,8 +52,8 @@ def listServers():
     
     servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
     
-    onlyShowMezzmo = addon.getSetting('only_mezzmo_servers')
-    
+    onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
+
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
     li = xbmcgui.ListItem('Refresh', iconImage=addon.getAddonInfo("path") + '/resources/media/refresh.png')
     
@@ -126,15 +127,18 @@ def listServers():
         except Exception as e:
             printexception()
             pass
-    xbmcplugin.endOfDirectory(addon_handle)
     setViewMode('servers')
+    xbmcplugin.endOfDirectory(addon_handle)
     
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
+    
 def setViewMode(contentType):
 
-   if not addon.getSetting(contentType + '_view_mode') == "0":
+    current_skin_name = xbmc.getSkinDir()
+    
+    if current_skin_name == 'skin.confluence' and addon.getSetting(contentType + '_view_mode') != "0":
        try:
            if addon.getSetting(contentType + '_view_mode') == "1": # List
                xbmc.executebuiltin('Container.SetViewMode(502)')
@@ -188,7 +192,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
-                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)') ])
+                
+                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':
@@ -403,6 +409,303 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'aired': aired_text,
                         'mpaa':content_rating_text,
                         'playcount':playcount,
+                    }
+                    li.setInfo(mediaClass_text, info)
+                    li.setProperty('ResumeTime', dcmInfo_text)
+                    li.setProperty('TotalTime', str(getSeconds(duration_text)))
+                    video_info = {
+                        'codec': video_codec_text,
+                        'aspect': aspect,
+                        'width': video_width,
+                        'height': video_height,
+                    }
+                    li.addStreamInfo('video', video_info)
+                    li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
+                    li.addStreamInfo('subtitle', {'language': subtitle_lang})
+                    
+                elif mediaClass_text == 'music':
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
+                    info = {
+                        'duration': getSeconds(duration_text),
+                        'genre': genre_text,
+                        'year': release_year_text,
+                        'title': title,
+                        'artist': artist_text.split(','),
+                        'rating': rating_val,
+                        'discnumber': season_text,
+                        'tracknumber': episode_text,
+                        'album': album_text,
+                        'playcount':playcount,
+                        'lastplayed': last_played_text,
+                    }
+                    li.setInfo(mediaClass_text, info)
+                    contentType = 'songs'
+                elif mediaClass_text == 'picture':
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
+                    
+                    info = {
+                        'title': title,
+                    }
+                    li.setInfo(mediaClass_text, info)
+                    contentType = 'files'
+                 
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+            
+            itemsleft = itemsleft - int(NumberReturned)
+            if itemsleft == 0:
+                break
+            
+            
+            # get the next items
+            offset = int(TotalMatches) - itemsleft
+            requestedCount = 500
+            if itemsleft < 500:
+                requestedCount = itemsleft
+               
+            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount)
+    except Exception as e:
+        printexception()
+        pass
+    xbmcplugin.setContent(addon_handle, contentType)
+    setViewMode(contentType)
+    xbmcplugin.endOfDirectory(addon_handle)
+    
+
+
+def handleSearch(content, contenturl, objectID, term):
+    contentType = 'movies'
+    itemsleft = -1
+    addon.setSetting('contenturl', contenturl)
+    
+    try:
+        while True:
+            e = xml.etree.ElementTree.fromstring(content)
+            
+            body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
+            browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}SearchResponse')
+            result = browseresponse.find('Result')
+            NumberReturned = browseresponse.find('NumberReturned').text
+            TotalMatches = browseresponse.find('TotalMatches').text
+            
+            if NumberReturned == 0:
+                break; #sanity check
+                
+            if itemsleft == -1:
+                itemsleft = int(TotalMatches)
+            
+            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+               
+            for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
+                title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
+                itemid = item.get('id')
+                icon = None
+                albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+                if albumartUri != None:
+                    icon = albumartUri.text  
+                res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
+                subtitleurl = None
+                duration_text = ''
+                video_width = 0
+                video_height = 0
+                aspect = 0.0
+                
+                if res != None:
+                    itemurl = res.text 
+                    subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
+                    duration_text = res.get('duration')
+                    if duration_text == None:
+                        duration_text = '00:00:00.000'
+                    resolution_text = res.get('resolution')
+                    if resolution_text != None:
+                        mid = resolution_text.find('x')
+                        video_width = int(resolution_text[0:mid])
+                        video_height = int(resolution_text[mid + 1:])
+                        aspect = float(float(video_width) / float(video_height))
+                        
+                backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
+                if backdropurl != None:
+                    backdropurl = backdropurl.text
+                
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
+                if subtitleurl != None:
+                    li.setSubtitles([subtitleurl])
+                    
+                genre_text = ''
+                genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
+                if genre != None:
+                    genre_text = genre.text
+                    
+                aired_text = ''
+                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')
+                if aired != None:
+                    aired_text = aired.text
+                  
+                album_text = ''
+                album = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}album')
+                if album != None:
+                    album_text = album.text
+                  
+                release_year_text = ''
+                release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
+                if release_year != None:
+                    release_year_text = release_year.text
+                
+                description_text = ''
+                description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
+                if description != None and description.text != None:
+                    description_text = description.text
+                    
+                artist_text = ''
+                artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
+                if artist != None:
+                    artist_text = artist.text
+                    
+                creator_text = ''
+                creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
+                if creator != None:
+                    creator_text = creator.text
+                    
+                lastplayed_text = ''
+                lastplayed = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}lastplayed')
+                if lastplayed != None:
+                    lastplayed_text = lastplayed.text
+                   
+                tagline_text = ''
+                tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
+                if tagline != None:
+                    tagline_text = tagline.text
+                    
+                categories_text = 'movie'
+                categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
+                if categories != None and categories.text != None:
+                    categories_text = categories.text
+                    if categories_text == 'TV show':
+                        categories_text = 'episode'
+                        contentType = 'episodes'
+                    elif categories_text == 'Movie':
+                        categories_text = 'movie'
+                        contentType = 'movies'
+                        
+                episode_text = ''
+                episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
+                if episode != None:
+                    episode_text = episode.text
+                 
+                season_text = ''
+                season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
+                if season != None:
+                    season_text = season.text
+                 
+                playcount = 0
+                playcount_text = ''
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
+                if playcountElem != None:
+                    playcount_text = playcountElem.text
+                    playcount = int(playcount_text)
+                    
+                last_played_text = ''
+                last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
+                if last_played != None:
+                    last_played_text = last_played.text
+                        
+                writer_text = ''
+                writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
+                if writer != None:
+                    writer_text = writer.text
+                       
+                content_rating_text = ''
+                content_rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}content_rating')
+                if content_rating != None:
+                    content_rating_text = content_rating.text
+              
+                imdb_text = ''
+                imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
+                if imdb != None:
+                    imdb_text = imdb.text
+                
+                
+                dcmInfo_text = ''
+                dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
+                if dcmInfo != None:
+                    dcmInfo_text = dcmInfo.text
+                    valPos = dcmInfo_text.find('BM=') + 3
+                    dcmInfo_text = dcmInfo_text[valPos:]
+              
+                rating_val = ''
+                rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
+                if rating != None:
+                    rating_val = rating.text
+                    rating_val = float(rating_val) * 2
+                    rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+                
+                video_codec_text = ''
+                video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
+                if video_codec != None:
+                    video_codec_text = video_codec.text
+                
+                audio_codec_text = ''
+                audio_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_codec')
+                if audio_codec != None:
+                    audio_codec_text = audio_codec.text
+                
+                audio_channels_text = ''
+                audio_channels = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_channels')
+                if audio_channels != None:
+                    audio_channels_text = audio_channels.text
+                
+                audio_lang = ''
+                audio_streams = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio')
+                if audio_streams != None:
+                    for stream in audio_streams.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}stream'):
+                        if stream.get('selected') == 'auto' or stream.get('selected') == 'true':
+                            audio_lang = stream.get('lang')
+                            break
+                     
+                subtitle_lang = ''
+                captions_streams = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}captions')
+                if captions_streams != None:
+                    for stream in captions_streams.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}stream'):
+                        if stream.get('selected') == 'auto' or stream.get('selected') == 'true':
+                            subtitle_lang = stream.get('language')
+                            break
+                                   
+                #mediaClass 
+                mediaClass_text = 'video'
+                mediaClass = item.find('.//{urn:schemas-sony-com:av}mediaClass')
+                if mediaClass != None:
+                    mediaClass_text = mediaClass.text
+                    if mediaClass_text == 'V':
+                        mediaClass_text = 'video'
+                    if mediaClass_text == 'M':
+                        mediaClass_text = 'music'
+                    if mediaClass_text == 'P':
+                        mediaClass_text = 'picture'
+                        
+                if mediaClass_text == 'video':  
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
+                    
+                    info = {
+                        'id': '1234',
+                        'duration': getSeconds(duration_text),
+                        'genre': genre_text,
+                        'year': release_year_text,
+                        'title': title,
+                        'plot': description_text,
+                        'director': creator_text,
+                        'tagline': tagline_text,
+                        'writer': writer_text,
+                        'cast': artist_text.split(','),
+                        'artist': artist_text.split(','),
+                        'rating': rating_val,
+                        'code': imdb_text,
+                        'mediatype': categories_text.split(','),
+                        'season': season_text,
+                        'episode': episode_text,
+                        'lastplayed': lastplayed_text,
+                        'aired': aired_text,
+                        'mpaa':content_rating_text,
+                        'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
@@ -457,15 +760,94 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft < 500:
                 requestedCount = itemsleft
                
-            content = browse.Browse(url[0], objectID, 'BrowseDirectChildren', offset, requestedCount)
+            content = browse.Search(contenturl, objectID, term, offset, requestedCount)
     except Exception as e:
         printexception()
         pass
-    xbmcplugin.endOfDirectory(addon_handle)
-    
     xbmcplugin.setContent(addon_handle, contentType)
     setViewMode(contentType)
+    xbmcplugin.endOfDirectory(addon_handle)
+    
+    xbmc.executebuiltin("Dialog.Close(busydialog)")
 
+def getUPnPClass():
+
+    upnpClass = ''
+    if addon.getSetting('search_video') == 'true':
+        upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
+
+    if addon.getSetting('search_music') == 'true':
+        if len(upnpClass) != 0:
+            upnpClass += " or "
+
+        upnpClass += "upnp:class derivedfrom &quot;object.item.audioItem&quot;"
+
+    if addon.getSetting('search_photo') == 'true':
+        if len(upnpClass) != 0:
+            upnpClass += " or "
+            
+        upnpClass += "upnp:class derivedfrom &quot;object.item.imageItem&quot;"
+    
+    return upnpClass
+
+def getSearchCriteria(term):
+
+    searchCriteria = ""
+    
+    if addon.getSetting('search_title') == 'true':
+        searchCriteria += "(dc:title=&quot;" + term + "&quot;"
+
+    if addon.getSetting('search_album') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "upnp:album=&quot;" + term + "&quot;"
+
+    if addon.getSetting('search_artist') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "upnp:artist=&quot;" + term + "&quot;"
+
+    if addon.getSetting('search_tagline') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "dc:description=&quot;" + term + "&quot;"
+    
+    if addon.getSetting('search_description') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "upnp:longDescription=&quot;" + term + "&quot;"
+    
+    if addon.getSetting('search_keywords') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "keywords=&quot;" + term + "&quot;"
+
+    return searchCriteria
+    
+def promptSearch():
+    search_window = search.PopupWindow()
+    search_window.doModal()
+    term = search_window.term
+    isCancelled = search_window.isCancelled
+    del search_window
+    
+    if isCancelled == False:
+        xbmc.executebuiltin("ActivateWindow(busydialog)")
+        upnpClass = getUPnPClass()
+        searchCriteria = getSearchCriteria(term)
+        
+        searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"
+        
+        url = args.get('contentdirectory', '')
+        
+        content = browse.Search(url[0], '0', searchCriteria, 0, 500)
+        handleSearch(content, url[0], '0', searchCriteria)
+    
 mode = args.get('mode', 'none')
 
 refresh = args.get('refresh', 'False')
@@ -484,6 +866,9 @@ elif mode[0] == 'server':
     content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500)
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
+elif mode[0] == 'search':
+    promptSearch()
+    
 xbmcplugin.setPluginFanart(addon_handle, addon.getAddonInfo("path") + 'fanart.jpg', color2='0xFFFF3300')
 
 def start():

@@ -36,3 +36,38 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
         pass
         
     return response
+
+def Search(url, objectID, searchCriteria, startingIndex, requestedCount):
+
+    
+    headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Search"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
+    body = '''<?xml version="1.0"?>
+    <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <s:Body>
+    <u:Search xmlns:u="urn:schemas-upnp-org:service:ContentDirectory:1">
+     <ContainerID>'''
+    body += objectID
+    body += '''</ContainerID>
+      <SearchCriteria>'''
+    body += searchCriteria
+    body += '''</SearchCriteria>
+      <Filter>*,cva_richmetadata,cva_bookmark</Filter>
+      <StartingIndex>'''
+    body += str(startingIndex)
+    body += '''</StartingIndex>
+      <RequestedCount>'''
+    body += str(requestedCount)
+    body += '''</RequestedCount>
+      <SortCriteria></SortCriteria>
+    </u:Search>
+  </s:Body>
+</s:Envelope>'''
+    req = urllib2.Request(url, body, headers)
+    response = ''
+    try:
+        response = urllib2.urlopen(req, timeout=60).read()
+    except Exception as e:
+        xbmc.log( 'EXCEPTION IN Search: ' + str(e))
+        pass
+        
+    return response

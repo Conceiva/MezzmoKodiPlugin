@@ -1,3 +1,7 @@
+0.0.0.7:
+- Added support for search
+- Limited forced views to confluence skin
+
 0.0.0.4:
 - Added Setting for top level folder view mode
 - Added video stream information (codec, channels, aspect ratio)
