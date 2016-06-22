@@ -2,7 +2,7 @@ import urllib2
 import urllib
 import xbmc
 
-def Browse(url, objectID, flag, startingIndex, requestedCount):
+def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
 
     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
@@ -22,8 +22,9 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
     body += '''</StartingIndex>
       <RequestedCount>'''
     body += str(requestedCount)
-    body += '''</RequestedCount>
-      <SortCriteria></SortCriteria>
+    body += '''</RequestedCount><CVA_PIN>'''
+    body += pin
+    body += '''</CVA_PIN><SortCriteria></SortCriteria>
     </u:Browse>
   </s:Body>
 </s:Envelope>'''
@@ -37,7 +38,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount):
         
     return response
 
-def Search(url, objectID, searchCriteria, startingIndex, requestedCount):
+def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
 
     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Search"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
@@ -57,8 +58,9 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount):
     body += '''</StartingIndex>
       <RequestedCount>'''
     body += str(requestedCount)
-    body += '''</RequestedCount>
-      <SortCriteria></SortCriteria>
+    body += '''</RequestedCount><CVA_PIN>'''
+    body += pin
+    body += '''</CVA_PIN><SortCriteria></SortCriteria>
     </u:Search>
   </s:Body>
 </s:Envelope>'''

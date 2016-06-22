@@ -168,4 +168,16 @@ msgctxt "#30360"
 msgid "Title"
 msgstr ""
 
+msgctxt "#30361"
+msgid "Selected Skin"
+msgstr ""
+
+msgctxt "#30362"
+msgid "Content Control"
+msgstr ""
+
+msgctxt "#30363"
+msgid "PIN to unlock all content"
+msgstr ""
+
 

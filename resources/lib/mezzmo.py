@@ -11,6 +11,7 @@ import re
 import xml.etree.ElementTree as ET
 import urlparse
 import browse
+import contentrestriction
 import search
 import xbmc
 import linecache
@@ -138,7 +139,29 @@ def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
     
-    if current_skin_name == 'skin.confluence' and addon.getSetting(contentType + '_view_mode') != "0":
+    if current_skin_name == 'skin.aeon.nox.5':
+        aeon_nox_views = { 'List'       : 50  ,
+                       'InfoWall'   : 51  ,
+                       'Landscape'  : 52  ,
+                       'ShowCase1'  : 53  ,
+                       'ShowCase2'  : 54  ,
+                       'TriPanel'   : 55  ,
+                       'Posters'    : 56  ,
+                       'Shift'      : 57  ,
+                       'BannerWall' : 58  ,
+                       'Logo'       : 59  ,
+                       'Wall'       : 500 ,
+                       'LowList'    : 501 ,
+                       'Episode'    : 502 ,
+                       'Wall'       : 503 ,
+                       'BigList'    : 510 }
+        
+        view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
+        if view_mode != 'Default':
+            selected_mode = aeon_nox_views[view_mode]
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+        
+    elif addon.getSetting(contentType + '_view_mode') != "0":
        try:
            if addon.getSetting(contentType + '_view_mode') == "1": # List
                xbmc.executebuiltin('Container.SetViewMode(502)')
@@ -305,12 +328,17 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     season_text = season.text
                  
                 playcount = 0
+                playcount_text = ''
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
+                
+                if playcountElem != None:
+                    playcount_text = playcountElem.text
+                    playcount = int(playcount_text)
+                 
                 last_played_text = ''
                 last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
                 if last_played != None:
                     last_played_text = last_played.text
-                    if last_played_text != '0':
-                        playcount = 1
                         
                 writer_text = ''
                 writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
@@ -461,8 +489,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
             requestedCount = 500
             if itemsleft < 500:
                 requestedCount = itemsleft
-               
-            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount)
+            
+            pin = addon.getSetting('content_pin')   
+            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)
     except Exception as e:
         printexception()
         pass
@@ -600,6 +629,7 @@ def handleSearch(content, contenturl, objectID, term):
                 playcount = 0
                 playcount_text = ''
                 playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
+                
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
@@ -759,8 +789,9 @@ def handleSearch(content, contenturl, objectID, term):
             requestedCount = 500
             if itemsleft < 500:
                 requestedCount = itemsleft
-               
-            content = browse.Search(contenturl, objectID, term, offset, requestedCount)
+            
+            pin = addon.getSetting('content_pin')   
+            content = browse.Search(contenturl, objectID, term, offset, requestedCount, pin)
     except Exception as e:
         printexception()
         pass
@@ -795,7 +826,7 @@ def getSearchCriteria(term):
     searchCriteria = ""
     
     if addon.getSetting('search_title') == 'true':
-        searchCriteria += "(dc:title=&quot;" + term + "&quot;"
+        searchCriteria += "dc:title=&quot;" + term + "&quot;"
 
     if addon.getSetting('search_album') == 'true':
         if len(searchCriteria) != 0:
@@ -850,7 +881,8 @@ def promptSearch():
         
         url = args.get('contentdirectory', '')
         
-        content = browse.Search(url[0], '0', searchCriteria, 0, 500)
+        pin = addon.getSetting('content_pin')
+        content = browse.Search(url[0], '0', searchCriteria, 0, 500, pin)
         handleSearch(content, url[0], '0', searchCriteria)
     
 mode = args.get('mode', 'none')
@@ -867,8 +899,18 @@ elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
     objectID = args.get('objectID', '0')
     parentID = args.get('parentID', '0')
+    pin = addon.getSetting('content_pin')
     
-    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500)
+    if parentID[0] == '0':
+        import socket
+        try:
+            ip = socket.gethostbyname(socket.gethostname())
+        except Exception as e:
+            xbmc.log("gethostbyname exception: " + str(e))
+            pass
+        contentrestriction.SetContentRestriction(url[0], ip, 'true', pin)
+        
+    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500, pin)
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
 elif mode[0] == 'search':

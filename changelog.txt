@@ -1,3 +1,8 @@
+0.0.0.8:
+- Added support for setting views from Aeon Nox Skin
+- Added content rating PIN
+- Fixed playcount value being set
+
 0.0.0.7:
 - Added support for search
 - Limited forced views to confluence skin

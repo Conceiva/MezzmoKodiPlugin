@@ -3,6 +3,8 @@ import time
 import xbmcaddon
 from common import GLOBAL_SETUP  #Needed first to setup import locations
 import bookmark
+import socket
+import contentrestriction
 
 pos = 0
 file = ''
@@ -14,7 +16,7 @@ def settings(setting, value = None):
         addon.setSetting(setting, value)
     else:
         return addon.getSetting(setting)
-        
+   
 class XBMCPlayer(xbmc.Player):
     
     def __init__(self, *args):
@@ -41,7 +43,8 @@ class XBMCPlayer(xbmc.Player):
         objectID = file[end:]
         xbmc.log("Playback stopped at " + str(pos) + " in " + objectID)
         bookmark.SetBookmark(contenturl, objectID, str(pos))
-        
+
+             
 player = XBMCPlayer()
  
 monitor = xbmc.Monitor()
@@ -52,4 +55,15 @@ while True:
         pos = long(xbmc.Player().getTime())
         
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
+        pin = settings('content_pin')
+        settings('content_pin', '')
+        url = settings('contenturl')
+        ip = ''
+        try:
+            ip = socket.gethostbyname(socket.gethostname())
+        except Exception as e:
+            xbmc.log("gethostbyname exception: " + str(e))
+            pass
+        xbmc.log("SetContentRestriction Off: " + url)
+        contentrestriction.SetContentRestriction(url, ip, 'false', pin)
         break # Abort was requested while waiting. Exit the while loop.
