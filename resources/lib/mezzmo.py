@@ -12,7 +12,6 @@ import xml.etree.ElementTree as ET
 import urlparse
 import browse
 import contentrestriction
-import search
 import xbmc
 import linecache
 import sys
