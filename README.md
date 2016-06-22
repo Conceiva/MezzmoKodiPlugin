@@ -10,3 +10,5 @@ Features:
 - Default view modes for Movies, TV Shows and others
 - Play music
 - View Photos
+
+<img src="http://www.conceiva.com/images/moviedetails.png" width="100%">
