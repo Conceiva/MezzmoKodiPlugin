@@ -902,6 +902,7 @@ elif mode[0] == 'server':
     
     if parentID[0] == '0':
         import socket
+        ip = ''
         try:
             ip = socket.gethostbyname(socket.gethostname())
         except Exception as e:
