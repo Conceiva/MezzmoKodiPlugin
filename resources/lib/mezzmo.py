@@ -1,4 +1,5 @@
 import sys
+import pickle
 import xbmcgui
 import xbmcplugin
 import ssdp
@@ -47,10 +48,17 @@ def printexception():
     line = linecache.getline(filename, lineno, f.f_globals)
     xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(), exc_obj))
 
-def listServers():
+def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
     
-    servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+    saved_servers = addon.getSetting('saved_servers')
+    if len(saved_servers) == 0 or force:
+        servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+        # save the servers for faster loading
+        addon.setSetting('saved_servers', pickle.dumps(servers))
+    else:
+        servers = pickle.loads(saved_servers)
+        
     
     onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
 
@@ -128,7 +136,7 @@ def listServers():
             printexception()
             pass
     setViewMode('servers')
-    xbmcplugin.endOfDirectory(addon_handle)
+    xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
@@ -214,6 +222,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
                 
                 searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
                 li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
@@ -857,6 +866,12 @@ def getSearchCriteria(term):
 
         searchCriteria += "keywords=&quot;" + term + "&quot;"
 
+    if addon.getSetting('search_creator') == 'true':
+        if len(searchCriteria) != 0:
+            searchCriteria += " or "
+
+        searchCriteria += "creator=&quot;" + term + "&quot;"
+
     return searchCriteria
     
 def promptSearch():
@@ -889,10 +904,10 @@ mode = args.get('mode', 'none')
 refresh = args.get('refresh', 'False')
 
 if refresh[0] == 'True':
-    xbmc.executebuiltin('Container.Refresh')
+    listServers(True)
     
 if mode[0] == 'serverlist':
-    listServers()
+    listServers(False)
 
 elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
@@ -920,5 +935,5 @@ xbmcplugin.setPluginFanart(addon_handle, addon.getAddonInfo("path") + 'fanart.jp
 
 def start():
     if mode == 'none':
-        listServers()
+        listServers(False)
 

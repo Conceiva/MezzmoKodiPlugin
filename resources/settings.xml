@@ -37,5 +37,6 @@
 	<setting id="search_tagline" type="bool" label="30357" default="true"/>
 	<setting id="search_description" type="bool" label="30358" default="true"/>
 	<setting id="search_keywords" type="bool" label="30359" default="true"/>
+	<setting id="search_creator" type="bool" label="30364" default="true"/>
     </category>
 </settings>
