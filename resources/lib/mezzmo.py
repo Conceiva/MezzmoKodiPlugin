@@ -215,8 +215,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
-                title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text
+                title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
+                
+                description_text = ''
+                description = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
+                if description != None and description.text != None:
+                    description_text = description.text
+                    
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
@@ -224,6 +230,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
                 
+                mediaClass_text = 'video'
+                info = {
+                        'plot': description_text,
+                }
+                li.setInfo(mediaClass_text, info)
+                    
                 searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
                 li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
                 
