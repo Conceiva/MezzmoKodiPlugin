@@ -10,14 +10,14 @@ def SetContentRestriction(url, ip, enabled, pin):
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
   <s:Body>
     <u:CVA_SetContentRestriction xmlns:u="urn:schemas-upnp-org:service:ContentDirectory:1">
-     <enabled>'''
+     <PIN>'''
+    body += pin
+    body += '''</PIN><IP>'''
+    body += ip
+    body += '''</IP><enabled>'''
     body += enabled
     body += '''</enabled>
-      <IP>'''
-    body += ip
-    body += '''</IP><PIN>'''
-    body += pin
-    body += '''</PIN><SortCriteria></SortCriteria>
+      <SortCriteria></SortCriteria>
     </u:CVA_SetContentRestriction>
   </s:Body>
 </s:Envelope>'''
