@@ -506,8 +506,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
             
             # get the next items
             offset = int(TotalMatches) - itemsleft
-            requestedCount = 500
-            if itemsleft < 500:
+            requestedCount = 1000
+            if itemsleft < 1000:
                 requestedCount = itemsleft
             
             pin = addon.getSetting('content_pin')   
@@ -806,8 +806,8 @@ def handleSearch(content, contenturl, objectID, term):
             
             # get the next items
             offset = int(TotalMatches) - itemsleft
-            requestedCount = 500
-            if itemsleft < 500:
+            requestedCount = 1000
+            if itemsleft < 1000:
                 requestedCount = itemsleft
             
             pin = addon.getSetting('content_pin')   
@@ -908,7 +908,7 @@ def promptSearch():
         url = args.get('contentdirectory', '')
         
         pin = addon.getSetting('content_pin')
-        content = browse.Search(url[0], '0', searchCriteria, 0, 500, pin)
+        content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
         handleSearch(content, url[0], '0', searchCriteria)
     
 mode = args.get('mode', 'none')
@@ -937,7 +937,7 @@ elif mode[0] == 'server':
             pass
         contentrestriction.SetContentRestriction(url[0], ip, 'true', pin)
         
-    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 500, pin)
+    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
 elif mode[0] == 'search':
