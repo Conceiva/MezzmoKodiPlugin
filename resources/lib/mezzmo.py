@@ -187,8 +187,8 @@ def setViewMode(contentType):
            elif addon.getSetting(contentType + '_view_mode') == "8": # Media info 3
                xbmc.executebuiltin('Container.SetViewMode(515)')
        except:
-           addon_log("SetViewMode Failed: "+addon.getSetting('_view_mode'))
-           addon_log("Skin: "+xbmc.getSkinDir())
+           xbmc.log("SetViewMode Failed: "+addon.getSetting('_view_mode'))
+           xbmc.log("Skin: "+xbmc.getSkinDir())
 
 
 def handleBrowse(content, contenturl, objectID, parentID):
@@ -515,8 +515,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
     except Exception as e:
         printexception()
         pass
-    xbmcplugin.setContent(addon_handle, contentType)
     setViewMode(contentType)
+    if contentType == 'top' or contentType == 'folders':
+        contentType = ''
+    xbmcplugin.setContent(addon_handle, contentType)
     xbmcplugin.endOfDirectory(addon_handle)
     
 
