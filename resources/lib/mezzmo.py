@@ -67,8 +67,11 @@ def listServers(force):
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
+    xbmc.log('Mezzmo server search: ' + str(len(servers)), xbmc.LOGNOTICE)
     for server in servers:
         url = server.location
+        
+        xbmc.log('Mezzmo server url: ' + url, xbmc.LOGNOTICE)
         
         try:
             response = urllib2.urlopen(url)
@@ -146,7 +149,7 @@ def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
     
-    if current_skin_name == 'skin.aeon.nox.5':
+    if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeon_nox_views = { 'List'       : 50  ,
                        'InfoWall'   : 51  ,
                        'Landscape'  : 52  ,
@@ -161,6 +164,28 @@ def setViewMode(contentType):
                        'LowList'    : 501 ,
                        'Episode'    : 502 ,
                        'Wall'       : 503 ,
+                       'BigList'    : 510 }
+        
+        view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
+        if view_mode != 'Default':
+            selected_mode = aeon_nox_views[view_mode]
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            
+    elif current_skin_name == 'skin.aeon.madnox':
+        aeon_nox_views = { 'List'       : 50  ,
+                       'InfoWall'   : 51  ,
+                       'Landscape'  : 503  ,
+                       'ShowCase1'  : 501  ,
+                       'ShowCase2'  : 501  ,
+                       'TriPanel'   : 52  ,
+                       'Posters'    : 510  ,
+                       'Shift'      : 57  ,
+                       'BannerWall' : 508  ,
+                       'Logo'       : 59  ,
+                       'Wall'       : 500 ,
+                       'LowList'    : 501 ,
+                       'Episode'    : 514 ,
+                       'Wall'       : 500 ,
                        'BigList'    : 510 }
         
         view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
