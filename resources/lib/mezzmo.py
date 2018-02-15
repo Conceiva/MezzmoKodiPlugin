@@ -193,6 +193,29 @@ def setViewMode(contentType):
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
         
+    elif current_skin_name == 'skin.estuary':
+        estuary_views = { 'List'       : 50  ,
+                       'InfoWall'   : 54  ,
+                       'Landscape'  : 502  ,
+                       'ShowCase1'  : 53  ,
+                       'ShowCase2'  : 54  ,
+                       'TriPanel'   : 50  ,
+                       'Posters'    : 51  ,
+                       'Shift'      : 52  ,
+                       'BannerWall' : 502  ,
+                       'Logo'       : 50  ,
+                       'Wall'       : 500 ,
+                       'LowList'    : 55 ,
+                       'Episode'    : 50 ,
+                       'Wall'       : 500 ,
+                       'BigList'    : 501 }
+        
+        view_mode = addon.getSetting(contentType + '_view_mode' + '_estuary')
+        if view_mode != 'Default':
+		
+            selected_mode = estuary_views[view_mode]
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+
     elif addon.getSetting(contentType + '_view_mode') != "0":
        try:
            if addon.getSetting(contentType + '_view_mode') == "1": # List
