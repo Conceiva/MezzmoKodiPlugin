@@ -18,12 +18,66 @@ import linecache
 import sys
 import datetime
 import time
+import json
+import os
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 
+def get_installedversion():
+    # retrieve current installed version
+    json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
+    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    json_query = json.loads(json_query)
+    version_installed = []
+    if json_query.has_key('result') and json_query['result'].has_key('version'):
+        version_installed  = json_query['result']['version']['major']
+    return str(version_installed)
+    
+installed_version = get_installedversion()
+
+def getDatabaseName():
+    if installed_version == '10':
+        return "MyVideos37.db"
+    elif installed_version == '11':
+        return "MyVideos60.db"
+    elif installed_version == '12':
+        return "MyVideos75.db"
+    elif installed_version == '13':
+        return "MyVideos78.db"
+    elif installed_version == '14':
+        return "MyVideos90.db"
+    elif installed_version == '15':
+        return "MyVideos93.db"
+    elif installed_version == '16':
+        return "MyVideos99.db"
+    elif installed_version == '17':
+        return "MyVideos107.db"
+    elif installed_version == '18':
+        return "MyVideos109.db"
+        
+    return ""
+
+def writeActorsToDb(actors, imageSearchUrl):
+    actorlist = actors.split(', ')
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())
+    db = sqlite.connect(DB)
+    
+    for actor in actorlist:
+        xbmc.log('actor name: ' + actor, xbmc.LOGNOTICE)  
+        f = { 'imagesearch' : actor}
+        searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
+        db.execute('INSERT OR REPLACE into actor (name, art_urls) values ("' + actor + '", "' + searchUrl + '" )' )
+    db.commit()
+    db.close() 
+    
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
     td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
@@ -78,7 +132,7 @@ def listServers(force):
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
-	    
+        
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
             manufacturer = device.find('manufacturer').text
@@ -212,7 +266,7 @@ def setViewMode(contentType):
         
         view_mode = addon.getSetting(contentType + '_view_mode' + '_estuary')
         if view_mode != 'Default':
-		
+        
             selected_mode = estuary_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
 
@@ -243,6 +297,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1
     addon.setSetting('contenturl', contenturl)
+    
+    xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
+      
+    
     
     try:
         while True:
@@ -329,6 +387,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
                     
+                trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
+                if trailerurl != None:
+                    trailerurl = trailerurl.text
+                
                 genre_text = ''
                 genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
                 if genre != None:
@@ -353,12 +415,19 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
-                    
+                      
+                imageSearchUrl = ''
+                imageSearchUrl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imageSearchUrl')
+                if imageSearchUrl != None:
+                    imageSearchUrl = imageSearchUrl.text
+                   
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
                     artist_text = artist.text
                     
+                #writeActorsToDb(artist_text, imageSearchUrl) 
+				
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
@@ -505,6 +574,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'aired': aired_text,
                         'mpaa':content_rating_text,
                         'playcount':playcount,
+                        'trailer':trailerurl,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
