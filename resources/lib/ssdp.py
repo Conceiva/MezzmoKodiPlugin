@@ -15,7 +15,6 @@
 import socket
 import httplib
 import StringIO
-import xbmc
 
 class SSDPResponse(object):
     class _FakeSocket(StringIO.StringIO):
@@ -49,9 +48,6 @@ def discover(service, timeout=5, retries=1):
             try:
                 response = SSDPResponse(sock.recv(1024))
                 responses[response.location] = response
-                
-                xbmc.log('Mezzmo server response: ' + response.location, xbmc.LOGNOTICE)
             except socket.timeout:
-                xbmc.log('discover timeout', xbmc.LOGNOTICE)
                 break
     return responses.values()

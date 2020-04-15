@@ -188,3 +188,18 @@ msgctxt "#30365"
 msgid "Music View"
 msgstr ""
 
+msgctxt "#30366"
+msgid "Cache Mezzmo images"
+msgstr ""
+
+msgctxt "#30367"
+msgid "Kodi DB actor information copy"
+msgstr ""
+
+msgctxt "#30368"
+msgid "Kodi DB clear on startup"
+msgstr ""
+
+msgctxt "#30369"
+msgid "Add TV Episodes to Kodi DB"
+msgstr ""

@@ -56,28 +56,186 @@ def getDatabaseName():
     elif installed_version == '17':
         return "MyVideos107.db"
     elif installed_version == '18':
-        return "MyVideos109.db"
-        
-    return ""
+        return "MyVideos116.db"
+    elif installed_version == '19':
+        return "MyVideos116.db"
+       
+    return ""   
 
-def writeActorsToDb(actors, imageSearchUrl):
+def kodiCleanDB():
+    if addon.getSetting('kodiclean') == 'true':     #  clears Kodi actor DB if enabled in setings
+        try:
+            from sqlite3 import dbapi2 as sqlite
+        except:
+            from pysqlite2 import dbapi2 as sqlite
+                      
+        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+        db = sqlite.connect(DB)
+
+        db.execute('DELETE FROM art;',);
+        db.execute('DELETE FROM movie;',);
+        db.execute('DELETE FROM files;',);
+        db.execute('DELETE FROM actor;',);
+        db.execute('DELETE FROM actor_link;',);
+        db.execute('DELETE FROM streamdetails;',);
+    
+        xbmc.log('Kodi actor database cleared: ', xbmc.LOGNOTICE)
+        db.commit()
+        db.close()
+
+def writeActorsToDb(actors, movieId, imageSearchUrl):
     actorlist = actors.split(', ')
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
-    
     for actor in actorlist:
-        xbmc.log('actor name: ' + actor, xbmc.LOGNOTICE)  
+        #xbmc.log('actor name: ' + actor.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)  
         f = { 'imagesearch' : actor}
         searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
-        db.execute('INSERT OR REPLACE into actor (name, art_urls) values ("' + actor + '", "' + searchUrl + '" )' )
+        #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)
+        cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
+        actortuple = cur.fetchone()
+        cur.close()
+        if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
+            db.execute('INSERT into actor (name, art_urls) values ("' + actor + '", "' + searchUrl + '" )' )
+            cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
+            actortuple = cur.fetchone()
+            cur.close()
+        if actortuple:                 #  Insert actor to movie link in actor link table
+            actornumb = actortuple[0] 
+            db.execute('INSERT into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', (actornumb, movieId, 'movie',))
+            #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
     db.commit()
-    db.close() 
+    db.close()       
+
+def deleteTexturesCache(contenturl):    # do not cache texture images if caching disabled
+    if addon.getSetting('caching') == 'false':    
+        try:
+            from sqlite3 import dbapi2 as sqlite
+        except:
+            from pysqlite2 import dbapi2 as sqlite
+                      
+        DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
+        db = sqlite.connect(DB)
     
+        imageDeleteURL = '"' + contenturl.replace('ContentDirectory/control','content/%"')
+        delete_query = 'DELETE FROM texture WHERE url LIKE ' + imageDeleteURL 
+        xbmc.log('Image delete query: ' + delete_query, xbmc.LOGNOTICE)
+    
+        db.execute(delete_query)        # delete only cached images from Mezzmo server
+        xbmc.log('Texture rows deleted: ', xbmc.LOGNOTICE)
+        db.commit()
+        db.close()       
+
+def checkDBpath(itemurl, mtitle):           #  Check if video path already exists in Kodi databae
+    rtrimpos = itemurl.rfind('/')
+    pathcheck = itemurl[:rtrimpos+1]
+    filecheck = itemurl[rtrimpos+1:]
+    #xbmc.log('Item path: ' + pathcheck, xbmc.LOGNOTICE)
+    #xbmc.log('Item file: ' + filecheck, xbmc.LOGNOTICE)
+
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    db = sqlite.connect(DB)
+    
+    curf = db.execute('SELECT idFile FROM movie WHERE c00=?',(mtitle,))  # Check if movie exists in Kodi DB
+    filetuple = curf.fetchone()
+
+    if not filetuple:                # if doesn't exist insert into Kodi DB and return file key value
+        curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,))  #  Check path table
+        pathtuple = curp.fetchone()
+    
+        if not pathtuple:             # if path doesn't exist insert into Kodi DB and return path key value
+            db.execute('INSERT into PATH (strpath) values ("' + pathcheck + '")')
+            curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,)) 
+            pathtuple = curp.fetchone()
+        pathnumb = pathtuple[0]
+
+        db.execute('INSERT into FILES (idPath, strFilename) values ("' + str(pathnumb) + '", "' + filecheck + '")')
+        cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
+        filetuple = cur.fetchone()
+        filenumb = filetuple[0] 
+    else:                            # Return 0 if file already exists   
+        filenumb = 0
+    
+    db.commit()
+    db.close()  
+    return(filenumb) 
+
+def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, mrating, micon):  
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    db = sqlite.connect(DB)
+
+    #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+    mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
+    if mrating:
+        mratings = "Rated " + mrating
+    else:
+        mratings = " "         
+    db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating))  #  Add movie information
+    #db.commit()                                                  
+    #cur.close()
+    cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
+    movietuple = cur.fetchone()
+    movienumb = movietuple[0]                                    # get new movie id
+    
+    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
+    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+
+    db.commit()
+    db.close()  
+    return(movienumb)
+
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels):  #  Add stream information
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    db = sqlite.connect(DB)
+
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, iVideoHeight) values (?, ?, ?, ?, ? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, mvheight))
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
+
+    db.commit()
+    db.close()  
+
+def displayTitles(mtitle):   #  Remove common Mezzmo Display Title variables
+    if len(mtitle) >= 8:
+        if mtitle[4] == '-' and int(mtitle[:3]) <= 999:    # check for Mezzmo %FILECOUNTER% in video title
+            dtitle = mtitle[6:len(mtitle)]
+        elif mtitle[len(mtitle)-6] == '(' and mtitle[len(mtitle)-1] == ')' and int(mtitle[-5:-1]) >= 1900 and mtitle[len(mtitle)-8] != '-':
+            dtitle = mtitle[:-7]                        # check for Mezzmo %YEAR% in video title
+        else:
+            dtitle = mtitle                             # else leave unchanged    
+    else:
+        dtitle = mtitle
+
+    return(dtitle)    
+
+def tvChecker(mseason, mepisode):      # add TV shows to Kodi DB if enabled and is TV show
+    tvcheck = 1
+    if int(mseason) > 0  and int(mepisode) > 0 and addon.getSetting('koditv') == 'false':
+        tvcheck = 0 
+    #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGNOTICE)
+
+    return(tvcheck)
+
+
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
     td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
@@ -194,6 +352,8 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
+    deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled. 
+    kodiCleanDB()                     # Call function to delete Kodi actor database if user enabled. 
     
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
@@ -299,9 +459,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     addon.setSetting('contenturl', contenturl)
     
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
-      
-    
-    
+        
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -328,10 +486,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 description = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
-                    
+    
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
+
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
@@ -424,10 +583,21 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    artist_text = artist.text
-                    
-                #writeActorsToDb(artist_text, imageSearchUrl) 
-				
+                    artist_text = artist.text.encode('utf-8', 'ignore')
+                    # writeActorsToDb(artist_text, imageSearchUrl) 
+
+                actor_list = ''
+                cast_dict = []    # Added cast & thumbnail display from Mezzmo server
+                cast_dict_keys = ['name','thumbnail']
+                actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
+                if actors != None:
+                    actor_list = actors.text.encode('utf-8', 'ignore').split(',')
+                    for a in actor_list:                  
+                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
+                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
+                        new_record = [ a.strip() , actorSearchUrl]
+                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
+
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
@@ -511,6 +681,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
                 if video_codec != None:
                     video_codec_text = video_codec.text
+                if video_codec_text == 'vc1':     #  adjust for proper Kodi codec display
+                    video_codec_text = 'vc-1'
                 
                 audio_codec_text = ''
                 audio_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_codec')
@@ -554,7 +726,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
                     
                     info = {
-                        'id': '1234',
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
@@ -567,7 +738,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'code': imdb_text,
-                        'mediatype': categories_text.split(','),
+                        'mediatype': categories_text.split(',')[0],  # updated - Kodi can only accept 1 media type
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': lastplayed_text,
@@ -588,7 +759,22 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    
+                    if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
+                        li.setCast(cast_dict)                
+
+                    tvcheckval = tvChecker(season_text, episode_text)     # Is TV show and user enabled Kodi DB adding
+                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled                     
+                        mtitle = displayTitles(title) 
+                        filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
+                        durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
+                        if filekey > 0:                           #  If no file add movie, strem info and metadata
+                            writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
+                            movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
+                            if artist != None:                    #  Add actor information to new movie
+                                artist_text = artist.text.encode('utf-8', 'ignore')
+                                writeActorsToDb(artist_text, movieId, imageSearchUrl) 
+                            #xbmc.log('The movie video info is: ' + str(audio_codec_text), xbmc.LOGNOTICE) 
+
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {
@@ -620,8 +806,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             itemsleft = itemsleft - int(NumberReturned)
             if itemsleft == 0:
                 break
-            
-            
+                        
             # get the next items
             offset = int(TotalMatches) - itemsleft
             requestedCount = 1000
@@ -699,6 +884,10 @@ def handleSearch(content, contenturl, objectID, term):
                 li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
+
+                trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
+                if trailerurl != None:
+                    trailerurl = trailerurl.text
                     
                 genre_text = ''
                 genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
@@ -724,12 +913,29 @@ def handleSearch(content, contenturl, objectID, term):
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
-                    
+
+                imageSearchUrl = ''
+                imageSearchUrl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imageSearchUrl')
+                if imageSearchUrl != None:
+                    imageSearchUrl = imageSearchUrl.text
+                                      
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
                     artist_text = artist.text
-                    
+
+                actor_list = ''
+                cast_dict = []        # Added cast & thumbnail display from Mezzmo server
+                cast_dict_keys = ['name','thumbnail']
+                actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
+                if actors != None:
+                    actor_list = actors.text.encode('utf-8', 'ignore').split(',')
+                    for a in actor_list:                 
+                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
+                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  
+                        new_record = [ a.strip() , actorSearchUrl]
+                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))                  
+
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
@@ -813,6 +1019,8 @@ def handleSearch(content, contenturl, objectID, term):
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
                 if video_codec != None:
                     video_codec_text = video_codec.text
+                if video_codec_text == 'vc1':     #  adjust for proper Kodi codec display
+                    video_codec_text = 'vc-1'
                 
                 audio_codec_text = ''
                 audio_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}audio_codec')
@@ -856,7 +1064,6 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
                     
                     info = {
-                        'id': '1234',
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
@@ -869,7 +1076,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'code': imdb_text,
-                        'mediatype': categories_text.split(','),
+                        'mediatype': categories_text.split(',')[0],  # updated - Kodi can only accept 1 media type
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': lastplayed_text,
@@ -877,6 +1084,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'mpaa':content_rating_text,
                         'playcount':playcount,
                         'lastplayed': last_played_text,
+                        'trailer':trailerurl,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
@@ -890,7 +1098,21 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    
+                    if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
+                        li.setCast(cast_dict)  
+                    tvcheckval = tvChecker(season_text, episode_text)      # Is TV show and user enabled Kodi DB adding
+                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled
+                        mtitle = displayTitles(title) 
+                        filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
+                        durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
+                        if filekey > 0:                           #  If no file add movie, strem info and metadata
+                            writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
+                            movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
+                            if artist != None:                    #  Add actor information to new movie
+                                artist_text = artist.text.encode('utf-8', 'ignore')
+                                writeActorsToDb(artist_text, movieId, imageSearchUrl) 
+                            #xbmc.log('The movie video info is: ' + str(audio_codec_text), xbmc.LOGNOTICE) 
+                      
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {
@@ -922,8 +1144,7 @@ def handleSearch(content, contenturl, objectID, term):
             itemsleft = itemsleft - int(NumberReturned)
             if itemsleft == 0:
                 break
-            
-            
+                        
             # get the next items
             offset = int(TotalMatches) - itemsleft
             requestedCount = 1000

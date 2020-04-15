@@ -31,7 +31,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=180).read()
+        response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass
@@ -67,7 +67,7 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=180).read()
+        response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Search: ' + str(e))
         pass
