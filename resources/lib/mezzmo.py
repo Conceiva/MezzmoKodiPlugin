@@ -101,7 +101,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl):
         actortuple = cur.fetchone()
         cur.close()
         if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
-            db.execute('INSERT into actor (name, art_urls) values ("' + actor + '", "' + searchUrl + '" )' )
+            db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
             actortuple = cur.fetchone()
             cur.close()
@@ -771,7 +771,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
                             if artist != None:                    #  Add actor information to new movie
-                                artist_text = artist.text.encode('utf-8', 'ignore')
                                 writeActorsToDb(artist_text, movieId, imageSearchUrl) 
                             #xbmc.log('The movie video info is: ' + str(audio_codec_text), xbmc.LOGNOTICE) 
 
@@ -1109,7 +1108,6 @@ def handleSearch(content, contenturl, objectID, term):
                             writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
                             if artist != None:                    #  Add actor information to new movie
-                                artist_text = artist.text.encode('utf-8', 'ignore')
                                 writeActorsToDb(artist_text, movieId, imageSearchUrl) 
                             #xbmc.log('The movie video info is: ' + str(audio_codec_text), xbmc.LOGNOTICE) 
                       

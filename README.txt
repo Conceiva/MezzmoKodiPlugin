@@ -1,3 +1,9 @@
+v1.0.6.5
+
+-  Fixed issue with quotes and double quotes in actors / actresses names 
+   not inserting into Kodi DB.  A clear KodiDB function is needed to learn 
+   the missing actors / actresses.  
+
 v1.0.6.4
 
 -  Fixed occassional missing video artwork issue 
