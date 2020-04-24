@@ -1,6 +1,6 @@
 v1.0.6.6
 
--  Changed clear Kodi DB setting so that once it executes is changes the setting
+-  Changed clear Kodi DB setting so that once it executes it changes the setting
    automatically to disabled.  It will only run once now if you forget to manually
    disable the setting.
 -  User setting for caching of Mezzmo images now clears cached Mezzmo images when you 
