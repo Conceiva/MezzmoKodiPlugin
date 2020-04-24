@@ -82,6 +82,7 @@ def kodiCleanDB():
         xbmc.log('Kodi actor database cleared: ', xbmc.LOGNOTICE)
         db.commit()
         db.close()
+        addon.setSetting('kodiclean', 'false')   # reset back to false after clearing
 
 def writeActorsToDb(actors, movieId, imageSearchUrl):
     actorlist = actors.split(', ')
@@ -352,7 +353,6 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
-    deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled. 
     kodiCleanDB()                     # Call function to delete Kodi actor database if user enabled. 
     
 def build_url(query):
@@ -457,7 +457,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1
     addon.setSetting('contenturl', contenturl)
-    
+    deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled.  
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
         
     try:
@@ -822,13 +822,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
         contentType = ''
     xbmcplugin.setContent(addon_handle, contentType)
     xbmcplugin.endOfDirectory(addon_handle)
-    
 
 
 def handleSearch(content, contenturl, objectID, term):
     contentType = 'movies'
     itemsleft = -1
     addon.setSetting('contenturl', contenturl)
+    deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled. 
     
     try:
         while True:

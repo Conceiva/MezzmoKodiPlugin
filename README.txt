@@ -1,3 +1,11 @@
+v1.0.6.6
+
+-  Changed clear Kodi DB setting so that once it executes is changes the setting
+   automatically to disabled.  It will only run once now if you forget to manually
+   disable the setting.
+-  User setting for caching of Mezzmo images now clears cached Mezzmo images when you 
+   browse or search a playlist vs. when Mezzmo addon starts.   
+
 v1.0.6.5
 
 -  Fixed issue with quotes and double quotes in actors / actresses names 
