@@ -1,3 +1,9 @@
+v1.0.6.7
+
+-  Resolved issue where actor insertion into Kodi DB would fail if existing movie
+   name was changed in Mezzmo.
+-  Fixed minor Kodi debugging log message failurea with non-ASCII characters
+
 v1.0.6.6
 
 -  Changed clear Kodi DB setting so that once it executes it changes the setting

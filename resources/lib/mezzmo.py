@@ -93,11 +93,11 @@ def writeActorsToDb(actors, movieId, imageSearchUrl):
                       
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
-    for actor in actorlist:
-        #xbmc.log('actor name: ' + actor.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)  
+    for actor in actorlist:     
         f = { 'imagesearch' : actor}
         searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
-        #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)
+        #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)            # actor insertion debugging
+        #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGNOTICE)                 # actor insertion debugging
         cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
         actortuple = cur.fetchone()
         cur.close()
@@ -108,7 +108,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl):
             cur.close()
         if actortuple:                 #  Insert actor to movie link in actor link table
             actornumb = actortuple[0] 
-            db.execute('INSERT into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', (actornumb, movieId, 'movie',))
+            db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', (actornumb, movieId, 'movie',))
             #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
     db.commit()
     db.close()       
@@ -149,6 +149,7 @@ def checkDBpath(itemurl, mtitle):           #  Check if video path already exist
     
     curf = db.execute('SELECT idFile FROM movie WHERE c00=?',(mtitle,))  # Check if movie exists in Kodi DB
     filetuple = curf.fetchone()
+    #xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)            # Path check debugging
 
     if not filetuple:                # if doesn't exist insert into Kodi DB and return file key value
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,))  #  Check path table
@@ -767,7 +768,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
-                        if filekey > 0:                           #  If no file add movie, strem info and metadata
+                        if filekey > 0:                           #  If no file add movie, stream info and metadata
                             writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
                             if artist != None:                    #  Add actor information to new movie
@@ -1104,7 +1105,7 @@ def handleSearch(content, contenturl, objectID, term):
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
-                        if filekey > 0:                           #  If no file add movie, strem info and metadata
+                        if filekey > 0:                           #  If no file add movie, stream info and metadata
                             writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text)
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
                             if artist != None:                    #  Add actor information to new movie
