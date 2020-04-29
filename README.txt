@@ -10,7 +10,7 @@ v1.0.6.6
    automatically to disabled.  It will only run once now if you forget to manually
    disable the setting.
 -  User setting for caching of Mezzmo images now clears cached Mezzmo images when you 
-   browse or search a playlist vs. when Mezzmo addon starts.   
+   browse or search a playlist vs. when Mezzmo add-on starts.   
 
 v1.0.6.5
 
@@ -20,18 +20,18 @@ v1.0.6.5
 
 v1.0.6.4
 
--  Fixed occassional missing video artwork issue 
+-  Fixed occasional missing video artwork issue 
 
 v1.0.6.3
 
 -  Added user option to not add TV shows to Kodi database limiting
    actor searches just to movies
 -  Changed default setting to enable Kodi DB population from Mezzmo
-   now that duplictes and TV shows have been addressed.
+   now that duplicates and TV shows have been addressed.
 
 v1.0.6.2
 
--  Eliminated duplicate actor movie displays by seaching on 
+-  Eliminated duplicate actor movie displays by searching on 
    movie name instead of filename 
 -  Improved artwork matching by eliminating colons (:) in search
 
