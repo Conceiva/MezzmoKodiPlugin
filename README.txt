@@ -1,3 +1,8 @@
+v1.0.6.8
+
+-  Supports Mezzmo 6.0.4 functionality to detect duration changes to videos, as
+   well as video codec changes for reripping and similar situations.
+
 v1.0.6.7
 
 -  Resolved issue where actor insertion into Kodi DB would fail if existing movie
