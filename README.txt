@@ -3,6 +3,10 @@ v1.0.6.8
 -  Supports Mezzmo 6.0.4 functionality to detect duration changes to videos, as
    well as video codec changes for reripping and similar situations.
 
+   ***  Note that the addon will add data to the Kodi DB the first time through
+   a Mezzmo playlist after the upgrade.  This will cause the playlist to load 
+   slower.  This is a one time update.
+
 v1.0.6.7
 
 -  Resolved issue where actor insertion into Kodi DB would fail if existing movie
