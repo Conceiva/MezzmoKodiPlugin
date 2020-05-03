@@ -1,3 +1,9 @@
+v1.0.6.9
+-  Added support for Mezzmo playcounts to be copied and updated into the Kodi DB 
+   and will set the watched flag when the playcount is greater than 0.  Playcounts
+   will automatically update from Mezzmo when browsing playlists.  The watched
+   flag will be displayed when browsing by actor / actress in the movie info panel.   
+
 v1.0.6.8
 
 -  Supports Mezzmo 6.0.4 functionality to detect duration changes to videos, as

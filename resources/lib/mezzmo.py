@@ -132,7 +132,7 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         db.commit()
         db.close()       
 
-def checkDBpath(itemurl, mtitle):           #  Check if video path already exists in Kodi databae
+def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path already exists in Kodi databae
     rtrimpos = itemurl.rfind('/')
     pathcheck = itemurl[:rtrimpos+1]
     filecheck = itemurl[rtrimpos+1:]
@@ -154,19 +154,28 @@ def checkDBpath(itemurl, mtitle):           #  Check if video path already exist
     if not filetuple:                # if doesn't exist insert into Kodi DB and return file key value
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,))  #  Check path table
         pathtuple = curp.fetchone()
-    
+        # xbmc.log('File not found : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
         if not pathtuple:             # if path doesn't exist insert into Kodi DB and return path key value
             db.execute('INSERT into PATH (strpath) values ("' + pathcheck + '")')
             curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,)) 
             pathtuple = curp.fetchone()
         pathnumb = pathtuple[0]
 
-        db.execute('INSERT into FILES (idPath, strFilename) values ("' + str(pathnumb) + '", "' + filecheck + '")')
+        db.execute('INSERT into FILES (idPath, strFilename, playCount) values (?, ?, ? )', (str(pathnumb), filecheck, mplaycount))
         cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
         filetuple = cur.fetchone()
         filenumb = filetuple[0] 
-    else:                            # Return 0 if file already exists   
-        filenumb = 0
+    else:                            # Return 0 if file already exists and check for play count change 
+        filenumb = filetuple[0] 
+        # xbmc.log('File found : ' + filecheck.encode('utf-8','ignore') + ' ' + str(filenumb), xbmc.LOGNOTICE)
+        curc = db.execute('SELECT playCount FROM files WHERE idFile=?',(filenumb,)) 
+        ctuple = curc.fetchone()
+        # xbmc.log('File tuple found : ' + str(ctuple), xbmc.LOGNOTICE)
+        fpcount = ctuple[0]
+        if fpcount != mplaycount:    # If Mezzmo playcount different than Kodi DB, update Kodi DB
+            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (mplaycount, filenumb,))
+            # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
+        filenumb = 0                 
     
     db.commit()
     db.close()  
@@ -779,7 +788,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     tvcheckval = tvChecker(season_text, episode_text)     # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled                     
                         mtitle = displayTitles(title) 
-                        filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
+                        filekey = checkDBpath(itemurl, mtitle, playcount)    #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         if filekey > 0:                           #  If no file add movie, actor info and metadata
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
@@ -1118,7 +1127,7 @@ def handleSearch(content, contenturl, objectID, term):
                     tvcheckval = tvChecker(season_text, episode_text)      # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled                     
                         mtitle = displayTitles(title) 
-                        filekey = checkDBpath(itemurl, mtitle)    #  Check if file exists in Kodi DB
+                        filekey = checkDBpath(itemurl, mtitle, playcount)    #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         if filekey > 0:                           #  If no file add movie, actor info and metadata
                             movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
