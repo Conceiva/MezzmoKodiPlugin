@@ -1,7 +1,7 @@
 v1.0.7.0
 
--  Added index to improve Kodi DB performance which started degrading with
-   version 1.0.6.8.  
+-  Added index to improve Kodi DB perrformance which started degrading with
+   version 1.0.6.2.  
 
 v1.0.6.9
 
