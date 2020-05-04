@@ -259,7 +259,20 @@ def tvChecker(mseason, mepisode):      # add TV shows to Kodi DB if enabled and 
 
     return(tvcheck)
 
-
+def dbIndexes():			# Improve performance for database lookups
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    db = sqlite.connect(DB)
+    
+    db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
+    db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
+    db.commit()
+    db.close()  
+    
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
     td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
@@ -377,6 +390,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     kodiCleanDB()                     # Call function to delete Kodi actor database if user enabled. 
+    dbIndexes()
     
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)

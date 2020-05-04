@@ -1,4 +1,10 @@
+v1.0.7.0
+
+-  Added index to improve Kodi DB perrformance which started degrading with
+   version 1.0.6.8.  
+
 v1.0.6.9
+
 -  Added support for Mezzmo playcounts to be copied and updated into the Kodi DB 
    and will set the watched flag when the playcount is greater than 0.  Playcounts
    will automatically update from Mezzmo when browsing playlists.  The watched
