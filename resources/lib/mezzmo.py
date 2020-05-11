@@ -84,7 +84,7 @@ def kodiCleanDB():
         db.close()
         addon.setSetting('kodiclean', 'false')   # reset back to false after clearing
 
-def writeActorsToDb(actors, movieId, imageSearchUrl):
+def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     actorlist = actors.split(', ')
     try:
         from sqlite3 import dbapi2 as sqlite
@@ -93,23 +93,31 @@ def writeActorsToDb(actors, movieId, imageSearchUrl):
                       
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
-    for actor in actorlist:     
-        f = { 'imagesearch' : actor}
-        searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
-        #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)            # actor insertion debugging
-        #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGNOTICE)                 # actor insertion debugging
-        cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
-        actortuple = cur.fetchone()
-        cur.close()
-        if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
-            db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
+    #xbmc.log('The current movieID is: ' + str(movieId), xbmc.LOGNOTICE)
+    if movieId == 999999:                                         # Actor info needs updated
+        curm = db.execute('SELECT idMovie FROM movie WHERE c00=?',(mtitle,))  # Get movie ID
+        movietuple = curm.fetchone()
+        movieId = movietuple[0]                                   # Get real movieId
+        delete_query = 'DELETE FROM actor_link WHERE media_id = ' + str(movieId)
+        db.execute(delete_query)                                  #  Delete old actor link info
+    if movieId != 0:
+        for actor in actorlist:     
+            f = { 'imagesearch' : actor}
+            searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
+            #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)            # actor insertion debugging
+            #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGNOTICE)                # actor insertion debugging
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
             actortuple = cur.fetchone()
             cur.close()
-        if actortuple:                 #  Insert actor to movie link in actor link table
-            actornumb = actortuple[0] 
-            db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', (actornumb, movieId, 'movie',))
-            #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
+            if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
+                db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
+                cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   #  Get actor id from actor table
+                actortuple = cur.fetchone()
+                cur.close()
+            if actortuple:                 #  Insert actor to movie link in actor link table
+                actornumb = actortuple[0] 
+                db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', (actornumb, movieId, 'movie',))
+                #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
     db.commit()
     db.close()       
 
@@ -181,7 +189,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     db.close()  
     return(filenumb) 
 
-def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, mrating, micon):  
+def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, mrating, micon, kchange):  
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -190,25 +198,45 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
 
-    #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
-    mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
-    if mrating:
-        mratings = "Rated " + mrating
-    else:
-        mratings = " "         
-    db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating))  #  Add movie information
-    cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
-    movietuple = cur.fetchone()
-    movienumb = movietuple[0]                                    # get new movie id
+    if fileId > 0:                                                   #  Insert movie if does not exist in Kodi DB
+        #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+        mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
+        db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating))  #  Add movie information
+        cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
+        movietuple = cur.fetchone()
+        movienumb = movietuple[0]                                    # get new movie id
     
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+    elif kchange == 'true':
+        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE c00=?',(mtitle,))  
+        movietuple = curm.fetchone()
+        movienumb = movietuple[0]
+        kplot = movietuple[1]
+        ktagline = movietuple[2]
+        kwriter = movietuple[3]     
+        kduration = movietuple[4]
+        kdirector = movietuple[5]
+        kgenre = movietuple[6]
+        krating = movietuple[7]
+        kyear = movietuple[8]
+        kfile = movietuple[9]
+        kgenres = kgenre.replace(' /' , ',')                         #  Format genre for proper Kodi display
+        
+        if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector \
+        or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration:  # Update movie info if changed
+            mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
+            db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, c12=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, movienumb))  #  Update movie information
+            movienumb = 999999                                        # Trigger actor update
+            #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+    else:
+        movienumb = 0                                                 # disable change checking
 
     db.commit()
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle):  #  Add stream information
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange):  #  Add stream information
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -220,15 +248,17 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     if fileId > 0:         #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, mvheight, mduration))
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
-    else:                  #  Update stream details and movie duration if duration or video codec change
+    elif kchange == 'true':             #  Update stream details and movie duration if duration or video codec change
         curf = db.execute('SELECT idFile FROM movie WHERE c00=?',(mtitle,))  # Get movie ID
         filetuple = curf.fetchone()
         filenumb = filetuple[0]
-        scur = db.execute('SELECT iVideoDuration, strVideoCodec FROM STREAMDETAILS WHERE idFile=?',(filenumb,))     
+        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec FROM STREAMDETAILS WHERE idFile=?',(filenumb,))     
         scheck = scur.fetchone()
-        sdur = scheck[0]
-        scodec = scheck[1]
-        if sdur != mduration or scodec != mvcodec:
+        sdur = scheck[0]		# Get duration from Kodi DB
+        svcodec = scheck[1]		# Get video codec from Kodi DB
+        scheck = scur.fetchone()
+        sacodec = scheck[2]		# Get audio codec from Kodi DB
+        if sdur != mduration or svcodec != mvcodec or sacodec != macodec:
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)    #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth, mvheight, mduration))
@@ -238,9 +268,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     db.commit()
     db.close()  
 
-def displayTitles(mtitle):   #  Remove common Mezzmo Display Title variables
+def displayTitles(mtitle):                              #  Remove common Mezzmo Display Title variables
     if len(mtitle) >= 8:
-        if mtitle[4] == '-' and int(mtitle[:3]) <= 999:    # check for Mezzmo %FILECOUNTER% in video title
+        if mtitle[4] == '-' and int(mtitle[:3]) <= 999: # check for Mezzmo %FILECOUNTER% in video title
             dtitle = mtitle[6:len(mtitle)]
         elif mtitle[len(mtitle)-6] == '(' and mtitle[len(mtitle)-1] == ')' and int(mtitle[-5:-1]) >= 1900 and mtitle[len(mtitle)-8] != '-':
             dtitle = mtitle[:-7]                        # check for Mezzmo %YEAR% in video title
@@ -251,7 +281,7 @@ def displayTitles(mtitle):   #  Remove common Mezzmo Display Title variables
 
     return(dtitle)    
 
-def tvChecker(mseason, mepisode):      # add TV shows to Kodi DB if enabled and is TV show
+def tvChecker(mseason, mepisode):       # add TV shows to Kodi DB if enabled and is TV show
     tvcheck = 1
     if int(mseason) > 0  and int(mepisode) > 0 and addon.getSetting('koditv') == 'false':
         tvcheck = 0 
@@ -799,16 +829,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)                
 
-                    tvcheckval = tvChecker(season_text, episode_text)     # Is TV show and user enabled Kodi DB adding
-                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled                     
+                    tvcheckval = tvChecker(season_text, episode_text)              # Is TV show and user enabled Kodi DB adding
+                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
                         mtitle = displayTitles(title) 
-                        filekey = checkDBpath(itemurl, mtitle, playcount)    #  Check if file exists in Kodi DB
-                        durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
-                        if filekey > 0:                           #  If no file add movie, actor info and metadata
-                            movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
-                            if artist != None:                    #  Add actor information to new movie
-                                writeActorsToDb(artist_text, movieId, imageSearchUrl)
-                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle)                       #  Add / update movie stream info 
+                        filekey = checkDBpath(itemurl, mtitle, playcount)          #  Check if file exists in Kodi DB
+                        durationsecs = getSeconds(duration_text)                   #  convert movie duration to seconds before passing
+                        kodichange = addon.getSetting('kodichange')                #  Checks for change detection user setting
+                        movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon, kodichange)
+                        if (artist != None and filekey > 0) or movieId == 999999:  #  Add actor information to new movie
+                            writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
+                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange)                                                  #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
 
                             
@@ -1139,15 +1169,15 @@ def handleSearch(content, contenturl, objectID, term):
                     if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)  
                     tvcheckval = tvChecker(season_text, episode_text)      # Is TV show and user enabled Kodi DB adding
-                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  #  Actor info if > v17 and user enabled                     
+                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
                         mtitle = displayTitles(title) 
-                        filekey = checkDBpath(itemurl, mtitle, playcount)    #  Check if file exists in Kodi DB
-                        durationsecs = getSeconds(duration_text)  #  convert movie duration to seconds before passing
-                        if filekey > 0:                           #  If no file add movie, actor info and metadata
-                            movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon)
-                            if artist != None:                    #  Add actor information to new movie
-                                writeActorsToDb(artist_text, movieId, imageSearchUrl)
-                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle)                       #  Add / update movie stream info 
+                        filekey = checkDBpath(itemurl, mtitle, playcount)          #  Check if file exists in Kodi DB
+                        durationsecs = getSeconds(duration_text)                   #  convert movie duration to seconds before passing
+                        kodichange = addon.getSetting('kodichange')                #  Checks for change detection user setting
+                        movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon, kodichange)
+                        if (artist != None and filekey > 0) or movieId == 999999:  #  Add actor information to new movie
+                            writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
+                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange)                                                  #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
                       
                 elif mediaClass_text == 'music':

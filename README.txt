@@ -1,3 +1,17 @@
+v1.0.7.1
+
+-  Added detection for Mezzmo metadata changes including tagline, rating, genre,
+   description, writer and more.  Mezzmo metadata changes now sync to Kodi DB and
+   updates all Kodi DB data for a given movie when a Mezzmo change is detected.
+-  Added detection for audio codec changes
+-  Added user setting to disable Mezzmo change detection to speed up playlist 
+   loading on slower devices or if you have a Mezzmo database that doesn't change
+   metadata very often.  On slow devices you can enable change detection, sync 
+   the latest Mezzmo changes to the Kodi DB and then disable change detection. 
+   Default is enabled since most devices aren't impacted by the slight overhead.
+   When change detection is disabled new Mezzmo additions still sync to the Kodi DB
+   as long as Kodi DB actor information copy is enabled.
+
 v1.0.7.0
 
 -  Added index to improve Kodi DB perrformance which started degrading with

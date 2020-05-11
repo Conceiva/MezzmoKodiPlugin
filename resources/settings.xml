@@ -8,6 +8,7 @@
     <setting id="caching" type="bool" label="30366" default="false"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>
     <setting id="koditv" type="bool" label="30369" default="false"/>
+    <setting id="kodichange" type="bool" label="30370" default="true"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
     </category>
     <!-- View -->

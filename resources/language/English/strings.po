@@ -203,3 +203,7 @@ msgstr ""
 msgctxt "#30369"
 msgid "Add TV Episodes to Kodi DB"
 msgstr ""
+
+msgctxt "#30370"
+msgid "Kodi DB Change detection"
+msgstr ""
