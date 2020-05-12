@@ -1,3 +1,9 @@
+v1.0.7.2
+
+-  Detects file name / container changes for existing Mezzmo video items.  This
+   can help when you might rerip a video file to another format but keep the Mezzmo
+   name the same.  
+
 v1.0.7.1
 
 -  Added detection for Mezzmo metadata changes including tagline, rating, genre,

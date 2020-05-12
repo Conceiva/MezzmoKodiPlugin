@@ -236,7 +236,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange):  #  Add stream information
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl):  #  Add stream information
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -245,7 +245,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
 
-    if fileId > 0:         #  Insert stream details if file does not exist in Kodi DB
+    if fileId > 0:                      #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, mvheight, mduration))
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
     elif kchange == 'true':             #  Update stream details and movie duration if duration or video codec change
@@ -254,16 +254,31 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         filenumb = filetuple[0]
         scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec FROM STREAMDETAILS WHERE idFile=?',(filenumb,))     
         scheck = scur.fetchone()
-        sdur = scheck[0]		# Get duration from Kodi DB
-        svcodec = scheck[1]		# Get video codec from Kodi DB
+        sdur = scheck[0]		     # Get duration from Kodi DB
+        svcodec = scheck[1]		     # Get video codec from Kodi DB
         scheck = scur.fetchone()
-        sacodec = scheck[2]		# Get audio codec from Kodi DB
+        sacodec = scheck[2]		     # Get audio codec from Kodi DB
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec:
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
-            db.execute(delete_query)    #  Delete old stream info
+            db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth, mvheight, mduration))
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
-            db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))  
+            db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
+            rtrimpos = itemurl.rfind('/')    # Check for container / file name change
+            pathcheck = itemurl[:rtrimpos+1]
+            filecheck = itemurl[rtrimpos+1:]
+            curk = db.execute('SELECT strFilename FROM files WHERE idFile=?',(filenumb,)) 
+            pfiletuple = curk.fetchone()
+            pfilename = pfiletuple[0]
+            if filecheck != pfilename:       # file name / container change detected
+                curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,))  #  Check path table
+                pathtuple = curp.fetchone()
+                if not pathtuple:            # if path doesn't exist insert into Kodi DB and return path key value
+                    db.execute('INSERT into PATH (strpath) values ("' + pathcheck + '")')
+                    curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,)) 
+                    pathtuple = curp.fetchone()
+                pathnumb = pathtuple[0]
+                db.execute('UPDATE files SET idPath=?, strFilename=? WHERE idFile=?', (pathnumb, filecheck, filenumb))
 
     db.commit()
     db.close()  
@@ -838,7 +853,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon, kodichange)
                         if (artist != None and filekey > 0) or movieId == 999999:  #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
-                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange)                                                  #  Add / update movie stream info 
+                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl)                                         #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
 
                             
@@ -1177,7 +1192,7 @@ def handleSearch(content, contenturl, objectID, term):
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon, kodichange)
                         if (artist != None and filekey > 0) or movieId == 999999:  #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
-                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange)                                                  #  Add / update movie stream info 
+                        writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl)                                         #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
                       
                 elif mediaClass_text == 'music':
