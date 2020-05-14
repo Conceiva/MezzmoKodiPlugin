@@ -1,3 +1,9 @@
+v1.0.7.3
+
+-  Detects file name extenstion changes associated with container changes. Useful
+   when converting between file types but codecs and duration do not change.
+-  Adds Kodi logfile message when a changed file is detected
+
 v1.0.7.2
 
 -  Detects file name / container changes for existing Mezzmo video items.  This
