@@ -1,8 +1,9 @@
 v1.0.7.3
 
--  Detects file name extenstion changes associated with container changes. Useful
+-  Detects file name extension changes associated with container changes. Useful
    when converting between file types but codecs and duration do not change.
--  Adds Kodi logfile message when a changed file is detected
+-  Adds Kodi logfile message when a changed file is detected to help with 
+   tracking down database issues and duplicate files.
 
 v1.0.7.2
 
