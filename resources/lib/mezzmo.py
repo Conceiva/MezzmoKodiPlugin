@@ -157,9 +157,11 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
     
-    curf = db.execute('SELECT idFile, playcount FROM movie_view WHERE c00=?',(mtitle,))  # Check if movie exists in Kodi DB
+    #curf = db.execute('SELECT idFile, playcount FROM movie_view WHERE c00=?',(mtitle,))  # Check if movie exists in Kodi DB
+    curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
+    WHERE c00=?',(mtitle,))           # Check if movie exists in Kodi DB  
     filetuple = curf.fetchone()
-    #xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)            # Path check debugging
+    # xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)            # Path check debugging
 
     if not filetuple:                 # if doesn't exist insert into Kodi DB and return file key value
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,))  #  Check path table
@@ -181,7 +183,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
         fpcount = filetuple[1]
         if fpcount != mplaycount:    # If Mezzmo playcount different than Kodi DB, update Kodi DB
             db.execute('UPDATE files SET playCount=? WHERE idFile=?', (mplaycount, filenumb,))
-            #xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
+            # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
         filenumb = 0                 
     
     db.commit()
@@ -223,7 +225,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         kyear = movietuple[8]
         kfile = movietuple[9]
         kgenres = kgenre.replace(' /' , ',')                 #  Format genre for proper Kodi display
-        
+        #xbmc.log('Checking movie for changes : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)        
         if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector \
         or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration:  # Update movie info if changed
             mgenres = mgenre.replace(',' , ' /')             #  Format genre for proper Kodi display
@@ -248,6 +250,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
 
+    #xbmc.log('Checking movie for streamchanges : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
     if fileId > 0:                      #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
         iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, \
@@ -255,21 +258,20 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
         (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
     elif kchange == 'true':             #  Update stream details, filename and movie duration if changes
-        curf = db.execute('SELECT idFile, strFilename FROM movie_view WHERE c00=?',(mtitle,))  # Get movie ID
-        filetuple = curf.fetchone()
-        filenumb = filetuple[0]
-        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec FROM STREAMDETAILS WHERE idFile=?',(filenumb,))     
+        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename FROM     \
+        STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) WHERE c00=?',(mtitle,))     
         scheck = scur.fetchone()
         sdur = scheck[0]		     # Get duration from Kodi DB
         svcodec = scheck[1]		     # Get video codec from Kodi DB
         scheck = scur.fetchone()
         sacodec = scheck[2]		     # Get audio codec from Kodi DB
+        filenumb = scheck[3]
         rtrimpos = itemurl.rfind('/')        # Check for container / file name change
         pathcheck = itemurl[:rtrimpos+1]
         filecheck = itemurl[rtrimpos+1:]
         mextpos = filecheck.rfind('.')       # get Mezzmo file extension
         mext = filecheck[mextpos+1:]
-        pfilename = filetuple[1]             # Get file Mezzmo file name from Kodi DB
+        pfilename = scheck[4]
         kextpos = pfilename.rfind('.')       # get Mezzmo file extension
         kext = pfilename[kextpos+1:]
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext:
