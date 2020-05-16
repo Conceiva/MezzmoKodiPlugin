@@ -1,3 +1,9 @@
+v1.0.7.4
+
+-  Improved performance of playlist loading by reducing the number of Kodi DB SQL
+   queries.
+-  Cleaned up code readability and Kodi log messages.
+
 v1.0.7.3
 
 -  Detects file name extension changes associated with container changes. Useful
