@@ -206,10 +206,10 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         myear, mgenres, mtrailer, mrating))  #  Add movie information
         cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
         movietuple = cur.fetchone()
-        movienumb = movietuple[0]                           # get new movie id
-    
+        movienumb = movietuple[0]                           # get new movie id    
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+
     elif kchange == 'true':
         curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE c00=?',(mtitle,))  
         movietuple = curm.fetchone()
@@ -271,7 +271,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         mextpos = filecheck.rfind('.')       # get Mezzmo file extension
         mext = filecheck[mextpos+1:]
         pfilename = scheck[4]
-        kextpos = pfilename.rfind('.')       # get Mezzmo file extension
+        kextpos = pfilename.rfind('.')       # get Kodi file extension
         kext = pfilename[kextpos+1:]
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext:
             xbmc.log('There was a change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
