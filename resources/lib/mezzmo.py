@@ -157,7 +157,6 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
     
-    #curf = db.execute('SELECT idFile, playcount FROM movie_view WHERE c00=?',(mtitle,))  # Check if movie exists in Kodi DB
     curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
     WHERE c00=?',(mtitle,))           # Check if movie exists in Kodi DB  
     filetuple = curf.fetchone()
