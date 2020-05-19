@@ -210,7 +210,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
 
-    elif kchange == 'true':
+    elif kchange == 'true':                                 #  Update metadata if changes
         curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE c00=?',(mtitle,))  
         movietuple = curm.fetchone()
         movienumb = movietuple[0]
@@ -231,10 +231,6 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
             db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, \
             c12=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, mgenres,  \
             mtrailer, mrating, movienumb))                   #  Update movie information
-            delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
-            db.execute(delete_query)                         #  Update old art info in case of change
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
             movienumb = 999999                               # Trigger actor update
             xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
     else:
@@ -244,7 +240,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl):  #  Add stream information
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl, micon):
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -260,8 +256,8 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         mvheight, mduration))
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
         (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
-    elif kchange == 'true':             #  Update stream details, filename and movie duration if changes
-        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename FROM     \
+    elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
+        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename, idmovie FROM \
         STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) WHERE c00=?',(mtitle,))     
         scheck = scur.fetchone()
         sdur = scheck[0]		     # Get duration from Kodi DB
@@ -275,10 +271,11 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         mextpos = filecheck.rfind('.')       # get Mezzmo file extension
         mext = filecheck[mextpos+1:]
         pfilename = scheck[4]
+        movienumb = scheck[5]
         kextpos = pfilename.rfind('.')       # get Kodi file extension
         kext = pfilename[kextpos+1:]
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext:
-            xbmc.log('There was a streamdetails change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            xbmc.log('There was a Mezzmo streamdetails change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
@@ -295,6 +292,10 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 pathtuple = curp.fetchone()
             pathnumb = pathtuple[0]
             db.execute('UPDATE files SET idPath=?, strFilename=? WHERE idFile=?', (pathnumb, filecheck, filenumb))
+            delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
+            db.execute(delete_query)                         #  Update old art info in case of extension change
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
 
     db.commit()
     db.close()  
@@ -873,7 +874,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
 
                             
@@ -1215,7 +1216,7 @@ def handleSearch(content, contenturl, objectID, term):
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
                       
                 elif mediaClass_text == 'music':
