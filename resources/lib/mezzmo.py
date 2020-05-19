@@ -231,8 +231,12 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
             db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, \
             c12=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, mgenres,  \
             mtrailer, mrating, movienumb))                   #  Update movie information
+            delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
+            db.execute(delete_query)                         #  Update old art info in case of change
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
             movienumb = 999999                               # Trigger actor update
-            #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
     else:
         movienumb = 0                                        # disable change checking
 
@@ -274,7 +278,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         kextpos = pfilename.rfind('.')       # get Kodi file extension
         kext = pfilename[kextpos+1:]
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext:
-            xbmc.log('There was a change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            xbmc.log('There was a streamdetails change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \

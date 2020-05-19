@@ -1,3 +1,9 @@
+v1.0.7.5
+
+-  Fixed issue where Mezzmo updated artwork changes associated with file extension
+   changes were not being updated in Kodi DB causing blank poster images.
+-  Improved Kodi logging for metadata and streamdetail detected changes.
+
 v1.0.7.4
 
 -  Improved performance of playlist loading by reducing the number of Kodi DB SQL
