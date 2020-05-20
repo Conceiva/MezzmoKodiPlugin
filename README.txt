@@ -1,6 +1,6 @@
 v1.0.7.6
 
--  Added detection for Mezzmo artwork only change.  If just the Mezzmo artwork 
+-  Added detection for Mezzmo artwork only changes.  If just the Mezzmo artwork 
    for a movie is updated it will be now replicated to the Kodi DB.
 
 v1.0.7.5
