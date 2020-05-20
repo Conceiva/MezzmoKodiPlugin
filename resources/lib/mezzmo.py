@@ -257,8 +257,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
         (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
-        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename, idmovie FROM \
-        STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) WHERE c00=?',(mtitle,))     
+        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename, idmovie, url \
+        FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER JOIN art ON      \
+        movie.idMovie=art.media_id WHERE c00=?',(mtitle,))      
         scheck = scur.fetchone()
         sdur = scheck[0]		     # Get duration from Kodi DB
         svcodec = scheck[1]		     # Get video codec from Kodi DB
@@ -274,8 +275,13 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         movienumb = scheck[5]
         kextpos = pfilename.rfind('.')       # get Kodi file extension
         kext = pfilename[kextpos+1:]
-        if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext:
-            xbmc.log('There was a Mezzmo streamdetails change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+        kicon = scheck[6]                    # Get Kodi DB poster URL
+        xbmc.log('The current movie is ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+        xbmc.log('The Mezzmo poster is: ' + micon, xbmc.LOGNOTICE)        
+        xbmc.log('The Kodi DB poster is: ' + kicon, xbmc.LOGNOTICE)
+        if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext or kicon != micon:
+            xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
+            mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
