@@ -276,9 +276,6 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         kextpos = pfilename.rfind('.')       # get Kodi file extension
         kext = pfilename[kextpos+1:]
         kicon = scheck[6]                    # Get Kodi DB poster URL
-        xbmc.log('The current movie is ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
-        xbmc.log('The Mezzmo poster is: ' + micon, xbmc.LOGNOTICE)        
-        xbmc.log('The Kodi DB poster is: ' + kicon, xbmc.LOGNOTICE)
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext or kicon != micon:
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
             mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
