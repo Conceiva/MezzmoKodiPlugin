@@ -1,3 +1,10 @@
+v1.0.7.7
+
+-  Fixed issue where actor names endingwith "Jr." are stored multiple ways in 
+   Mezzmo causing some actors to display incorrectly in the addon.  A clear 
+   Kodi DB will need to performed to remove Jr. only actors displaying during
+   actor searches. 
+
 v1.0.7.6
 
 -  Added detection for Mezzmo artwork only changes.  If just the Mezzmo artwork 
