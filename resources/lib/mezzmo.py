@@ -85,7 +85,7 @@ def kodiCleanDB():
         addon.setSetting('kodiclean', 'false')   # reset back to false after clearing
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
-    actorlist = actors.replace(', Jr.' , ' Jr.').split(', ')    
+    actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -694,7 +694,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').split(',')                   
+                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
@@ -1036,7 +1036,7 @@ def handleSearch(content, contenturl, objectID, term):
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').split(',')
+                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                 
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  
