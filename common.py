@@ -52,7 +52,7 @@ class printDebug:
         if self.level >= level :
             #msg=self.token_regex.sub("-Token=XXXXXXXXXX&", str(msg))
             #msg=self.ip_regex.sub(".X.X.", msg)
-            print "%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg)
+            print("%s%s -> %s : %s" % (self.main, self.sub, inspect.stack(0)[2][3], msg))
         return
 
     def __call__(self, msg, level=1):
@@ -77,7 +77,9 @@ def setup_python_locations():
     setup={}
     setup['__addon__'] = xbmcaddon.Addon()
     setup['__cachedir__'] = setup['__addon__'].getAddonInfo('profile')
-    setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
+#    setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
+    setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path'))
+
     setup['__version__'] = setup['__addon__'].getAddonInfo('version')
 
     setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))

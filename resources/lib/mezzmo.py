@@ -5,12 +5,12 @@ import xbmcplugin
 import ssdp
 import xbmcaddon
 import xbmcgui
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import xml.etree.ElementTree
 import re
 import xml.etree.ElementTree as ET
-import urlparse
+import urllib.parse
 import browse
 import contentrestriction
 import xbmc
@@ -24,15 +24,17 @@ import os
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
-args = urlparse.parse_qs(sys.argv[2][1:])
+args = urllib.parse.parse_qs(sys.argv[2][1:])
 
 def get_installedversion():
     # retrieve current installed version
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
-    json_query = unicode(json_query, 'utf-8', errors='ignore')
+    #json_query = str(json_query, 'utf-8', errors='ignore')
+    json_query = str(json_query)
+    xbmc.log('The JSON query is: ' + json_query, xbmc.LOGNOTICE)
     json_query = json.loads(json_query)
     version_installed = []
-    if json_query.has_key('result') and json_query['result'].has_key('version'):
+    if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']['major']
     return str(version_installed)
     
@@ -103,7 +105,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     if movieId != 0:
         for actor in actorlist:     
             f = { 'imagesearch' : actor}
-            searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
+            searchUrl = imageSearchUrl + "?" + urllib.parse.urlencode(f)
             #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)      # actor insertion debugging
             #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGNOTICE)          # actor insertion debugging
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
@@ -389,7 +391,7 @@ def listServers(force):
         xbmc.log('Mezzmo server url: ' + url, xbmc.LOGNOTICE)
         
         try:
-            response = urllib2.urlopen(url)
+            response = urllib.request.urlopen(url)
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
@@ -459,7 +461,7 @@ def listServers(force):
     dbIndexes()
     
 def build_url(query):
-    return base_url + '?' + urllib.urlencode(query)
+    return base_url + '?' + urllib.parse.urlencode(query)
 
     
 def setViewMode(contentType):
@@ -604,7 +606,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 }
                 li.setInfo(mediaClass_text, info)
                     
-                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
                 li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
@@ -699,7 +701,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
                         new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
+                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -1041,7 +1043,7 @@ def handleSearch(content, contenturl, objectID, term):
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  
                         new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))                  
+                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))                  
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')

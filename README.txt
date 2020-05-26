@@ -1,3 +1,8 @@
+v2.0.0.0
+
+-  Initial Kodi 19 supported release based upon 1.0.7.7 code.  THis version is 
+   only for Kodi 19 and will not load on Kodi 18.
+
 v1.0.7.7
 
 -  Fixed issue where actor names ending with "Jr." are stored multiple ways in 

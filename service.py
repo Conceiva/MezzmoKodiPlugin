@@ -52,7 +52,7 @@ monitor = xbmc.Monitor()
 while True:
     if xbmc.Player().isPlaying():
         file = xbmc.Player().getPlayingFile()
-        pos = long(xbmc.Player().getTime())
+        pos = int(xbmc.Player().getTime())
         
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
