@@ -392,7 +392,7 @@ def listServers(force):
         
         try:
             response = urllib.request.urlopen(url)
-            xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
+            xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
         
@@ -449,8 +449,8 @@ def listServers(force):
 
                 itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
                 
-                li = xbmcgui.ListItem(friendlyname, iconImage=iconurl)
-                li.setArt({'thumb': iconurl, 'poster': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                li = xbmcgui.ListItem(friendlyname)
+                li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         except Exception as e:
             printexception()
