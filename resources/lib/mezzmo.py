@@ -29,8 +29,6 @@ args = urllib.parse.parse_qs(sys.argv[2][1:])
 def get_installedversion():
     # retrieve current installed version
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
-    #json_query = str(json_query, 'utf-8', errors='ignore')
-    json_query = str(json_query)
     xbmc.log('The JSON query is: ' + json_query, xbmc.LOGNOTICE)
     json_query = json.loads(json_query)
     version_installed = []
