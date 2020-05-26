@@ -601,8 +601,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title, iconImage=icon)
-                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                li = xbmcgui.ListItem(title)
+                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
                 
                 mediaClass_text = 'video'
                 info = {
@@ -650,8 +650,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if backdropurl != None:
                     backdropurl = backdropurl.text
                 
-                li = xbmcgui.ListItem(title, iconImage=icon)
-                li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
+                li = xbmcgui.ListItem(title)
+                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
                     
@@ -993,8 +993,8 @@ def handleSearch(content, contenturl, objectID, term):
                 if backdropurl != None:
                     backdropurl = backdropurl.text
                 
-                li = xbmcgui.ListItem(title, iconImage=icon)
-                li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
+                li = xbmcgui.ListItem(title)
+                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
 
