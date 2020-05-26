@@ -365,20 +365,21 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
-    
     saved_servers = addon.getSetting('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
         addon.setSetting('saved_servers', pickle.dumps(servers))
     else:
+        
         servers = pickle.loads(saved_servers)
         
     
     onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
-    li = xbmcgui.ListItem('Refresh', iconImage=addon.getAddonInfo("path") + '/resources/media/refresh.png')
+    li = xbmcgui.ListItem('Refresh')
+    li.setArt({'icon':addon.getAddonInfo("path") + '/resources/media/refresh.png'})
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 

@@ -21,7 +21,7 @@ class SSDPResponse(object):
         def makefile(self, *args, **kw):
             return self
     def __init__(self, response):
-        r = http.client.HTTPResponse(self._FakeSocket(response))
+        r = http.client.HTTPResponse(self._FakeSocket(response.text))
         r.begin()
         self.location = r.getheader("location")
         self.usn = r.getheader("usn")
@@ -43,7 +43,7 @@ def discover(service, timeout=5, retries=1):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
-        sock.sendto(message.format(*group, st=service), group)
+        sock.sendto(message.format(*group, st=service).encode(), group)
         while True:
             try:
                 response = SSDPResponse(sock.recv(1024))
