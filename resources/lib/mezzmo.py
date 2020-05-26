@@ -58,7 +58,7 @@ def getDatabaseName():
     elif installed_version == '18':
         return "MyVideos116.db"
     elif installed_version == '19':
-        return "MyVideos116.db"
+        return "MyVideos117.db"
        
     return ""   
 
@@ -69,7 +69,7 @@ def kodiCleanDB():
         except:
             from pysqlite2 import dbapi2 as sqlite
                       
-        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
         db = sqlite.connect(DB)
 
         db.execute('DELETE FROM art;',);
@@ -91,7 +91,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
     #xbmc.log('The current movieID is: ' + str(movieId), xbmc.LOGNOTICE)
     if movieId == 999999:                                         # Actor info needs updated
@@ -154,7 +154,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
     
     curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
@@ -195,7 +195,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
 
     if fileId > 0:                                          #  Insert movie if does not exist in Kodi DB
@@ -246,7 +246,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
 
     #xbmc.log('Checking movie for streamchanges : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -331,7 +331,7 @@ def dbIndexes():			# Improve performance for database lookups
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
     
     db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
@@ -366,6 +366,7 @@ def printexception():
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
     saved_servers = addon.getSetting('saved_servers')
+    saved_servers = saved_servers.encode()
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
@@ -373,6 +374,7 @@ def listServers(force):
     else:
         
         servers = pickle.loads(saved_servers)
+    #xbmc.log('Mezzmo servers: ' + str(servers), xbmc.LOGNOTICE)
         
     
     onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
