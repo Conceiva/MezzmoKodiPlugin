@@ -365,8 +365,7 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
-    saved_servers = addon.getSetting('saved_servers')
-    saved_servers = saved_servers.encode()
+    saved_servers = addon.getSetting('saved_servers').encode()
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
