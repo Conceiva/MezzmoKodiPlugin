@@ -21,7 +21,7 @@ def SetContentRestriction(url, ip, enabled, pin):
     </u:CVA_SetContentRestriction>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body, headers)
+    req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=60).read()
