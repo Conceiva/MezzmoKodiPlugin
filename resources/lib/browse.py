@@ -28,7 +28,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     </u:Browse>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body, headers)
+    req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=60).read()
@@ -64,7 +64,7 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     </u:Search>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body, headers)
+    req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=60).read()

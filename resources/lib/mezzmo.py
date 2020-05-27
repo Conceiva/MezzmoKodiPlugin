@@ -562,10 +562,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
     addon.setSetting('contenturl', contenturl)
     deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled.  
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
-    xbmc.log('Content URL: ' + contenturl, xbmc.LOGNOTICE)
-    xbmc.log('Content : ' + content, xbmc.LOGNOTICE)
-    xbmc.log('ObjectID : ' + objectID, xbmc.LOGNOTICE)
-    xbmc.log('ParentID: ' + parentID, xbmc.LOGNOTICE)    
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
