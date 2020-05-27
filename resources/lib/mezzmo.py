@@ -29,7 +29,6 @@ args = urllib.parse.parse_qs(sys.argv[2][1:])
 def get_installedversion():
     # retrieve current installed version
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
-    xbmc.log('The JSON query is: ' + json_query, xbmc.LOGNOTICE)
     json_query = json.loads(json_query)
     version_installed = []
     if 'result' in json_query and 'version' in json_query['result']:
@@ -69,7 +68,7 @@ def kodiCleanDB():
         except:
             from pysqlite2 import dbapi2 as sqlite
                       
-        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
         db = sqlite.connect(DB)
 
         db.execute('DELETE FROM art;',);
@@ -91,7 +90,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     #xbmc.log('The current movieID is: ' + str(movieId), xbmc.LOGNOTICE)
     if movieId == 999999:                                         # Actor info needs updated
@@ -154,7 +153,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     
     curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
@@ -195,7 +194,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
 
     if fileId > 0:                                          #  Insert movie if does not exist in Kodi DB
@@ -246,7 +245,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
 
     #xbmc.log('Checking movie for streamchanges : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -331,7 +330,7 @@ def dbIndexes():			# Improve performance for database lookups
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 17 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     
     db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
@@ -365,17 +364,15 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
-    saved_servers = addon.getSetting('saved_servers').encode()
+    saved_servers = addon.getSetting('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
-        addon.setSetting('saved_servers', pickle.dumps(servers))
+        addon.setSetting('saved_servers', pickle.dumps(servers,0,fix_imports=True))
     else:
+        saved_servers = saved_servers.encode('utf-8')
+        servers = pickle.loads(saved_servers, fix_imports=True)
         
-        servers = pickle.loads(saved_servers)
-    #xbmc.log('Mezzmo servers: ' + str(servers), xbmc.LOGNOTICE)
-        
-    
     onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
@@ -872,7 +869,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         li.setCast(cast_dict)                
 
                     tvcheckval = tvChecker(season_text, episode_text)          # Is TV show and user enabled Kodi DB adding
-                    if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
+                    if installed_version >= '19' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle, playcount)      #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)               #  convert movie duration to seconds before passing
@@ -1211,7 +1208,7 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
+                    if installed_version >= '19':         #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)  
                     tvcheckval = tvChecker(season_text, episode_text)    # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
