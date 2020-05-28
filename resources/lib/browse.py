@@ -31,11 +31,11 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
-        response = urllib.request.urlopen(req, timeout=60).read()
+        response = urllib.request.urlopen(req, timeout=60).read().decode('utf-8')
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass
-        
+    #xbmc.log('The current response is: ' + str(response), xbmc.LOGNOTICE)    
     return response
 
 def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
@@ -67,7 +67,7 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
-        response = urllib.request.urlopen(req, timeout=60).read()
+        response = urllib.request.urlopen(req, timeout=60).read().decode('utf-8')
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Search: ' + str(e))
         pass
