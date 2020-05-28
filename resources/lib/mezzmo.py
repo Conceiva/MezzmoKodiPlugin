@@ -105,12 +105,15 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
             searchUrl = imageSearchUrl + "?" + urllib.parse.urlencode(f)
             #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGNOTICE)      # actor insertion debugging
             #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGNOTICE)          # actor insertion debugging
-            cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
+            #cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
+            cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,))   
             actortuple = cur.fetchone()                                           #  Get actor id from actor table
             cur.close()
             if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
-                db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
-                cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
+                #db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
+                #cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
+                db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor, searchUrl,))
+                cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,)) 
                 actortuple = cur.fetchone()                       #  Get actor id from actor table
                 cur.close()
             if actortuple:                 #  Insert actor to movie link in actor link table
@@ -172,7 +175,8 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
         pathnumb = pathtuple[0]
 
         db.execute('INSERT into FILES (idPath, strFilename, playCount) values (?, ?, ? )', (str(pathnumb), filecheck, mplaycount))
-        cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
+        #cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
+        cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck,)) 
         filetuple = cur.fetchone()
         filenumb = filetuple[0] 
     else:                            # Return 0 if file already exists and check for play count change 
@@ -198,7 +202,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db = sqlite.connect(DB)
 
     if fileId > 0:                                          #  Insert movie if does not exist in Kodi DB
-        #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+        #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGNOTICE)
+        #xbmc.log('The current icon is: ' + micon, xbmc.LOGNOTICE)
         mgenres = mgenre.replace(',' , ' /')                #  Format genre for proper Kodi display
         db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values \
         (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector,  \
@@ -578,7 +583,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
-            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            elems = xml.etree.ElementTree.fromstring(result.text)
             
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
@@ -618,7 +624,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text  
+                    icon = albumartUri.text + '.jpg'
+                #xbmc.log('The current albumUri is: ' + str(albumartUri), xbmc.LOGNOTICE)
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -685,7 +692,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    artist_text = artist.text.encode('utf-8', 'ignore')
+                    #artist_text = artist.text.encode('utf-8', 'ignore')
+                    artist_text = artist.text
                     # writeActorsToDb(artist_text, imageSearchUrl) 
 
                 actor_list = ''
@@ -693,7 +701,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
@@ -961,7 +969,7 @@ def handleSearch(content, contenturl, objectID, term):
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text  
+                    icon = albumartUri.text + '.jpg' 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -1035,7 +1043,8 @@ def handleSearch(content, contenturl, objectID, term):
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    #actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                 
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  
