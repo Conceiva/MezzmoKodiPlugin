@@ -833,7 +833,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'picture'
                         
                 if mediaClass_text == 'video':  
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'Action(Info)') ])
                     
                     info = {
                         'duration': getSeconds(duration_text),
@@ -1176,7 +1176,7 @@ def handleSearch(content, contenturl, objectID, term):
                         mediaClass_text = 'picture'
                         
                 if mediaClass_text == 'video':  
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'Action(Info)') ])
                     
                     info = {
                         'duration': getSeconds(duration_text),
