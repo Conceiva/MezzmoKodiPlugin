@@ -68,7 +68,7 @@ def kodiCleanDB():
         except:
             from pysqlite2 import dbapi2 as sqlite
                       
-        DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+        DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
         db = sqlite.connect(DB)
 
         db.execute('DELETE FROM art;',);
@@ -90,7 +90,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     #xbmc.log('The current movieID is: ' + str(movieId), xbmc.LOGNOTICE)
     if movieId == 999999:                                         # Actor info needs updated
@@ -156,7 +156,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     
     curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
@@ -198,7 +198,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
 
     if fileId > 0:                                          #  Insert movie if does not exist in Kodi DB
@@ -250,10 +250,11 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
-
     #xbmc.log('Checking movie for streamchanges : ' + mtitle, xbmc.LOGNOTICE)
+    #xbmc.log('The current movie icon is : ' + str(micon), xbmc.LOGNOTICE)
+
     if fileId > 0:                      #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
         iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, \
@@ -265,10 +266,10 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER JOIN art ON      \
         movie.idMovie=art.media_id WHERE c00=?',(mtitle,))      
         scheck = scur.fetchone()
-        sdur = scheck[0]		     # Get duration from Kodi DB
-        svcodec = scheck[1]		     # Get video codec from Kodi DB
+        sdur = scheck[0]		             # Get duration from Kodi DB
+        svcodec = scheck[1]		             # Get video codec from Kodi DB
         scheck = scur.fetchone()
-        sacodec = scheck[2]		     # Get audio codec from Kodi DB
+        sacodec = scheck[2]		             # Get audio codec from Kodi DB
         filenumb = scheck[3]
         rtrimpos = itemurl.rfind('/')        # Check for container / file name change
         pathcheck = itemurl[:rtrimpos+1]
@@ -335,7 +336,7 @@ def dbIndexes():			# Improve performance for database lookups
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
     
     db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
@@ -597,12 +598,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
     
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
-                    icon = icon.text
+                    icon = icon.text + '.jpg'
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title)
                 li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
-                
                 mediaClass_text = 'video'
                 info = {
                         'plot': description_text,
@@ -622,10 +622,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
                 icon = None
-                albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+                albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI').text
                 if albumartUri != None:
-                    icon = albumartUri.text + '.jpg'
-                #xbmc.log('The current albumUri is: ' + str(albumartUri), xbmc.LOGNOTICE)
+                    icon = albumartUri + '.jpg'
+                #xbmc.log('The current icon is: ' + icon, xbmc.LOGNOTICE)
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -654,7 +654,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
-                    
+                  
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
