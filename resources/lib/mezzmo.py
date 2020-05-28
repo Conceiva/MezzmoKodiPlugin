@@ -236,7 +236,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
             c12=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, mgenres,  \
             mtrailer, mrating, movienumb))                   #  Update movie information
             movienumb = 999999                               # Trigger actor update
-            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle, xbmc.LOGNOTICE)
     else:
         movienumb = 0                                        # disable change checking
 
@@ -253,7 +253,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos117.db")  # only use on Kodi 19 and higher
     db = sqlite.connect(DB)
 
-    #xbmc.log('Checking movie for streamchanges : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+    #xbmc.log('Checking movie for streamchanges : ' + mtitle, xbmc.LOGNOTICE)
     if fileId > 0:                      #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
         iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, \
@@ -282,7 +282,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         kicon = scheck[6]                    # Get Kodi DB poster URL
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext or kicon != micon:
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
-            mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            mtitle, xbmc.LOGNOTICE)
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
