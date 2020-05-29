@@ -24,7 +24,7 @@ def SetBookmark(url, objectID, pos):
     try:
         response = urllib.request.urlopen(req, timeout=60).read()
     except Exception as e:
-        xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e))
+        xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e), xbmc.LOGINFO)
         pass
         
     return response
