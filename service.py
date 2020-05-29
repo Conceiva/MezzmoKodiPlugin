@@ -24,24 +24,24 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackStarted(self):
         file = xbmc.Player().getPlayingFile()
-        xbmc.log("Playback started - " + file)
+        xbmc.log("Mezzmo Playback started - " + file, xbmc.LOGDEBUG)
  
     def onPlayBackPaused(self):
-        xbmc.log("Playback paused - LED OFF")
+        xbmc.log("Mezzmo Playback paused - LED OFF" , xbmc.LOGDEBUG)
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()
-        xbmc.log("Playback resumed - LED ON")
+        xbmc.log("Mezzmo Playback resumed - LED ON" , xbmc.LOGDEBUG)
  
     def onPlayBackEnded(self):
-        xbmc.log("Playback ended - LED OFF")
+        xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
  
     def onPlayBackStopped(self):
         contenturl = settings('contenturl')
         xbmc.log("contenturl " + contenturl)
         end = file.rfind('/') + 1
         objectID = file[end:]
-        xbmc.log("Playback stopped at " + str(pos) + " in " + objectID)
+        xbmc.log("Mezzmo Playback stopped at " + str(pos) + " in " + objectID, xbmc.LOGDEBUG)
         bookmark.SetBookmark(contenturl, objectID, str(pos))
 
              

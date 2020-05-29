@@ -1,6 +1,13 @@
+v2.0.0.0a  New beta release
+
+-  Updated Kodi logging to a new format which will be required after June 30, 2020.
+-  Changed file extension change checking method to use pathnumber vs. parsing file
+   extensions. Eliminated issue with flase positives on change detection with Kodi
+   19 and improves addon performance.  
+
 v2.0.0.0
 
--  Initial Kodi 19 supported release based upon 1.0.7.7 code.  This version is 
+-  Initial Kodi 19 supported release based upon 1.0.7.7 code.  THis version is 
    only for Kodi 19 and will not load on Kodi 18.
 
 v1.0.7.7
