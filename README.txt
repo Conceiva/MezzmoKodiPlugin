@@ -2,7 +2,7 @@ v2.0.0.0a  New beta release
 
 -  Updated Kodi logging to a new format which will be required after June 30, 2020.
 -  Changed file extension change checking method to use pathnumber vs. parsing file
-   extensions. Eliminated issue with flase positives on change detection with Kodi
+   extensions. Eliminated issue with false positives on change detection with Kodi
    19 and improves addon performance.  
 
 v2.0.0.0
