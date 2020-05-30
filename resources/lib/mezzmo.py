@@ -61,27 +61,34 @@ def getDatabaseName():
        
     return ""   
 
-def kodiCleanDB():
+def kodiCleanDB(ContentDeleteURL):
     if addon.getSetting('kodiclean') == 'true':     #  clears Kodi actor DB if enabled in setings
         try:
             from sqlite3 import dbapi2 as sqlite
         except:
             from pysqlite2 import dbapi2 as sqlite
-                      
+
         DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  # only use on Kodi 19 and higher
         db = sqlite.connect(DB)
 
-        db.execute('DELETE FROM art;',);
-        db.execute('DELETE FROM movie;',);
-        db.execute('DELETE FROM files;',);
-        db.execute('DELETE FROM actor;',);
-        db.execute('DELETE FROM actor_link;',);
-        db.execute('DELETE FROM streamdetails;',);
-    
-        xbmc.log('Kodi actor database cleared: ', xbmc.LOGINFO)
+        rfpos = ContentDeleteURL.find('/',7)
+        dbcleanurl = ContentDeleteURL[:rfpos+1] + '%'  #  Get Mezzmo server info
+
+        db.execute('DELETE FROM art WHERE url LIKE ?', (dbcleanurl,))
+        db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (dbcleanurl + '%',))
+
+        curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE         \
+        strpath LIKE ?', (dbcleanurl + '%',))          #  Get file and movie list
+        idlist = curf.fetchall()
+        for a in range(len(idlist)):                   #  Delete Mezzmo file and Movie data
+            xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGDEBUG)
+            file_delete = db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
+            movie_delete = db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
+
+        xbmc.log('Kodi database Mezzmo data cleared: ', xbmc.LOGINFO)
         db.commit()
         db.close()
-        addon.setSetting('kodiclean', 'false')   # reset back to false after clearing
+        addon.setSetting('kodiclean', 'false')        # reset back to false after clearing
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
@@ -267,6 +274,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         pathcheck = itemurl[:rtrimpos+1]
         filecheck = itemurl[rtrimpos+1:]
         kpath = scheck[4]
+        #xbmc.log('Mezzmo streamdetails kpath and pathcheck are: ' + str(kpath) + ' ' + str(pathcheck), xbmc.LOGINFO)
+        #xbmc.log('Mezzmo streamdetails movie is: ' + mtitle, xbmc.LOGINFO)
+        #xbmc.log('Mezzmo streamdetails URL is: ' + itemurl, xbmc.LOGINFO)
         movienumb = scheck[5]
         kicon = scheck[6]                    # Get Kodi DB poster URL
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon:
@@ -454,7 +464,7 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
-    kodiCleanDB()                     # Call function to delete Kodi actor database if user enabled. 
+    kodiCleanDB(contenturl)                 # Call function to delete Kodi actor database if user enabled. 
     dbIndexes()
     
 def build_url(query):
