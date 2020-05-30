@@ -1,7 +1,7 @@
 v2.0.0.0b  New beta release
 
--  Fixes Kodi DB clear on startup to only delete Mezzmo data in the KODI 
-    databse vs. deleting all data in prior versions. 
+-  Fixes Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
+   database vs. deleting all data in prior versions. 
 
 v2.0.0.0a  New beta release
 
