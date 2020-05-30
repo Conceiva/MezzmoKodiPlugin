@@ -1,7 +1,7 @@
 v1.0.7.8
 
--  Fixes Kodi DB clear on startup to only delete Mezzmo data in the KODI 
-    databse vs. deleting all data in prior versions. 
+-  Fixes Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
+   database vs. deleting all data in prior versions. 
 
 v1.0.7.7
 
