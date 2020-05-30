@@ -82,8 +82,8 @@ def kodiCleanDB(ContentDeleteURL):
         idlist = curf.fetchall()
         for a in range(len(idlist)):                   #  Delete Mezzmo file and Movie data
             xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGDEBUG)
-            file_delete = db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
-            movie_delete = db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
+            db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
+            db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
 
         xbmc.log('Kodi database Mezzmo data cleared: ', xbmc.LOGINFO)
         db.commit()
@@ -212,7 +212,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                           # get new movie id    
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
     elif kchange == 'true':                                 #  Update metadata if changes
         curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE c00=?',(mtitle,))  
@@ -306,7 +308,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
             db.execute(delete_query)                         #  Update old art info in case of extension change
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'fanart', 'poster', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
     db.commit()
     db.close()  
