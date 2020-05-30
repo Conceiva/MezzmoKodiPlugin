@@ -62,8 +62,8 @@ def getDatabaseName():
        
     return ""   
 
-def kodiCleanDB():
-    if addon.getSetting('kodiclean') == 'true':     #  clears Kodi actor DB if enabled in setings
+def kodiCleanDB(ContentDeleteURL):
+    if addon.getSetting('kodiclean') == 'true':     #  clears Kodi DB Mezzmo data if enabled in setings
         try:
             from sqlite3 import dbapi2 as sqlite
         except:
@@ -72,17 +72,24 @@ def kodiCleanDB():
         DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
         db = sqlite.connect(DB)
 
-        db.execute('DELETE FROM art;',);
-        db.execute('DELETE FROM movie;',);
-        db.execute('DELETE FROM files;',);
-        db.execute('DELETE FROM actor;',);
-        db.execute('DELETE FROM actor_link;',);
-        db.execute('DELETE FROM streamdetails;',);
-    
-        xbmc.log('Kodi actor database cleared: ', xbmc.LOGNOTICE)
+        rfpos = ContentDeleteURL.find('/',7)
+        dbcleanurl = ContentDeleteURL[:rfpos+1] + '%'  #  Get Mezzmo server info
+
+        db.execute('DELETE FROM art WHERE url LIKE ?', (dbcleanurl,))
+        db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (dbcleanurl + '%',))
+
+        curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE         \
+        strpath LIKE ?', (dbcleanurl + '%',))         #  Get file and movie list
+        idlist = curf.fetchall()
+        for a in range(len(idlist)):                  #  Delete Mezzmo file and Movie data
+            #xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGNOTICE)
+            db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
+            db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
+
+        xbmc.log('Kodi database Mezzmo data cleared: ', xbmc.LOGNOTICE)
         db.commit()
         db.close()
-        addon.setSetting('kodiclean', 'false')   # reset back to false after clearing
+        addon.setSetting('kodiclean', 'false')        # reset back to false after clearing
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
@@ -455,7 +462,7 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
-    kodiCleanDB()                     # Call function to delete Kodi actor database if user enabled. 
+    kodiCleanDB(contenturl)                     # Call function to delete Kodi actor database if user enabled. 
     dbIndexes()
     
 def build_url(query):
@@ -562,6 +569,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
     addon.setSetting('contenturl', contenturl)
     deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled.  
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
+    #xbmc.log('Content URL: ' + contenturl, xbmc.LOGNOTICE)
+    #xbmc.log('Content : ' + content, xbmc.LOGNOTICE)
+    #xbmc.log('ObjectID : ' + objectID, xbmc.LOGNOTICE)
+    #xbmc.log('ParentID: ' + parentID, xbmc.LOGNOTICE)  
         
     try:
         while True:
@@ -629,6 +640,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 
                 if res != None:
                     itemurl = res.text 
+                    #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
                     subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
                     duration_text = res.get('duration')
                     if duration_text == None:
@@ -694,7 +706,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
+                    #actor_print = actors.text.encode('utf-8', 'ignore')
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    #xbmc.log('The actor list is: ' + actor_print, xbmc.LOGNOTICE)
+                    #actor_list = actors.text.encode('utf-8', 'ignore').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
