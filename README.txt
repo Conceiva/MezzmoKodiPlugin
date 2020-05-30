@@ -1,6 +1,12 @@
+v2.0.0.0b  New beta release
+
+-  Fixes Kodi DB clear on startup to only delete Mezzmo data in the KODI 
+    databse vs. deleting all data in prior versions. 
+
 v2.0.0.0a  New beta release
 
--  Updated Kodi logging to a new format which will be required after June 30, 2020.
+-  Updated Kodi logging to a new format which will be required after June 30, 2020
+   for Kodi 19.
 -  Changed file extension change checking method to use pathnumber vs. parsing file
    extensions. Eliminated issue with false positives on change detection with Kodi
    19 and improves addon performance.  
