@@ -1,6 +1,12 @@
+v1.0.7.9
+
+-  Fixed issue where movie thumbnails were not updating properly for certain 
+   skins when doing an actor search. A Kodi DB clear on startup is needed to
+   populate mising thumbnails in the Kodi database.
+
 v1.0.7.8
 
--  Fixes Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
+-  Fixed Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
    database vs. deleting all data in prior versions. 
 
 v1.0.7.7
