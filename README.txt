@@ -2,7 +2,7 @@ v2.0.0.0c  New beta release
 
 -  Fixed issue where movie thumbnails were not updating properly for certain 
    skins when doing an actor search. A Kodi DB clear on startup is needed to
-   populate mising thumbnails in the Kodi database.
+   populate missing thumbnails in the Kodi database.
 
 v2.0.0.0b  New beta release
 
