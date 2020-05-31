@@ -116,7 +116,6 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
             actortuple = cur.fetchone()                                           #  Get actor id from actor table
             cur.close()
             if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
-                #db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
                 db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor, searchUrl,))
                 cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,)) 
                 actortuple = cur.fetchone()                       #  Get actor id from actor table
@@ -272,7 +271,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         scheck = scur.fetchone()
         sacodec = scheck[2]		             # Get audio codec from Kodi DB
         filenumb = scheck[3]
-        rtrimpos = itemurl.rfind('/')        # Check for container / path change
+        rtrimpos = itemurl.rfind('/')                # Check for container / path change
         pathcheck = itemurl[:rtrimpos+1]
         filecheck = itemurl[rtrimpos+1:]
         kpath = scheck[4]
@@ -280,10 +279,14 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         #xbmc.log('Mezzmo streamdetails movie is: ' + mtitle, xbmc.LOGINFO)
         #xbmc.log('Mezzmo streamdetails URL is: ' + itemurl, xbmc.LOGINFO)
         movienumb = scheck[5]
-        kicon = scheck[6]                    # Get Kodi DB poster URL
-        if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon:
+        kicon = scheck[6]                            # Get Kodi DB poster URL
+        idflist = scur.fetchall()
+        rows = len(idflist)
+        if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon \
+            or rows != 6 :
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
             mtitle, xbmc.LOGINFO)
+            xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGINFO)
             xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
             xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
             xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
@@ -396,8 +399,7 @@ def listServers(force):
 
     xbmc.log('Mezzmo server search: ' + str(len(servers)), xbmc.LOGINFO)
     for server in servers:
-        url = server.location
-        
+        url = server.location        
         xbmc.log('Mezzmo server url: ' + url, xbmc.LOGINFO)
         
         try:
@@ -706,7 +708,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    #artist_text = artist.text.encode('utf-8', 'ignore')
                     artist_text = artist.text
 
                 actor_list = ''
