@@ -607,6 +607,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
+                    if (icon[-4:]) !=  '.jpg': 
+                        icon = icon + '.jpg'
+                xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
@@ -634,6 +637,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
                     icon = albumartUri.text  
+                    if (icon[-4:]) !=  '.jpg': 
+                        icon = icon + '.jpg'
+                xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -980,7 +987,10 @@ def handleSearch(content, contenturl, objectID, term):
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text  
+                    icon = albumartUri.text
+                    if (icon[-4:]) !=  '.jpg': 
+                        icon = icon + '.jpg'
+                xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)      
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
