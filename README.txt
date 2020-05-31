@@ -1,3 +1,11 @@
+v1.0.8.1
+
+-  Added check to ensure all artwork entries are in the Kodi database.  If not, 
+   they are added automatically.  This resolves issue in v1.0.7.9 where a 
+   Kodi DB clear was needed to add missing artwork entries.
+-  Changed file extension change checking method to use pathnumber vs. parsing file
+   extensions.  Kodi 18 and 19 versions of the addon are now back in sync.  
+
 v1.0.8.0
 
 -  Fixed issue where artwork URL file names might be missing or have duplicate
