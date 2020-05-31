@@ -1,3 +1,9 @@
+v2.0.0.0e  New beta release
+
+-  Added check to ensure all artwork entries are in the Kodi database.  If not, 
+   they are added automatically.  This resolves issue in v2.0.0.0c where a 
+   Kodi DB clear was needed to add missing artwork entries.
+
 v2.0.0.0d  New beta release
 
 -  Fixed issue where artwork URL file names might be missing or have duplicate
