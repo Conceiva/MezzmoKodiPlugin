@@ -266,28 +266,36 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
         (?, ?, ? ,?)', (fileId, '1', macodec, mchannels))
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
-        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strFilename, idmovie, url \
-        FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER JOIN art ON      \
-        movie.idMovie=art.media_id WHERE c00=?',(mtitle,))      
+        scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath, idmovie, url \
+        FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER JOIN path    \
+        USING (idpath)INNER JOIN art ON movie.idMovie=art.media_id WHERE c00=?',(mtitle,))      
         scheck = scur.fetchone()
-        sdur = scheck[0]		     # Get duration from Kodi DB
-        svcodec = scheck[1]		     # Get video codec from Kodi DB
+        sdur = scheck[0]		             # Get duration from Kodi DB
+        svcodec = scheck[1]		             # Get video codec from Kodi DB
         scheck = scur.fetchone()
-        sacodec = scheck[2]		     # Get audio codec from Kodi DB
+        sacodec = scheck[2]		             # Get audio codec from Kodi DB
         filenumb = scheck[3]
-        rtrimpos = itemurl.rfind('/')        # Check for container / file name change
+        rtrimpos = itemurl.rfind('/')                # Check for container / path change
         pathcheck = itemurl[:rtrimpos+1]
         filecheck = itemurl[rtrimpos+1:]
-        mextpos = filecheck.rfind('.')       # get Mezzmo file extension
-        mext = filecheck[mextpos+1:]
-        pfilename = scheck[4]
+        kpath = scheck[4]
+        #xbmc.log('Mezzmo streamdetails kpath and pathcheck are: ' + str(kpath) + ' ' + str(pathcheck), xbmc.LOGINFO)
+        #xbmc.log('Mezzmo streamdetails movie is: ' + mtitle, xbmc.LOGINFO)
+        #xbmc.log('Mezzmo streamdetails URL is: ' + itemurl, xbmc.LOGINFO)
         movienumb = scheck[5]
-        kextpos = pfilename.rfind('.')       # get Kodi file extension
-        kext = pfilename[kextpos+1:]
         kicon = scheck[6]                    # Get Kodi DB poster URL
-        if sdur != mduration or svcodec != mvcodec or sacodec != macodec  or kext != mext or kicon != micon:
+        idflist = scur.fetchall()
+        rows = len(idflist)
+        if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon \
+            or rows != 6 :
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
-            mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            mtitle, xbmc.LOGNOTICE)
+            xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGNOTICE)
+            xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
+            xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
+            xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
+            xbmc.log('Mezzmo streamdetails kpath and pathcheck are: ' + str(kpath) + ' ' + str(pathcheck), xbmc.LOGDEBUG)
+            xbmc.log('Mezzmo streamdetails kicon micon are: ' + str(kicon) + ' ' + str(micon), xbmc.LOGDEBUG)
             delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
             db.execute(delete_query)         #  Delete old stream info
             db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
