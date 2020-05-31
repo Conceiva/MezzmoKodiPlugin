@@ -1,3 +1,10 @@
+v2.0.0.0d  New beta release
+
+-  Fixed issue where artwork URL file names might be missing or have duplicate
+   file extensions depending upon which platform Kodi is running. This could cause
+   missing artwork for some movies.  A Kodi DB clear on startup is needed to 
+   remove any incorrect file names in the Kodi database.
+
 v2.0.0.0c  New beta release
 
 -  Fixed issue where movie thumbnails were not updating properly for certain 
