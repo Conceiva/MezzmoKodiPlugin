@@ -108,6 +108,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
         delete_query = 'DELETE FROM actor_link WHERE media_id = ' + str(movieId)
         db.execute(delete_query)                                  #  Delete old actor link info
     if movieId != 0:
+        ordernum = 0
         for actor in actorlist:     
             f = { 'imagesearch' : actor}
             searchUrl = imageSearchUrl + "?" + urllib.urlencode(f)
@@ -116,15 +117,16 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
             actortuple = cur.fetchone()                                           #  Get actor id from actor table
             cur.close()
-            if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
+            if not actortuple:               #  If actor not in actor table insert and fetch new actor ID
                 db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor.decode('utf-8'), searchUrl,))
                 cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor.decode('utf-8'),))   
-                actortuple = cur.fetchone()                       #  Get actor id from actor table
+                actortuple = cur.fetchone()  #  Get actor id from actor table
                 cur.close()
-            if actortuple:                 #  Insert actor to movie link in actor link table
+            if actortuple:                   #  Insert actor to movie link in actor link table
                 actornumb = actortuple[0] 
-                db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', \
-                (actornumb, movieId, 'movie',))
+                ordernum += 1                #  Increment cast order
+                db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values \
+                (?, ?, ?, ?)', (actornumb, movieId, 'movie', ordernum,))
                 #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
     db.commit()
     db.close()       
@@ -149,7 +151,7 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         db.commit()
         db.close()       
 
-def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path already exists in Kodi databae
+def checkDBpath(itemurl, mtitle, mplaycount): #  Check if video path already exists in Kodi database
     rtrimpos = itemurl.rfind('/')
     pathcheck = itemurl[:rtrimpos+1]
     filecheck = itemurl[rtrimpos+1:]
@@ -196,7 +198,8 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     db.close()  
     return(filenumb) 
 
-def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, mrating, micon, kchange):  
+def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, \
+    mrating, micon, kchange, murl):  
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -215,7 +218,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                           # get new movie id    
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', murl))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
@@ -249,7 +252,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl, micon):
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle,  \
+    kchange, itemurl, micon, murl):
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -257,8 +261,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                       
     DB = os.path.join(xbmc.translatePath("special://database"), "MyVideos116.db")  # only use on Kodi 17 and higher
     db = sqlite.connect(DB)
-
-    #xbmc.log('Checking movie for streamchanges : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+    
     if fileId > 0:                      #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
         iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId, '0', mvcodec, maspect, mvwidth, \
@@ -289,7 +292,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon \
             or rows != 6 :
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
-            mtitle, xbmc.LOGNOTICE)
+            mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
             xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
@@ -315,7 +318,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
             db.execute(delete_query)                         #  Update old art info in case of extension change
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', murl))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
     db.commit()
@@ -673,6 +676,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
+                    if (backdropurl [-4:]) !=  '.jpg': 
+                        backdropurl  = backdropurl  + '.jpg'
                 
                 li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
@@ -717,17 +722,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
                     artist_text = artist.text.encode('utf-8', 'ignore')
-                    # writeActorsToDb(artist_text, imageSearchUrl) 
 
                 actor_list = ''
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    #actor_print = actors.text.encode('utf-8', 'ignore')
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    #xbmc.log('The actor list is: ' + actor_print, xbmc.LOGNOTICE)
-                    #actor_list = actors.text.encode('utf-8', 'ignore').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
@@ -906,11 +907,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange)
+                        kodichange, backdropurl)
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl)  # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
 
                             
@@ -988,17 +989,53 @@ def handleSearch(content, contenturl, objectID, term):
                 itemsleft = int(TotalMatches)
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
-               
+            
+            for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
+                title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
+                containerid = container.get('id')
+                
+                description_text = ''
+                description = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
+                if description != None and description.text != None:
+                    description_text = description.text
+    
+                icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+                if icon != None:
+                    icon = icon.text
+                    if (icon[-4:]) !=  '.jpg': 
+                        icon = icon + '.jpg'
+                xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
+
+                itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                
+                mediaClass_text = 'video'
+                info = {
+                        'plot': description_text,
+                }
+                li.setInfo(mediaClass_text, info)
+                    
+                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
+                
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                if parentID == '0':
+                    contentType = 'top'
+                else:
+                    contentType = 'folders'
+                
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text
+                    icon = albumartUri.text  
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)      
+                xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -1008,6 +1045,7 @@ def handleSearch(content, contenturl, objectID, term):
                 
                 if res != None:
                     itemurl = res.text 
+                    #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
                     subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
                     duration_text = res.get('duration')
                     if duration_text == None:
@@ -1022,16 +1060,18 @@ def handleSearch(content, contenturl, objectID, term):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
+                    if (backdropurl [-4:]) !=  '.jpg': 
+                        backdropurl  = backdropurl  + '.jpg'
                 
                 li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
-
+                    
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
-                    
+                
                 genre_text = ''
                 genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
                 if genre != None:
@@ -1056,28 +1096,28 @@ def handleSearch(content, contenturl, objectID, term):
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
-
+                      
                 imageSearchUrl = ''
                 imageSearchUrl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imageSearchUrl')
                 if imageSearchUrl != None:
                     imageSearchUrl = imageSearchUrl.text
-                                      
+                   
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    artist_text = artist.text
+                    artist_text = artist.text.encode('utf-8', 'ignore')
 
                 actor_list = ''
-                cast_dict = []        # Added cast & thumbnail display from Mezzmo server
+                cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                 
+                    for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  
+                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
                         new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))                  
+                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -1122,7 +1162,7 @@ def handleSearch(content, contenturl, objectID, term):
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
-                    
+                 
                 last_played_text = ''
                 last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
                 if last_played != None:
@@ -1226,7 +1266,6 @@ def handleSearch(content, contenturl, objectID, term):
                         'aired': aired_text,
                         'mpaa':content_rating_text,
                         'playcount':playcount,
-                        'lastplayed': last_played_text,
                         'trailer':trailerurl,
                     }
                     li.setInfo(mediaClass_text, info)
@@ -1241,9 +1280,10 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
+ 
                     if installed_version >= '17':         #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)  
-                    tvcheckval = tvChecker(season_text, episode_text)    # Is TV show and user enabled Kodi DB adding
+                    tvcheckval = tvChecker(season_text, episode_text)          # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle, playcount)      #  Check if file exists in Kodi DB
@@ -1251,11 +1291,11 @@ def handleSearch(content, contenturl, objectID, term):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange)
+                        kodichange, backdropurl)
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl)  # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
                       
                 elif mediaClass_text == 'music':
