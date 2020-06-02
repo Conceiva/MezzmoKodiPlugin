@@ -107,23 +107,25 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
         delete_query = 'DELETE FROM actor_link WHERE media_id = ' + str(movieId)
         db.execute(delete_query)                                  #  Delete old actor link info
     if movieId != 0:
+        ordernum = 0
         for actor in actorlist:     
             f = { 'imagesearch' : actor}
             searchUrl = imageSearchUrl + "?" + urllib.parse.urlencode(f)
             #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGINFO)      # actor insertion debugging
             #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGINFO)          # actor insertion debugging  
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,))   
-            actortuple = cur.fetchone()                                           #  Get actor id from actor table
+            actortuple = cur.fetchone()                                         #  Get actor id from actor table
             cur.close()
-            if not actortuple:             #  If actor not in actor table insert and fetch new actor ID
+            if not actortuple:              #  If actor not in actor table insert and fetch new actor ID
                 db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor, searchUrl,))
                 cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,)) 
-                actortuple = cur.fetchone()                       #  Get actor id from actor table
+                actortuple = cur.fetchone()  #  Get actor id from actor table
                 cur.close()
-            if actortuple:                 #  Insert actor to movie link in actor link table
-                actornumb = actortuple[0] 
-                db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type) values (?, ?, ?)', \
-                (actornumb, movieId, 'movie',))
+            if actortuple:                   #  Insert actor to movie link in actor link table
+                actornumb = actortuple[0]
+                ordernum += 1                #  Increment cast order
+                db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values  \
+                (?, ?, ?, ?)', (actornumb, movieId, 'movie', ordernum,))
                 #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGINFO)
     db.commit()
     db.close()       
@@ -147,7 +149,7 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         db.commit()
         db.close()       
 
-def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path already exists in Kodi databae
+def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path already exists in Kodi database
     rtrimpos = itemurl.rfind('/')
     pathcheck = itemurl[:rtrimpos+1]
     filecheck = itemurl[rtrimpos+1:]
@@ -192,7 +194,8 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     db.close()  
     return(filenumb) 
 
-def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, mrating, micon, kchange):  
+def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, poster, mduration, mgenre, mtrailer, \
+    mrating, micon, kchange, murl):  
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -211,7 +214,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                           # get new movie id    
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', murl))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
@@ -246,7 +249,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl, micon):
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl, micon, murl):
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -271,7 +274,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         scheck = scur.fetchone()
         sacodec = scheck[2]		             # Get audio codec from Kodi DB
         filenumb = scheck[3]
-        rtrimpos = itemurl.rfind('/')                # Check for container / path change
+        rtrimpos = itemurl.rfind('/')        # Check for container / path change
         pathcheck = itemurl[:rtrimpos+1]
         filecheck = itemurl[rtrimpos+1:]
         kpath = scheck[4]
@@ -311,7 +314,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             delete_query = 'DELETE FROM art WHERE media_id = ' + str(movienumb)
             db.execute(delete_query)                         #  Update old art info in case of extension change
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'poster', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'fanart', murl))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'thumb', micon))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
@@ -665,7 +668,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
-                
+                    if (backdropurl [-4:]) !=  '.jpg': 
+                        backdropurl  = backdropurl  + '.jpg'
+
                 li = xbmcgui.ListItem(title)
                 li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
@@ -894,11 +899,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange)
+                        kodichange, backdropurl)
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl)  #  Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
 
                             
@@ -1010,6 +1015,8 @@ def handleSearch(content, contenturl, objectID, term):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
+                    if (backdropurl [-4:]) !=  '.jpg': 
+                        backdropurl  = backdropurl  + '.jpg'
                 
                 li = xbmcgui.ListItem(title)
                 li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
@@ -1239,11 +1246,11 @@ def handleSearch(content, contenturl, objectID, term):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, imageSearchUrl, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange)
+                        kodichange, backdropurl)
                         if (artist != None and filekey > 0) or movieId == 999999:        #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
-                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon)  #  Add / update movie stream info 
+                        audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl)  # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                       
                 elif mediaClass_text == 'music':
