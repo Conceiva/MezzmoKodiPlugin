@@ -249,7 +249,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
     db.close()  
     return(movienumb)
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle, kchange, itemurl, micon, murl):
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle,   \
+    kchange, itemurl, micon, murl):
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
@@ -282,11 +283,12 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         #xbmc.log('Mezzmo streamdetails movie is: ' + mtitle, xbmc.LOGINFO)
         #xbmc.log('Mezzmo streamdetails URL is: ' + itemurl, xbmc.LOGINFO)
         movienumb = scheck[5]
+        scheck = scur.fetchone()
         kicon = scheck[6]                            # Get Kodi DB poster URL
         idflist = scur.fetchall()
         rows = len(idflist)
         if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != pathcheck or kicon != micon \
-            or rows != 6 :
+            or rows != 5 :
             xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
             mtitle, xbmc.LOGINFO)
             xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGINFO)
