@@ -1,3 +1,14 @@
+v2.0.0.0f  New beta release
+
+-  Added cast order function to actor search so the actor order in Kodi matches
+   the order in Mezzmo.  Previously stars would appear in random order in the 
+   actor search panel.
+-  Added fanart to the Kodi database for movies.  Previously all 4 artwork types
+   had the same image.
+   *** The cast and fanart changes require a one time Kodi DB clear to add new data 
+   elements to the Kodi database.  Otherwise they will only be added to new movies 
+   which are discovered. *** 
+
 v2.0.0.0e  New beta release
 
 -  Added check to ensure all artwork entries are in the Kodi database.  If not, 
