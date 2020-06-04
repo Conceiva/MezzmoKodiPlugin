@@ -1,3 +1,8 @@
+v2.0.0.0g  New beta release
+
+-  Changed movie title name matching to case insensitive to avoid duplicate movies
+   in the Kodi database.
+
 v2.0.0.0f  New beta release
 
 -  Added cast order function to actor search so the actor order in Kodi matches
