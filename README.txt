@@ -1,6 +1,11 @@
+v1.0.8.3
+
+-  Changed movie title name matching to case insensitive to avoid duplicate movies
+   in the Kodi database.
+
 v1.0.8.2
 
--  Fixed bug which would cause some movies not to be displayed during an addon
+-  Fixed bug which would cause some movies not to be displayed during a addon
    Search action due to a UTF-8 encoding issue.
 -  Added cast order function to actor search so the actor order in Kodi matches
    the order in Mezzmo.  Previously stars would appear in random order in the 
