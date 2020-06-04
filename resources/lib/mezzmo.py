@@ -101,7 +101,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle):
     db = sqlite.connect(DB)
     xbmc.log('Mezzmo writeActorsToDb movie and movieID are: ' + str(movieId) + ' ' + mtitle, xbmc.LOGDEBUG)
     if movieId == 999999:                                         # Actor info needs updated
-        curm = db.execute('SELECT idMovie FROM movie WHERE c00=?',(mtitle,))  # Get movie ID
+        curm = db.execute('SELECT idMovie FROM movie WHERE c00=? COLLATE NOCASE',(mtitle,))  # Get movie ID
         movietuple = curm.fetchone()
         movieId = movietuple[0]                                   # Get real movieId
         delete_query = 'DELETE FROM actor_link WHERE media_id = ' + str(movieId)
@@ -164,7 +164,7 @@ def checkDBpath(itemurl, mtitle, mplaycount):           #  Check if video path a
     db = sqlite.connect(DB)
     
     curf = db.execute('SELECT idFile, playcount FROM files INNER JOIN movie USING (idFile)  \
-    WHERE c00=?',(mtitle,))           # Check if movie exists in Kodi DB  
+    WHERE c00=? COLLATE NOCASE',(mtitle,))           # Check if movie exists in Kodi DB  
     filetuple = curf.fetchone()
 
     if not filetuple:                 # if doesn't exist insert into Kodi DB and return file key value
@@ -219,7 +219,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, p
         db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', (movienumb, 'movie', 'icon', micon))
 
     elif kchange == 'true':                                 #  Update metadata if changes
-        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE c00=?',(mtitle,))  
+        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE \
+        c00=? COLLATE NOCASE',(mtitle,))  
         movietuple = curm.fetchone()
         movienumb = movietuple[0]
         kplot = movietuple[1]
@@ -268,7 +269,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
         scur = db.execute('SELECT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath, idmovie, url \
         FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER JOIN path    \
-        USING (idpath)INNER JOIN art ON movie.idMovie=art.media_id WHERE c00=?',(mtitle,))      
+        USING (idpath)INNER JOIN art ON movie.idMovie=art.media_id WHERE c00=? COLLATE NOCASE',(mtitle,))      
         scheck = scur.fetchone()
         sdur = scheck[0]		             # Get duration from Kodi DB
         svcodec = scheck[1]		             # Get video codec from Kodi DB
