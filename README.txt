@@ -1,3 +1,11 @@
+v1.0.8.4
+
+-  Significant database speed improvement (>75%) by reducing the number of times 
+   the addon opens and closes the Kodi databae.
+-  Added use ratings from Mezzmo to movie search panel.
+-  Fixed logging error which could cause a playlost not to load completely if Kodi
+   was in debug mode and a playlist item was missing the icon variable from Mezzmo. 
+
 v1.0.8.3
 
 -  Changed movie title name matching to case insensitive to avoid duplicate movies
