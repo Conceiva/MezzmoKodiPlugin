@@ -1,3 +1,9 @@
+v1.0.8.5
+
+-  Additional significant databse improvements when adding playlists to the Kodi
+   database.  Moved from a database commit per item to a commit per playlist fetch
+   from Mezzmo.
+
 v1.0.8.4
 
 -  Significant database speed improvement (>75%) by reducing the number of times 
