@@ -1,6 +1,6 @@
 v2.0.0.0i New beta release
 
--  Additional significant databse improvements when adding playlists to the Kodi
+-  Additional significant database improvements when adding playlists to the Kodi
    database.  Moved from a database commit per item to a commit per playlist fetch
    from Mezzmo.
 
