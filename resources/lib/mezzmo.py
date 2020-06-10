@@ -199,7 +199,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         mgenres = mgenre.replace(',' , ' /')                #  Format genre for proper Kodi display
         db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values \
         (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector,  \
-        myear, mgenres, mtrailer, mrating))  #  Add movie information
+        myear, mgenres, mtrailer, mrating))                 #  Add movie information
         cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                           # get new movie id    
@@ -601,7 +601,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
+                    xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
@@ -621,7 +621,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'top'
                 else:
                     contentType = 'folders'
-                
+
+            dbfile = openKodiDB()                   #  Open Kodi database  
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
@@ -631,7 +632,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = albumartUri.text  
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+                    xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
@@ -882,7 +883,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                     tvcheckval = tvChecker(season_text, episode_text)          # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
-                        dbfile = openKodiDB()
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle, playcount, dbfile)      #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)               #  convert movie duration to seconds before passing
@@ -894,10 +894,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle, dbfile)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
                         audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl, dbfile)  # Update movie stream info 
-                        #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
-                        dbfile.commit()
-                        dbfile.close()  
-                            
+                        #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)                          
 
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
@@ -928,7 +925,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
             itemsleft = itemsleft - int(NumberReturned)
+            dbfile.commit()                #  Commit writes
+
             if itemsleft == 0:
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database  
                 break
                         
             # get the next items
