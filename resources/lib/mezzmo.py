@@ -120,7 +120,6 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db):
             #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGINFO)          # actor insertion debugging  
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,))   
             actortuple = cur.fetchone()                                         #  Get actor id from actor table
-            cur.close()
             if not actortuple:              #  If actor not in actor table insert and fetch new actor ID
                 db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor, searchUrl,))
                 cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,)) 
@@ -171,11 +170,10 @@ def checkDBpath(itemurl, mtitle, mplaycount, db):           #  Check if video pa
             curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(pathcheck,)) 
             pathtuple = curp.fetchone()
         pathnumb = pathtuple[0]
-
         db.execute('INSERT into FILES (idPath, strFilename, playCount) values (?, ?, ? )', (str(pathnumb), filecheck, mplaycount))
         cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck,)) 
         filetuple = cur.fetchone()
-        filenumb = filetuple[0] 
+        filenumb = filetuple[0]
     else:                            # Return 0 if file already exists and check for play count change 
         filenumb = filetuple[0] 
         # xbmc.log('File found : ' + filecheck.encode('utf-8','ignore') + ' ' + str(filenumb), xbmc.LOGINFO)
@@ -582,7 +580,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
-            
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -616,7 +613,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'top'
                 else:
                     contentType = 'folders'
-                
+
+            dbfile = openKodiDB()                   #  Open Kodi database    
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
@@ -877,7 +875,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                     tvcheckval = tvChecker(season_text, episode_text)          # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '19' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
-                        dbfile = openKodiDB()
                         mtitle = displayTitles(title) 
                         filekey = checkDBpath(itemurl, mtitle, playcount, dbfile)      #  Check if file exists in Kodi DB
                         durationsecs = getSeconds(duration_text)               #  convert movie duration to seconds before passing
@@ -890,10 +887,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
                         audio_channels_text, durationsecs, mtitle, kodichange, itemurl, icon, backdropurl, dbfile)  # Update movie stream
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
-                        dbfile.commit()
-                        dbfile.close() 
+ 
                             
-
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {
@@ -923,7 +918,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
             itemsleft = itemsleft - int(NumberReturned)
+            dbfile.commit()                #  Commit writes
+
             if itemsleft == 0:
+                dbfile.commit()            
+                dbfile.close()             #  Final commit writes and close Kodi database  
                 break
                         
             # get the next items
