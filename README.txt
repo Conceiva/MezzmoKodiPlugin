@@ -1,3 +1,9 @@
+v1.0.8.6
+
+-  Fixed issue where playlists wouldn't load completely if there was an invalid file
+   in Mezzmo.  Invalid files will now be skipped and not displayed in Kodi nor will
+   they be inserted into the Kodi database.  A popup dialog will alert on invalid files.
+
 v1.0.8.5
 
 -  Additional significant database improvements when adding playlists to the Kodi
