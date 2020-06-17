@@ -640,6 +640,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 video_width = 0
                 video_height = 0
                 aspect = 0.0
+                validf = 0
                 
                 if res != None:
                     itemurl = res.text 
@@ -654,6 +655,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         video_width = int(resolution_text[0:mid])
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
+                        validf = 1	     #  Set valid file info flag
                         
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
@@ -840,8 +842,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
-                        
-                if mediaClass_text == 'video':  
+                       
+                if mediaClass_text == 'video' and validf == 1:  
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
                     
                     info = {
@@ -912,6 +914,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
@@ -920,11 +923,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'title': title,
                     }
                     li.setInfo(mediaClass_text, info)
+                    validf = 1	     #  Set valid file info flag
                     contentType = 'files'
-                 
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                
+                if validf == 1: 
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                else:
+                    dialog_text = "Video file:  " + title.encode('utf-8') + " is invalid."
+                    dialog_text2 = "Check Mezzmo video properties for this file."
+                    xbmcgui.Dialog().ok("Mezzmo", dialog_text, dialog_text2)
             
             itemsleft = itemsleft - int(NumberReturned)
+            xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
             dbfile.commit()                #  Commit writes
 
             if itemsleft == 0:
@@ -1026,7 +1036,8 @@ def handleSearch(content, contenturl, objectID, term):
                 video_width = 0
                 video_height = 0
                 aspect = 0.0
-                
+                validf = 0
+
                 if res != None:
                     itemurl = res.text 
                     #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
@@ -1040,6 +1051,7 @@ def handleSearch(content, contenturl, objectID, term):
                         video_width = int(resolution_text[0:mid])
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
+                        validf = 1	     #  Set valid file info flag
                         
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
@@ -1227,7 +1239,7 @@ def handleSearch(content, contenturl, objectID, term):
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
                         
-                if mediaClass_text == 'video':  
+                if mediaClass_text == 'video' and validf == 1:  
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])
                     
                     info = {
@@ -1301,6 +1313,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
@@ -1309,14 +1322,16 @@ def handleSearch(content, contenturl, objectID, term):
                         'title': title,
                     }
                     li.setInfo(mediaClass_text, info)
+                    validf = 1	     #  Set valid file info flag
                     contentType = 'files'
                  
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                if validf == 1:   
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
             itemsleft = itemsleft - int(NumberReturned)
             if itemsleft == 0:
-                break
-                        
+                break             
+            
             # get the next items
             offset = int(TotalMatches) - itemsleft
             requestedCount = 1000
