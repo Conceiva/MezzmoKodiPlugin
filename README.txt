@@ -1,6 +1,10 @@
+v2.0.0.0k
+
+-  Added studio information from Mezzmo to Kodi database and movie information panel.
+
 v2.0.0.0j New beta release
 
--  Fixed issue where playlists wouldn't load completely if there was an invalid file
+-  Fixed issue where playlists wouldn't load comnpletely if there was an invalid file
    in Mezzmo.  Invalid files will now be skipped and not displayed in Kodi nor will
    they be inserted into the Kodi database.  A popup dialog will alert on invalid files.
 
