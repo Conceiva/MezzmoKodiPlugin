@@ -186,14 +186,14 @@ def checkDBpath(itemurl, mtitle, mplaycount, db):           #  Check if video pa
     return(filenumb) 
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db):  
+    mrating, micon, kchange, murl, db, mstudio):  
 
     if fileId > 0:                                          #  Insert movie if does not exist in Kodi DB
         xbmc.log('Mezzmo writeMovieToDb new movie fileid and title: ' + str(fileId) + ' ' + str(mtitle), xbmc.LOGDEBUG)
         mgenres = mgenre.replace(',' , ' /')                #  Format genre for proper Kodi display
-        db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12) values \
-        (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector,  \
-        myear, mgenres, mtrailer, mrating))  #  Add movie information
+        db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18) values \
+        (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,? ,?)', (fileId, mtitle, mplot, mtagline, mwriter, mduration, mdirector,    \
+        myear, mgenres, mtrailer, mrating, mstudio))        #  Add movie information
         cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(fileId,))  
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                           # get new movie id    
@@ -209,7 +209,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         db.execute('UPDATE movie SET c05=? WHERE idMovie=?', (ratenumb, movienumb))
 
     elif kchange == 'true':                                 #  Update metadata if changes
-        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, idFile FROM movie WHERE \
+        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, c05, c18 FROM movie WHERE \
         c00=? COLLATE NOCASE',(mtitle,))  
         movietuple = curm.fetchone()
         movienumb = movietuple[0]
@@ -222,14 +222,16 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         krating = movietuple[7]
         kyear = movietuple[8]
         krate = movietuple[9]
+        kstudio = movietuple[10]
         kgenres = kgenre.replace(' /' , ',')                 #  Format genre for proper Kodi display
         #xbmc.log('Checking movie for changes : ' + mtitle xbmc.LOGINFO)        
-        if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector \
-        or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration:  # Update movie info if changed
+        if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector   \
+        or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration \
+        or kstudio != mstudio:                               # Update movie info if changed
             mgenres = mgenre.replace(',' , ' /')             #  Format genre for proper Kodi display
             db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, \
-            c12=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, mgenres,  \
-            mtrailer, mrating, movienumb))                   #  Update movie information
+            c12=?, c18=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear,    \
+            mgenres, mtrailer, mrating, mstudio, movienumb)) #  Update movie information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             movienumb = 999999                               # Trigger actor update
             xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle, xbmc.LOGINFO)           
@@ -790,6 +792,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     rating_val = float(rating_val) * 2
                     rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
                 
+                production_company_text = ''
+                production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
+                if production_company != None:
+                    production_company_text = production_company.text
+
                 video_codec_text = ''
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
                 if video_codec != None:
@@ -857,6 +864,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'lastplayed': lastplayed_text,
                         'aired': aired_text,
                         'mpaa':content_rating_text,
+                        'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
                     }
@@ -883,7 +891,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, rating_val, durationsecs, genre_text, trailerurl, content_rating_text, icon,      \
-                        kodichange, backdropurl, dbfile)
+                        kodichange, backdropurl, dbfile, production_company_text)
                         if (artist != None and filekey > 0) or movieId == 999999:      #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle, dbfile)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
@@ -1148,6 +1156,11 @@ def handleSearch(content, contenturl, objectID, term):
                     rating_val = rating.text
                     rating_val = float(rating_val) * 2
                     rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+
+                production_company_text = ''
+                production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
+                if production_company != None:
+                    production_company_text = production_company.text    
                 
                 video_codec_text = ''
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
@@ -1216,6 +1229,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'lastplayed': lastplayed_text,
                         'aired': aired_text,
                         'mpaa':content_rating_text,
+                        'studio':production_company_text,
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                         'trailer':trailerurl,
@@ -1244,7 +1258,7 @@ def handleSearch(content, contenturl, objectID, term):
                         kodichange = addon.getSetting('kodichange')            #  Checks for change detection user setting
                         movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
                         release_year_text, rating_val, durationsecs, genre_text, trailerurl, content_rating_text, icon,      \
-                        kodichange, backdropurl, dbfile)
+                        kodichange, backdropurl, dbfile, production_company_text)
                         if (artist != None and filekey > 0) or movieId == 999999:      #  Add actor information to new movie
                             writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle, dbfile)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width, audio_codec_text, \
