@@ -1,3 +1,7 @@
+v1.0.8.7
+
+-  Added studio information from Mezzmo to Kodi database and movie information panel.
+
 v1.0.8.6
 
 -  Fixed issue where playlists wouldn't load completely if there was an invalid file
