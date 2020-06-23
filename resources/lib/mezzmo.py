@@ -231,7 +231,6 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         kstudio = movietuple[10]
         kstitle = movietuple[11]
         kgenres = kgenre.replace(' /' , ',')                          #  Format genre for proper Kodi display
-        xbmc.log('Sort titles : ' + kstitle.encode('utf-8', 'ignore') + " " + mstitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE) 
         #xbmc.log('Checking movie for changes : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)        
         if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector   \
         or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration \
