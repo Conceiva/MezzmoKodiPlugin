@@ -1,3 +1,12 @@
+v1.0.8.8
+
+-  Added Mezzmo sort title support into the Kodi database.  Now actor searches will
+   honor the sort titles.  No database clear is required.  Sort titles will be added
+   as you browse playlists.
+  
+   ***  Note Mezzmo version 6.0.5.0o is required to leverage this function ***
+   You will need to E-mail support@conceiva.com to request the patch. 
+
 v1.0.8.7
 
 -  Added studio information from Mezzmo to Kodi database and movie information panel.
