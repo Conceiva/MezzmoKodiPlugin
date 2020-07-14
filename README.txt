@@ -1,3 +1,7 @@
+v1.0.8.9
+
+-  Added TV series name display when browsing TV show episodes.
+
 v1.0.8.8
 
 -  Added Mezzmo sort title support into the Kodi database.  Now actor searches will
