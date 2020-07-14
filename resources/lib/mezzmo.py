@@ -881,6 +881,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
+                        'tvshowtitle':album_text,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
@@ -1288,6 +1289,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
+                        'tvshowtitle':album_text,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
