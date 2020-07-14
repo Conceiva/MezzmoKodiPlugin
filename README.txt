@@ -1,6 +1,6 @@
 v2.0.0.0m New beta release
 
--  Added TV series name display when browsing TV show episodes.
+-  Added TV series name display when browsing TV show episode details.
 
 v2.0.0.0l New beta release
 
