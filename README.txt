@@ -1,6 +1,6 @@
 v1.0.8.9
 
--  Added TV series name display when browsing TV show episodes.
+-  Added TV series name display when browsing TV show episode details.
 
 v1.0.8.8
 
