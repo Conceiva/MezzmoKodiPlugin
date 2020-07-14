@@ -1,4 +1,8 @@
-v1.0.8.8
+v2.0.0.0m New beta release
+
+-  Added TV series name display when browsing TV show episodes.
+
+v2.0.0.0l New beta release
 
 -  Added Mezzmo sort title support into the Kodi database.  Now actor searches will
    honor the sort titles.  No database clear is required.  Sort titles will be added
@@ -7,23 +11,23 @@ v1.0.8.8
    ***  Note Mezzmo version 6.0.5.0o is required to leverage this function ***
    You will need to E-mail support@conceiva.com to request the patch. 
 
-v1.0.8.7
+v2.0.0.0k New beta release
 
 -  Added studio information from Mezzmo to Kodi database and movie information panel.
 
-v1.0.8.6
+v2.0.0.0j New beta release
 
--  Fixed issue where playlists wouldn't load completely if there was an invalid file
+-  Fixed issue where playlists wouldn't load comnpletely if there was an invalid file
    in Mezzmo.  Invalid files will now be skipped and not displayed in Kodi nor will
    they be inserted into the Kodi database.  A popup dialog will alert on invalid files.
 
-v1.0.8.5
+v2.0.0.0i New beta release
 
 -  Additional significant database improvements when adding playlists to the Kodi
    database.  Moved from a database commit per item to a commit per playlist fetch
    from Mezzmo.
 
-v1.0.8.4
+v2.0.0.0h New beta release
 
 -  Significant database speed improvement (>75%) by reducing the number of times 
    the addon opens and closes the Kodi database.
@@ -31,15 +35,13 @@ v1.0.8.4
 -  Fixed logging error which could cause a playlist not to load completely if Kodi
    was in debug mode and a playlist item was missing the icon variable from Mezzmo. 
 
-v1.0.8.3
+v2.0.0.0g  New beta release
 
 -  Changed movie title name matching to case insensitive to avoid duplicate movies
    in the Kodi database.
 
-v1.0.8.2
+v2.0.0.0f  New beta release
 
--  Fixed bug which would cause some movies not to be displayed during a addon
-   Search action due to a UTF-8 encoding issue.
 -  Added cast order function to actor search so the actor order in Kodi matches
    the order in Mezzmo.  Previously stars would appear in random order in the 
    actor search panel.
@@ -49,31 +51,43 @@ v1.0.8.2
    elements to the Kodi database.  Otherwise they will only be added to new movies 
    which are discovered. *** 
 
-v1.0.8.1
+v2.0.0.0e  New beta release
 
 -  Added check to ensure all artwork entries are in the Kodi database.  If not, 
-   they are added automatically.  This resolves issue in v1.0.7.9 where a 
+   they are added automatically.  This resolves issue in v2.0.0.0c where a 
    Kodi DB clear was needed to add missing artwork entries.
--  Changed file extension change checking method to use pathnumber vs. parsing file
-   extensions.  Kodi 18 and 19 versions of the addon are now back in sync.  
 
-v1.0.8.0
+v2.0.0.0d  New beta release
 
 -  Fixed issue where artwork URL file names might be missing or have duplicate
    file extensions depending upon which platform Kodi is running. This could cause
    missing artwork for some movies.  A Kodi DB clear on startup is needed to 
    remove any incorrect file names in the Kodi database.
 
-v1.0.7.9
+v2.0.0.0c  New beta release
 
 -  Fixed issue where movie thumbnails were not updating properly for certain 
    skins when doing an actor search. A Kodi DB clear on startup is needed to
    populate missing thumbnails in the Kodi database.
 
-v1.0.7.8
+v2.0.0.0b  New beta release
 
--  Fixed Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
+-  Fixes Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
    database vs. deleting all data in prior versions. 
+
+
+v2.0.0.0a  New beta release
+
+-  Updated Kodi logging to a new format which will be required after June 30, 2020
+   for Kodi 19.
+-  Changed file extension change checking method to use pathnumber vs. parsing file
+   extensions. Eliminated issue with false positives on change detection with Kodi
+   19 and improves addon performance.  
+
+v2.0.0.0
+
+-  Initial Kodi 19 supported release based upon 1.0.7.7 code.  THis version is 
+   only for Kodi 19 and will not load on Kodi 18.
 
 v1.0.7.7
 
