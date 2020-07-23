@@ -4,11 +4,11 @@ v2.0.0.0n New Beta release
    the Kodi database with movies having the exact same names as 
    Mezzmo movies.  The addon will now only query and update Mezzmo
    generated movies and media files in the Kodi database.  
--  Fixed issue introduced in v1.0.7.8 where not all Mezzmo records 
+-  Fixed issue introduced in v2.0.0.0b where not all Mezzmo records 
    were being deleted with a Kodi ClearDB on some Linux clients which
    populate the path table with a mix of IP address and DNS based entries
    or if the Mezzmo server IP addressed changed.
--  Fixed issue with 1.0.8.9 where the TV Show name is now only added 
+-  Fixed issue with v2.0.0.0m where the TV Show name is now only added 
    when browsing TV shows.  This resolves issue with some movies 
    showing unknown titles in the Info/Details panel.
 -  Updated actor and artwork change updates to differentiate between
