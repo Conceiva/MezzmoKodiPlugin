@@ -1,3 +1,14 @@
+v2.0.0.0o New Beta release
+
+-  Fixed issue with Kodi database cache clearing where not all records
+   in the cache table associated with Mezzmo were being deleted.
+-  Improved handling of TV Episodes in the Kodi database so that they
+   now appear as TV episodes vs. movies, with the proper season, episode
+   and similar information when an actor search is performed.
+   *** If the Add TV Episodes option has previously been enabled a 
+   Kodi database clear on startup is required to repopulate with 
+   the proper tags.  *** 
+
 v2.0.0.0n New Beta release
 
 -  Improved database queries to support other Kodi addons populating
@@ -105,7 +116,7 @@ v2.0.0.0a  New beta release
 
 v2.0.0.0
 
--  Initial Kodi 19 supported release based upon 1.0.7.7 code.  THis version is 
+-  Initial Kodi 19 supported release based upon 1.0.7.7 code.  This version is 
    only for Kodi 19 and will not load on Kodi 18.
 
 v1.0.7.7
