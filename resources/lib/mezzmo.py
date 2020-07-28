@@ -20,6 +20,7 @@ import datetime
 import time
 import json
 import os
+import media
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
@@ -83,17 +84,17 @@ def checkParentPath(ContentPathUrl):	#  Add parent path id to missing Mezzmo pat
     db = sqlite.connect(DB)
 
     rfpos = ContentPathUrl.find('/',7)
-    ppathurl = ContentPathUrl[:rfpos+1]               #  Get Mezzmo server info
-    serverport = ContentPathUrl[rfpos+1:rfpos+6]      #  Get Mezzmo server port info 
+    ppathurl = ContentPathUrl[:rfpos+1]             #  Get Mezzmo server info
+    serverport = ContentPathUrl[rfpos+1:rfpos+6]    #  Get Mezzmo server port info 
     curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(ppathurl,))     # Check if server path exists in Kodi DB
     ppathtuple = curpth.fetchone()
-    if not ppathtuple:                                # add parent server path to Kodi DB if it doesn't exist
+    if not ppathtuple:                              # add parent server path to Kodi DB if it doesn't exist
         db.execute('INSERT into path (strpath, strContent) values (?, ?)', (ppathurl, 'movies',))
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(ppathurl,)) 
         ppathtuple = curpp.fetchone()
-        ppathnumb = ppathtuple[0]                     # Parent path number
+        ppathnumb = ppathtuple[0]                   # Parent path number
         xbmc.log('Mezzmo checkParentPath parent path added: ' + str(ppathnumb) + " " + ppathurl, xbmc.LOGNOTICE) 
-    ppathnumb = ppathtuple[0]                         # Parent path number
+    ppathnumb = ppathtuple[0]                       # Parent path number
     db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
     ('movies', ppathnumb, '%' + serverport + '%', ppathnumb)) # Update Child paths with parent information
 
@@ -112,36 +113,43 @@ def kodiCleanDB(ContentDeleteURL):
         db = sqlite.connect(DB)
         # xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGNOTICE)
          
-        rfpos = ContentDeleteURL.find(':',7)      #  Get Mezzmo server info
+        rfpos = ContentDeleteURL.find(':',7)        #  Get Mezzmo server info
         serverport = '%' + ContentDeleteURL[rfpos+1:rfpos+6] + '%'
 
         db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
         db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
+        db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
 
         curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE         \
-        strpath LIKE ?', (serverport,))   #  Get file and movie list
+        strpath LIKE ?', (serverport,))             #  Get file and movie list
         idlist = curf.fetchall()
-        for a in range(len(idlist)):                  #  Delete Mezzmo file and Movie data
+        for a in range(len(idlist)):                #  Delete Mezzmo file and Movie data
             # xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGNOTICE)
             db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
             db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
+            db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
         db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
 
         xbmc.log('Kodi database Mezzmo data cleared: ', xbmc.LOGNOTICE)
         db.commit()
         db.close()
-        addon.setSetting('kodiclean', 'false')        # reset back to false after clearing
+        addon.setSetting('kodiclean', 'false')     # reset back to false after clearing
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
     actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
-   
+  
+    if fileId[4] == 0:
+       media_type = 'movie'
+    elif fileId[4] == 1:
+       media_type = 'episode'
+    
     if movieId == 999999:                                         # Actor info needs updated
         curm = db.execute('SELECT idMovie FROM movie INNER JOIN files USING (idfile) \
         INNER JOIN path USING (idpath) WHERE idFile=? COLLATE NOCASE',    \
-        (str(fileId[1]),))                                        # Get real movie ID
+        (str(fileId[1]),))                                        # Query for real movieID
         movietuple = curm.fetchone()
         movieId = movietuple[0]                                   # Get real movieId
-        db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(movieId), 'movie'))
+        db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(movieId), media_type))
     if movieId != 0:
         ordernum = 0
         for actor in actorlist:     
@@ -161,10 +169,10 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
                 actornumb = actortuple[0] 
                 ordernum += 1                #  Increment cast order
                 db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values \
-                (?, ?, ?, ?)', (actornumb, movieId, 'movie', ordernum,))
+                (?, ?, ?, ?)', (actornumb, movieId, media_type, ordernum,))
                 #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)  
 
-def deleteTexturesCache(contenturl):    # do not cache texture images if caching disabled
+def deleteTexturesCache(contenturl):        # do not cache texture images if caching disabled
     if addon.getSetting('caching') == 'false':    
         try:
             from sqlite3 import dbapi2 as sqlite
@@ -173,33 +181,31 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
                       
         DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
         db = sqlite.connect(DB)
-    
-        imageDeleteURL = '"' + contenturl.replace('ContentDirectory/control','content/%"')
-        delete_query = 'DELETE FROM texture WHERE url LIKE ' + imageDeleteURL 
-        #xbmc.log('Image delete query: ' + delete_query, xbmc.LOGNOTICE)
-    
-        cur = db.execute(delete_query)        # delete only cached images from Mezzmo server
+
+        rfpos = contenturl.find(':',7)      #  Get Mezzmo server info
+        serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
+        cur = db.execute('DELETE FROM texture WHERE url LIKE ?', (serverport,))        
         rows = cur.rowcount
         xbmc.log('Mezzmo addon texture rows deleted: ' + str(rows), xbmc.LOGNOTICE)
         db.commit()
         db.close()
-        addon.setSetting('caching', 'true')        # reset back to true after clearing    
+        addon.setSetting('caching', 'true') # reset back to true after clearing      
 
-def getPath(itemurl):		        # Find path string for media file
+def getPath(itemurl):		            # Find path string for media file
 
     rtrimpos = itemurl.rfind('/')       
     pathcheck = itemurl[:rtrimpos+1]
     #xbmc.log('The media file path is : ' + pathcheck, xbmc.LOGNOTICE)
     return(pathcheck)   
 
-def getMServer(itemurl):		# Find server string for media file
+def getMServer(itemurl):		        # Find server string for media file
 
     rtrimpos = itemurl.rfind(':',7)      
     serverid = itemurl[:rtrimpos+7]
     #xbmc.log('The serverid : ' + serverid, xbmc.LOGNOTICE)
     return(serverid)   
 
-def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver): #  Check if video path already exists in Kodi database
+def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode): #  Check if path exists in Kodi DB
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
@@ -219,17 +225,27 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver): #  Check if vi
         ('movies', ppathnumb, '%' + serverport + '%', ppathnumb))   # Update Child paths with parent information
     ppathnumb = ppathtuple[0]         # Parent path number
 
-    curf = db.execute('SELECT idFile, playcount, idParentPath FROM files INNER JOIN movie   \
-    USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE    \
-    NOCASE', (mtitle, ppathnumb))     # Check if movie exists in Kodi DB under parent path  
-    filetuple = curf.fetchone()
-    #xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)     # Path check debugging
+    if int(mepisode) > 0 and int(mseason) > 0:
+        media = 'episode'
+        episodes = 1
+        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN episode         \
+        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE      \
+        NOCASE', (mtitle, ppathnumb))   # Check if episode exists in Kodi DB under parent path  
+        filetuple = curf.fetchone()
+    else:
+        media = 'movie'
+        episodes = 0
+        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN movie           \
+        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE      \
+        NOCASE', (mtitle, ppathnumb))   # Check if movie exists in Kodi DB under parent path  
+        filetuple = curf.fetchone()
+        #xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)     # Path check debugging
 
-    if not filetuple:                 # if not exist insert into Kodi DB and return file key value
+    if not filetuple:                   # if not exist insert into Kodi DB and return file key value
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
         pathtuple = curp.fetchone()
         #xbmc.log('File not found : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
-        if not pathtuple:             # if path doesn't exist insert into Kodi DB
+        if not pathtuple:               # if path doesn't exist insert into Kodi DB
             db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
             (mpath, 'movies', ppathnumb))
             curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
@@ -250,76 +266,22 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver): #  Check if vi
             db.execute('UPDATE files SET playCount=? WHERE idFile=?', (mplaycount, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
         realfilenumb = filenumb      #  Save real file number before resetting found flag
+        pathnumb = filetuple[2]
         filenumb = 0                 
     
-    return[filenumb, realfilenumb, ppathnumb] # Return filenumb, real filenumb for existing and parent path
+    return[filenumb, realfilenumb, ppathnumb, serverport, episodes, pathnumb] # Return file, path and info
 
-def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle):  
-
-    if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
-        #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
-        mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
-        db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10) values \
-        (?, ?, ?, ?, ?, ?, ? ,? ,? ,? ,? ,?, ?)', (fileId[0], mtitle, mplot, mtagline, mwriter, mduration, mdirector,   \
-        myear, mgenres, mtrailer, mrating, mstudio, mstitle))        #  Add movie information
-        cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
-        movietuple = cur.fetchone()
-        movienumb = movietuple[0]                                    # get new movie id    
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-        (movienumb, 'movie', 'poster', micon))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-        (movienumb, 'movie', 'fanart', murl))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-        (movienumb, 'movie', 'thumb', micon))
-        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-        (movienumb, 'movie', 'icon', micon))
-        db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
-        (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
-        curr = db.execute('SELECT rating_id FROM rating WHERE media_id=?',(movienumb,))
-        ratetuple = curr.fetchone() 
-        ratenumb = ratetuple[0]
-        db.execute('UPDATE movie SET c05=? WHERE idMovie=?', (ratenumb, movienumb))
-
-    elif kchange == 'true':                                 #  Update metadata if changes
-        curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, c05, \
-        c18, c10 FROM movie INNER JOIN files USING (idfile) INNER JOIN path USING (idpath)    \
-        WHERE idFile=? COLLATE NOCASE', (int(fileId[1]),))  
-        movietuple = curm.fetchone()
-        movienumb = movietuple[0]
-        kplot = movietuple[1]
-        ktagline = movietuple[2]
-        kwriter = movietuple[3]     
-        kduration = movietuple[4]
-        kdirector = movietuple[5]
-        kgenre = movietuple[6]
-        krating = movietuple[7]
-        kyear = movietuple[8]
-        krate = movietuple[9]
-        kstudio = movietuple[10]
-        kstitle = movietuple[11]
-        kgenres = kgenre.replace(' /' , ',')                          #  Format genre for proper Kodi display
-        #xbmc.log('Checking movie for changes : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)        
-        if kplot != mplot or ktagline != mtagline or kwriter != mwriter or kdirector != mdirector   \
-        or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration \
-        or kstudio != mstudio or kstitle != mstitle:                  # Update movie info if changed
-            mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
-            db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?,     \
-            c12=?, c18=?, c10=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear, \
-            mgenres, mtrailer, mrating, mstudio, mstitle, movienumb)) #  Update movie information
-            db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
-            movienumb = 999999                                        # Trigger actor update
-            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
-    else:
-        movienumb = 0                                                 # disable change checking
-
-    return(movienumb)
 
 def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle,  \
     kchange, itemurl, micon, murl, db, mpath):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
     filecheck = itemurl[rtrimpos+1:]
+
+    if fileId[4] == 0:
+       media_type = 'movie'
+    elif fileId[4] == 1:
+       media_type = 'episode'
     
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
@@ -328,10 +290,16 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
         (?, ?, ? ,?)', (fileId[0], '1', macodec, mchannels))
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
-        scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
-        idmovie, url FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER \
-        JOIN path USING (idpath) INNER JOIN art ON movie.idMovie=art.media_id WHERE idFile=? ORDER BY         \
-        strAudioCodec', (int(fileId[1]),)) 
+        if fileId[4] == 0:
+            scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
+            idMovie, url FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER \
+            JOIN path USING (idpath) INNER JOIN art ON movie.idMovie=art.media_id WHERE idFile=? and media_type=? \
+            ORDER BY strAudioCodec', (int(fileId[1]), media_type))
+        elif  fileId[4] == 1:
+            scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
+            idEpisode, url FROM STREAMDETAILS INNER JOIN episode USING (idFile) INNER JOIN files USING (idfile)   \
+            INNER JOIN path USING (idpath) INNER JOIN art ON episode.idEpisode=art.media_id WHERE idFile=? and    \
+            media_type=? ORDER BY strAudioCodec', (int(fileId[1]), media_type))
         scheck = scur.fetchone()
         sdur = scheck[0]		             # Get duration from Kodi DB
         svcodec = scheck[1]		             # Get video codec from Kodi DB
@@ -372,15 +340,16 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 pathtuple = curp.fetchone()
             pathnumb = pathtuple[0]
             db.execute('UPDATE files SET idPath=?, strFilename=? WHERE idFile=?', (pathnumb, filecheck, filenumb))
-            db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
+            db.execute('UPDATE movie SET c23=? WHERE idFile=?', (pathnumb, filenumb))
+            db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), media_type))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, 'movie', 'poster', micon))
+            (movienumb, media_type, 'poster', micon))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, 'movie', 'fanart', murl))
+            (movienumb, media_type, 'fanart', murl))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, 'movie', 'thumb', micon))
+            (movienumb, media_type, 'thumb', micon))
             db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, 'movie', 'icon', micon))
+            (movienumb, media_type, 'icon', micon))
 
 
 def displayTitles(mtitle):                              #  Remove common Mezzmo Display Title variables
@@ -536,7 +505,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     kodiCleanDB(contenturl)                     # Call function to delete Kodi actor database if user enabled. 
-    checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
+    #checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
     dbIndexes()
     
 def build_url(query):
@@ -949,7 +918,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'mediatype': categories_text.split(',')[0],  # updated - Kodi can only accept 1 media type
                         'season': season_text,
                         'episode': episode_text,
-                        'lastplayed': lastplayed_text,
+                        'lastplayed': last_played_text,
                         'aired': aired_text,
                         'mpaa':content_rating_text,
                         'studio':production_company_text,
@@ -971,26 +940,35 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
                     if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)                
-
-                    tvcheckval = tvChecker(season_text, episode_text)       # Is TV show and user enabled Kodi DB adding
+                    tvcheckval = tvChecker(season_text, episode_text) # Is TV show and user enabled Kodi DB adding
                     if installed_version >= '17' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
                         mtitle = displayTitles(title)
                         pathcheck = getPath(itemurl)                        #  Get path string for media file
                         serverid = getMServer(itemurl)                      #  Get Mezzmo server id
-                        filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid)
+                        filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid, season_text, \
+                        episode_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
-                        movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
-                        release_year_text, rating_val, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange, backdropurl, dbfile, production_company_text, sort_title_text)
-                        if (artist != None and filekey[0] > 0) or movieId == 999999: #  Add actor information to new movie
-                            writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle, dbfile, filekey)
+                        if filekey[4] == 1:
+                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
+                            production_company_text)
+                            mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
+                            writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
+                            sort_title_text, season_text, episode_text, showId)  
+                        else:  
+                            mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
+                            sort_title_text)
+                        if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
+                            writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
-                        #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)                          
-
+                        #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
+                                          
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {
@@ -1391,15 +1369,25 @@ def handleSearch(content, contenturl, objectID, term):
                         mtitle = displayTitles(title)
                         pathcheck = getPath(itemurl)                        #  Get path string for media file
                         serverid = getMServer(itemurl)                      #  Get Mezzmo server id
-                        filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid)
-                        # xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
+                        filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid, season_text, \
+                        episode_text)
+                        #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
-                        movieId = writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, creator_text, \
-                        release_year_text, rating_val, durationsecs, genre_text, trailerurl, content_rating_text, icon,  \
-                        kodichange, backdropurl, dbfile, production_company_text, sort_title_text)
-                        if (artist != None and filekey[0] > 0) or movieId == 999999: #  Add actor information to new movie
-                            writeActorsToDb(artist_text, movieId, imageSearchUrl, mtitle, dbfile, filekey)
+                        if filekey[4] == 1:
+                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
+                            production_company_text)
+                            mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
+                            writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
+                            sort_title_text, season_text, episode_text, showId)  
+                        else:  
+                            mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
+                            sort_title_text)
+                        if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
+                            writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
