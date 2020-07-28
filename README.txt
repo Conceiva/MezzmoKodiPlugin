@@ -1,3 +1,14 @@
+v1.0.9.1
+
+-  Fixed issue with Kodi database cache clearing where not all records
+   in the cache table associated with Mezzmo were being deleted.
+-  Improved handling of TV Episodes in the Kodi database so that they
+   now appear as TV episodes vs. movies, with the proper season, episode
+   and similar information when an actor search is performed.
+   *** If the Add TV Episodes option has previously been enabled a 
+   Kodi database clear on startup is required to repopulate with 
+   the proper tags.  *** 
+
 v1.0.9.0
 
 -  Improved database queries to support other Kodi addons populating
