@@ -1,3 +1,10 @@
+v1.0.9.2
+
+-  Fixed bug introduced in v1.0.9.1 which would cause invalid metadata
+   changes to be detected in TV episodes.  The only impacts were a slight
+   slowness loading large TV episode playlists and erroneous Kodi log
+   messages stating that a metadata change was detected.
+
 v1.0.9.1
 
 -  Fixed issue with Kodi database cache clearing where not all records
