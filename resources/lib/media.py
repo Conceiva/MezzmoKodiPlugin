@@ -151,7 +151,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         krate = episodetuple[9]
         #xbmc.log('Checking episode for changes : ' + mtitle, xbmc.LOGINFO)     
         if kplot != mplot or int(kduration) != mduration or kdirector != mdirector or kwriter != mwriter \
-        or kseason != mseason or kepisode != mepisode or kaired != maired or kshow != shownumb: 
+        or kseason != mseason or kepisode != mepisode or kaired != maired[:10] or kshow != shownumb: 
             db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=? \
             WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode, maired[:10],      \
             shownumb, fileId[5], movienumb))                          #  Update Episode information
