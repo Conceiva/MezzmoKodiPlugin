@@ -1,3 +1,10 @@
+v2.0.0.0p New Beta release
+
+-  Fixed bug introduced in v2.0.0.0o which would cause invalid metadata
+   changes to be detected in TV episodes.  The only impacts were a slight
+   slowness loading large TV episode playlists and erroneous Kodi log
+   messages stating that a metadata change was detected.
+
 v2.0.0.0o New Beta release
 
 -  Fixed issue with Kodi database cache clearing where not all records
