@@ -1,3 +1,13 @@
+v2.0.0.0q New Beta release
+
+-  Fixed 3 bugs found in streamdetails change detection and title checking
+   during bulk Mezzmo/Kodi sync testing which would cause Kodi not to be 
+   updated with Mezzmo data when browsing playlists and would abort the 
+   upcoming Mezzmo / Kodi sync process feature. 
+-  Updated TV Episode dupe checking to match on series name, season and 
+   episode.  This eliminates duplicates in the Kodi database due to episode
+   naming and display title differences across playlists.
+
 v2.0.0.0p New Beta release
 
 -  Fixed bug introduced in v2.0.0.0o which would cause invalid metadata
