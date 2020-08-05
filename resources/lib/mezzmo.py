@@ -203,7 +203,7 @@ def getMServer(itemurl):		    # Find server string for media file
     #xbmc.log('The serverid : ' + serverid, xbmc.LOGINFO)
     return(serverid)  
 
-def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode): #  Check if path exists in Kodi DB
+def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries): #  Check if path exists
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
@@ -225,9 +225,10 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if int(mepisode) > 0 and int(mseason) > 0:
         media = 'episode'
         episodes = 1
-        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN episode         \
-        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE      \
-        NOCASE', (mtitle, ppathnumb))     # Check if episode exists in Kodi DB under parent path  
+        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN episode          \
+        USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)             \
+        WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE', \
+        (mseries, ppathnumb, mseason, mepisode))     # Check if episode exists in Kodi DB under parent path 
         filetuple = curf.fetchone()
     else:
         media = 'movie'
@@ -297,63 +298,72 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             idEpisode, url FROM STREAMDETAILS INNER JOIN episode USING (idFile) INNER JOIN files USING (idfile)   \
             INNER JOIN path USING (idpath) INNER JOIN art ON episode.idEpisode=art.media_id WHERE idFile=? and    \
             media_type=? ORDER BY strAudioCodec', (int(fileId[1]), media_type))
-        scheck = scur.fetchone()
-        sdur = scheck[0]		             # Get duration from Kodi DB
-        svcodec = scheck[1]		             # Get video codec from Kodi DB
-        scheck = scur.fetchone()
-        scheck = scur.fetchone()
-        sacodec = scheck[2]		             # Get audio codec from Kodi DB
-        filenumb = scheck[3]
-        kpath = scheck[4]
-        movienumb = scheck[5]
-        scheck = scur.fetchone()
-        kicon = scheck[6]                            # Get Kodi DB thumbnail URL
         idflist = scur.fetchall()
         rows = len(idflist)
-        if sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != mpath or kicon != micon \
-            or rows != 0 :
-            xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
-            mtitle, xbmc.LOGINFO)
-            xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGINFO)
-            xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
-            xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
-            xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
-            xbmc.log('Mezzmo streamdetails kpath and mpath are: ' + str(kpath) + ' ' + str(mpath), xbmc.LOGDEBUG)
-            xbmc.log('Mezzmo streamdetails kicon micon are: ' + str(kicon) + ' ' + str(micon), xbmc.LOGDEBUG)
-            delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
-            db.execute(delete_query)          #  Delete old stream info
-            db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
-            iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth,\
-            mvheight, mduration))
-            db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values      \
-            (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
-            db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
-            curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
-            pathtuple = curp.fetchone()
-            if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
-                db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
-                (mpath, 'movies', int(fileId[2])))
-                curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
+        if rows == 4:                              # Ensure all data exsts
+            sdur = idflist[0][0]
+            svcodec = idflist[0][1]		   # Get video codec from Kodi DB
+            sacodec = idflist[2][2]		   # Get audio codec from Kodi DB
+            filenumb = idflist[2][3]
+            kpath = idflist[2][4]
+            movienumb = idflist[2][5]
+            kicon = idflist[1][6]                  # Get Kodi DB thumbnail URL
+            if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != mpath or kicon != micon)  \
+                and rows == 4:
+                xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' + mtitle, xbmc.LOGINFO)
+                xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGINFO)
+                xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
+                xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
+                xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
+                xbmc.log('Mezzmo streamdetails kpath and mpath are: ' + str(kpath) + ' ' + str(mpath), xbmc.LOGDEBUG)
+                xbmc.log('Mezzmo streamdetails kicon micon are: ' + str(kicon) + ' ' + str(micon), xbmc.LOGDEBUG)
+                delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
+                db.execute(delete_query)          #  Delete old stream info
+                db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
+                iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth,\
+                mvheight, mduration))
+                db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values      \
+                (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
+                db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
+                curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
                 pathtuple = curp.fetchone()
-            pathnumb = pathtuple[0]
-            db.execute('UPDATE files SET idPath=?, strFilename=? WHERE idFile=?', (pathnumb, filecheck, filenumb))
-            db.execute('UPDATE movie SET c23=? WHERE idFile=?', (pathnumb, filenumb))
-            db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), media_type))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, media_type, 'poster', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, media_type, 'fanart', murl))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, media_type, 'thumb', micon))
-            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-            (movienumb, media_type, 'icon', micon))
+                if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
+                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
+                    (mpath, 'movies', int(fileId[2])))
+                    curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
+                    pathtuple = curp.fetchone()
+                pathnumb = pathtuple[0]
+                db.execute('UPDATE files SET idPath=?, strFilename=? WHERE idFile=?', (pathnumb, filecheck, filenumb))
+                db.execute('UPDATE movie SET c23=? WHERE idFile=?', (pathnumb, filenumb))
+                db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), media_type))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'poster', micon))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'fanart', murl))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'thumb', micon))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'icon', micon))
+        else:
+            xbmc.log('The Mezzmo streamdetails are incomplete for : ' + mtitle, xbmc.LOGINFO)
 
 
 def displayTitles(mtitle):                              #  Remove common Mezzmo Display Title variables
+    ctitle = mtitle
+    if not str.isdigit(ctitle[:3]):
+        intest1 = 1000
+    else:
+        intest1 = int(mtitle[:3])
+
+    if not str.isdigit(ctitle[-5:-1]):    
+        intest2 = 0
+    else:
+        intest2 = int(mtitle[-5:-1])
+
     if len(mtitle) >= 8:
-        if mtitle[4] == '-' and int(mtitle[:3]) <= 999: # check for Mezzmo %FILECOUNTER% in video title
+        if mtitle[4] == '-' and intest1 <= 999:         # check for Mezzmo %FILECOUNTER% in video title
             dtitle = mtitle[6:len(mtitle)]
-        elif mtitle[len(mtitle)-6] == '(' and mtitle[len(mtitle)-1] == ')' and int(mtitle[-5:-1]) >= 1900 and \
+        elif mtitle[len(mtitle)-6] == '(' and mtitle[len(mtitle)-1] == ')' and intest2 >= 1900 and \
         mtitle[len(mtitle)-8] != '-':
             dtitle = mtitle[:-7]                        # check for Mezzmo %YEAR% in video title
         else:
@@ -361,7 +371,7 @@ def displayTitles(mtitle):                              #  Remove common Mezzmo 
     else:
         dtitle = mtitle
 
-    return(dtitle)    
+    return(dtitle)     
 
 def tvChecker(mseason, mepisode):       # add TV shows to Kodi DB if enabled and is TV show
     tvcheck = 1
@@ -666,9 +676,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
                 icon = None
-                albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI').text
+                albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri
+                    icon = albumartUri.text
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
                         xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
@@ -941,7 +951,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pathcheck = getPath(itemurl)                        #  Get path string for media file
                         serverid = getMServer(itemurl)                      #  Get Mezzmo server id
                         filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid, season_text, \
-                        episode_text)
+                        episode_text, album_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -1328,7 +1338,7 @@ def handleSearch(content, contenturl, objectID, term):
                         pathcheck = getPath(itemurl)                        #  Get path string for media file
                         serverid = getMServer(itemurl)                      #  Get Mezzmo server id
                         filekey = checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid, season_text, \
-                        episode_text)
+                        episode_text, album_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
