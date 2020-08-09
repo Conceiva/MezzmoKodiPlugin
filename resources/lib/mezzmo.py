@@ -285,11 +285,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
        media_type = 'episode'
     
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
-        db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
-        iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (fileId[0], '0', mvcodec, maspect,       \
-        mvwidth, mvheight, mduration))
-        db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
-        (?, ?, ? ,?)', (fileId[0], '1', macodec, mchannels))
+        media.insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
         if fileId[4] == 0:
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
@@ -323,12 +319,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 xbmc.log('Mezzmo streamdetails kicon micon are: ' + str(kicon) + ' ' + str(micon), xbmc.LOGDEBUG)
                 delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
                 db.execute(delete_query)          #  Delete old stream info
-                db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,  \
-                iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth,\
-                mvheight, mduration))
-                db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values      \
-                (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
-                db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
+                media.insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
                 curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
                 pathtuple = curp.fetchone()
                 if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
@@ -349,7 +340,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
                 (movienumb, media_type, 'icon', micon))
         else:
-            xbmc.log('The Mezzmo streamdetails are incomplete for : ' + mtitle.encode('utf-8', 'ignore'), \
+            db.execute('DELETE FROM streamdetails WHERE idFile=?',(fileId[1],))
+            media.insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
+            xbmc.log('The Mezzmo incomplete streamdetails repaired for : ' + mtitle.encode('utf-8', 'ignore'), \
             xbmc.LOGNOTICE)
 
 
@@ -517,7 +510,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     kodiCleanDB(contenturl)                     # Call function to delete Kodi actor database if user enabled. 
-    #checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
+    checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
     dbIndexes()
     
 def build_url(query):
@@ -794,13 +787,17 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text
+                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
                     if categories_text == 'TV show':
                         categories_text = 'episode'
                         contentType = 'episodes'
                     elif categories_text == 'Movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        album_text = ''
+                    else:
+                        categories_text = 'video'
+                        contentType = 'videos'
                         album_text = ''
 
                 episode_text = ''
@@ -927,7 +924,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'code': imdb_text,
-                        'mediatype': categories_text.split(',')[0],  # updated - Kodi can only accept 1 media type
+                        'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': last_played_text,
@@ -1216,13 +1213,17 @@ def handleSearch(content, contenturl, objectID, term):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text
+                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
                     if categories_text == 'TV show':
                         categories_text = 'episode'
                         contentType = 'episodes'
                     elif categories_text == 'Movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        album_text = ''
+                    else:
+                        categories_text = 'video'
+                        contentType = 'videos'
                         album_text = ''
                         
                 episode_text = ''
@@ -1349,7 +1350,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'code': imdb_text,
-                        'mediatype': categories_text.split(',')[0],  # updated - Kodi can only accept 1 media type
+                        'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': lastplayed_text,
