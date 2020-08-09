@@ -285,7 +285,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
        media_type = 'episode'
     
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
-        media.insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
+        media.insertStreams(fileId[0], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
         if fileId[4] == 0:
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
