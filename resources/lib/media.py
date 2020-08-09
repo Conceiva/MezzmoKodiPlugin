@@ -163,3 +163,12 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         movienumb = 0                                                 # disable change checking
 
     return(movienumb)
+
+def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels):
+
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
+    iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect,       \
+    mvwidth, mvheight, mduration))
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
+    (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
+    db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
