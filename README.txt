@@ -1,3 +1,18 @@
+v2.0.0.0r New Beta release
+
+-  Added background task feature.  Initial task feature updates the Kodi
+   image cache timers for Mezzmo images on startup and every 30 minutes.
+   Images which were recently viewed will have their timers reset to check
+   for a newer image.  This will eliminate the need to clear the Kodi 
+   cache to detect Mezzmo image updates.  Image updates will now be 
+   detected automatically.  
+-  Improved category mapping logic to allow users to maintain complete
+   flexibility with Mezzmo categories that will be mapped into the standard
+   Kodi media type categories.  
+-  Improved stream details change detection so that it now repairs missing
+   Kodi database stream details by resyncing with Mezzmo.  Previously just
+   a log message was written into the Kodi.log file.
+
 v2.0.0.0q New Beta release
 
 -  Fixed 3 bugs found in streamdetails change detection and title checking
