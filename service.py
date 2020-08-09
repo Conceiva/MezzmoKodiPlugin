@@ -5,9 +5,11 @@ from common import GLOBAL_SETUP  #Needed first to setup import locations
 import bookmark
 import socket
 import contentrestriction
+import sync
 
 pos = 0
 file = ''
+count = 0 
 
 def settings(setting, value = None):
     # Get or add addon setting
@@ -48,12 +50,21 @@ class XBMCPlayer(xbmc.Player):
 player = XBMCPlayer()
  
 monitor = xbmc.Monitor()
- 
+
+
 while True:
     if xbmc.Player().isPlaying():
         file = xbmc.Player().getPlayingFile()
         pos = long(xbmc.Player().getTime())
-        
+
+    count += 1
+    if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
+        if xbmc.Player().isPlaying():
+            xbmc.log('A file is playing ' + str(count), xbmc.LOGNOTICE) 
+        else:
+            contenturl = settings('contenturl')
+            sync.updateTexturesCache(contenturl) 
+    
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
         settings('content_pin', '')
@@ -65,5 +76,5 @@ while True:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         xbmc.log("SetContentRestriction Off: " + url)
-        contentrestriction.SetContentRestriction(url, ip, 'false', pin)
+        contentrestriction.SetContentRestriction(url, ip, 'false', pin)      
         break # Abort was requested while waiting. Exit the while loop.
