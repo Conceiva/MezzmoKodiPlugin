@@ -77,7 +77,7 @@ def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
         clean =  0                                #  Set daily clean flag
         rows = 0
 
-        if int(datetime.datetime.now().strftime('%H')) == 0 and count > 12:
+        if int(datetime.datetime.now().strftime('%H')) == 12 and count > 12:
             force = 1
             media.kodiCleanDB(syncurl,force)      #  Clear Kodi database daily
             clean = 1                             #  database cleared. Resync all videos
@@ -97,7 +97,10 @@ def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
                 syncoffset = syncoffset + rows - 400              
                 content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, 800, syncpin)
                 rows1 = syncContent(content, syncurl, 'recent', syncpin)
-                syncoffset = syncoffset + rows1
+                if rows1 == None:                 # Sanity check for NULL
+                    rows1 = 0
+                else:
+                    syncoffset = syncoffset + rows1
                 rows = rows + rows1
             xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
             if rows % 400 <> 0:                   #  Start back through the Mezzmo database
