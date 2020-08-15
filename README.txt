@@ -1,3 +1,27 @@
+v1.0.9.5
+
+-  Major rewrite of the code which adds Mezzmo artwork to the Kodi database.
+   2/3rds of the code was eliminated and functionality was added so that 
+   the artwork will be updated when a Mezzmo metadata change is detected in
+   a video.  Previously only a video codec change would cause the video 
+   artwork to be updated.
+-  Added background sync feature that syncs Kodi with Mezzmo.  
+     - Syncs 400 most recently added Mezzmo videos on Kodi startup
+     - Syncs next 800 Mezzmo videos each hour until all videos are added 
+       and then loops back through the Mezzmo database looking for new
+       videos and metadata changes.
+     - Kodi DB clear and resync of all Mezzmo data between midnight and 1AM
+     - Automatically disables real time updates after full synchronization 
+       and leverages the background sync process to detect changes.  
+
+             ***  Important notes ***
+
+     - Mezzmo version 6.0.5.0r patch is required for sync capability.
+       Please request from support@conceiva.com 
+     - The sync functionality does not honor Mezzmo playlist sharing 
+       permissions and syncs all Mezzmo videos to Kodi regardless of
+       playlist permissions.  
+ 
 v1.0.9.4
 
 -  Added background task feature.  Initial task feature updates the Kodi

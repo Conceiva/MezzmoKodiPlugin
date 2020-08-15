@@ -6,6 +6,7 @@ import bookmark
 import socket
 import contentrestriction
 import sync
+import media
 
 pos = 0
 file = ''
@@ -60,10 +61,16 @@ while True:
     count += 1
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlaying():
-            xbmc.log('A file is playing ' + str(count), xbmc.LOGNOTICE) 
+            xbmc.log('A file is playing: ' + file.encode('utf-8','ignore'), xbmc.LOGNOTICE) 
         else:
             contenturl = settings('contenturl')
-            sync.updateTexturesCache(contenturl) 
+            sync.updateTexturesCache(contenturl)
+
+    if count % 3600 == 0 or count == 11:    # Mezzmo sync process
+        syncpin = settings('content_pin')
+        syncurl = settings('contenturl') 
+        if syncpin and syncurl:       
+            sync.syncMezzmo(syncurl, syncpin, count)
     
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
