@@ -81,10 +81,10 @@ def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
             media.kodiCleanDB(syncurl,force)      #  Clear Kodi database daily
             clean = 1                             #  database cleared. Resync all videos
         if count < 12:   
-            content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
-            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             addon.setSetting('kodiactor', 'true') #  Enable real time updates on startup  
             addon.setSetting('kodichange', 'true')
+            content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
+            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
         elif clean == 0:                          #  Hourly sync 800 newest
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
@@ -447,6 +447,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = addon.getSetting('content_pin')   
             content = browse.Browse(syncurl, objectId, 'BrowseDirectChildren', offset, requestedCount, syncpin)
+            dbfile.close()             #  Final commit writes and close Kodi database
     except Exception as e:
         printsyncexception()
         pass
