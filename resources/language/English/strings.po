@@ -207,3 +207,7 @@ msgstr ""
 msgctxt "#30370"
 msgid "Kodi DB Change detection"
 msgstr ""
+
+msgctxt "#30371"
+msgid "Mezzmo background sync"
+msgstr ""
