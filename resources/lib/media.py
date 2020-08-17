@@ -95,7 +95,7 @@ def openKodiDB():                                 #  Open Kodi database
     return(db) 
 
 
-def getPath(itemurl):		            # Find path string for media file
+def getPath(itemurl):		                # Find path string for media file
 
     rtrimpos = itemurl.rfind('/')       
     pathcheck = itemurl[:rtrimpos+1]
@@ -111,7 +111,65 @@ def getMServer(itemurl):		        # Find server string for media file
     return(serverid) 
 
 
-def displayTitles(mtitle):                              #  Remove common Mezzmo Display Title variables
+def urlMatch(url1, url2):                       #  Check if URLs match with or without DNS
+
+    if not url1[7].isdigit() or not url2[7].isdigit():    
+        compare1 = url1[url1.rfind(':'):]       #  If DNS only compare port and file name
+        compare2 = url2[url2.rfind(':'):]       
+    else:
+        compare1 = url1
+        compare2 = url2
+    #xbmc.log('Compare1 and Compare2 : ' + compare1 + " " + compare2, xbmc.LOGNOTICE)
+    if compare1 == compare2:
+        return(True)
+    else:
+        return(False)
+
+
+def countKodiRecs(contenturl):                  # returns count records in Kodi DB 
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
+    db = sqlite.connect(DB)
+
+    rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
+    serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
+
+    curm = db.execute('SELECT count (DISTINCT idMovie) FROM movie INNER JOIN path    \
+    WHERE strpath LIKE ?', (serverport,))
+    mcount = curm.fetchone()[0]
+
+    cure = db.execute('SELECT count (DISTINCT idEpisode) FROM episode INNER JOIN path \
+    WHERE strpath LIKE ?', (serverport,))
+    ecount = cure.fetchone()[0]
+    
+    recscount = mcount + ecount                 #  Total count of movies and TV episodes
+    xbmc.log('Mezzmo total Kodi DB record count: ' + str(recscount), xbmc.LOGNOTICE)
+    
+    db.close()
+    return(recscount) 
+
+
+def optimizeDB():                               # Optimize Kodi DB 
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                    
+    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
+    db = sqlite.connect(DB)
+
+    db.execute('REINDEX',)
+    xbmc.log('Mezzmo database reindex complete.', xbmc.LOGNOTICE)
+
+    db.commit()    
+    db.close()
+
+
+def displayTitles(mtitle):                     #  Remove common Mezzmo Display Title variables
     ctitle = mtitle.encode('utf-8', 'ignore')
     if not str.isdigit(ctitle[:3]):
         intest1 = 1000
@@ -436,11 +494,13 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             kpath = idflist[2][4]
             movienumb = idflist[2][5]
             kicon = idflist[1][6]                  # Get Kodi DB thumbnail URL
-            if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or kpath != mpath or kicon != micon)  \
-                and rows == 4:
+            pathmatch = urlMatch(mpath, kpath)     # Check if paths match
+            iconmatch = urlMatch(micon, kicon)     # Check if icons match 
+            if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or pathmatch is False or \
+                iconmatch is False) and rows == 4:
                 xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
                 mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
-                xbmc.log('Mezzmo streamdetails artwork rowcount = ' +  str(rows), xbmc.LOGNOTICE)
+                xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGNOTICE)
                 xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
@@ -464,7 +524,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         else:
             db.execute('DELETE FROM streamdetails WHERE idFile=?',(fileId[1],))
             insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
-            xbmc.log('The Mezzmo incomplete streamdetails repaired for: ' + mtitle.encode('utf-8', 'ignore'), \
+            xbmc.log('The Mezzmo incomplete streamdetails repaired for : ' + mtitle.encode('utf-8', 'ignore'), \
             xbmc.LOGNOTICE)
 
 

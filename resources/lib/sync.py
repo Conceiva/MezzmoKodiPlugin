@@ -17,6 +17,7 @@ import datetime
 import socket
 
 syncoffset = 400
+mezzmorecs = 0
 addon = xbmcaddon.Addon()
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
@@ -69,27 +70,32 @@ def getSeconds(t):
     return seconds
 
 
-def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
+def syncMezzmo(syncurl, syncpin, count):	       #  Sync Mezzmo to Kodi
     global syncoffset
-    if addon.getSetting('kodisync') == 'true':    #  Check if enabled
+    if addon.getSetting('kodisync') == 'true':         #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGNOTICE)
         starttime = time.time()
-        clean =  0                                #  Set daily clean flag
+        clean =  0                                     #  Set daily clean flag
         rows = 0
 
-        if int(datetime.datetime.now().strftime('%H')) == 12 and count > 12:
+        if int(datetime.datetime.now().strftime('%H')) == 0 and count > 12:
             force = 1
-            media.kodiCleanDB(syncurl,force)      #  Clear Kodi database daily
-            clean = 1                             #  database cleared. Resync all videos
+            media.kodiCleanDB(syncurl,force)           #  Clear Kodi database daily
+            clean = 1                                  #  database cleared. Resync all videos
         if count < 12:   
-            addon.setSetting('kodiactor', 'true') #  Enable real time updates on startup  
-            addon.setSetting('kodichange', 'true')
+            recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin)
-        elif clean == 0:                          #  Hourly sync 800 newest
+            if int(mezzmorecs * .9) > recs:            #  Check if in sync
+                addon.setSetting('kodiactor', 'true')  #  Enable real time updates  
+                addon.setSetting('kodichange', 'true')
+            else:
+                addon.setSetting('kodiactor', 'false') #  Disable real time updates  
+                addon.setSetting('kodichange', 'false')
+        elif clean == 0:                               #  Hourly sync next 800
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin)
-            if rows == None:                      #  Did sync get data from Mezzmo server ?
+            if rows == None:                           #  Did sync get data from Mezzmo server ?
                 rows = 0
                 xbmc.log('Mezzmo sync process could not contact the Mezzmo server', xbmc.LOGNOTICE) 
             xbmc.log('Mezzmo sync offset = ' + str(syncoffset), xbmc.LOGDEBUG)  
@@ -97,21 +103,24 @@ def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
                 syncoffset = syncoffset + rows - 400              
                 content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, 800, syncpin)
                 rows1 = syncContent(content, syncurl, 'recent', syncpin)
-                if rows1 == None:                 # Sanity check for NULL
+                if rows1 == None:
                     rows1 = 0
                 else:
                     syncoffset = syncoffset + rows1
                 rows = rows + rows1
+            recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
-            if rows % 400 <> 0:                   #  Start back through the Mezzmo database
+            if rows % 400 <> 0:                        #  Start back through the Mezzmo database
                 syncoffset = 400 
                 addon.setSetting('kodiactor', 'false') #  Disable real time updating after full sync
                 addon.setSetting('kodichange', 'false')                         
         elif clean == 1:                               #  Sync all daily
+            addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
+            addon.setSetting('kodichange', 'false')   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin)
-            addon.setSetting('kodiactor', 'false')     #  Disable real time updating after full sync
-            addon.setSetting('kodichange', 'false')   
+            recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            media.optimizeDB()                         #  Optimize DB after resync
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
@@ -123,7 +132,8 @@ def syncMezzmo(syncurl, syncpin, count):	  #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-        
+    global mezzmorecs
+    
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -135,7 +145,9 @@ def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / i
             TotalMatches = browseresponse.find('TotalMatches').text
             if not TotalMatches:                       #  Sanity check
                 TotalMatches = 0
-            #xbmc.log('Mezzmo total matches = ' + str(TotalMatches), xbmc.LOGNOTICE)             
+            else:
+                mezzmorecs = int(TotalMatches)         #  Set global variable with record count
+            xbmc.log('Mezzmo total matches = ' + str(TotalMatches), xbmc.LOGDEBUG)             
             if NumberReturned == 0:
                 break; #sanity check
                 

@@ -187,7 +187,7 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
-    media.kodiCleanDB(contenturl,'')            # Call function to delete Kodi actor database if user enabled. 
+    media.kodiCleanDB(contenturl,0)             # Call function to delete Kodi actor database if user enabled. 
     checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
     dbIndexes()
     
