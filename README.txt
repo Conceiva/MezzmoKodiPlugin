@@ -4,7 +4,7 @@ v1.0.9.6
 -  Added feature to check on Kodi startup if the database is in sync 
    with Mezzmo and disable real time updating in the Kodi addon options 
    and leverage the background sync process to detect changes. If they
-   not in sync real time updating remains enabled until sync occurs.
+   are not in sync real time updating remains enabled until sync occurs.
 -  Added feature to handle certain Kodi Linux clients which alternate
    between IP address and DNS names for artwork and icon URLs.  Previously
    the addon would detect that as a change and update the Kodi database.  
