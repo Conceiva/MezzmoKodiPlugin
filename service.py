@@ -60,14 +60,14 @@ while True:
     count += 1
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlaying():
-            xbmc.log('A file is playing: ' + file.encode('utf-8','ignore'), xbmc.LOGNOTICE) 
+            xbmc.log('A file is playing: ' + file.encode('utf-8','ignore'), xbmc.LOGINFO) 
         else:
             contenturl = settings('contenturl')
             sync.updateTexturesCache(contenturl)
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
         if xbmc.Player().isPlaying():
-            xbmc.log('Mezzmo sync skipped. A video is playing.', xbmc.LOGNOTICE)
+            xbmc.log('Mezzmo sync skipped. A video is playing.', xbmc.LOGINFO)
         else:
             syncpin = settings('content_pin')
             syncurl = settings('contenturl') 
