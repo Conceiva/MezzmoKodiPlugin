@@ -1,4 +1,20 @@
-v2.0.0.0s New beta release
+v2.0.0.0t New Beta release
+
+-  Fixed issue where sync process could run while a video was playing.
+-  Added feature to check on Kodi startup if the database is in sync 
+   with Mezzmo and disable real time updating in the Kodi addon options 
+   and leverage the background sync process to detect changes. If they
+   not in sync real time updating remains enabled until sync occurs.
+-  Added feature to handle certain Kodi Linux clients which alternate
+   between IP address and DNS names for artwork and icon URLs.  Previously
+   the addon would detect that as a change and update the Kodi database.  
+   Now it can handle either format.
+-  Added Kodi database reindexing after the daily sync process in order
+   to maintain performance.
+-  Added Kodi log messages showing the number of Mezzmo records in the Kodi
+   database after each hourly sync process.     
+
+v2.0.0.0s New Beta release
 
 -  Major rewrite of the code which adds Mezzmo artwork to the Kodi database.
    2/3rds of the code was eliminated and functionality was added so that 

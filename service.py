@@ -66,10 +66,13 @@ while True:
             sync.updateTexturesCache(contenturl)
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
-        syncpin = settings('content_pin')
-        syncurl = settings('contenturl') 
-        if syncpin and syncurl:       
-            sync.syncMezzmo(syncurl, syncpin, count)
+        if xbmc.Player().isPlaying():
+            xbmc.log('Mezzmo sync skipped. A video is playing.', xbmc.LOGNOTICE)
+        else:
+            syncpin = settings('content_pin')
+            syncurl = settings('contenturl') 
+            if syncpin and syncurl:       
+                sync.syncMezzmo(syncurl, syncpin, count)
 
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
