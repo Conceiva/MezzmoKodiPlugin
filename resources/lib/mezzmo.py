@@ -49,11 +49,13 @@ def checkParentPath(ContentPathUrl):	#  Add parent path id to missing Mezzmo pat
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(ppathurl,)) 
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]                     # Parent path number
+        curpp.close()
         xbmc.log('Mezzmo checkParentPath parent path added: ' + str(ppathnumb) + " " + ppathurl, xbmc.LOGINFO) 
     ppathnumb = ppathtuple[0]                         # Parent path number
     db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
     ('movies', ppathnumb, '%' + serverport + '%', ppathnumb)) # Update Child paths with parent information
 
+    curpth.close()
     db.commit()
     db.close() 
        

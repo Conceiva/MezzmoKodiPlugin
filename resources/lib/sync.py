@@ -36,6 +36,7 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     (newtime, serverport, ""))          # Update Mezzmo image cache timers with no dates 
     rows = cur.rowcount       
     db.commit()
+    cur.close()
     db.close()
     xbmc.log('Mezzmo textures cache timers '  + str(rows) + ' rows updated.', xbmc.LOGINFO)       
 
@@ -56,8 +57,23 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         rows = cur.rowcount
         xbmc.log('Mezzmo addon texture rows deleted: ' + str(rows), xbmc.LOGINFO)
         db.commit()
+        cur.close()
         db.close()
         addon.setSetting('caching', 'true') # reset back to true after clearing 
+
+
+def dbClose():		 # Close database and commit any pending writes on abort
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())
+    db = sqlite.connect(DB)              
+    
+
+    db.commit()
+    db.close()  
 
 
 def getSeconds(t):
@@ -69,9 +85,9 @@ def getSeconds(t):
     return seconds
 
 
-def syncMezzmo(syncurl, syncpin, count):	       #  Sync Mezzmo to Kodi
-    global syncoffset
-    if addon.getSetting('kodisync') == 'true':         #  Check if enabled
+def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
+    global syncoffset   
+    if ksync == 'true':                                #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
         clean =  0                                     #  Set daily clean flag
