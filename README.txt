@@ -3,10 +3,10 @@ v2.0.0.0u New Beta release
 -  Fixed issue where Kodi sync setting was only being read when Kodi 
    started vs. right after a change.
 -  Added Database cleanup functions on Kodi shutdown.
--  Addressed potential minor memory leak by explicitly closing databse
+-  Addressed potential minor memory leak by explicitly closing database
    cursors. 
 -  Fixed a bug where a Kodi 18 call was causing the background sync 
-   profess to crash.  The Kodi 18 code was removed. 
+   process to crash.  The Kodi 18 code was removed. 
 
 v2.0.0.0t New Beta release
 
