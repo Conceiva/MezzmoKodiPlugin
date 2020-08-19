@@ -60,7 +60,7 @@ while True:
     count += 1
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlaying():
-            xbmc.log('A file is playing: ' + file.encode('utf-8','ignore'), xbmc.LOGINFO) 
+            xbmc.log('A file is playing: ' + file, xbmc.LOGINFO) 
         else:
             contenturl = settings('contenturl')
             sync.updateTexturesCache(contenturl)
@@ -71,8 +71,9 @@ while True:
         else:
             syncpin = settings('content_pin')
             syncurl = settings('contenturl') 
+            ksync = settings('kodisync')             
             if syncpin and syncurl:       
-                sync.syncMezzmo(syncurl, syncpin, count)
+                sync.syncMezzmo(syncurl, syncpin, count, ksync)
 
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
@@ -86,4 +87,5 @@ while True:
             pass
         xbmc.log("SetContentRestriction Off: " + url)
         contentrestriction.SetContentRestriction(url, ip, 'false', pin)
+        sync.dbClose() 
         break # Abort was requested while waiting. Exit the while loop.
