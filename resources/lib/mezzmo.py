@@ -48,11 +48,13 @@ def checkParentPath(ContentPathUrl):	#  Add parent path id to missing Mezzmo pat
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(ppathurl,)) 
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]                   # Parent path number
+        curpp.close()
         xbmc.log('Mezzmo checkParentPath parent path added: ' + str(ppathnumb) + " " + ppathurl, xbmc.LOGNOTICE) 
     ppathnumb = ppathtuple[0]                       # Parent path number
     db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
     ('movies', ppathnumb, '%' + serverport + '%', ppathnumb)) # Update Child paths with parent information
 
+    curpth.close()
     db.commit()
     db.close()  
  
@@ -188,7 +190,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     media.kodiCleanDB(contenturl,0)             # Call function to delete Kodi actor database if user enabled. 
-    checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
+    #checkParentPath(contenturl)			# Ensure parent path exists and children path relationship
     dbIndexes()
     
 def build_url(query):
