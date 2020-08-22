@@ -328,9 +328,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
         mgenres = mgenre.replace(',' , ' /')      # Format genre for proper Kodi display
-        db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10, C23)  \
-        values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, mwriter, mduration,   \
-        mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5]))        #  Add movie information
+        db.execute('INSERT OR REPLACE into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12,    \
+        c18, c10, C23) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline,      \
+        mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5]))  #  Add movie 
         cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
         movietuple = cur.fetchone()
         movienumb = movietuple[0]                 # get new movie id    
