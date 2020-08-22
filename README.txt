@@ -1,7 +1,7 @@
 v1.0.9.7
 
--  Fixed issue where Kodi sync setting was only being read when Kodi 
-   started vs. right after a setting change.
+-  Fixed issue where Kodi sync setting was only being read when the addon 
+   starts vs. right after a setting change.
 -  Added database cleanup functions on Kodi shutdown.
 -  Addressed potential minor memory leak by explicitly closing database
    cursors. 
