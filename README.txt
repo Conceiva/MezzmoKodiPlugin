@@ -1,3 +1,17 @@
+v1.0.9.7
+
+-  Fixed issue where Kodi sync setting was only being read when Kodi 
+   started vs. right after a setting change.
+-  Added database cleanup functions on Kodi shutdown.
+-  Addressed potential minor memory leak by explicitly closing database
+   cursors. 
+-  Fixed a bug where a movie may not get inserted into the Kodi database
+   due to a path conflict between a path using DNS vs. the IP address
+-  Cleaned up some class deletion error messages in the Kodi logfile when
+   running on the Android OS.
+-  Improved sync detection and added log messages when the addon enables
+   and disables real time updates automatically.
+
 v1.0.9.6
 
 -  Fixed issue where sync process could run while a video was playing.

@@ -72,8 +72,12 @@ while True:
         else:
             syncpin = settings('content_pin')
             syncurl = settings('contenturl') 
+            ksync = settings('kodisync')             
             if syncpin and syncurl:       
-                sync.syncMezzmo(syncurl, syncpin, count)
+                sync.syncMezzmo(syncurl, syncpin, count, ksync)
+            del syncpin
+            del syncurl
+            del ksync
     
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         pin = settings('content_pin')
@@ -86,5 +90,8 @@ while True:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         xbmc.log("SetContentRestriction Off: " + url)
-        contentrestriction.SetContentRestriction(url, ip, 'false', pin)      
+        contentrestriction.SetContentRestriction(url, ip, 'false', pin)
+        sync.dbClose()    
+        del pin
+        del url         
         break # Abort was requested while waiting. Exit the while loop.
