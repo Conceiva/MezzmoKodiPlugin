@@ -1,12 +1,18 @@
 v2.0.0.0u New Beta release
 
 -  Fixed issue where Kodi sync setting was only being read when Kodi 
-   started vs. right after a change.
+   started vs. right after a setting change.
 -  Added Database cleanup functions on Kodi shutdown.
 -  Addressed potential minor memory leak by explicitly closing database
    cursors. 
 -  Fixed a bug where a Kodi 18 call was causing the background sync 
    process to crash.  The Kodi 18 code was removed. 
+-  Fixed a bug where a movie may not get inserted into the Kodi database
+   due to a path conflict between a path using DNS vs. the IP address.
+-  Cleaned up some class deletion error messages in the Kodi logfile when
+   running on the Android OS.
+-  Improved sync detection and added log messages when the addon enables
+   and disables real time updates automatically.
 
 v2.0.0.0t New Beta release
 
