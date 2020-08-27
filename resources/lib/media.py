@@ -169,7 +169,8 @@ def optimizeDB():                               # Optimize Kodi DB
     db = sqlite.connect(DB)
 
     db.execute('REINDEX',)
-    xbmc.log('Mezzmo database reindex complete.', xbmc.LOGNOTICE)
+    db.execute('VACUUM',)
+    xbmc.log('Mezzmo database reindex and vacuum complete.', xbmc.LOGNOTICE)
 
     db.commit()    
     db.close()
@@ -203,7 +204,7 @@ def displayTitles(mtitle):                     #  Remove common Mezzmo Display T
 
 def tvChecker(mseason, mepisode):       # add TV shows to Kodi DB if enabled and is TV show
     tvcheck = 1
-    if int(mseason) > 0  and int(mepisode) > 0 and addon.getSetting('koditv') == 'false':
+    if (int(mseason) > 0  or int(mepisode) > 0) and addon.getSetting('koditv') == 'false':
         tvcheck = 0 
     #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGNOTICE)
 
@@ -267,7 +268,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curpp.close()       
     ppathnumb = ppathtuple[0]         # Parent path number
 
-    if int(mepisode) > 0 and int(mseason) > 0:
+    if int(mepisode) > 0 or int(mseason) > 0:
         media = 'episode'
         episodes = 1
         curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN episode          \
@@ -325,23 +326,28 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
     if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
         mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
-        db.execute('INSERT OR REPLACE into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12,    \
-        c18, c10, C23) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline,      \
-        mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5]))  #  Add movie 
-        cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
-        movietuple = cur.fetchone()
-        movienumb = movietuple[0]                                    # get new movie id 
-        insertArt(movienumb, db, 'movie', murl, micon)               # Insert artwork for movie  
-        db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
-        (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
-        curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
-        (movienumb, 'movie',))
-        ratetuple = curr.fetchone() 
-        ratenumb = ratetuple[0]
-        db.execute('UPDATE movie SET c05=? WHERE idMovie=?', (ratenumb, movienumb))
-        cur.close()
-        curr.close()
-
+        dupm = db.execute('SELECT idMovie FROM movie WHERE idFile=? and c00=?', (fileId[0], mtitle))
+        dupmtuple = dupm.fetchone() 
+        if dupmtuple == None:                                        # Ensure movie doesn't exist
+            db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10, \
+            C23) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, mwriter,   \
+            mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5])) #  Add movie 
+            cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
+            movietuple = cur.fetchone()
+            movienumb = movietuple[0]                                # get new movie id 
+            insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie  
+            db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
+            (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
+            curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
+            (movienumb, 'movie',))
+            ratetuple = curr.fetchone() 
+            ratenumb = ratetuple[0]
+            db.execute('UPDATE movie SET c05=? WHERE idMovie=?', (ratenumb, movienumb))
+            cur.close()
+            curr.close()
+        else:
+            movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
+        dupm.close()
     elif kchange == 'true':                                 #  Update metadata if changes
         curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, c05, \
         c18, c10 FROM movie INNER JOIN files USING (idfile) INNER JOIN path USING (idpath)    \
@@ -384,26 +390,32 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
     mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb):  
 
     #xbmc.log('Mezzmo fileId is: ' + str(fileId), xbmc.LOGNOTICE)
-    if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
+    if fileId[0] > 0:                                                #  Insert episode if does not exist in Kodi DB
         #xbmc.log('The current episode is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
         mgenres = mgenre.replace(',' , ' /')                         #  Format genre for proper Kodi display
-        db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19) values    \
-        (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter, mseason,  \
-        mepisode, maired[:10], shownumb, fileId[5]))                 #  Add episode information
-        cur = db.execute('SELECT idEpisode FROM episode WHERE idFile=?',(str(fileId[0]),))  
-        episodetuple = cur.fetchone()
-        movienumb = episodetuple[0]                                  # get new movie id  
-        insertArt(movienumb, db, 'episode', murl, micon)             # Insert artwork for episode    
-        db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
-        (?, ?, ?, ?)', (movienumb,  'episode', 'imdb', murate,))
-        curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
-        (movienumb, 'episode',))
-        ratetuple = curr.fetchone() 
-        ratenumb = ratetuple[0]
-        seasonId = checkSeason(db, shownumb, mseason)
-        db.execute('UPDATE episode SET c03=?, idSeason=? WHERE idEpisode=?', (ratenumb, seasonId, movienumb,))
-        cur.close()
-        curr.close()
+        dupe = db.execute('SELECT idEpisode FROM episode WHERE idFile=? and c00=?', (fileId[0], mtitle))
+        dupetuple = dupe.fetchone() 
+        if dupetuple == None:                                        # Ensure episode doesn't exist
+            db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19) values    \
+            (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter, mseason,  \
+            mepisode, maired[:10], shownumb, fileId[5]))             #  Add episode information
+            cur = db.execute('SELECT idEpisode FROM episode WHERE idFile=?',(str(fileId[0]),))  
+            episodetuple = cur.fetchone()
+            movienumb = episodetuple[0]                              # get new movie id  
+            insertArt(movienumb, db, 'episode', murl, micon)         # Insert artwork for episode    
+            db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
+            (?, ?, ?, ?)', (movienumb,  'episode', 'imdb', murate,))
+            curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
+            (movienumb, 'episode',))
+            ratetuple = curr.fetchone() 
+            ratenumb = ratetuple[0]
+            seasonId = checkSeason(db, shownumb, mseason)
+            db.execute('UPDATE episode SET c03=?, idSeason=? WHERE idEpisode=?', (ratenumb, seasonId, movienumb,))
+            cur.close()
+            curr.close()
+        else:
+            movienumb = dupetuple[0]                                  # If dupe, return existing episode id
+        dupe.close()
     else:
         curm = db.execute('SELECT idEpisode, c01, c09, c10, c04, c12, c13, c05, idShow, c03 \
         FROM episode INNER JOIN files USING (idfile) INNER JOIN path USING (idpath)         \
