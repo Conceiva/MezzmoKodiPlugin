@@ -97,7 +97,7 @@ def updateRealtime(mrecords, krecords):                #  Disable real time upda
 
 
 def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
-    global syncoffset   
+    global syncoffset
     if ksync == 'true':                                #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
@@ -146,6 +146,10 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             addon.setSetting('kodichange', 'false')   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)
+            content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', (mezzmorecs - 20), 30, syncpin)
+            rows2 = syncContent(content, syncurl, 'recent', syncpin, 0, 30)
+            if not rows2 == None:                      # Ensure all records.  Get last 20
+                rows = rows + rows2                  
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             media.optimizeDB()                         #  Optimize DB after resync
         endtime = time.time()
@@ -159,7 +163,8 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    global mezzmorecs
+    returnmatches = 0  
+    global mezzmorecs 
     
     try:
         while True:
@@ -174,7 +179,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 TotalMatches = 0
             else:
                 mezzmorecs = int(TotalMatches)         #  Set global variable with record count
-            xbmc.log('Mezzmo total matches & numd returned = ' + str(TotalMatches) + ' ' +   \
+            xbmc.log('Mezzmo total matches & numb returned = ' + str(TotalMatches) + ' ' +   \
             str(NumberReturned), xbmc.LOGDEBUG)             
             if int(NumberReturned) == 0:               #  Stop once offset = Total matches
                 itemsleft = 0
@@ -464,24 +469,28 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                     audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,      \
-                    icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                    icon, backdropurl, dbfile, pathcheck)               # Update movie stream info
+                    returnmatches += 1 
                     #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                                                       
             itemsleft = itemsleft - int(NumberReturned)
             dbfile.commit()                #  Commit writes
+  
 
             xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
-            if itemsleft == 0:
+            if itemsleft <= 0:
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                return(TotalMatches)  
+                #xbmc.log('Mezzmo return matches: ' + str(returnmatches), xbmc.LOGINFO)        
+                return(TotalMatches)
                 break
-                        
+          
             # get the next items
             offset = (TotalMatches - itemsleft) + syncoffset
             requestedCount = 1000
             if itemsleft < 1000:
                 requestedCount = itemsleft
+
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = addon.getSetting('content_pin')   
             content = browse.Browse(syncurl, objectId, 'BrowseDirectChildren', offset, requestedCount, syncpin)
