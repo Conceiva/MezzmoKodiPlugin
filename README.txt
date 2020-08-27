@@ -1,3 +1,19 @@
+v1.0.9.8
+
+-  Fixed a bug where TV episodes might be duplicated in the Kodi database
+   when a client switches between DNS and IP addresses in the path table.
+-  Updated movie dupe checking introduced in v1.0.9.7 to match the new 
+   episode dupe checking method.
+-  Loosened episode check to allow for the season to equal 0 in the case
+   of some TV shows like Good Witch and similar.
+-  Added database vacuum command to daily database maintenance to keep
+   Kodi database compact.
+-  Added daily counter reset which tracks the sync process schedule.
+-  Fixed a bug where a very small number of videos weren't being added to
+   the Kodi database during the daily sync process due to an offset pointer
+   value.  This was only happening with very large Mezzmo databases and 
+   they were getting caught by the hourly sync process.
+
 v1.0.9.7
 
 -  Fixed issue where Kodi sync setting was only being read when the addon 
