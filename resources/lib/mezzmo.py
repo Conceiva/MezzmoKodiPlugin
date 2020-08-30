@@ -587,8 +587,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'picture'
                         
                 if mediaClass_text == 'video' and validf == 1:  
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'Action(Info)') ])
-                    
+                    #li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'Action(Info)') ])                    
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -627,16 +626,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
                     if installed_version >= '19':       #  Update cast with thumbnail support in Kodi v19 and higher
                         li.setCast(cast_dict)                
-
                     tvcheckval = media.tvChecker(season_text, episode_text) # Is TV show and user enabled Kodi DB adding
+                    mtitle = media.displayTitles(title)
+                    pcdbfile = media.getDatabaseName()
                     if installed_version >= '19' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
-                        mtitle = media.displayTitles(title)
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
-                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
+                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
@@ -656,7 +655,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
-                             
+                    if playcount == 0:
+                        li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
+                        (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
+                        'RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
+                        {},{}, {}, {}, {}, {}, {})'.format(mtitle, itemurl, season_text, episode_text, playcount,   \
+                        album_text, pcdbfile)) ])
+                    elif playcount > 0:
+                        li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
+                        (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30373),   \
+                        'RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
+                        {},{}, {}, {}, {}, {}, {})'.format(mtitle, itemurl, season_text, episode_text, playcount,   \
+                        album_text, pcdbfile)) ])                                           
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
                     info = {

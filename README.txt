@@ -1,3 +1,10 @@
+v2.0.0.0wa New Beta test release
+
+-  Fixed daily sync scan counter from double counting the last 20 records
+   in Mezzmo.
+-  Added initial Kodi Mark as Watched and Mark as Unwatched integration with
+   the Mezzmo addon.
+
 v2.0.0.0v New Beta release
 
 -  Fixed a bug where TV episodes might be duplicated in the Kodi database
