@@ -4,9 +4,14 @@ v2.0.0.0w New Beta test release
    in Mezzmo.
 -  Added new functionality Mezzmo Mark Watched conext menu option which will
    update both the Kodi and Mezzmo databases when clicked.  
-   ***  Note that the Kodi and Mezzmo databases need to be in sync for this
-   to operate.  The background sync process should enforce this but if this
-   feature doesn't oeprate please check the Kodi logs.  ***
+
+             ***  Important notes ***
+
+-  Mezzmo version 6.0.5.0t patch or higher is required for Mezzmo Mark Watched
+   new capability.   Please request from support@conceiva.com 
+-  Kodi and Mezzmo databases need to be in sync for this to operate.  The 
+   background sync process should enforce this but if this feature doesn't 
+   operate properly please check the Kodi logs.
 
 v2.0.0.0v New Beta release
 
