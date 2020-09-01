@@ -211,3 +211,11 @@ msgstr ""
 msgctxt "#30371"
 msgid "Mezzmo background sync"
 msgstr ""
+
+msgctxt "#30372"
+msgid "Mezzmo mark watched"
+msgstr ""
+
+msgctxt "#30373"
+msgid "Mezzmo mark unwatched"
+msgstr ""
