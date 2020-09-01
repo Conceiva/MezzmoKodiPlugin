@@ -2,7 +2,7 @@ v1.0.9.9
 
 -  Fixed daily sync scan counter from double counting the last 20 records
    in Mezzmo.
--  Added new functionality Mezzmo Mark Watched conext menu option which will
+-  Added new functionality Mezzmo Mark Watched context menu option which will
    update both the Kodi and Mezzmo databases when clicked.  
 
              ***  Important notes ***
