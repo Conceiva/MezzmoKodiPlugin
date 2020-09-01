@@ -22,6 +22,8 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     rfpos = murl.find(':',7)                               #  Get Mezzmo server port info
     serverport = '%' + murl[rfpos+1:rfpos+6] + '%'      
 
+    lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')      
+
     if mseason == 0 and mepisode == 0:                     #  Find movie file number
         curf = db.execute('SELECT idFile, strFileName FROM movie_view WHERE strPATH LIKE ? and c00=?',  \
         (serverport, mtitle,))  
@@ -45,21 +47,21 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
             objectID = None        
         curf.close()
 
-    if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount 
+    if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
-            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (newcount, filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
             newcount = '0'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=?  WHERE idFile=?', (newcount, '', filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))
     elif filenumb != 0 and (mseason > 0 or mepisode > 0):  #  Update episode playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
-            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (newcount, filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
             newcount = '0'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=?  WHERE idFile=?', (newcount, '', filenumb))   
-    elif filenumb == 0:   
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
+    elif filenumb == 0:     
         xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync. ' +      \
         mtitle, xbmc.LOGINFO)    
 
