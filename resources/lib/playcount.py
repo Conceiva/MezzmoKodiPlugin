@@ -110,7 +110,7 @@ contenturl = sys.argv[8]
 mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
 int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount
 
-if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DD
+if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DB
     SetPlaycount(contenturl, mezzmovars[0], mezzmovars[1], vtitle)
     xbmc.executebuiltin('Container.Refresh()')
 
