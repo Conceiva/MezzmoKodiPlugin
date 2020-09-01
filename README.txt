@@ -1,9 +1,12 @@
-v2.0.0.0wa New Beta test release
+v2.0.0.0w New Beta test release
 
 -  Fixed daily sync scan counter from double counting the last 20 records
    in Mezzmo.
--  Added initial Kodi Mark as Watched and Mark as Unwatched integration with
-   the Mezzmo addon.
+-  Added new functionality Mezzmo Mark Watched conext menu option which will
+   update both the Kodi and Mezzmo databases when clicked.  
+   ***  Note that the Kodi and Mezzmo databases need to be in sync for this
+   to operate.  The background sync process should enforce this but if this
+   feature doesn't oeprate please check the Kodi logs.  ***
 
 v2.0.0.0v New Beta release
 
