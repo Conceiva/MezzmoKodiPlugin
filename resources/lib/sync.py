@@ -146,6 +146,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             if not rows2 == None:                      # Ensure all records.  Get last 20
                 rows = rows + rows2                  
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            rows = rows - 20                           #  Remove double count of the last 20 records
             media.optimizeDB()                         #  Optimize DB after resync
         endtime = time.time()
         duration = endtime-starttime
