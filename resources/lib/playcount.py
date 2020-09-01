@@ -60,7 +60,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
             newcount = '0'
             db.execute('UPDATE files SET playCount=?, lastPlayed=?  WHERE idFile=?', (newcount, '', filenumb))   
     elif filenumb == 0:   
-        xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync.' +      \
+        xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync. ' +      \
         mtitle, xbmc.LOGINFO)    
 
     if filenumb > 0:
