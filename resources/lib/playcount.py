@@ -100,7 +100,7 @@ def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     return response
 
 
-vtitle = sys.argv[1]
+title = sys.argv[1]
 vurl = sys.argv[2]
 vseason = sys.argv[3]
 vepisode = sys.argv[4]
@@ -108,6 +108,8 @@ playcount = sys.argv[5]
 vseries = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
+
+vtitle = title.replace("*#*#",",")                                  #  Replace commas
 
 mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
 int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount

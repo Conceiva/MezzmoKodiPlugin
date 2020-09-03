@@ -654,7 +654,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
-                    pctitle = mtitle
+                    pctitle = mtitle.replace(",","*#*#")                    #  Replace commas 
                     if playcount == 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
