@@ -112,7 +112,7 @@ vseries = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.decode('utf-8', 'ignore')
+vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")          #  Replace commas
 
 mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
 int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount
