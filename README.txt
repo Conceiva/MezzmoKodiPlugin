@@ -1,8 +1,16 @@
-v2.0.0.0w New Beta test release
+v2.0.0.0x New Beta release
+
+-  Fixed Mezzmo Mark Watched featue not working on video files with a comma 
+   in the title.
+-  Fixed Mezzmo Mark watched feature not working when a video was not found 
+   in the Kodi database.
+-  Added last played time copy from Mezzmo to the Kodi database.
+
+v2.0.0.0w New Beta release
 
 -  Fixed daily sync scan counter from double counting the last 20 records
    in Mezzmo.
--  Added new functionality Mezzmo Mark Watched context menu option which will
+-  Added new functionality Mezzmo Mark Watched conext menu option which will
    update both the Kodi and Mezzmo databases when clicked.  
 
              ***  Important notes ***

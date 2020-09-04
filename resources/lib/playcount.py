@@ -22,7 +22,8 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     rfpos = murl.find(':',7)                               #  Get Mezzmo server port info
     serverport = '%' + murl[rfpos+1:rfpos+6] + '%'      
 
-    lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')      
+    lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    newcount = '0'      
 
     if mseason == 0 and mepisode == 0:                     #  Find movie file number
         curf = db.execute('SELECT idFile, strFileName FROM movie_view WHERE strPATH LIKE ? and c00=?',  \
@@ -52,17 +53,14 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
             newcount = '1'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            newcount = '0'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))
     elif filenumb != 0 and (mseason > 0 or mepisode > 0):  #  Update episode playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            newcount = '0'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
     elif filenumb == 0:     
-        newcount = '0'
         xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync. ' +      \
         mtitle, xbmc.LOGINFO)    
 
@@ -71,7 +69,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
 
     db.commit()
     db.close()
-    return[objectID, str(newcount)]                        #  Return Mezzmo objectID and new playcount
+    return[objectID, newcount]                             #  Return Mezzmo objectID and new playcount
 
 
 def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
@@ -106,11 +104,12 @@ vurl = sys.argv[2]
 vseason = sys.argv[3]
 vepisode = sys.argv[4]
 playcount = sys.argv[5]
-vseries = sys.argv[6]
+series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
 vtitle = title.replace("*#*#",",")                                  #  Replace commas
+vseries = series.replace("*#*#",",")                                #  Replace commas
 
 mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
 int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount

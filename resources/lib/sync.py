@@ -450,7 +450,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
-                    season_text, episode_text, album_text)
+                    season_text, episode_text, album_text, last_played_text)
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
