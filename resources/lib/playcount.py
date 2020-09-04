@@ -24,7 +24,14 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     db = sqlite.connect(DB)
 
     rfpos = murl.find(':',7)                               #  Get Mezzmo server port info
-    serverport = '%' + murl[rfpos+1:rfpos+6] + '%'      
+    serverport = '%' + murl[rfpos+1:rfpos+6] + '%'
+
+    lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')      
+    newcount = '0'
+
+    xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle + ' ' + murl, xbmc.LOGDEBUG)
+    xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
+    ' ' + str(mseries), xbmc.LOGDEBUG)    
 
     if mseason == 0 and mepisode == 0:                     #  Find movie file number
         curf = db.execute('SELECT idFile, strFileName FROM movie_view WHERE strPATH LIKE ? and c00=?',  \
@@ -39,7 +46,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
         curf.close()
     elif mseason > 0 or mseason > 0:                       #  Find TV Episode file number
         curf = db.execute('SELECT idFile, strFileName FROM episode_view WHERE strPATH LIKE ? and strTitle=? \
-        and c12=? and c13=? ',(serverport, mseries, mseason, mepisode,))  
+        and c12=? and c13=? ', (serverport, mseries, mseason, mepisode,))  
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]
@@ -52,17 +59,15 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
-            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (newcount, filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            newcount = '0'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=?  WHERE idFile=?', (newcount, '', filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))
     elif filenumb != 0 and (mseason > 0 or mepisode > 0):  #  Update episode playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
-            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (newcount, filenumb))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            newcount = '0'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=?  WHERE idFile=?', (newcount, '', filenumb))   
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
     elif filenumb == 0:   
         xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync.' +      \
         mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)    
@@ -73,7 +78,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
 
     db.commit()
     db.close()
-    return[objectID, str(newcount)]                        #  Return Mezzmo objectID and new playcount
+    return[objectID, newcount]                             #  Return Mezzmo objectID and new playcount
 
 
 def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
@@ -108,16 +113,17 @@ vurl = sys.argv[2]
 vseason = sys.argv[3]
 vepisode = sys.argv[4]
 playcount = sys.argv[5]
-vseries = sys.argv[6]
+series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")          #  Replace commas
+vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")        #  Replace commas
+vseries = series.decode('utf-8', 'ignore').replace("*#*#",",")      #  Replace commas
 
 mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
 int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount
 
-if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DB
+if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DD
     SetPlaycount(contenturl, mezzmovars[0], mezzmovars[1], vtitle)
     xbmc.executebuiltin('Container.Refresh()')
 

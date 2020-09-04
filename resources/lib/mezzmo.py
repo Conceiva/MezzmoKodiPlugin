@@ -634,7 +634,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text)
+                        season_text, episode_text, album_text, last_played_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds 
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -656,19 +656,20 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
-                    pctitle = mtitle.replace(",","*#*#").encode('utf-8', 'ignore')   #  Replace commas 
+                    pctitle = mtitle.replace(",","*#*#").encode('utf-8', 'ignore')        #  Replace commas
+                    pcseries = album_text.replace(",","*#*#").encode('utf-8', 'ignore')   #  Replace commas 
                     if playcount == 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
                         'XBMC.RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
                         {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl, season_text, episode_text,         \
-                        playcount, album_text, pcdbfile, contenturl)) ])
+                        playcount, pcseries, pcdbfile, contenturl)) ])
                     elif playcount > 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30373),   \
                         'XBMC.RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
                         {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl, season_text, episode_text,         \
-                        playcount, album_text, pcdbfile, contenturl)) ])   
+                        playcount, pcseries, pcdbfile, contenturl)) ])   
                                        
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
@@ -1074,7 +1075,7 @@ def handleSearch(content, contenturl, objectID, term):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text)
+                        season_text, episode_text, album_text, last_played_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting

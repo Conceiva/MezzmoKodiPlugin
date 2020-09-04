@@ -247,13 +247,16 @@ def kodiCleanDB(ContentDeleteURL, force):
         addon.setSetting('kodiclean', 'false')     # reset back to false after clearing
 
 
-def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries): #  Check if path exists
+def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
+    mlplayed): #  Check if path exists
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
     serverport = itemurl[rfpos+1:rfpos+6]      #  Get Mezzmo server port info 
     #xbmc.log('Item path: ' + mpath, xbmc.LOGNOTICE)
     #xbmc.log('Item file: ' + filecheck, xbmc.LOGNOTICE)
+    if mlplayed == '0':                        #  Set Mezzmo last played to null if 0
+        mlplayed = ''
 
     curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(mserver,))   # Check if server path exists in Kodi DB
     ppathtuple = curpth.fetchone()
@@ -271,17 +274,17 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if int(mepisode) > 0 or int(mseason) > 0:
         media = 'episode'
         episodes = 1
-        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN episode          \
-        USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)             \
-        WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE', \
+        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN episode \
+        USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)                \
+        WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE',    \
         (mseries, ppathnumb, mseason, mepisode))     # Check if episode exists in Kodi DB under parent path 
         filetuple = curf.fetchone()
         curf.close()
     else:
         media = 'movie'
         episodes = 0
-        curf = db.execute('SELECT idFile, playcount, idPath FROM files INNER JOIN movie           \
-        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE      \
+        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN movie   \
+        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE          \
         NOCASE', (mtitle, ppathnumb))   # Check if movie exists in Kodi DB under parent path  
         filetuple = curf.fetchone()
         curf.close()
@@ -298,8 +301,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         pathnumb = pathtuple[0]
         curp.close()
 
-        db.execute('INSERT into FILES (idPath, strFilename, playCount) values (?, ?, ? )',      \
-        (str(pathnumb), filecheck, mplaycount))
+        db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed) values       \
+        (?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed))
         cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
         filetuple = cur.fetchone()
         filenumb = filetuple[0]
@@ -309,8 +312,10 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         filenumb = filetuple[0] 
         #xbmc.log('File found : ' + filecheck.encode('utf-8','ignore') + ' ' + str(filenumb), xbmc.LOGNOTICE)
         fpcount = filetuple[1]
-        if fpcount != mplaycount:    # If Mezzmo playcount different than Kodi DB, update Kodi DB
-            db.execute('UPDATE files SET playCount=? WHERE idFile=?', (mplaycount, filenumb,))
+        flplayed = filetuple[3]       
+        if fpcount != mplaycount or flplayed != mlplayed :    # If Mezzmo playcount or lastPlayed different
+            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?',   \
+            (mplaycount, mlplayed, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
         realfilenumb = filenumb      #  Save real file number before resetting found flag
         pathnumb = filetuple[2]
