@@ -1,7 +1,7 @@
 v2.0.0.0x New Beta release
 
--  Fixed Mezzmo Mark Watched featue not working on video files with a comma 
-   in the title.
+-  Fixed Mezzmo Mark Watched feature not working on video files with a comma 
+   in the title or the series name.
 -  Fixed Mezzmo Mark watched feature not working when a video was not found 
    in the Kodi database.
 -  Added last played time copy from Mezzmo to the Kodi database.
