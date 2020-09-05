@@ -633,7 +633,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text)
-                        #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
+                        xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
                         if filekey[4] == 1:
@@ -653,7 +653,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
-                        #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
+                        xbmc.log('The movie name is: ' + mtitle, xbmc.LOGDEBUG)
                     pctitle = mtitle.replace(",","*#*#")                    #  Replace commas
                     pcseries = album_text.replace(",","*#*#")               #  Replace commas  
                     if playcount == 0:

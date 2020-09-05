@@ -256,7 +256,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
     serverport = itemurl[rfpos+1:rfpos+6]      #  Get Mezzmo server port info 
-    #xbmc.log('Mezzmo checkDbPath path check and file check: ' + str(mpath) + ' ' + str(filecheck), xbmc.LOGDEBUG)
+    xbmc.log('Mezzmo checkDbPath path check and file check: ' + str(mpath) + ' ' + str(filecheck), xbmc.LOGDEBUG)
     if mlplayed == '0':                        #  Set Mezzmo last played to null if 0
         mlplayed = ''
 
@@ -282,6 +282,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         (mseries, ppathnumb, mseason, mepisode))     # Check if episode exists in Kodi DB under parent path 
         filetuple = curf.fetchone()
         curf.close()
+        xbmc.log('Checking path for : ' + mtitle, xbmc.LOGDEBUG)     # Path check debugging
     else:
         media = 'movie'
         episodes = 0
@@ -295,7 +296,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if not filetuple:                 # if not exist insert into Kodi DB and return file key value
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
         pathtuple = curp.fetchone()
-        #xbmc.log('File not found : ' + mtitle, xbmc.LOGINFO)
+        xbmc.log('File not found : ' + mtitle, xbmc.LOGDEBUG)
         if not pathtuple:             # if path doesn't exist insert into Kodi DB
             db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
             (mpath, 'movies', ppathnumb))
@@ -313,7 +314,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         realfilenumb = filenumb      # Save real file number before resetting found flag
     else:                            # Return 0 if file already exists and check for play count change 
         filenumb = filetuple[0] 
-        #xbmc.log('File found : ' + filecheck.encode('utf-8','ignore') + ' ' + str(filenumb), xbmc.LOGINFO)
+        xbmc.log('File found : ' + filecheck + ' ' + str(filenumb), xbmc.LOGDEBUG)
         fpcount = filetuple[1]
         flplayed = filetuple[3]       
         if fpcount != mplaycount or flplayed != mlplayed :    # If Mezzmo playcount or lastPlayed different
