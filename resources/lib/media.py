@@ -241,8 +241,8 @@ def kodiCleanDB(ContentDeleteURL, force):
         db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
 
         xbmc.log('Kodi database Mezzmo data cleared.', xbmc.LOGNOTICE)
-        db.commit()
         curf.close()
+        db.commit()
         db.close()
         addon.setSetting('kodiclean', 'false')     # reset back to false after clearing
 

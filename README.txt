@@ -1,3 +1,10 @@
+v1.1.0.1
+
+-  Fixed issue with Kodi 18 running on ARM devices (i.e. Raspberry Pi etc..) 
+   not syncing all records between Mezzmo and Kodi.  Back ported the Kodi 19
+   addon sync code to this to resolve.  Kodi 18 and Kodi 19 addon sync code
+   is now standardized.
+
 v1.1.0.0
 
 -  Fixed Mezzmo Mark Watched feature not working on video files with a comma 

@@ -111,12 +111,12 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             clean = 1                                  #  database cleared. Resync all videos
         if count < 12:   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
-            rows = syncContent(content, syncurl, 'recent', syncpin)
+            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             updateRealtime(mezzmorecs, recs)
         elif clean == 0:                               #  Hourly sync next 800
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
-            rows = syncContent(content, syncurl, 'recent', syncpin)
+            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             if rows == None:                           #  Did sync get data from Mezzmo server ?
                 rows = 0
                 xbmc.log('Mezzmo sync process could not contact the Mezzmo server', xbmc.LOGNOTICE) 
@@ -124,12 +124,13 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             if rows == 400 and syncoffset % 400 == 0:
                 syncoffset = syncoffset + rows - 400              
                 content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, 800, syncpin)
-                rows1 = syncContent(content, syncurl, 'recent', syncpin)
-                if rows1 == None:
-                    rows1 = 0
-                else:
+                rows1 = syncContent(content, syncurl, 'recent', syncpin, syncoffset, 800)
+                #xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGNOTICE)
+                if rows1 != None and rows1 > 0:
                     syncoffset = syncoffset + rows1
-                rows = rows + rows1 
+                else:
+                    syncoffset = 400  
+                rows = rows + rows1
             xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
             if rows % 400 <> 0:                        #  Start back through the Mezzmo database
                 syncoffset = 400 
@@ -140,9 +141,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             addon.setSetting('kodichange', 'false')
             syncoffset = 0   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
-            rows = syncContent(content, syncurl, 'recent', syncpin)
+            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', (mezzmorecs - 20), 30, syncpin)
-            rows2 = syncContent(content, syncurl, 'recent', syncpin)
+            rows2 = syncContent(content, syncurl, 'recent', syncpin, 0, 30)
             if not rows2 == None:                      # Ensure all records.  Get last 20
                 rows = rows + rows2                  
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
@@ -156,10 +157,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGNOTICE) 
 
 
-def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / insertion function
+def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    returnmatches = 0  
     global mezzmorecs
     
     try:
@@ -175,16 +175,21 @@ def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / i
                 TotalMatches = 0
             else:
                 mezzmorecs = int(TotalMatches)         #  Set global variable with record count
-            xbmc.log('Mezzmo total matches = ' + str(TotalMatches), xbmc.LOGDEBUG)          
-            if NumberReturned == 0:
+            xbmc.log('Mezzmo total matches = ' + str(TotalMatches), xbmc.LOGDEBUG) 
+            xbmc.log('Mezzmo number returned = ' + NumberReturned, xbmc.LOGDEBUG)  
+          
+            if int(NumberReturned) == 0:               #  Stop once offset = Total matches
+                itemsleft = 0
+                return(0)
                 break; #sanity check
-                
+            
+            if maxrecords == 1000 or maxrecords > int(TotalMatches):
+                TotalMatches = int(TotalMatches)
+            else:
+                TotalMatches = maxrecords   
+
             if itemsleft == -1:
-                if int(NumberReturned) < 1000:
-                    TotalMatches = NumberReturned
-                    itemsleft = int(NumberReturned)
-                else:
-                    itemsleft = int(TotalMatches)
+                itemsleft = TotalMatches
 
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
@@ -284,27 +289,10 @@ def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / i
                 if artist != None:
                     artist_text = artist.text.encode('utf-8', 'ignore')
 
-                actor_list = ''
-                cast_dict = []    # Added cast & thumbnail display from Mezzmo server
-                cast_dict_keys = ['name','thumbnail']
-                actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None:
-                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                  
-                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
-                        new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
-
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
-                    creator_text = creator.text
-                    
-                lastplayed_text = ''
-                lastplayed = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}lastplayed')
-                if lastplayed != None:
-                    lastplayed_text = lastplayed.text
+                    creator_text = creator.text                   
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -464,21 +452,19 @@ def syncContent(content, syncurl, objectId, syncpin):  # Mezzmo data parsing / i
                     audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,      \
                     icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
                     #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
-                    returnmatches += 1
                                                       
             itemsleft = itemsleft - int(NumberReturned)
-            xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
+            xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG)
             dbfile.commit()                #  Commit writes
 
             if itemsleft <= 0:
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                return(returnmatches)  
+                return(TotalMatches)  
                 break
                         
             # get the next items
-            offset = int(TotalMatches) - itemsleft
-            xbmc.log('Offset: ' + str(offset), xbmc.LOGDEBUG) 
+            offset = (TotalMatches - itemsleft) + syncoffset
             requestedCount = 1000
             if itemsleft < 1000:
                 requestedCount = itemsleft
