@@ -113,12 +113,6 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             updateRealtime(mezzmorecs, recs)
-            if int(mezzmorecs * .9) > recs:            #  Check if in sync
-                addon.setSetting('kodiactor', 'true')  #  Enable real time updates  
-                addon.setSetting('kodichange', 'true')
-            else:
-                addon.setSetting('kodiactor', 'false') #  Disable real time updates  
-                addon.setSetting('kodichange', 'false')
         elif clean == 0:                               #  Hourly sync 800 newest
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
@@ -136,7 +130,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
                 else:
                     syncoffset = 400  
                 rows = rows + rows1
-            #xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGINFO)
+            xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
             if not rows % 400 == 0 or rows == 0:       #  Start back through the Mezzmo database
                 syncoffset = 400 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
@@ -164,7 +158,6 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    returnmatches = 0  
     global mezzmorecs 
     
     try:
@@ -293,27 +286,10 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 if artist != None:
                     artist_text = artist.text
 
-                actor_list = ''
-                cast_dict = []    # Added cast & thumbnail display from Mezzmo server
-                cast_dict_keys = ['name','thumbnail']
-                actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None:
-                    actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                  
-                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
-                        new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
-
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
-                    
-                lastplayed_text = ''
-                lastplayed = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}lastplayed')
-                if lastplayed != None:
-                    lastplayed_text = lastplayed.text
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -348,8 +324,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                  
                 playcount = 0
                 playcount_text = ''
-                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
-                
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')               
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
@@ -373,8 +348,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
-                
-                
+                                
                 dcmInfo_text = ''
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
                 if dcmInfo != None:
@@ -471,7 +445,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                     audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,      \
                     icon, backdropurl, dbfile, pathcheck)               # Update movie stream info
-                    returnmatches += 1 
                     #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                                                       
             itemsleft = itemsleft - int(NumberReturned)
@@ -481,8 +454,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
             if itemsleft <= 0:
                 dbfile.commit()
-                dbfile.close()             #  Final commit writes and close Kodi database
-                #xbmc.log('Mezzmo return matches: ' + str(returnmatches), xbmc.LOGINFO)        
+                dbfile.close()             #  Final commit writes and close Kodi database      
                 return(TotalMatches)
                 break
           

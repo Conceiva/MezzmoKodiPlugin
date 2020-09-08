@@ -1,3 +1,8 @@
+v2.0.0.0y New Beta Release
+
+-  Standardized addon background sync code with Kodi 18 addon version 1.1.0.1
+   and removed some extra unused sync code.
+
 v2.0.0.0x New Beta release
 
 -  Fixed Mezzmo Mark Watched feature not working on video files with a comma 
