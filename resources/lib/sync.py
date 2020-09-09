@@ -127,9 +127,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
                 #xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGINFO)
                 if rows1 != None and rows1 > 0:
                     syncoffset = syncoffset + rows1
+                    rows = rows + rows1
                 else:
                     syncoffset = 400  
-                rows = rows + rows1
             xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
             if not rows % 400 == 0 or rows == 0:       #  Start back through the Mezzmo database
                 syncoffset = 400 
