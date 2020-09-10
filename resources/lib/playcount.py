@@ -6,6 +6,7 @@ import os
 import json
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
+import bookmark
 from datetime import datetime, timedelta
 
 
@@ -107,22 +108,21 @@ series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.replace("*#*#",",")                          #  Replace commas
-vseries = series.replace("*#*#",",")                        #  Replace commas
+vtitle = title.replace("*#*#",",")                                #  Replace commas
+vseries = series.replace("*#*#",",")                              #  Replace commas
 
 updateKodiPlaycount(int(playcount), vtitle, vurl,     \
-int(vseason), int(vepisode), vseries, dbfile)               #  Update Kodi DB playcount
+int(vseason), int(vepisode), vseries, dbfile)                     #  Update Kodi DB playcount
 
-if int(playcount) == 0:                                     #  Calcule new play count
+rtrimpos = vurl.rfind('/')
+mobjectID = vurl[rtrimpos+1:]                                     #  Get Mezzmo objectID
+
+if int(playcount) == 0:                                           #  Calcule new play count
     newcount = '1'
 elif int(playcount) > 0:
     newcount = '0'
+    bookmark.SetBookmark(contenturl, mobjectID, newcount)         #  Clear bookmark
 
-rtrimpos = vurl.rfind('/')
-mobjectID = vurl[rtrimpos+1:]                               #  Get Mezzmo objectID
-
-if mobjectID != None:                                       #  Update Mezzmo playcount if objectID exists
+if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
     SetPlaycount(contenturl, mobjectID, newcount, vtitle)
     xbmc.executebuiltin('Container.Refresh()')
-
-

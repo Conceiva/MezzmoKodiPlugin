@@ -112,6 +112,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGNOTICE)
             updateRealtime(mezzmorecs, recs)
         elif clean == 0:                               #  Hourly sync 800 newest
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
@@ -134,6 +135,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             if not rows % 400 == 0 or rows == 0:       #  Start back through the Mezzmo database
                 syncoffset = 400 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGNOTICE)
             updateRealtime(mezzmorecs, recs)                      
         elif clean == 1:                               #  Sync all daily
             addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
@@ -145,6 +147,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             if not rows2 == None:                      #  Ensure all records.  Get last 20 records again
                 rows = rows + rows2 - 20               #  Remove double count of the last 20 records                 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGNOTICE)
             media.optimizeDB()                         #  Optimize DB after resync
         endtime = time.time()
         duration = endtime-starttime

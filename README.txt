@@ -1,3 +1,13 @@
+v2.0.0.0z New Beta Release
+
+-  Fixed issue where unexpected response from Mezzmo server could cause 
+   background sync process to abort.
+-  Decoupled Mark Watched Mezzmo and Kodi updates so that if a video isn't
+   found in the Kodi database the Mezzmo database will still be updated. 
+-  Added logging to show number of records in Mezzmo database.  
+-  Added feature to clear Mezzmo bookmark when Mezzmo Mark Unwatched is
+   clicked on a video file. 
+
 v2.0.0.0y New Beta Release
 
 -  Standardized addon background sync code with Kodi 18 addon version 1.1.0.1
