@@ -6,6 +6,7 @@ import json
 import urllib
 import urllib2
 import sys
+import bookmark
 from datetime import datetime, timedelta
 
 #xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
@@ -34,26 +35,21 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     ' ' + str(mseries), xbmc.LOGDEBUG)    
 
     if mseason == 0 and mepisode == 0:                     #  Find movie file number
-        curf = db.execute('SELECT idFile, strFileName FROM movie_view WHERE strPATH LIKE ? and c00=?',  \
-        (serverport, mtitle,))  
+        curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]
-            objectID = filetuple[1]
         else:
             filenumb = 0
-            objectID = None
         curf.close()
     elif mseason > 0 or mseason > 0:                       #  Find TV Episode file number
-        curf = db.execute('SELECT idFile, strFileName FROM episode_view WHERE strPATH LIKE ? and strTitle=? \
-        and c12=? and c13=? ', (serverport, mseries, mseason, mepisode,))  
+        curf = db.execute('SELECT idFile FROM episode_view WHERE strPATH LIKE ? and strTitle=? and c12=? \
+        and c13=? ',(serverport, mseries, mseason, mepisode,))  
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]
-            objectID = filetuple[1]
         else:
-            filenumb = 0
-            objectID = None        
+            filenumb = 0      
         curf.close()
 
     if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount
@@ -78,7 +74,6 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
 
     db.commit()
     db.close()
-    return[objectID, newcount]                             #  Return Mezzmo objectID and new playcount
 
 
 def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
@@ -108,7 +103,7 @@ def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     return response
 
 
-title = sys.argv[1]                                                 # Extract passed variables
+title = sys.argv[1]                                               # Extract passed variables
 vurl = sys.argv[2]
 vseason = sys.argv[3]
 vepisode = sys.argv[4]
@@ -117,15 +112,21 @@ series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")        #  Replace commas
-vseries = series.decode('utf-8', 'ignore').replace("*#*#",",")      #  Replace commas
+vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")      #  Replace commas
+vseries = series.decode('utf-8', 'ignore').replace("*#*#",",")    #  Replace commas
 
-mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
-int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount
+updateKodiPlaycount(int(playcount), vtitle, vurl,     \
+int(vseason), int(vepisode), vseries, dbfile)                     #  Update Kodi DB playcount
 
-if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DD
-    SetPlaycount(contenturl, mezzmovars[0], mezzmovars[1], vtitle)
+rtrimpos = vurl.rfind('/')
+mobjectID = vurl[rtrimpos+1:]                                     #  Get Mezzmo objectID
+
+if int(playcount) == 0:                                           #  Calcule new play count
+    newcount = '1'
+elif int(playcount) > 0:
+    newcount = '0'
+    bookmark.SetBookmark(contenturl, mobjectID, newcount)         #  Clear bookmark
+
+if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
+    SetPlaycount(contenturl, mobjectID, newcount, vtitle)
     xbmc.executebuiltin('Container.Refresh()')
-
-
-
