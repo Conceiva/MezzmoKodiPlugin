@@ -125,8 +125,8 @@ if int(playcount) == 0:                                           #  Calcule new
     newcount = '1'
 elif int(playcount) > 0:
     newcount = '0'
-    bookmark.SetBookmark(contenturl, mobjectID, newcount)         #  Clear bookmark
 
 if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
     SetPlaycount(contenturl, mobjectID, newcount, vtitle)
+    bookmark.SetBookmark(contenturl, mobjectID, newcount)         #  Clear bookmark
     xbmc.executebuiltin('Container.Refresh()')
