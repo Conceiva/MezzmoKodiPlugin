@@ -116,11 +116,19 @@ contenturl = sys.argv[8]
 vtitle = title.replace("*#*#",",")                                  #  Replace commas
 vseries = series.replace("*#*#",",")                                #  Replace commas
 
-mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl,      \
-int(vseason), int(vepisode), vseries, dbfile)                       #  Update Kodi DB playcount
+mezzmovars = updateKodiPlaycount(int(playcount), vtitle, vurl, int(vseason),     \
+int(vepisode), vseries, dbfile)                                     #  Update Kodi DB playcount
 
-if mezzmovars[0] != None:                                           #  Update Mezzmo playcount if in Kodi DB
-    SetPlaycount(contenturl, mezzmovars[0], mezzmovars[1], vtitle)
+if int(playcount) == 0:                                             #  Calcule new play count
+    newcount = '1'
+elif int(playcount) > 0:
+    newcount = '0'
+
+rtrimpos = vurl.rfind('/')
+mobjectID = vurl[rtrimpos+1:]                                       #  Get Mezzmo objectID
+
+if mobjectID != None:                                               #  Update Mezzmo playcount if in Kodi DB
+    SetPlaycount(contenturl, mobjectID, newcount, vtitle)
     xbmc.executebuiltin('Container.Refresh()')
 
 
