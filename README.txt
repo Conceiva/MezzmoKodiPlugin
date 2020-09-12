@@ -3,7 +3,7 @@ v1.1.0.3
 -  Adding saving sync offset counter to addon settings so that it will
    not restart at the beginning when the addon is shutdown.
 -  Fixed Kodi addon error message in the logs when Mark Watched feature
-   was used.
+   is used.
 
 v1.1.0.2
 
