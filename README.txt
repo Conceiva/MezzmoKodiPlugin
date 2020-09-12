@@ -1,11 +1,11 @@
 v2.0.0.1a New Beta Release
 
--  Adding saving sync offset counter to addon settings so that it will
+-  Added saving sync offset counter to addon settings so that it will
    not restart at the beginning when the addon is shutdown.
 -  Fixed Kodi addon error message in the logs when Mark Watched feature
    is used.
--  Updated log message showing Mezzmo database records to use Kodi 19 log
-   message format vs. Kodi 18 format.
+-  Updated sync log message showing Mezzmo database records to use 
+   Kodi 19 log message format vs. Kodi 18 format.
 
 v2.0.0.0z New Beta Release
 
