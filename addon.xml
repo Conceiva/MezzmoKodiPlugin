@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.0.0.0z" provider-name="Conceiva">
+<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.0.0.1a" provider-name="Conceiva">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>    
@@ -12,6 +12,9 @@
                library="service.py">
         <provides>executable</provides>
   </extension>
+
+  <extension point="xbmc.python.library" 
+               library="resources/lib/playcount.py"/>
   
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>

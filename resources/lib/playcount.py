@@ -1,7 +1,6 @@
 import xbmc
 import xbmcgui
 import xbmcplugin
-import xbmcaddon
 import os
 import json
 import urllib.request, urllib.error, urllib.parse
