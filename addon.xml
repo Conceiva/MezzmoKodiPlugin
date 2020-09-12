@@ -10,6 +10,9 @@
                library="service.py">
         <provides>executable</provides>
   </extension>
+
+  <extension point="xbmc.python.library" 
+               library="resources/lib/playcount.py"/>
   
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>

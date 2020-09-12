@@ -105,6 +105,10 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
         clean =  0                                     #  Set daily clean flag
         rows = 0
 
+        newoffset = addon.getSetting('sync_offset')    #  Get saved offset setting      
+        if newoffset != '':                         
+            syncoffset = int(newoffset)
+
         if int(datetime.datetime.now().strftime('%H')) == 0 and count > 12:
             force = 1
             media.kodiCleanDB(syncurl,force)           #  Clear Kodi database daily
@@ -154,6 +158,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
+        addon.setSetting('sync_offset', str(syncoffset))
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGNOTICE) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGNOTICE) 

@@ -1,10 +1,17 @@
+v1.1.0.3
+
+-  Adding saving sync offset counter to addon settings so that it will
+   not restart at the beginning when the addon is shutdown.
+-  Fixed Kodi addon error message in the logs when Mark Watched feature
+   was used.
+
 v1.1.0.2
 
 -  Fixed issue where unexpected response from Mezzmo server could cause 
    background sync process to abort.
 -  Decoupled Mark Watched Mezzmo and Kodi updates so that if a video isn't
    found in the Kodi database the Mezzmo database will still be updated. 
--  Added logging to show number of records in Mezzmo database.   
+-  Added logging to show number of records in the Mezzmo database during sync.   
 -  Added feature to clear Mezzmo bookmark when Mezzmo Mark Unwatched is
    clicked on a video file. 
 

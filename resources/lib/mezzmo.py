@@ -661,15 +661,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if playcount == 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
-                        'XBMC.RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
-                        {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl, season_text, episode_text,         \
-                        playcount, pcseries, pcdbfile, contenturl)) ])
+                        'RunScript(plugin.video.mezzmo, {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl,    \
+                        season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
                     elif playcount > 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30373),   \
-                        'XBMC.RunScript(special://home/addons/plugin.video.mezzmo/resources/lib/playcount.py,       \
-                        {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl, season_text, episode_text,         \
-                        playcount, pcseries, pcdbfile, contenturl)) ])   
+                        'RunScript(plugin.video.mezzmo, {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl,    \
+                        season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])   
                                        
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
