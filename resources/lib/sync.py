@@ -96,22 +96,48 @@ def updateRealtime(mrecords, krecords):                #  Disable real time upda
         xbmc.log('Mezzmo sync process in sync.  Real time updates disabled.', xbmc.LOGINFO) 
 
 
+def checkDailySync():
+    currhour = datetime.datetime.now().strftime('%H')
+    syncflag = addon.getSetting('dailysync')
+    if syncflag != '':
+        dailysync = int(syncflag)
+    else:
+        dailysync = 0
+        addon.setSetting('dailysync', '0')             #  Set daily sync flag
+        
+    xbmc.log('Mezzmo initial daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)   
+
+    if int(currhour) > 5 and dailysync != 0:
+        dailysync = 0                                  #  Reset daily sync flag
+        addon.setSetting('dailysync', str(dailysync))
+        xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGINFO)
+
+    if int(currhour) >= 0 and int(currhour) <= 5 and int(syncflag) == 0:
+        dailysync = 1                                  #  Set daily sync flag if not run yet
+        xbmc.log('Mezzmo daily sync process flag set.', xbmc.LOGINFO)
+    elif int(currhour) >= 0 and int(currhour) <= 5 and int(syncflag) == 1:
+        dailysync = 0         
+
+    xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
+
+    return(dailysync)
+
+
 def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
     global syncoffset
     if ksync == 'true':                                #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
-        clean =  0                                     #  Set daily clean flag
         rows = 0
 
         newoffset = addon.getSetting('sync_offset')    #  Get saved offset setting      
         if newoffset != '':                         
             syncoffset = int(newoffset)
 
-        if int(datetime.datetime.now().strftime('%H')) == 0 and count > 12:
+        clean = checkDailySync()                      # Check sync flag
+        if clean == 1 and count > 12:
             force = 1
             media.kodiCleanDB(syncurl,force)           #  Clear Kodi database daily
-            clean = 1                                  #  database cleared. Resync all videos
         if count < 12:   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
@@ -153,6 +179,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGINFO)
             media.optimizeDB()                         #  Optimize DB after resync
+            addon.setSetting('dailysync', '1')         #  Set daily sync flag
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'

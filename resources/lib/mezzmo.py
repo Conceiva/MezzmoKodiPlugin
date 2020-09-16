@@ -30,36 +30,6 @@ args = urllib.parse.parse_qs(sys.argv[2][1:])
 
 installed_version = media.get_installedversion()
 
-def checkParentPath(ContentPathUrl):	#  Add parent path id to missing Mezzmo paths
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                      
-    DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  
-    db = sqlite.connect(DB)
-
-    rfpos = ContentPathUrl.find('/',7)
-    ppathurl = ContentPathUrl[:rfpos+1]               #  Get Mezzmo server info
-    serverport = ContentPathUrl[rfpos+1:rfpos+6]      #  Get Mezzmo server port info 
-    curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(ppathurl,))     # Check if server path exists in Kodi DB
-    ppathtuple = curpth.fetchone()
-    if not ppathtuple:                                # add parent server path to Kodi DB if it doesn't exist
-        db.execute('INSERT into path (strpath, strContent) values (?, ?)', (ppathurl, 'movies',))
-        curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(ppathurl,)) 
-        ppathtuple = curpp.fetchone()
-        ppathnumb = ppathtuple[0]                     # Parent path number
-        curpp.close()
-        xbmc.log('Mezzmo checkParentPath parent path added: ' + str(ppathnumb) + " " + ppathurl, xbmc.LOGINFO) 
-    ppathnumb = ppathtuple[0]                         # Parent path number
-    db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
-    ('movies', ppathnumb, '%' + serverport + '%', ppathnumb)) # Update Child paths with parent information
-
-    curpth.close()
-    db.commit()
-    db.close() 
-       
-
 def dbIndexes():			# Improve performance for database lookups
     try:
         from sqlite3 import dbapi2 as sqlite
@@ -191,7 +161,6 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     media.kodiCleanDB(contenturl,'')            # Call function to delete Kodi actor database if user enabled. 
-    #checkParentPath(contenturl)		# Ensure parent path exists and children path relationship
     dbIndexes()
     
 def build_url(query):
