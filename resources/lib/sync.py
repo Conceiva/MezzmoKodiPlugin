@@ -174,7 +174,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', (mezzmorecs - 20), 30, syncpin)
             rows2 = syncContent(content, syncurl, 'recent', syncpin, 0, 30)
-            if not rows2 == None:                      #  Ensure all records.  Get last 20 records again
+            if rows2 != None and rows != None:         #  Ensure all records.  Get last 20 records again
                 rows = rows + rows2 - 20               #  Remove double count of the last 20 records                 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGINFO)
