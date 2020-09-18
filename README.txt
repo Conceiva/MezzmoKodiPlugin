@@ -1,6 +1,6 @@
 v1.1.0.4
 
--  Added featue where if the sync process isn't able to run at the 
+-  Added feature where if the sync process isn't able to run at the 
    scheduled time due to a video playing or Kodi not running.  It 
    will keep trying each hour until 6AM.
 -  Fixed sync problem introduced in v1.1.0.1 where not all Mezzmo 
