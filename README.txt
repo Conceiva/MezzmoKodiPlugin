@@ -1,3 +1,12 @@
+v1.1.0.4
+
+-  Added featue where if the sync process isn't able to run at the 
+   scheduled time due to a video playing or Kodi not running.  It 
+   will keep trying each hour until 6AM.
+-  Fixed sync problem introduced in v1.1.0.1 where not all Mezzmo 
+   records would be scanned and imported into Kodi  with the 
+   background sync process.   
+
 v1.1.0.3
 
 -  Added saving sync offset counter to addon settings so that it will
