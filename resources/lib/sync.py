@@ -111,11 +111,10 @@ def checkDailySync():
         dailysync = 0                                  #  Reset daily sync flag
         addon.setSetting('dailysync', str(dailysync))
         xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGINFO)
-
-    if int(currhour) >= 0 and int(currhour) <= 5 and int(syncflag) == 0:
+    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
         xbmc.log('Mezzmo daily sync process flag set.', xbmc.LOGINFO)
-    elif int(currhour) >= 0 and int(currhour) <= 5 and int(syncflag) == 1:
+    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 1:
         dailysync = 0         
 
     xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
@@ -124,7 +123,7 @@ def checkDailySync():
 
 
 def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
-    global syncoffset
+    global syncoffset 
     if ksync == 'true':                                #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
@@ -142,9 +141,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGINFO)
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
             updateRealtime(mezzmorecs, recs)
-        elif clean == 0:                               #  Hourly sync 800 newest
+        elif clean == 0:                               #  Hourly sync next 800
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             if rows == None:                           #  Did sync get data from Mezzmo server ?
@@ -152,32 +151,34 @@ def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
                 xbmc.log('Mezzmo sync process could not contact the Mezzmo server', xbmc.LOGINFO) 
             xbmc.log('Mezzmo sync offset = ' + str(syncoffset), xbmc.LOGDEBUG)  
             if rows == 400 and syncoffset % 400 == 0:
-                syncoffset = syncoffset + rows - 400              
-                content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, 800, syncpin)
-                rows1 = syncContent(content, syncurl, 'recent', syncpin, syncoffset, 800)
-                #xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGINFO)
+                syncoffset = syncoffset + rows - 400
+                fetch = 800                            # Number of records to get from Mezzmo
+                itemsleft = (mezzmorecs - syncoffset)  # Items remaining in Mezzmo
+                if  itemsleft < 800:
+                     fetch = itemsleft                 #  Fix Mezzmo offset error
+                xbmc.log('Mezzmo fetch = ' + str(fetch), xbmc.LOGDEBUG)                                  
+                content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, fetch, syncpin)
+                rows1 = syncContent(content, syncurl, 'recent', syncpin, syncoffset, fetch)
+                xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGDEBUG)
                 if rows1 != None and rows1 > 0:
                     syncoffset = syncoffset + rows1
                     rows = rows + rows1
                 else:
                     syncoffset = 400  
             xbmc.log('Mezzmo sync rows test = ' + str(rows), xbmc.LOGDEBUG)
-            if not rows % 400 == 0 or rows == 0:       #  Start back through the Mezzmo database
+            if rows % 400 != 0:                        #  Start back through the Mezzmo database
                 syncoffset = 400 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGINFO)
-            updateRealtime(mezzmorecs, recs)                      
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
+            updateRealtime(mezzmorecs, recs)                    
         elif clean == 1:                               #  Sync all daily
             addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
-            addon.setSetting('kodichange', 'false')   
+            addon.setSetting('kodichange', 'false')
+            syncoffset = 0   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
-            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)
-            content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', (mezzmorecs - 20), 30, syncpin)
-            rows2 = syncContent(content, syncurl, 'recent', syncpin, 0, 30)
-            if rows2 != None and rows != None:         #  Ensure all records.  Get last 20 records again
-                rows = rows + rows2 - 20               #  Remove double count of the last 20 records                 
+            rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs + 5), xbmc.LOGINFO)
+            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
             media.optimizeDB()                         #  Optimize DB after resync
             addon.setSetting('dailysync', '1')         #  Set daily sync flag
         endtime = time.time()
@@ -203,21 +204,23 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
+            xbmc.log('Mezzmo total matches = ' + str(TotalMatches), xbmc.LOGDEBUG) 
+            xbmc.log('Mezzmo number returned = ' + NumberReturned, xbmc.LOGDEBUG)
+            xbmc.log('Mezzmo records = ' + str(mezzmorecs), xbmc.LOGDEBUG)
             if not TotalMatches:                       #  Sanity check
                 TotalMatches = 0
             else:
-                mezzmorecs = int(TotalMatches)         #  Set global variable with record count
-            xbmc.log('Mezzmo total matches & numb returned = ' + str(TotalMatches) + ' ' +   \
-            str(NumberReturned), xbmc.LOGDEBUG)             
+                mezzmorecs = int(TotalMatches) + 5     #  Set global variable with record count
+                    
             if int(NumberReturned) == 0:               #  Stop once offset = Total matches
                 itemsleft = 0
                 return(0)
                 break; #sanity check
             
             if maxrecords == 1000 or maxrecords > int(TotalMatches):
-                TotalMatches = int(TotalMatches)
+                TotalMatches = int(TotalMatches) + 5
             else:
-                TotalMatches = maxrecords   
+                TotalMatches = maxrecords     
 
             if itemsleft == -1:
                 itemsleft = TotalMatches
