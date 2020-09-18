@@ -1,8 +1,8 @@
 v2.0.0.1b New Beta Release
 
 -  Added feature where if the sync process isn't able to run at the 
-   scheduled time due to a video playing or Kodi not running.  It 
-   will keep trying each hour until 6AM.
+   scheduled time due to a video playing or Kodi not running it will
+   keep trying each hour until 6AM.
 -  Fixed sync problem where not all Mezzmo records would be scanned
    and imported into Kodi with the background sync process.   
 
