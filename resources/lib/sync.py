@@ -122,40 +122,43 @@ def checkDailySync():
     return(dailysync)
 
 
-def syncMezzmo(syncurl, syncpin, count, ksync):        #  Sync Mezzmo to Kodi
+def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
     global syncoffset 
-    if ksync == 'true':                                #  Check if enabled
+    if ksync == 'true':                                  #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
         rows = 0
 
-        newoffset = addon.getSetting('sync_offset')    #  Get saved offset setting      
+        newoffset = addon.getSetting('sync_offset')      #  Get saved offset setting      
         if newoffset != '':                         
             syncoffset = int(newoffset)
 
-        clean = checkDailySync()                      # Check sync flag
+        clean = checkDailySync()                          #  Check sync flag
         if clean == 1 and count > 12:
             force = 1
-            media.kodiCleanDB(syncurl,force)           #  Clear Kodi database daily
+            media.kodiCleanDB(syncurl,force)              #  Clear Kodi database daily
         if count < 12:   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
-            recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            recs = media.countKodiRecs(syncurl)           #  Get record count in Kodi DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
             updateRealtime(mezzmorecs, recs)
-        elif clean == 0:                               #  Hourly sync next 800
+        elif clean == 0:                                  #  Hourly sync set of records
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
-            if rows == None:                           #  Did sync get data from Mezzmo server ?
+            if rows == None:                              #  Did sync get data from Mezzmo server ?
                 rows = 0
                 xbmc.log('Mezzmo sync process could not contact the Mezzmo server', xbmc.LOGINFO) 
             xbmc.log('Mezzmo sync offset = ' + str(syncoffset), xbmc.LOGDEBUG)  
-            if rows == 400 and syncoffset % 400 == 0:
+            if rows == 400 and syncoffset % 400 == 0:     #  Mezzmo database > 400 records
                 syncoffset = syncoffset + rows - 400
-                fetch = 800                            # Number of records to get from Mezzmo
-                itemsleft = (mezzmorecs - syncoffset)  # Items remaining in Mezzmo
-                if  itemsleft < 800:
-                     fetch = itemsleft                 #  Fix Mezzmo offset error
+                if mezzmorecs > 5000:                     #  Faster hourly sync for large databases
+                    fetch = (mezzmorecs // 800) // 6 * 800
+                else:                                     #  Number of records to get from Mezzmo
+                    fetch = 800                           #  Slow hourly fetch       
+                itemsleft = (mezzmorecs - syncoffset)     #  Items remaining in Mezzmo
+                if  itemsleft < fetch:                    #  Detect end of Mezzmo database
+                     fetch = itemsleft
                 xbmc.log('Mezzmo fetch = ' + str(fetch), xbmc.LOGDEBUG)                                  
                 content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', syncoffset, fetch, syncpin)
                 rows1 = syncContent(content, syncurl, 'recent', syncpin, syncoffset, fetch)

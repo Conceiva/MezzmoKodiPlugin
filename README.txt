@@ -1,3 +1,9 @@
+v2.0.0.1c New Beta Release
+
+-  Added fast sync feature which allows larger Mezzmo databases to 
+   process more hourly records reducing the time to cycle through the
+   Mezzmo database between daily syncs. 
+
 v2.0.0.1b New Beta Release
 
 -  Added feature where if the sync process isn't able to run at the 
