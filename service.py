@@ -72,7 +72,7 @@ while True:
         else:
             syncpin = settings('content_pin')
             syncurl = settings('contenturl') 
-            ksync = settings('kodisync')             
+            ksync = settings('kodisync')      
             if syncpin and syncurl:       
                 sync.syncMezzmo(syncurl, syncpin, count, ksync)
                 del syncpin

@@ -1,3 +1,9 @@
+v1.1.0.5
+
+-  Added fast sync feature which allows larger Mezzmo databases to 
+   process more hourly records reducing the time to cycle through the
+   Mezzmo database between daily syncs. 
+
 v1.1.0.4
 
 -  Added feature where if the sync process isn't able to run at the 
