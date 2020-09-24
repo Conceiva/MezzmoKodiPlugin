@@ -10,6 +10,7 @@
     <setting id="koditv" type="bool" label="30369" default="false"/>
     <setting id="kodichange" type="bool" label="30370" default="true"/>
     <setting id="kodisync" type="bool" label="30371" default="true"/>
+    <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
     </category>
     <!-- View -->

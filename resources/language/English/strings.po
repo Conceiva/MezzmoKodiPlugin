@@ -219,3 +219,7 @@ msgstr ""
 msgctxt "#30373"
 msgid "Mezzmo mark unwatched"
 msgstr ""
+
+msgctxt "#30374"
+msgid "Mezzmo Duplicate Logging"
+msgstr ""

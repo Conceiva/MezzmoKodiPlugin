@@ -248,7 +248,7 @@ def kodiCleanDB(ContentDeleteURL, force):
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed): #  Check if path exists
+    mlplayed, mdupelog): #  Check if path exists
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
@@ -317,6 +317,9 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?',   \
             (mplaycount, mlplayed, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
+        if mdupelog == 'true':
+            xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' + \
+            mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
         realfilenumb = filenumb      #  Save real file number before resetting found flag
         pathnumb = filetuple[2]
         filenumb = 0                 
@@ -326,7 +329,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog):  
 
     if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -383,7 +386,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
             movienumb = 999999                                        # Trigger actor update
-            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+            if mdupelog == 'false':
+                xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'),  \
+                xbmc.LOGNOTICE)
         curm.close()
     else:
         movienumb = 0                                                 # disable change checking
@@ -392,7 +397,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
 
 
 def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog):  
 
     #xbmc.log('Mezzmo fileId is: ' + str(fileId), xbmc.LOGNOTICE)
     if fileId[0] > 0:                                                #  Insert episode if does not exist in Kodi DB
@@ -448,7 +453,8 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'episode'))
             insertArt(movienumb, db, 'episode', murl, micon)          # Insert artwork for episode
             movienumb = 999999                                        # Trigger actor update
-            xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'),  \
+            if mdupelog == 'false':
+                xbmc.log('There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore'),\
             xbmc.LOGNOTICE)            
         movienumb = 0                                                 # disable change checking
         curm.close()
@@ -497,7 +503,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
 
 
 def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle,  \
-    kchange, itemurl, micon, murl, db, mpath):
+    kchange, itemurl, micon, murl, db, mpath, mdupelog):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
     filecheck = itemurl[rtrimpos+1:]
@@ -534,8 +540,9 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             iconmatch = urlMatch(micon, kicon)     # Check if icons match 
             if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or pathmatch is False or \
                 iconmatch is False) and rows == 4:
-                xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +   \
-                mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+                if mdupelog == 'false':
+                    xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' +         \
+                    mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
                 xbmc.log('Mezzmo streamdetails artwork rowcount = : ' +  str(rows), xbmc.LOGNOTICE)
                 xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)

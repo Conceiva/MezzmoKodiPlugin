@@ -1,3 +1,12 @@
+v1.1.0.6
+
+-  Added Mezzmo duplicate logging feature which will log any duplicate 
+   Mezzmo records found during the daily sync process into the Kodi 
+   log file.
+-  Fixed issue where if you tried to exit / start Kodi while the daily
+   sync was running an exception error would occur due to a Kodi database
+   locking contention.
+
 v1.1.0.5
 
 -  Added fast sync feature which allows larger Mezzmo databases to 
@@ -6,9 +15,9 @@ v1.1.0.5
 
 v1.1.0.4
 
--  Added feature where if the sync process isn't able to run at the 
-   scheduled time due to a video playing or Kodi not running it will
-   keep trying each hour until 6AM.
+-  Added feature where if the daily sync process isn't able to run at 
+   the scheduled time due to a video playing or Kodi not running it 
+   will keep trying each hour until 6AM.
 -  Fixed sync problem introduced in v1.1.0.1 where not all Mezzmo 
    records would be scanned and imported into Kodi  with the 
    background sync process.   

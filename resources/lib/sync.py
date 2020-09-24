@@ -18,6 +18,7 @@ import socket
 
 syncoffset = 400
 mezzmorecs = 0
+dupelog = 'false'
 addon = xbmcaddon.Addon()
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
@@ -124,7 +125,7 @@ def checkDailySync():
 
 
 def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
-    global syncoffset 
+    global syncoffset, dupelog 
     if ksync == 'true':                                  #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGNOTICE)
         starttime = time.time()
@@ -178,6 +179,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         elif clean == 1:                               #  Sync all daily
             addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
             addon.setSetting('kodichange', 'false')
+            dupelog = addon.getSetting('mdupelog')     #  Check if Mezzmo duplicate logging is enabled
+            if dupelog == 'true':
+                xbmc.log('Mezzmo duplicate logging is enabled. ', xbmc.LOGNOTICE)
             syncoffset = 0   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
@@ -189,6 +193,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
         addon.setSetting('sync_offset', str(syncoffset))
+        dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGNOTICE) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGNOTICE) 
@@ -197,7 +202,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    global mezzmorecs
+    global mezzmorecs, dupelog
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -469,7 +474,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
-                    season_text, episode_text, album_text, last_played_text)
+                    season_text, episode_text, album_text, last_played_text, dupelog)
                     #xbmc.log('Checking movie: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)                    
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
@@ -480,17 +485,17 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
-                        sort_title_text, season_text, episode_text, showId)  
+                        sort_title_text, season_text, episode_text, showId, dupelog)  
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text,          \
                         writer_text, creator_text, release_year_text, rating_val, durationsecs, genre_text,      \
                         trailerurl, content_rating_text, icon, kodichange, backdropurl, dbfile,                  \
-                        production_company_text, sort_title_text)
+                        production_company_text, sort_title_text, dupelog)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                     audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,      \
-                    icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                    icon, backdropurl, dbfile, pathcheck, dupelog)      # Update movie stream info 
                     xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                                       
             itemsleft = itemsleft - int(NumberReturned)

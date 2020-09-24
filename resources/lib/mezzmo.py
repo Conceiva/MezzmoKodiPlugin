@@ -35,13 +35,16 @@ def dbIndexes():			# Improve performance for database lookups
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())
-    db = sqlite.connect(DB)              
+    try:                      
+        DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  
+        db = sqlite.connect(DB)
     
-    db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
-    db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
-    db.commit()
-    db.close()  
+        db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
+        #db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
+        db.commit()
+        db.close()
+    except:
+        xbmc.log('Mezzmo unable to execute dbIndexes.  Database may be locked.', xbmc.LOGNOTICE)          
     
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
@@ -603,7 +606,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text)
+                        season_text, episode_text, album_text, last_played_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds 
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -613,17 +616,17 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId)  
+                            sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text)
+                            sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
                     pctitle = mtitle.replace(",","*#*#").encode('utf-8', 'ignore')        #  Replace commas
                     pcseries = album_text.replace(",","*#*#").encode('utf-8', 'ignore')   #  Replace commas 
@@ -1042,7 +1045,7 @@ def handleSearch(content, contenturl, objectID, term):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text)
+                        season_text, episode_text, album_text, last_played_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -1052,17 +1055,17 @@ def handleSearch(content, contenturl, objectID, term):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId)  
+                            sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text)
+                            sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE) 
                         dbfile.commit()
                         dbfile.close()  
