@@ -6,7 +6,7 @@ v2.0.0.1d New Beta Release
 -  Fixed issue where if you tried to exit / start Kodi while the daily
    sync was running an exception error would occur due to a Kodi database
    locking contention.
--  Fixed issue with duplicate items being displayed in some Kodi playists.  
+-  Fixed issue with duplicate items being displayed in some Kodi playlists.  
    Approximately every 32 or so items a duplicate would be displayed due
    to the Kodi 19 IP stack providing chunked responses and the indexing 
    beginning with 0.
