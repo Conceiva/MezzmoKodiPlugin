@@ -1,3 +1,16 @@
+v2.0.0.1d New Beta Release
+
+-  Added Mezzmo duplicate logging feature which will log any duplicate 
+   movie or episode Mezzmo database records found during the daily 
+   sync process to the Kodi log file.
+-  Fixed issue where if you tried to exit / start Kodi while the daily
+   sync was running an exception error would occur due to a Kodi database
+   locking contention.
+-  Fixed issue with duplicate items being displayed in some Kodi playists.  
+   Approximately every 32 or so items a duplicate would be displayed due
+   to the Kodi 19 IP stack providing chunked responses and the indexing 
+   beginning with 0.
+
 v2.0.0.1c New Beta Release
 
 -  Added fast sync feature which allows larger Mezzmo databases to 
@@ -6,9 +19,9 @@ v2.0.0.1c New Beta Release
 
 v2.0.0.1b New Beta Release
 
--  Added feature where if the sync process isn't able to run at the 
-   scheduled time due to a video playing or Kodi not running it will
-   keep trying each hour until 6AM.
+-  Added feature where if the daily sync process isn't able to run at
+   the scheduled time due to a video playing or Kodi not running it 
+   will keep trying each hour until 6AM.
 -  Fixed sync problem where not all Mezzmo records would be scanned
    and imported into Kodi with the background sync process.   
 

@@ -46,6 +46,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting help="" id="mdupelog" label="30374" type="boolean">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting help="" id="kodiclean" label="30368" type="boolean">
 					<level>0</level>
 					<default>false</default>

@@ -35,14 +35,17 @@ def dbIndexes():			# Improve performance for database lookups
         from sqlite3 import dbapi2 as sqlite
     except:
         from pysqlite2 import dbapi2 as sqlite
-                      
-    DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  # only use on Kodi 19 and higher
-    db = sqlite.connect(DB)
+
+    try:                      
+        DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  # only use on Kodi 19 and higher
+        db = sqlite.connect(DB)
     
-    db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
-    #db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
-    db.commit()
-    db.close()  
+        db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
+        #db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
+        db.commit()
+        db.close()
+    except:
+        xbmc.log('Mezzmo unable to execute dbIndexes.  Database may be locked.', xbmc.LOGINFO)          
     
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
@@ -601,7 +604,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text)
+                        season_text, episode_text, album_text, last_played_text, 'false')
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -611,17 +614,17 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId)  
+                            sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text)
+                            sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         xbmc.log('The movie name is: ' + mtitle, xbmc.LOGDEBUG)
                     pctitle = mtitle.replace(",","*#*#")                    #  Replace commas
                     pcseries = album_text.replace(",","*#*#")               #  Replace commas  
@@ -670,11 +673,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     dialog_text = "Video file:  " + title + " is invalid. Check Mezzmo video properties for this file."
                     xbmcgui.Dialog().ok("Mezzmo", dialog_text)
 
-            itemsleft = itemsleft - int(NumberReturned)
+            itemsleft = itemsleft - int(NumberReturned) - 1
             dbfile.commit()                #  Commit writes
             
             xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
-            if itemsleft == 0:
+            if itemsleft <= 0:
                 dbfile.commit()            
                 dbfile.close()             #  Final commit writes and close Kodi database  
                 break
@@ -684,7 +687,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             requestedCount = 1000
             if itemsleft < 1000:
                 requestedCount = itemsleft
-            
+
             pin = addon.getSetting('content_pin')   
             content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)
     except Exception as e:
@@ -1004,7 +1007,7 @@ def handleSearch(content, contenturl, objectID, term):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text)
+                        season_text, episode_text, album_text, last_played_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = getSeconds(duration_text)            #  convert duration to seconds before passing
                         kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
@@ -1014,17 +1017,17 @@ def handleSearch(content, contenturl, objectID, term):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId)  
+                            sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text)
+                            sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck)               # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                         dbfile.commit()
                         dbfile.close() 
@@ -1060,7 +1063,7 @@ def handleSearch(content, contenturl, objectID, term):
                 if validf == 1:  
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
-            itemsleft = itemsleft - int(NumberReturned)
+            itemsleft = itemsleft - int(NumberReturned) - 1
             if itemsleft == 0:
                 break
                         
