@@ -543,7 +543,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 iconmatch is False) and rows == 4:
                 if mdupelog == 'false':
                     xbmc.log('There was a Mezzmo streamdetails or artwork change detected: ' + mtitle, xbmc.LOGINFO)
-                xbmc.log('Mezzmo streamdetails artwork rowcount = ' +  str(rows), xbmc.LOGINFO)
+                    xbmc.log('Mezzmo streamdetails artwork rowcount = ' +  str(rows), xbmc.LOGINFO)
                 xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
