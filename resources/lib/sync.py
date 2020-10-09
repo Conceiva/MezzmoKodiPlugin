@@ -4,6 +4,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import os
+import xbmcvfs
 import xml.etree.ElementTree
 import re
 import xml.etree.ElementTree as ET
@@ -49,7 +50,7 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         except:
             from pysqlite2 import dbapi2 as sqlite
                       
-        DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
+        DB = os.path.join(xbmcvfs.translatePath("special://database"), "Textures13.db")
         db = sqlite.connect(DB)
     
         rfpos = contenturl.find(':',7)      #  Get Mezzmo server info
@@ -69,7 +70,7 @@ def dbClose():		 # Close database and commit any pending writes on abort
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), media.getDatabaseName())
     db = sqlite.connect(DB)              
     
 

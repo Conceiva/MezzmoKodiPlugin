@@ -1,5 +1,6 @@
 import xbmc
 import xbmcaddon
+import xbmcvfs
 import inspect
 import os
 import sys
@@ -77,12 +78,11 @@ def setup_python_locations():
     setup={}
     setup['__addon__'] = xbmcaddon.Addon()
     setup['__cachedir__'] = setup['__addon__'].getAddonInfo('profile')
-#    setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path')).decode('utf-8')
-    setup['__cwd__']     = xbmc.translatePath(setup['__addon__'].getAddonInfo('path'))
+    setup['__cwd__']     = xbmcvfs.translatePath(setup['__addon__'].getAddonInfo('path'))
 
     setup['__version__'] = setup['__addon__'].getAddonInfo('version')
 
-    setup['__resources__'] = xbmc.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
+    setup['__resources__'] = xbmcvfs.translatePath(os.path.join(setup['__cwd__'], 'resources', 'lib'))
     sys.path.append(setup['__resources__'])
     return setup                
 

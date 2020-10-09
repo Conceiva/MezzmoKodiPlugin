@@ -3,6 +3,7 @@ import xbmcgui
 import xbmcplugin
 import os
 import json
+import xbmcvfs
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
 import bookmark
@@ -16,7 +17,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), kdbfile)  
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), kdbfile)  
     db = sqlite.connect(DB)
 
     rfpos = murl.find(':',7)                               #  Get Mezzmo server port info
@@ -107,11 +108,8 @@ series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.replace("*#*#",",")                                #  Replace commas
-vseries = series.replace("*#*#",",")                              #  Replace commas
-
-updateKodiPlaycount(int(playcount), vtitle, vurl,     \
-int(vseason), int(vepisode), vseries, dbfile)                     #  Update Kodi DB playcount
+updateKodiPlaycount(int(playcount), title, vurl,     \
+int(vseason), int(vepisode), series, dbfile)                      #  Update Kodi DB playcount
 
 rtrimpos = vurl.rfind('/')
 mobjectID = vurl[rtrimpos+1:]                                     #  Get Mezzmo objectID
@@ -122,6 +120,6 @@ elif int(playcount) > 0:
     newcount = '0'
 
 if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
-    SetPlaycount(contenturl, mobjectID, newcount, vtitle)
+    SetPlaycount(contenturl, mobjectID, newcount, title)
     bookmark.SetBookmark(contenturl, mobjectID, '0')              #  Clear bookmark
     xbmc.executebuiltin('Container.Refresh()')

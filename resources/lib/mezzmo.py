@@ -5,6 +5,7 @@ import xbmcplugin
 import ssdp
 import xbmcaddon
 import xbmcgui
+import xbmcvfs
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
 import xml.etree.ElementTree
@@ -37,11 +38,10 @@ def dbIndexes():			# Improve performance for database lookups
         from pysqlite2 import dbapi2 as sqlite
 
     try:                      
-        DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  # only use on Kodi 19 and higher
+        DB = os.path.join(xbmcvfs.translatePath("special://database"), media.getDatabaseName())  # only use on Kodi 19 and higher
         db = sqlite.connect(DB)
     
         db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
-        #db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
         db.commit()
         db.close()
     except:
@@ -626,8 +626,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         xbmc.log('The movie name is: ' + mtitle, xbmc.LOGDEBUG)
-                    pctitle = mtitle.replace(",","*#*#")                    #  Replace commas
-                    pcseries = album_text.replace(",","*#*#")               #  Replace commas  
+                    pctitle = '"' + mtitle + '"'  		#  Handle commas
+                    pcseries = '"' + album_text + '"'           #  Handle commas 
                     if playcount == 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \

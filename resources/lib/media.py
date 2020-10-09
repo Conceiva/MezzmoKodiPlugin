@@ -2,6 +2,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
+import xbmcvfs
 import os
 import json
 import urllib.request, urllib.error, urllib.parse
@@ -95,7 +96,7 @@ def openKodiDB():                                  #  Open Kodi database
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())
     db = sqlite.connect(DB)
 
     return(db)    
@@ -137,7 +138,7 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
     db = sqlite.connect(DB)
 
     rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
@@ -166,12 +167,12 @@ def optimizeDB():                               # Optimize Kodi DB
     except:
         from pysqlite2 import dbapi2 as sqlite
                     
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
     db = sqlite.connect(DB)
 
     db.execute('REINDEX',)
     db.execute('VACUUM',)
-    xbmc.log('Mezzmo database reindex and vacuum complete.', xbmc.LOGNOTICE)
+    xbmc.log('Mezzmo database reindex and vacuum complete.', xbmc.LOGINFO)
 
     db.commit()    
     db.close()
@@ -222,7 +223,7 @@ def kodiCleanDB(ContentDeleteURL, force):
             from pysqlite2 import dbapi2 as sqlite
 
         clean = addon.getSetting('kodiclean') == 'true'
-        DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
+        DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
         db = sqlite.connect(DB)
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
          

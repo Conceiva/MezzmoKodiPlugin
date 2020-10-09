@@ -1,3 +1,14 @@
+v2.0.0.1e New Beta Release
+
+  ******  Note this vesion requires Kodi Matrix Alpha 2 or higher  ******
+-  Improved code added in v2.0.0.0x to handle commas with Mark Watched 
+   feature.  The new code is simplier and faster on some ARM platforms.
+-  Updated code to eliminate xbmc.translatePath calls which are being 
+   deprecated by the Kodi team in v20.  Eliminates the error log messages
+   with Kodi v19.
+-  Fixed a remaining v18 style logging call which could cause daily sync 
+   process to fail.
+
 v2.0.0.1d New Beta Release
 
 -  Added Mezzmo duplicate logging feature which will log any duplicate 
@@ -6,7 +17,7 @@ v2.0.0.1d New Beta Release
 -  Fixed issue where if you tried to exit / start Kodi while the daily
    sync was running an exception error would occur due to a Kodi database
    locking contention.
--  Fixed issue with duplicate items being displayed in some Kodi playlists.  
+-  Fixed issue with duplicate items being displayed in some Mezzmo playlists.  
    Approximately every 32 or so items a duplicate would be displayed due
    to the Kodi 19 IP stack providing chunked responses and the indexing 
    beginning with 0.
