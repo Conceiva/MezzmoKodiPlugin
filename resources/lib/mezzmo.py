@@ -628,8 +628,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)
-                    pctitle = mtitle.replace(",","*#*#").encode('utf-8', 'ignore')        #  Replace commas
-                    pcseries = album_text.replace(",","*#*#").encode('utf-8', 'ignore')   #  Replace commas 
+                    pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
+                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas 
                     if playcount == 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
@@ -638,7 +638,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     elif playcount > 0:
                         li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
                         (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30373),   \
-                        'RunScript(plugin.video.mezzmo, {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle, itemurl,    \
+                        'RunScript(plugin.video.mezzmo, {},{}, {}, {}, {}, {}, {}, {})'.format(pctitle,itemurl,    \
                         season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])   
                                        
                 elif mediaClass_text == 'music':

@@ -1,3 +1,8 @@
+v1.1.0.7
+
+-  Improved code added in v1.1.0.0 to handle commas with Mark Watched 
+   feature.  The new code is simplier and faster on some ARM platforms.
+
 v1.1.0.6
 
 -  Added Mezzmo duplicate logging feature which will log any duplicate 

@@ -112,11 +112,11 @@ series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-vtitle = title.decode('utf-8', 'ignore').replace("*#*#",",")      #  Replace commas
-vseries = series.decode('utf-8', 'ignore').replace("*#*#",",")    #  Replace commas
+title = title.decode('utf-8', 'ignore')   			  #  Replace commas
+series = series.decode('utf-8', 'ignore')    			  #  Replace commas
 
-updateKodiPlaycount(int(playcount), vtitle, vurl,     \
-int(vseason), int(vepisode), vseries, dbfile)                     #  Update Kodi DB playcount
+updateKodiPlaycount(int(playcount), title, vurl,     \
+int(vseason), int(vepisode), series, dbfile)                      #  Update Kodi DB playcount
 
 rtrimpos = vurl.rfind('/')
 mobjectID = vurl[rtrimpos+1:]                                     #  Get Mezzmo objectID
@@ -127,6 +127,6 @@ elif int(playcount) > 0:
     newcount = '0'
 
 if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
-    SetPlaycount(contenturl, mobjectID, newcount, vtitle)
+    SetPlaycount(contenturl, mobjectID, newcount, title)
     bookmark.SetBookmark(contenturl, mobjectID, '0')              #  Clear bookmark
     xbmc.executebuiltin('Container.Refresh()')
