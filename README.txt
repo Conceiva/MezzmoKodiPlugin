@@ -1,8 +1,9 @@
 v2.0.0.1e New Beta Release
 
-  ******  Note this vesion requires Kodi Matrix Alpha 2 or higher  ******
+  ******  Note this version requires Kodi Matrix Alpha 2 or higher  ******
+
 -  Improved code added in v2.0.0.0x to handle commas with Mark Watched 
-   feature.  The new code is simplier and faster on some ARM platforms.
+   feature.  The new code is simpler and faster on some ARM platforms.
 -  Updated code to eliminate xbmc.translatePath calls which are being 
    deprecated by the Kodi team in v20.  Eliminates the error log messages
    with Kodi v19.
