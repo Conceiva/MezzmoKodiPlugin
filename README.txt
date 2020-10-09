@@ -1,7 +1,7 @@
 v1.1.0.7
 
 -  Improved code added in v1.1.0.0 to handle commas with Mark Watched 
-   feature.  The new code is simplier and faster on some ARM platforms.
+   feature.  The new code is simpler and faster on some ARM platforms.
 
 v1.1.0.6
 
