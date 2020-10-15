@@ -1,3 +1,11 @@
+v1.1.0.8
+
+-  Fixed major speed issue with the Mark Watched function which 
+   caused slow loading of playlists due to the insertion order of 
+   context and list items.  This was especially noticable on the 
+   Vero 4K+ platform running Kodi on OSMC with large playlists.  
+   The issue was less noticable on other platforms.
+
 v1.1.0.7
 
 -  Improved code added in v1.1.0.0 to handle commas with Mark Watched 

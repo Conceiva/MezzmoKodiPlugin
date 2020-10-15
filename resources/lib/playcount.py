@@ -112,8 +112,8 @@ series = sys.argv[6]
 dbfile = sys.argv[7]
 contenturl = sys.argv[8]
 
-title = title.decode('utf-8', 'ignore')   			  #  Replace commas
-series = series.decode('utf-8', 'ignore')    			  #  Replace commas
+title = title.decode('utf-8', 'ignore')   			  #  Handle commas
+series = series.decode('utf-8', 'ignore')    			  #  Handle commas
 
 updateKodiPlaycount(int(playcount), title, vurl,     \
 int(vseason), int(vepisode), series, dbfile)                      #  Update Kodi DB playcount
@@ -130,3 +130,5 @@ if mobjectID != None:                                             #  Update Mezz
     SetPlaycount(contenturl, mobjectID, newcount, title)
     bookmark.SetBookmark(contenturl, mobjectID, '0')              #  Clear bookmark
     xbmc.executebuiltin('Container.Refresh()')
+
+
