@@ -3,9 +3,9 @@ v2.0.0.1f New Beta Release
 -  Syncs code with to Kodi 18 v1.1.0.8 and fixes a potential speed
    issue with the Mark Watched function which caused slow loading
    of playlists under Kodi 18 due to the insertion order of 
-   context and list items.  This was especially noticable on the 
+   context and list items.  This was especially noticeable on the 
    Vero 4K+ platform running Kodi on OSMC with large playlists.  
-   The issue was less noticable on other platforms.
+   The issue was less noticeable on other platforms.
 
 v2.0.0.1e New Beta Release
 
