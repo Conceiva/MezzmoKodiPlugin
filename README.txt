@@ -1,65 +1,76 @@
-v1.1.0.8
+v2.0.0.1f New Beta Release
 
--  Fixed major speed issue with the Mark Watched function which 
-   caused slow loading of playlists due to the insertion order of 
-   context and list items.  This was especially noticable on the 
+-  Syncs code with to Kodi 18 v1.1.0.8 and fixes a potential speed
+   issue with the Mark Watched function which caused slow loading
+   of playlists under Kodi 18 due to the insertion order of 
+   context and list items.  This was especially noticeable on the 
    Vero 4K+ platform running Kodi on OSMC with large playlists.  
-   The issue was less noticable on other platforms.
+   The issue was less noticeable on other platforms.
 
-v1.1.0.7
+v2.0.0.1e New Beta Release
 
--  Improved code added in v1.1.0.0 to handle commas with Mark Watched 
+  ******  Note this version requires Kodi Matrix Alpha 2 or higher  ******
+
+-  Improved code added in v2.0.0.0x to handle commas with Mark Watched 
    feature.  The new code is simpler and faster on some ARM platforms.
+-  Updated code to eliminate xbmc.translatePath calls which are being 
+   deprecated by the Kodi team in v20.  Eliminates the error log messages
+   with Kodi v19.
+-  Fixed a remaining v18 style logging call which could cause daily sync 
+   process to fail.
 
-v1.1.0.6
+v2.0.0.1d New Beta Release
 
 -  Added Mezzmo duplicate logging feature which will log any duplicate 
-   Mezzmo records found during the daily sync process into the Kodi 
-   log file.
+   movie or episode Mezzmo database records found during the daily 
+   sync process to the Kodi log file.
 -  Fixed issue where if you tried to exit / start Kodi while the daily
    sync was running an exception error would occur due to a Kodi database
    locking contention.
+-  Fixed issue with duplicate items being displayed in some Mezzmo playlists.  
+   Approximately every 32 or so items a duplicate would be displayed due
+   to the Kodi 19 IP stack providing chunked responses and the indexing 
+   beginning with 0.
 
-v1.1.0.5
+v2.0.0.1c New Beta Release
 
 -  Added fast sync feature which allows larger Mezzmo databases to 
    process more hourly records reducing the time to cycle through the
    Mezzmo database between daily syncs. 
 
-v1.1.0.4
+v2.0.0.1b New Beta Release
 
--  Added feature where if the daily sync process isn't able to run at 
+-  Added feature where if the daily sync process isn't able to run at
    the scheduled time due to a video playing or Kodi not running it 
    will keep trying each hour until 6AM.
--  Fixed sync problem introduced in v1.1.0.1 where not all Mezzmo 
-   records would be scanned and imported into Kodi  with the 
-   background sync process.   
+-  Fixed sync problem where not all Mezzmo records would be scanned
+   and imported into Kodi with the background sync process.   
 
-v1.1.0.3
+v2.0.0.1a New Beta Release
 
 -  Added saving sync offset counter to addon settings so that it will
    not restart at the beginning when the addon is shutdown.
 -  Fixed Kodi addon error message in the logs when Mark Watched feature
    is used.
+-  Updated log message showing Mezzmo database records to use Kodi 19 log
+   message format vs. Kodi 18 format.
 
-v1.1.0.2
+v2.0.0.0z New Beta Release
 
 -  Fixed issue where unexpected response from Mezzmo server could cause 
    background sync process to abort.
 -  Decoupled Mark Watched Mezzmo and Kodi updates so that if a video isn't
    found in the Kodi database the Mezzmo database will still be updated. 
--  Added logging to show number of records in the Mezzmo database during sync.   
+-  Added logging to show number of records in the Mezzmo database during sync.  
 -  Added feature to clear Mezzmo bookmark when Mezzmo Mark Unwatched is
    clicked on a video file. 
 
-v1.1.0.1
+v2.0.0.0y New Beta Release
 
--  Fixed issue with Kodi 18 running on ARM devices (i.e. Raspberry Pi etc..) 
-   not syncing all records between Mezzmo and Kodi.  Back ported the Kodi 19
-   addon sync code to this release to resolve.  Kodi 18 and Kodi 19 addon 
-   sync code is now standardized.
+-  Standardized addon background sync code with Kodi 18 addon version 1.1.0.1
+   and removed some extra unused sync code.
 
-v1.1.0.0
+v2.0.0.0x New Beta release
 
 -  Fixed Mezzmo Mark Watched feature not working on video files with a comma 
    in the title or the series name.
@@ -67,7 +78,7 @@ v1.1.0.0
    in the Kodi database.
 -  Added last played time copy from Mezzmo to the Kodi database.
 
-v1.0.9.9
+v2.0.0.0w New Beta release
 
 -  Fixed daily sync scan counter from double counting the last 20 records
    in Mezzmo.
@@ -82,11 +93,11 @@ v1.0.9.9
    background sync process should enforce this but if this feature doesn't 
    operate properly please check the Kodi logs.
 
-v1.0.9.8
+v2.0.0.0v New Beta release
 
 -  Fixed a bug where TV episodes might be duplicated in the Kodi database
    when a client switches between DNS and IP addresses in the path table.
--  Updated movie dupe checking introduced in v1.0.9.7 to match the new 
+-  Updated movie dupe checking introduced in v2.0.0.0u to match the new 
    episode dupe checking method.
 -  Loosened episode check to allow for the season to equal 0 in the case
    of some TV shows like Good Witch and similar.
@@ -98,21 +109,23 @@ v1.0.9.8
    value.  This was only happening with very large Mezzmo databases and 
    they were getting caught by the hourly sync process.
 
-v1.0.9.7
+v2.0.0.0u New Beta release
 
 -  Fixed issue where Kodi sync setting was only being read when the addon 
    starts vs. right after a setting change.
--  Added database cleanup functions on Kodi shutdown.
+-  Added Database cleanup functions on Kodi shutdown.
 -  Addressed potential minor memory leak by explicitly closing database
    cursors. 
+-  Fixed a bug where a Kodi 18 call was causing the background sync 
+   process to crash.  The Kodi 18 code was removed. 
 -  Fixed a bug where a movie may not get inserted into the Kodi database
-   due to a path conflict between a path using DNS vs. the IP address
+   due to a path conflict between a path using DNS vs. the IP address.
 -  Cleaned up some class deletion error messages in the Kodi logfile when
    running on the Android OS.
 -  Improved sync detection and added log messages when the addon enables
    and disables real time updates automatically.
 
-v1.0.9.6
+v2.0.0.0t New Beta release
 
 -  Fixed issue where sync process could run while a video was playing.
 -  Added feature to check on Kodi startup if the database is in sync 
@@ -126,9 +139,9 @@ v1.0.9.6
 -  Added Kodi database reindexing after the daily sync process in order
    to maintain performance.
 -  Added Kodi log messages showing the number of Mezzmo records in the Kodi
-   database after each hourly sync process.    
+   database after each hourly sync process.     
 
-v1.0.9.5
+v2.0.0.0s New Beta release
 
 -  Major rewrite of the code which adds Mezzmo artwork to the Kodi database.
    2/3rds of the code was eliminated and functionality was added so that 
@@ -151,8 +164,8 @@ v1.0.9.5
      - The sync functionality does not honor Mezzmo playlist sharing 
        permissions and syncs all Mezzmo videos to Kodi regardless of
        playlist permissions.  
- 
-v1.0.9.4
+
+v2.0.0.0r New Beta release
 
 -  Added background task feature.  Initial task feature updates the Kodi
    image cache timers for Mezzmo images on startup and every 30 minutes.
@@ -167,9 +180,9 @@ v1.0.9.4
    Kodi database stream details by resyncing with Mezzmo.  Previously just
    a log message was written into the Kodi.log file.
 
-v1.0.9.3
+v2.0.0.0q New Beta release
 
--  Fixed 2 bugs found in streamdetails change detection and title checking
+-  Fixed 3 bugs found in streamdetails change detection and title checking
    during bulk Mezzmo/Kodi sync testing which would cause Kodi not to be 
    updated with Mezzmo data when browsing playlists and would abort the 
    upcoming Mezzmo / Kodi sync process feature. 
@@ -177,14 +190,14 @@ v1.0.9.3
    episode.  This eliminates duplicates in the Kodi database due to episode
    naming and display title differences across playlists.
 
-v1.0.9.2
+v2.0.0.0p New Beta release
 
--  Fixed bug introduced in v1.0.9.1 which would cause invalid metadata
+-  Fixed bug introduced in v2.0.0.0o which would cause invalid metadata
    changes to be detected in TV episodes.  The only impacts were a slight
    slowness loading large TV episode playlists and erroneous Kodi log
    messages stating that a metadata change was detected.
 
-v1.0.9.1
+v2.0.0.0o New Beta release
 
 -  Fixed issue with Kodi database cache clearing where not all records
    in the cache table associated with Mezzmo were being deleted.
@@ -195,17 +208,17 @@ v1.0.9.1
    Kodi database clear on startup is required to repopulate with 
    the proper tags.  *** 
 
-v1.0.9.0
+v2.0.0.0n New Beta release
 
 -  Improved database queries to support other Kodi addons populating
    the Kodi database with movies having the exact same names as 
    Mezzmo movies.  The addon will now only query and update Mezzmo
    generated movies and media files in the Kodi database.  
--  Fixed issue introduced in v1.0.7.8 where not all Mezzmo records 
+-  Fixed issue introduced in v2.0.0.0b where not all Mezzmo records 
    were being deleted with a Kodi ClearDB on some Linux clients which
    populate the path table with a mix of IP address and DNS based entries
    or if the Mezzmo server IP addressed changed.
--  Fixed issue with 1.0.8.9 where the TV Show name is now only added 
+-  Fixed issue with v2.0.0.0m where the TV Show name is now only added 
    when browsing TV shows.  This resolves issue with some movies 
    showing unknown titles in the Info/Details panel.
 -  Updated actor and artwork change updates to differentiate between
@@ -214,11 +227,11 @@ v1.0.9.0
 -  Automatically re-enable image caching after cache clear to improve 
    performance and reduce Mezzmo server overhead.
 
-v1.0.8.9
+v2.0.0.0m New beta release
 
 -  Added TV series name display when browsing TV show episode details.
 
-v1.0.8.8
+v2.0.0.0l New beta release
 
 -  Added Mezzmo sort title support into the Kodi database.  Now actor searches will
    honor the sort titles.  No database clear is required.  Sort titles will be added
@@ -227,23 +240,23 @@ v1.0.8.8
    ***  Note Mezzmo version 6.0.5.0o is required to leverage this function ***
    You will need to E-mail support@conceiva.com to request the patch. 
 
-v1.0.8.7
+v2.0.0.0k New beta release
 
 -  Added studio information from Mezzmo to Kodi database and movie information panel.
 
-v1.0.8.6
+v2.0.0.0j New beta release
 
--  Fixed issue where playlists wouldn't load completely if there was an invalid file
+-  Fixed issue where playlists wouldn't load comnpletely if there was an invalid file
    in Mezzmo.  Invalid files will now be skipped and not displayed in Kodi nor will
    they be inserted into the Kodi database.  A popup dialog will alert on invalid files.
 
-v1.0.8.5
+v2.0.0.0i New beta release
 
 -  Additional significant database improvements when adding playlists to the Kodi
    database.  Moved from a database commit per item to a commit per playlist fetch
    from Mezzmo.
 
-v1.0.8.4
+v2.0.0.0h New beta release
 
 -  Significant database speed improvement (>75%) by reducing the number of times 
    the addon opens and closes the Kodi database.
@@ -251,15 +264,13 @@ v1.0.8.4
 -  Fixed logging error which could cause a playlist not to load completely if Kodi
    was in debug mode and a playlist item was missing the icon variable from Mezzmo. 
 
-v1.0.8.3
+v2.0.0.0g  New beta release
 
 -  Changed movie title name matching to case insensitive to avoid duplicate movies
    in the Kodi database.
 
-v1.0.8.2
+v2.0.0.0f  New beta release
 
--  Fixed bug which would cause some movies not to be displayed during a addon
-   Search action due to a UTF-8 encoding issue.
 -  Added cast order function to actor search so the actor order in Kodi matches
    the order in Mezzmo.  Previously stars would appear in random order in the 
    actor search panel.
@@ -269,31 +280,43 @@ v1.0.8.2
    elements to the Kodi database.  Otherwise they will only be added to new movies 
    which are discovered. *** 
 
-v1.0.8.1
+v2.0.0.0e  New beta release
 
 -  Added check to ensure all artwork entries are in the Kodi database.  If not, 
-   they are added automatically.  This resolves issue in v1.0.7.9 where a 
+   they are added automatically.  This resolves issue in v2.0.0.0c where a 
    Kodi DB clear was needed to add missing artwork entries.
--  Changed file extension change checking method to use pathnumber vs. parsing file
-   extensions.  Kodi 18 and 19 versions of the addon are now back in sync.  
 
-v1.0.8.0
+v2.0.0.0d  New beta release
 
 -  Fixed issue where artwork URL file names might be missing or have duplicate
    file extensions depending upon which platform Kodi is running. This could cause
    missing artwork for some movies.  A Kodi DB clear on startup is needed to 
    remove any incorrect file names in the Kodi database.
 
-v1.0.7.9
+v2.0.0.0c  New beta release
 
 -  Fixed issue where movie thumbnails were not updating properly for certain 
    skins when doing an actor search. A Kodi DB clear on startup is needed to
    populate missing thumbnails in the Kodi database.
 
-v1.0.7.8
+v2.0.0.0b  New beta release
 
--  Fixed Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
+-  Fixes Kodi DB clear on startup to only delete Mezzmo data in the Kodi 
    database vs. deleting all data in prior versions. 
+
+
+v2.0.0.0a  New beta release
+
+-  Updated Kodi logging to a new format which will be required after June 30, 2020
+   for Kodi 19.
+-  Changed file extension change checking method to use pathnumber vs. parsing file
+   extensions. Eliminated issue with false positives on change detection with Kodi
+   19 and improves addon performance.  
+
+v2.0.0.0
+
+-  Initial Kodi 19 supported release based upon 1.0.7.7 code.  This version is 
+   only for Kodi 19 and will not load on Kodi 18.
 
 v1.0.7.7
 
