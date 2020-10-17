@@ -1,62 +1,804 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-    <category label="30339">
-    <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
-    </category>
-    <category label="30362">
-    <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
-    <setting id="caching" type="bool" label="30366" default="false"/>
-    <setting id="kodiactor" type="bool" label="30367" default="true"/>
-    <setting id="koditv" type="bool" label="30369" default="false"/>
-    <setting id="kodichange" type="bool" label="30370" default="true"/>
-    <setting id="kodisync" type="bool" label="30371" default="true"/>
-    <setting id="mdupelog" type="bool" label="30374" default="false"/>
-    <setting id="kodiclean" type="bool" label="30368" default="false"/>
-    </category>
-    <!-- View -->
-    <category label="30300">
-    <setting id="only_mezzmo_servers" type="bool" label="30350" default="true"/>
-    <setting id="skinname" type="enum" label="30061" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
-	
-    <!--Confluence Skin-->
-    <setting id="top_view_mode" type="enum" label="30349" lvalues="30345|30331|30332|30333" default="1" subsetting="true"  visible="eq(-1,1)" enable="eq(-1,1)"/>
-    <setting id="folders_view_mode" type="enum" label="30342" lvalues="30345|30331|30332|30333" default="3" subsetting="true"  visible="eq(-2,1)" enable="eq(-2,1)"/>
-    <setting id="files_view_mode" type="enum" label="30343" lvalues="30345|30331|30332|30333" default="3" subsetting="true"  visible="eq(-3,1)" enable="eq(-3,1)"/>
-    <setting id="servers_view_mode" type="enum" label="30344" lvalues="30345|30331|30332|30333" default="3" subsetting="true"  visible="eq(-4,1)" enable="eq(-4,1)"/>
-    <setting id="movies_view_mode" type="enum" label="30330" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="5" subsetting="true"  visible="eq(-5,1)" enable="eq(-5,1)"/>
-    <setting id="episodes_view_mode" type="enum" label="30341" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="7" subsetting="true"  visible="eq(-6,1)" enable="eq(-6,1)"/>
-    <setting id="songs_view_mode" type="enum" label="30365" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="3" subsetting="true"  visible="eq(-7,1)" enable="eq(-7,1)"/>
-    
-    <!--Aeon Nox 5 Skin-->
-    <setting id="top_view_mode_aeon" type="labelenum" label="30349" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList" default="List" subsetting="true"  visible="eq(-8,2)" enable="eq(-8,2)"/>
-    <setting id="folders_view_mode_aeon" type="labelenum" label="30342" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="List" subsetting="true"  visible="eq(-9,2)" enable="eq(-9,2)"/>
-    <setting id="files_view_mode_aeon" type="labelenum" label="30343" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="List" subsetting="true"  visible="eq(-10,2)" enable="eq(-10,2)"/>
-    <setting id="servers_view_mode_aeon" type="labelenum" label="30344" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="List" subsetting="true"  visible="eq(-11,2)" enable="eq(-11,2)"/>
-    <setting id="movies_view_mode_aeon" type="labelenum" label="30330" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="Shift" subsetting="true"  visible="eq(-12,2)" enable="eq(-12,2)"/>
-    <setting id="episodes_view_mode_aeon" type="labelenum" label="30341" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="Episode" subsetting="true"  visible="eq(-13,2)" enable="eq(-13,2)"/>
-    <setting id="songs_view_mode_aeon" type="labelenum" label="30365" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="List" subsetting="true"  visible="eq(-14,2)" enable="eq(-14,2)"/>
-    
-    <!--Estuary Skin-->
-    <setting id="top_view_mode_estuary" type="labelenum" label="30349" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-15,0)" enable="eq(-15,0)"/>
-    <setting id="folders_view_mode_estuary" type="labelenum" label="30342" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-16,0)" enable="eq(-16,0)"/>
-    <setting id="files_view_mode_estuary" type="labelenum" label="30343" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-17,0)" enable="eq(-17,0)"/>
-    <setting id="servers_view_mode_estuary" type="labelenum" label="30344" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-18,0)" enable="eq(-18,0)"/>
-    <setting id="movies_view_mode_estuary" type="labelenum" label="30330" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="Shift" subsetting="true"  visible="eq(-19,0)" enable="eq(-19,0)"/>
-    <setting id="episodes_view_mode_estuary" type="labelenum" label="30341" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|BigList" default="Episode" subsetting="true"  visible="eq(-20,0)" enable="eq(-20,0)"/>
-    <setting id="songs_view_mode_estuary" type="labelenum" label="30365" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-21,0)" enable="eq(-21,0)"/>
-    
-    </category>
-    <!-- Search -->
-    <category label="30351">
-	<setting id="search_video" type="bool" label="30352" default="true"/>
-	<setting id="search_music" type="bool" label="30353" default="true"/>
-	<setting id="search_photo" type="bool" label="30354" default="true"/>
-	<setting id="search_title" type="bool" label="30360" default="true"/>
-	<setting id="search_artist" type="bool" label="30356" default="true"/>
-	<setting id="search_album" type="bool" label="30355" default="true"/>
-	<setting id="search_tagline" type="bool" label="30357" default="true"/>
-	<setting id="search_description" type="bool" label="30358" default="true"/>
-	<setting id="search_keywords" type="bool" label="30359" default="true"/>
-	<setting id="search_creator" type="bool" label="30364" default="true"/>
-    </category>
+<?xml version="1.0" ?>
+<settings version="1">
+	<section id="plugin.video.mezzmo">
+		<category id="ssdp search" label="30339" help="">
+			<group id="1">
+				<setting id="ssdp_timeout" type="integer" label="30340" help="">
+					<level>0</level>
+					<default>5</default>
+					<control type="edit" format="integer">
+						<heading>30340</heading>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="content control" label="30362" help="">
+			<group id="1">
+				<setting id="content_pin" type="integer" label="30363" help="">
+					<level>0</level>
+					<default>0</default>
+					<control type="edit" format="integer">
+						<heading>30363</heading>
+					</control>
+				</setting>
+				<setting id="caching" type="boolean" label="30366" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="kodiactor" type="boolean" label="30367" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="koditv" type="boolean" label="30369" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="kodichange" type="boolean" label="30370" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="kodisync" type="boolean" label="30371" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="mdupelog" type="boolean" label="30374" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="kodiclean" type="boolean" label="30368" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="view" label="30300" help="">
+			<group id="1">
+				<setting id="only_mezzmo_servers" type="boolean" label="30350" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="skinname" type="integer" label="30061" help="">
+					<level>0</level>
+					<default>Estuary</default>
+					<constraints>
+						<options>
+							<option label="Estuary">0</option>
+							<option label="Confluence">1</option>
+							<option label="Aeon Nox 5">2</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="top_view_mode" type="integer" label="30349" help="" parent="skinname">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="folders_view_mode" type="integer" label="30342" help="" parent="skinname">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="files_view_mode" type="integer" label="30343" help="" parent="skinname">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="servers_view_mode" type="integer" label="30344" help="" parent="skinname">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="movies_view_mode" type="integer" label="30330" help="" parent="skinname">
+					<level>0</level>
+					<default>5</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+							<option label="30334">4</option>
+							<option label="30335">5</option>
+							<option label="30336">6</option>
+							<option label="30337">7</option>
+							<option label="30338">8</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="episodes_view_mode" type="integer" label="30341" help="" parent="skinname">
+					<level>0</level>
+					<default>7</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+							<option label="30334">4</option>
+							<option label="30335">5</option>
+							<option label="30336">6</option>
+							<option label="30337">7</option>
+							<option label="30338">8</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="songs_view_mode" type="integer" label="30365" help="" parent="skinname">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+							<option label="30334">4</option>
+							<option label="30335">5</option>
+							<option label="30336">6</option>
+							<option label="30337">7</option>
+							<option label="30338">8</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="top_view_mode_aeon" type="string" label="30349" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="folders_view_mode_aeon" type="string" label="30342" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="files_view_mode_aeon" type="string" label="30343" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="servers_view_mode_aeon" type="string" label="30344" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="movies_view_mode_aeon" type="string" label="30330" help="" parent="skinname">
+					<level>0</level>
+					<default>Shift</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="episodes_view_mode_aeon" type="string" label="30341" help="" parent="skinname">
+					<level>0</level>
+					<default>Episode</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="songs_view_mode_aeon" type="string" label="30365" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Icons">Icons</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="Wall">Wall</option>
+							<option label="Gallery">Gallery</option>
+							<option label="Panel">Panel</option>
+							<option label="RightList">RightList</option>
+							<option label="BigList">BigList</option>
+							<option label="SongList">SongList</option>
+							<option label="MyFlix">MyFlix</option>
+							<option label="BigFan">BigFan</option>
+							<option label="BannerPlex">BannerPlex</option>
+							<option label="FanartList">FanartList</option>
+							<option label="Music_JukeBox">Music_JukeBox</option>
+							<option label="Fullscreen_Wall">Fullscreen_Wall</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="top_view_mode_estuary" type="string" label="30349" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="folders_view_mode_estuary" type="string" label="30342" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="files_view_mode_estuary" type="string" label="30343" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="servers_view_mode_estuary" type="string" label="30344" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="movies_view_mode_estuary" type="string" label="30330" help="" parent="skinname">
+					<level>0</level>
+					<default>Shift</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="episodes_view_mode_estuary" type="string" label="30341" help="" parent="skinname">
+					<level>0</level>
+					<default>Episode</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="Episode">Episode</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="songs_view_mode_estuary" type="string" label="30365" help="" parent="skinname">
+					<level>0</level>
+					<default>List</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="List">List</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="Landscape">Landscape</option>
+							<option label="ShowCase1">ShowCase1</option>
+							<option label="ShowCase2">ShowCase2</option>
+							<option label="TriPanel">TriPanel</option>
+							<option label="Posters">Posters</option>
+							<option label="Shift">Shift</option>
+							<option label="BannerWall">BannerWall</option>
+							<option label="Logo">Logo</option>
+							<option label="Wall">Wall</option>
+							<option label="LowList">LowList</option>
+							<option label="BigList">BigList</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+			</group>
+		</category>
+		<category id="search" label="30351" help="">
+			<group id="1">
+				<setting id="search_video" type="boolean" label="30352" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_music" type="boolean" label="30353" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_photo" type="boolean" label="30354" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_title" type="boolean" label="30360" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_artist" type="boolean" label="30356" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_album" type="boolean" label="30355" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_tagline" type="boolean" label="30357" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_description" type="boolean" label="30358" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_keywords" type="boolean" label="30359" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="search_creator" type="boolean" label="30364" help="">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+	</section>
 </settings>
