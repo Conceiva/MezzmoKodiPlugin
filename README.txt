@@ -1,9 +1,7 @@
 v2.0.0.1g New Bet Release
 
 -  Fixed view settings issue where views other than Confluence were
-   greyed out and not selectable.  Temporarily have gone back to Kodi
-   18 settings format until the long term issue with the Kodi 19 format
-   can be resolved.
+   greyed out and not selectable due to the Kodi 19 conversion addon.
 -  Synchronized view settings with Aeon Nox Silvo skin.  
 
 v2.0.0.1f New Beta Release
