@@ -172,9 +172,9 @@ def build_url(query):
 def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
-    
+    #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
-        aeon_nox_views = { 'List'       : 50  ,
+        aeon_nox_views = { 'List'   : 50  ,
                        'InfoWall'   : 51  ,
                        'Landscape'  : 52  ,
                        'ShowCase1'  : 53  ,
@@ -184,12 +184,22 @@ def setViewMode(contentType):
                        'Shift'      : 57  ,
                        'BannerWall' : 58  ,
                        'Logo'       : 59  ,
-                       'Wall'       : 500 ,
+                       'Icons'      : 500 ,
                        'LowList'    : 501 ,
                        'Episode'    : 502 ,
                        'Wall'       : 503 ,
-                       'BigList'    : 510 }
-        
+                       'Gallery'    : 504 ,
+                       'Panel'      : 505 ,
+                       'RightList'  : 506 ,
+                       'BigList'    : 507 ,
+                       'SongList'   : 508 ,
+                       'MyFlix'     : 509 ,
+                       'BigFan'     : 591 ,
+                       'BannerPlex' : 601 ,
+                       'FanartList' : 602 ,
+                       'Music_JukeBox'   : 603,
+                       'Fullscreen_Wall' : 609, }
+
         view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]

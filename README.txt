@@ -1,3 +1,7 @@
+v1.1.0.9
+
+-  Synchronized view settings with Aeon Nox Silvo skin.  
+
 v1.1.0.8
 
 -  Fixed major speed issue with the Mark Watched function which 
