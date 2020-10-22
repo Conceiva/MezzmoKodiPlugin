@@ -1,7 +1,7 @@
 v2.0.0.1h New Beta Release
 
 -  Added feature to allow remapping of the Top and Folder content
-   types in the AEON Nox skinds to movies or episodes to allow 
+   types in the AEON Nox skins to movies or episodes to allow 
    more view types for folders.  
 
 v2.0.0.1g New Beta Release
