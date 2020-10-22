@@ -161,7 +161,8 @@ def listServers(force):
         except Exception as e:
             printexception()
             pass
-    setViewMode('servers')
+    #setViewMode('servers')
+    setViewMode('movies')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     media.kodiCleanDB(contenturl,'')            # Call function to delete Kodi actor database if user enabled. 
     dbIndexes()
@@ -169,7 +170,17 @@ def listServers(force):
 def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
 
+
+def content_mapping(contentType):
+    current_skin_name = xbmc.getSkinDir()
+    if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
+        aeonfoldermap = addon.getSetting('aeoncontentmap')
+        if aeonfoldermap != 'Default':
+            contentType = aeonfoldermap.lower()
     
+    return(contentType)         
+
+
 def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
@@ -331,6 +342,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'top'
                 else:
                     contentType = 'folders'
+                contentType = content_mapping(contentType)
 
             dbfile = media.openKodiDB()                  #  Open Kodi database    
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):

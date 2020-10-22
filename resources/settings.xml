@@ -239,6 +239,26 @@
 					</dependencies>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="aeoncontentmap" type="string" label="30375" help="" parent="skinname">
+					<level>0</level>
+					<default>Default</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="Movies">Movies</option>
+							<option label="Episodes">Episodes</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">2</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="top_view_mode_aeon" type="string" label="30349" help="" parent="skinname">
 					<level>0</level>
 					<default>List</default>

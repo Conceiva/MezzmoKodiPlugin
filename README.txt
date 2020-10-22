@@ -1,6 +1,12 @@
-v2.0.0.1g New Bet Release
+v2.0.0.1h New Beta Release
 
--  Fixed view settings issue where views other than Confluence were
+-  Added feature to allow remapping of the Top and Folder content
+   types in the AEON Nox skinds to movies or episodes to allow 
+   more view types for folders.  
+
+v2.0.0.1g New Beta Release
+
+-  Fixed view settings issue where skins other than Confluence were
    greyed out and not selectable due to the Kodi 19 conversion addon.
 -  Synchronized view settings with Aeon Nox Silvo skin.  
 
