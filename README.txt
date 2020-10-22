@@ -1,3 +1,9 @@
+v1.1.1.0
+
+-  Added feature to allow remapping of the Top and Folder content
+   types in the AEON Nox skins to movies or episodes to allow 
+   more view types for folders.  
+
 v1.1.0.9
 
 -  Synchronized view settings with Aeon Nox Silvo skin.  

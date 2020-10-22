@@ -72,7 +72,7 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
-    
+
     saved_servers = addon.getSetting('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
@@ -168,11 +168,19 @@ def listServers(force):
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)
 
+def content_mapping(contentType):
+    current_skin_name = xbmc.getSkinDir()
+    if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
+        aeonfoldermap = addon.getSetting('aeoncontentmap')
+        if aeonfoldermap != 'Default':
+            contentType = aeonfoldermap.lower()
+ 
+    return(contentType)     
     
 def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
-    #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
+
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeon_nox_views = { 'List'   : 50  ,
                        'InfoWall'   : 51  ,
@@ -199,7 +207,7 @@ def setViewMode(contentType):
                        'FanartList' : 602 ,
                        'Music_JukeBox'   : 603,
                        'Fullscreen_Wall' : 609, }
-
+        
         view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
@@ -245,8 +253,7 @@ def setViewMode(contentType):
                        'BigList'    : 501 }
         
         view_mode = addon.getSetting(contentType + '_view_mode' + '_estuary')
-        if view_mode != 'Default':
-        
+        if view_mode != 'Default':        
             selected_mode = estuary_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
 
@@ -332,7 +339,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'top'
                 else:
                     contentType = 'folders'
-            
+                contentType = content_mapping(contentType)
+       
 
             dbfile = media.openKodiDB()                          #  Open Kodi database
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
@@ -772,6 +780,7 @@ def handleSearch(content, contenturl, objectID, term):
                     contentType = 'top'
                 else:
                     contentType = 'folders'
+                
    
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
