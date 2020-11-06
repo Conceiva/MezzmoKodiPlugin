@@ -1,3 +1,11 @@
+v2.0.0.1i New Beta Release
+
+-  Added music mediatype variable to allow Kodi to display full Mezzmo
+   music metadata.
+-  Added music metadata to music information context menu item.
+-  Added MusicInfo view to Confluence skin settings to improve viewing 
+   of music files.
+
 v2.0.0.1h New Beta Release
 
 -  Added feature to allow remapping of the Top and Folder content

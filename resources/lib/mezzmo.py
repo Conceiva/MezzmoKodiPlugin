@@ -161,8 +161,7 @@ def listServers(force):
         except Exception as e:
             printexception()
             pass
-    #setViewMode('servers')
-    setViewMode('movies')
+    setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     media.kodiCleanDB(contenturl,'')            # Call function to delete Kodi actor database if user enabled. 
     dbIndexes()
@@ -280,6 +279,8 @@ def setViewMode(contentType):
                xbmc.executebuiltin('Container.SetViewMode(503)')
            elif addon.getSetting(contentType + '_view_mode') == "8": # Media info 3
                xbmc.executebuiltin('Container.SetViewMode(515)')
+           elif addon.getSetting(contentType + '_view_mode') == "9": # Music info
+               xbmc.executebuiltin('Container.SetViewMode(506)')    
        except:
            xbmc.log("SetViewMode Failed: "+addon.getSetting('_view_mode'))
            xbmc.log("Skin: "+xbmc.getSkinDir())
@@ -672,17 +673,20 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'discnumber': season_text,
+                        'mediatype': 'song',
                         'tracknumber': episode_text,
                         'album': album_text,
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    mcomment = media.mComment(info, duration_text)
+                    li.setInfo(mediaClass_text, {'comment': mcomment,})
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
+
                 elif mediaClass_text == 'picture':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
-                    
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
                     info = {
                         'title': title,
                     }
@@ -1065,17 +1069,20 @@ def handleSearch(content, contenturl, objectID, term):
                         'artist': artist_text.split(','),
                         'rating': rating_val,
                         'discnumber': season_text,
+                        'mediatype': 'song',
                         'tracknumber': episode_text,
                         'album': album_text,
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
                     li.setInfo(mediaClass_text, info)
+                    mcomment = media.mComment(info, duration_text)
+                    li.setInfo(mediaClass_text, {'comment': mcomment,})
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
+
                 elif mediaClass_text == 'picture':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
-                    
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                   
                     info = {
                         'title': title,
                     }

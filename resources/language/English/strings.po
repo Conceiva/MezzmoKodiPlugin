@@ -227,3 +227,7 @@ msgstr ""
 msgctxt "#30375"
 msgid "Top/Folder Content Mapping "
 msgstr ""
+
+msgctxt "#30376"
+msgid "Music Info"
+msgstr ""
