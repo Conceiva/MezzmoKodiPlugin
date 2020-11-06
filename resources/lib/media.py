@@ -159,6 +159,17 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     return(recscount) 
 
 
+def mComment(minfo, mduration):			#  Update music metadata comments
+
+    artist = minfo['artist']
+    comment = '\n[COLOR blue]Artist:            [/COLOR]' + minfo['artist'][0]  \
+    + '\n[COLOR blue]Song:[/COLOR]            ' + minfo['title']                \
+    + '\n[COLOR blue]Playcount:   [/COLOR]' + str(minfo['playcount'])          \
+    + '\n[COLOR blue]Duration:     [/COLOR]' + mduration[3:-4]
+
+    return(comment)
+
+
 def optimizeDB():                               # Optimize Kodi DB 
     try:
         from sqlite3 import dbapi2 as sqlite

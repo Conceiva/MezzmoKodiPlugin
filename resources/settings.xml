@@ -25,7 +25,7 @@
     <setting id="servers_view_mode" type="enum" label="30344" lvalues="30345|30331|30332|30333" default="3" subsetting="true"  visible="eq(-4,1)" enable="eq(-4,1)"/>
     <setting id="movies_view_mode" type="enum" label="30330" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="5" subsetting="true"  visible="eq(-5,1)" enable="eq(-5,1)"/>
     <setting id="episodes_view_mode" type="enum" label="30341" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="7" subsetting="true"  visible="eq(-6,1)" enable="eq(-6,1)"/>
-    <setting id="songs_view_mode" type="enum" label="30365" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338" default="3" subsetting="true"  visible="eq(-7,1)" enable="eq(-7,1)"/>
+    <setting id="songs_view_mode" type="enum" label="30365" lvalues="30345|30331|30332|30333|30334|30335|30336|30337|30338|30376" default="3" subsetting="true"  visible="eq(-7,1)" enable="eq(-7,1)"/>
     
     <!--Aeon Nox 5 Skin-->
     <setting id="aeoncontentmap" type="labelenum" label="30375" values="Default|Movies|Episodes" default="Default" subsetting="true"  visible="eq(-8,2)" enable="eq(-8,2)"/>
