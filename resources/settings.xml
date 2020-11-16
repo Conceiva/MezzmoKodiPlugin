@@ -38,13 +38,14 @@
     <setting id="songs_view_mode_aeon" type="labelenum" label="30365" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Icons|LowList|Episode|Wall|Gallery|Panel|RightList|BigList|SongList|MyFlix|BigFan|BannerPlex|FanartList|Music_JukeBox|Fullscreen_Wall" default="List" subsetting="true"  visible="eq(-15,2)" enable="eq(-15,2)"/>
     
     <!--Estuary Skin-->
-    <setting id="top_view_mode_estuary" type="labelenum" label="30349" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-16,0)" enable="eq(-16,0)"/>
-    <setting id="folders_view_mode_estuary" type="labelenum" label="30342" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-17,0)" enable="eq(-17,0)"/>
-    <setting id="files_view_mode_estuary" type="labelenum" label="30343" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-18,0)" enable="eq(-18,0)"/>
-    <setting id="servers_view_mode_estuary" type="labelenum" label="30344" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-19,0)" enable="eq(-19,0)"/>
-    <setting id="movies_view_mode_estuary" type="labelenum" label="30330" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="Shift" subsetting="true"  visible="eq(-20,0)" enable="eq(-20,0)"/>
-    <setting id="episodes_view_mode_estuary" type="labelenum" label="30341" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|Episode|BigList" default="Episode" subsetting="true"  visible="eq(-21,0)" enable="eq(-21,0)"/>
-    <setting id="songs_view_mode_estuary" type="labelenum" label="30365" values="Default|List|InfoWall|Landscape|ShowCase1|ShowCase2|TriPanel|Posters|Shift|BannerWall|Logo|Wall|LowList|BigList" default="List" subsetting="true"  visible="eq(-22,0)" enable="eq(-22,0)"/>
+    <setting id="estuarycontentmap" type="labelenum" label="30375" values="Default|Movies|Episodes" default="Default" subsetting="true"  visible="eq(-16,0)" enable="eq(-16,0)"/>
+    <setting id="top_view_mode_estuary" type="labelenum" label="30349" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-17,0)" enable="eq(-17,0)"/>
+    <setting id="folders_view_mode_estuary" type="labelenum" label="30342" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-18,0)" enable="eq(-18,0)"/>
+    <setting id="files_view_mode_estuary" type="labelenum" label="30343" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-19,0)" enable="eq(-19,0)"/>
+    <setting id="servers_view_mode_estuary" type="labelenum" label="30344" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-20,0)" enable="eq(-20,0)"/>
+    <setting id="movies_view_mode_estuary" type="labelenum" label="30330" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-21,0)" enable="eq(-21,0)"/>
+    <setting id="episodes_view_mode_estuary" type="labelenum" label="30341" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-22,0)" enable="eq(-22,0)"/>
+    <setting id="songs_view_mode_estuary" type="labelenum" label="30365" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="List" subsetting="true"  visible="eq(-23,0)" enable="eq(-23,0)"/>
     
     </category>
     <!-- Search -->

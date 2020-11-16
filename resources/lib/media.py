@@ -161,11 +161,22 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
 
 def mComment(minfo, mduration):			#  Update music metadata comments
 
-    artist = minfo['artist']
-    comment = '\n[COLOR blue]Artist:            [/COLOR]' + minfo['artist'][0]  \
-    + '\n[COLOR blue]Song:[/COLOR]            ' + minfo['title']                \
-    + '\n[COLOR blue]Playcount:   [/COLOR]' + str(minfo['playcount'])          \
-    + '\n[COLOR blue]Duration:     [/COLOR]' + mduration[3:-4]
+    artistpad = '{0: <21}'.format('Artist:')
+    songpad = '{0: <19}'.format('Song:')
+    playpad = '{0: <16}'.format('Playcount:')
+    pcount = '{0: <50}'.format(str(minfo['playcount']))
+    durpad = '{0: <11}'.format('Duration: ')
+    lplaypad = '{0: <15}'.format('Last Played: ')
+    if minfo['lastplayed'] == '0':
+        lplayed = 'Not Played Yet'
+    else:
+        lplayed = minfo['lastplayed']
+
+    comment = str('\n[COLOR blue]' + artistpad + '[/COLOR]' + minfo['artist'][0]  \
+    + '\n[COLOR blue]' + songpad + '[/COLOR]' + minfo['title']                    \
+    + '\n[COLOR blue]' + playpad + '[/COLOR]' + pcount                            \
+    + '[COLOR blue]' + durpad + '[/COLOR]' + mduration[3:-4]                      \
+    + '\n[COLOR blue]' + lplaypad + '[/COLOR]' + lplayed)
 
     return(comment)
 

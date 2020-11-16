@@ -1,3 +1,12 @@
+v1.1.1.2
+
+-  Added feature to allow remapping of the Top and Folder content
+   types in the Estuary skin to movies or episodes to allow more 
+   view types for folders.
+-  Schronized the Estuary view options in the addon with the latest
+   Estuary skin views.
+-  Added last played metadata view in the music information panel.   
+
 v1.1.1.1
 
 -  Added music mediatype variable to allow Kodi to display full Mezzmo
