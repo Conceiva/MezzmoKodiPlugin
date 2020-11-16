@@ -547,6 +547,26 @@
 					</dependencies>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="estuarycontentmap" type="string" label="30375" help="" parent="skinname">
+					<level>0</level>
+					<default>Default</default>
+					<constraints>
+						<options>
+							<option label="Default">Default</option>
+							<option label="Movies">Movies</option>
+							<option label="Episodes">Episodes</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="top_view_mode_estuary" type="string" label="30349" help="" parent="skinname">
 					<level>0</level>
 					<default>List</default>
@@ -554,18 +574,14 @@
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -585,18 +601,14 @@
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -616,18 +628,14 @@
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -647,18 +655,14 @@
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -673,23 +677,19 @@
 				</setting>
 				<setting id="movies_view_mode_estuary" type="string" label="30330" help="" parent="skinname">
 					<level>0</level>
-					<default>Shift</default>
+					<default>List</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -704,24 +704,19 @@
 				</setting>
 				<setting id="episodes_view_mode_estuary" type="string" label="30341" help="" parent="skinname">
 					<level>0</level>
-					<default>Episode</default>
+					<default>List</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
 							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="Episode">Episode</option>
-							<option label="BigList">BigList</option>
+							<option label="Banner">Banner</option>
+							<option label="FanArt">FanArt</option>
 						</options>
 					</constraints>
 					<dependencies>
@@ -741,18 +736,11 @@
 						<options>
 							<option label="Default">Default</option>
 							<option label="List">List</option>
-							<option label="InfoWall">InfoWall</option>
-							<option label="Landscape">Landscape</option>
-							<option label="ShowCase1">ShowCase1</option>
-							<option label="ShowCase2">ShowCase2</option>
-							<option label="TriPanel">TriPanel</option>
-							<option label="Posters">Posters</option>
+							<option label="IconWall">IconWall</option>
 							<option label="Shift">Shift</option>
-							<option label="BannerWall">BannerWall</option>
-							<option label="Logo">Logo</option>
+							<option label="InfoWall">InfoWall</option>
+							<option label="WideList">WideList</option>
 							<option label="Wall">Wall</option>
-							<option label="LowList">LowList</option>
-							<option label="BigList">BigList</option>
 						</options>
 					</constraints>
 					<dependencies>

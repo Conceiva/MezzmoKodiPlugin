@@ -170,14 +170,19 @@ def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
 
 
-def content_mapping(contentType):
+def content_mapping(contentType):               # Remap for skins which have limied Top / Folder views
     current_skin_name = xbmc.getSkinDir()
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeonfoldermap = addon.getSetting('aeoncontentmap')
         if aeonfoldermap != 'Default':
             contentType = aeonfoldermap.lower()
-    
-    return(contentType)         
+
+    if current_skin_name == 'skin.estuary':
+        estuaryfoldermap = addon.getSetting('estuarycontentmap')
+        if estuaryfoldermap != 'Default':
+            contentType = estuaryfoldermap.lower()
+ 
+    return(contentType)     
 
 
 def setViewMode(contentType):
@@ -217,15 +222,15 @@ def setViewMode(contentType):
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
             
     elif current_skin_name == 'skin.aeon.madnox':
-        aeon_nox_views = { 'List'       : 50  ,
+        aeon_nox_views = { 'List'   : 50  ,
                        'InfoWall'   : 51  ,
-                       'Landscape'  : 503  ,
-                       'ShowCase1'  : 501  ,
-                       'ShowCase2'  : 501  ,
+                       'Landscape'  : 503 ,
+                       'ShowCase1'  : 501 ,
+                       'ShowCase2'  : 501 ,
                        'TriPanel'   : 52  ,
-                       'Posters'    : 510  ,
+                       'Posters'    : 510 ,
                        'Shift'      : 57  ,
-                       'BannerWall' : 508  ,
+                       'BannerWall' : 508 ,
                        'Logo'       : 59  ,
                        'Wall'       : 500 ,
                        'LowList'    : 501 ,
@@ -239,21 +244,15 @@ def setViewMode(contentType):
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
         
     elif current_skin_name == 'skin.estuary':
-        estuary_views = { 'List'       : 50  ,
-                       'InfoWall'   : 54  ,
-                       'Landscape'  : 502  ,
-                       'ShowCase1'  : 53  ,
-                       'ShowCase2'  : 54  ,
-                       'TriPanel'   : 50  ,
+        estuary_views = { 'List'    : 50  ,
                        'Posters'    : 51  ,
-                       'Shift'      : 52  ,
-                       'BannerWall' : 502  ,
-                       'Logo'       : 50  ,
+                       'IconWall'   : 52  ,
+                       'Shift'      : 53  ,
+                       'InfoWall'   : 54  ,
+                       'WideList'   : 55  ,
                        'Wall'       : 500 ,
-                       'LowList'    : 55 ,
-                       'Episode'    : 50 ,
-                       'Wall'       : 500 ,
-                       'BigList'    : 501 }
+                       'Banner'     : 501 ,
+                       'FanArt'     : 502 }
         
         view_mode = addon.getSetting(contentType + '_view_mode' + '_estuary')
         if view_mode != 'Default':
