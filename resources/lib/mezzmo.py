@@ -283,7 +283,8 @@ def setViewMode(contentType):
 
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
-    itemsleft = -1
+    itemsleft = -1 
+    pitemsleft = -1
     addon.setSetting('contenturl', contenturl)
     sync.deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled.  
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
@@ -709,6 +710,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database  
                 break
+
+            if pitemsleft == itemsleft:    #  Detect items left not incrementing 
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
+                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)   
+                break
+            else:
+                pitemsleft = itemsleft            
                         
             # get the next items
             offset = int(TotalMatches) - itemsleft
@@ -731,6 +740,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 def handleSearch(content, contenturl, objectID, term):
     contentType = 'movies'
     itemsleft = -1
+    pitemsleft = -1
     addon.setSetting('contenturl', contenturl)
     sync.deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled. 
     
@@ -1133,6 +1143,14 @@ def handleSearch(content, contenturl, objectID, term):
             itemsleft = itemsleft - int(NumberReturned)
             if itemsleft == 0:
                 break             
+
+            if pitemsleft == itemsleft:    #  Detect items left not incrementing 
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
+                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)   
+                break
+            else:
+                pitemsleft = itemsleft            
             
             # get the next items
             offset = int(TotalMatches) - itemsleft

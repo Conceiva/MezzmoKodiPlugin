@@ -1,3 +1,9 @@
+v1.1.1.3
+
+-  Fixed an issue where the addon could go into a loop if there was
+   a mismatch with the number of items it was attempting to retrieve 
+   from Mezzmo.
+
 v1.1.1.2
 
 -  Added feature to allow remapping of the Top and Folder content
