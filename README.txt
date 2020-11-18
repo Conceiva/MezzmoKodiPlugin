@@ -1,3 +1,9 @@
+v2.0.0.0k New Beta Release
+
+-  Fixed an issue where the addon could go into a loop if there was
+   a mismatch with the number of items it was attempting to retrieve 
+   from Mezzmo.
+
 v2.0.0.1j New Beta Release
 
 -  Added feature to allow remapping of the Top and Folder content
