@@ -1,3 +1,8 @@
+v2.0.0.0l New Beta Release
+
+-  Added ability to select different view sort options when displaying
+   Mezzmo playlists.
+
 v2.0.0.0k New Beta Release
 
 -  Fixed an issue where the addon could go into a loop if there was

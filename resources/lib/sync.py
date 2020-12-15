@@ -28,7 +28,7 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
-    DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
+    DB = os.path.join(xbmcvfs.translatePath("special://database"), "Textures13.db")
     db = sqlite.connect(DB)
 
     rfpos = contenturl.find(':',7)      #  Get Mezzmo server info
