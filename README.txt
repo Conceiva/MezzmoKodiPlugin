@@ -1,3 +1,8 @@
+v.1.1.1.4
+
+-  Added ability to select different view sort options when displaying
+   Mezzmo playlists.
+
 v1.1.1.3
 
 -  Fixed an issue where the addon could go into a loop if there was
