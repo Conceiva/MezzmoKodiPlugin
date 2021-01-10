@@ -1,4 +1,12 @@
-v.1.1.1.4
+v1.1.1.5
+
+-  Minor performance improvement by streamlining and simplifying code
+-  Added detection for Live Channel temporary files from HDHomeRun 
+   OTA software found by Mezzmo and no longer syncs them to the Kodi 
+   database.  A message in the Kodi.log file will indicate how many
+   were found during the sync process.
+
+v1.1.1.4
 
 -  Added ability to select different view sort options when displaying
    Mezzmo playlists.
