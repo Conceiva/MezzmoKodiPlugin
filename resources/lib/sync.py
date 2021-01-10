@@ -19,6 +19,7 @@ import datetime
 syncoffset = 400
 mezzmorecs = 0
 dupelog = 'false'
+lvcount = 0
 addon = xbmcaddon.Addon()
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
@@ -125,7 +126,7 @@ def checkDailySync():
 
 
 def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
-    global syncoffset, dupelog 
+    global syncoffset, dupelog, lvcount 
     if ksync == 'true':                                  #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGINFO)
         starttime = time.time()
@@ -144,6 +145,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)           #  Get record count in Kodi DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
+            xbmc.log('Mezzmo total Live Channels skipped: ' + str(lvcount), xbmc.LOGINFO) 
             updateRealtime(mezzmorecs, recs)
         elif clean == 0:                                  #  Hourly sync set of records
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
@@ -175,6 +177,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
                 syncoffset = 400 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGINFO)
+            xbmc.log('Mezzmo total Live Channels skipped: ' + str(lvcount), xbmc.LOGINFO) 
             updateRealtime(mezzmorecs, recs)                    
         elif clean == 1:                               #  Sync all daily
             addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
@@ -194,6 +197,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
         addon.setSetting('sync_offset', str(syncoffset))
         dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
+        lvcount = 0                                    #  Reset live channel skip counter
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGINFO) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGINFO) 
@@ -202,7 +206,8 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    global mezzmorecs, dupelog
+    global mezzmorecs, dupelog, lvcount
+    koditv = addon.getSetting('koditv')
     
     try:
         while True:
@@ -463,10 +468,12 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
-                          
-                tvcheckval = media.tvChecker(season_text, episode_text) # Is TV show and user enabled Kodi DB adding
-                if tvcheckval == 1:  
-                    mtitle = media.displayTitles(title)
+
+                mtitle = media.displayTitles(title)                          
+                tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle) # Check if Ok to add
+                if tvcheckval[1] == 1:                                  #  Increment Live Channel counter
+                    lvcount = lvcount + 1
+                if tvcheckval[0] == 1:  
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \

@@ -290,7 +290,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
     itemsleft = -1
     pitemsleft = -1
     addon.setSetting('contenturl', contenturl)
-    sync.deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled.  
+    koditv = addon.getSetting('koditv')
+    kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
+    kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
+    menuitem1 = addon.getLocalizedString(30347)
+    menuitem2 = addon.getLocalizedString(30346)
+    menuitem3 = addon.getLocalizedString(30372)
+    menuitem4 = addon.getLocalizedString(30373)
+    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
     try:
         while True:
@@ -587,15 +594,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     pcdbfile = media.getDatabaseName() 
                     if playcount == 0:
-                        li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
-                        (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30372),   \
-                        'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, itemurl, \
-                        season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
+                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, \
+                        itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
                     elif playcount > 0:
-                        li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'),            \
-                        (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30373),   \
-                        'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, itemurl, \
-                        season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
+                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, \
+                        itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])        
                
                     info = {
                         'duration': getSeconds(duration_text),
@@ -635,15 +640,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
                     if installed_version >= '19':       #  Update cast with thumbnail support in Kodi v19 and higher
                         li.setCast(cast_dict)                
-                    tvcheckval = media.tvChecker(season_text, episode_text) # Is TV show and user enabled Kodi DB adding
-                    if installed_version >= '19' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
+                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle)  # Check if Ok to add
+                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, 'false')
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
-                        kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -746,7 +750,10 @@ def handleSearch(content, contenturl, objectID, term):
     itemsleft = -1
     pitemsleft = -1
     addon.setSetting('contenturl', contenturl)
-    sync.deleteTexturesCache(contenturl)   # Call function to delete textures cache if user enabled. 
+    koditv = addon.getSetting('koditv')
+    kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
+    kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
+    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
     
     try:
         while True:
@@ -1042,8 +1049,9 @@ def handleSearch(content, contenturl, objectID, term):
                     if installed_version >= '19':         #  Update cast with thumbnail support in Kodi v19 and higher
                         li.setCast(cast_dict)  
 
-                    tvcheckval = media.tvChecker(season_text, episode_text) # Is TV show and user enabled Kodi DB adding
-                    if installed_version >= '19' and addon.getSetting('kodiactor') == 'true' and tvcheckval == 1:  
+                    mtitle = media.displayTitles(title) 
+                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle)  # Check if Ok to add
+                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         dbfile = media.openKodiDB()
                         mtitle = media.displayTitles(title)
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
@@ -1052,7 +1060,6 @@ def handleSearch(content, contenturl, objectID, term):
                         season_text, episode_text, album_text, last_played_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = getSeconds(duration_text)            #  convert duration to seconds before passing
-                        kodichange = addon.getSetting('kodichange')         #  Checks for change detection user setting
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)

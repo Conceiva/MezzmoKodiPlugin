@@ -226,13 +226,20 @@ def displayTitles(mtitle):                     #  Remove common Mezzmo Display T
     return(dtitle)
 
 
-def tvChecker(mseason, mepisode):       # add TV shows to Kodi DB if enabled and is TV show
+def tvChecker(mseason, mepisode, mkoditv, mmtitle):     # add TV shows to Kodi DB if enabled and is TV show
     tvcheck = 1
-    if (int(mseason) > 0  or int(mepisode) > 0) and addon.getSetting('koditv') == 'false':
+    lvcheck = 0
+
+    if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'false':
         tvcheck = 0 
+
+    if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
+        tvcheck = 0
+        lvcheck = 1
+
     #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGINFO)
 
-    return(tvcheck)
+    return[tvcheck, lvcheck]
 
 
 def kodiCleanDB(ContentDeleteURL, force):
