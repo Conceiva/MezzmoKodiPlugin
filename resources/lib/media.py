@@ -133,13 +133,8 @@ def urlMatch(url1, url2):                       #  Check if URLs match with or w
 
 
 def countKodiRecs(contenturl):                  # returns count records in Kodi DB 
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                      
-    DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
-    db = sqlite.connect(DB)
+
+    db = openKodiDB()
 
     rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
     serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
@@ -184,13 +179,8 @@ def mComment(minfo, mduration):			#  Update music metadata comments
 
 
 def optimizeDB():                               # Optimize Kodi DB 
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                    
-    DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
-    db = sqlite.connect(DB)
+
+    db = openKodiDB()
 
     db.execute('REINDEX',)
     db.execute('VACUUM',)
@@ -246,14 +236,7 @@ def kodiCleanDB(ContentDeleteURL, force):
 
     if addon.getSetting('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
 
-        try:
-            from sqlite3 import dbapi2 as sqlite
-        except:
-            from pysqlite2 import dbapi2 as sqlite
-
-        clean = addon.getSetting('kodiclean') == 'true'
-        DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())  
-        db = sqlite.connect(DB)
+        db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
          
         rfpos = ContentDeleteURL.find(':',7)      #  Get Mezzmo server info
@@ -273,7 +256,7 @@ def kodiCleanDB(ContentDeleteURL, force):
             db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
         db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
 
-        xbmc.log('Kodi database Mezzmo data cleared. ' + str(clean) + ' ' + str(force), xbmc.LOGINFO)
+        xbmc.log('Kodi database Mezzmo data cleared. ', xbmc.LOGINFO)
         curf.close()  
         db.commit()
         db.close()
@@ -306,6 +289,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if int(mepisode) > 0 or int(mseason) > 0:
         media = 'episode'
         episodes = 1
+        if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
+            xbmc.log('Mezzmo episode missing TV series name: ' + mtitle, xbmc.LOGINFO)    
         curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN episode \
         USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)                \
         WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE',    \

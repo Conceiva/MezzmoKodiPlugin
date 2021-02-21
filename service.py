@@ -59,8 +59,16 @@ while True:
         
     count += 1
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
-        if xbmc.Player().isPlaying():
-            xbmc.log('A file is playing: ' + file, xbmc.LOGINFO) 
+        if xbmc.Player().isPlayingVideo():
+            ptag = xbmc.Player().getVideoInfoTag()
+            ptitle = media.displayTitles(ptag.getTitle())
+            xbmc.log('A video file is playing: ' + ptitle + ' at: ' +  \
+            time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGINFO)
+        elif xbmc.Player().isPlayingAudio():
+            ptag = xbmc.Player().getMusicInfoTag()
+            ptitle = media.displayTitles(ptag.getTitle())
+            xbmc.log('A music file is playing: ' + ptitle + ' at: ' +  \
+            time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGINFO)                 
         else:
             contenturl = settings('contenturl')
             sync.updateTexturesCache(contenturl)

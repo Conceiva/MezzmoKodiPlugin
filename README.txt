@@ -1,3 +1,13 @@
+v2.1.1.6 Production release
+
+-  Numbering aligned to Kodi 18 version.  Production release version.
+-  Improved Kodi logging when a video is playing.  The log will now
+   show the movie / episode title which is playing vs. the raw uPNP
+   file name.
+-  Removed some duplicate code used for opening the Kodi database.
+-  Added logging during daily sync when a TV episode is missing a
+   series name in Mezzmo.
+
 v2.0.0.0m New Beta Release
 
 -  Minor performance improvement by streamlining and simplifying code
