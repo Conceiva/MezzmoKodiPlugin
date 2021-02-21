@@ -131,13 +131,8 @@ def urlMatch(url1, url2):                       #  Check if URLs match with or w
 
 
 def countKodiRecs(contenturl):                  # returns count records in Kodi DB 
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                      
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
-    db = sqlite.connect(DB)
+
+    db = openKodiDB()
 
     rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
     serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
@@ -181,14 +176,42 @@ def mComment(minfo, mduration):			#  Update music metadata comments
     return(comment)
 
 
+def getTitle(plfile):                           # Find title in Kodi DB
+
+    db = openKodiDB()
+
+    rtrimpos = plfile.rfind('zv')
+    pfquery = "%" + plfile[rtrimpos:rtrimpos+7] + "%"
+    pequery = "%" + plfile[rtrimpos:rtrimpos+9] + "%"     
+
+    xbmc.log('Mezzmo query target: ' + pfquery, xbmc.LOGNOTICE)
+    xbmc.log('Mezzmo query target: ' + pequery, xbmc.LOGNOTICE)
+ 
+    curpf = db.execute('SELECT C00 FROM movie inner join files on movie.idFile = files.idFile  \
+    where strFilename like ? ',(pfquery,))      # Check if file exists in Kodi DB movie table
+    curpe = db.execute('SELECT C00 FROM episode inner join files on episode.idFile = files.idFile  \
+    where strFilename like ? ',(pequery,))      # Check if file exists in Kodi DB episode table
+    mtitletuple = curpf.fetchone()     
+    etitletuple = curpe.fetchone() 
+
+    if etitletuple:                             # If found return title
+        eftitle = etitletuple[0]                # File title  
+        plfind = eftitle
+    elif mtitletuple:                           # If found return title
+        pftitle = mtitletuple[0]                # File title  
+        plfind = pftitle
+    else:
+        plfind = plfile
+
+    curpe.close()
+    curpf.close()  
+    db.close()
+    return(plfind)
+
+
 def optimizeDB():                               # Optimize Kodi DB 
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                    
-    DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
-    db = sqlite.connect(DB)
+
+    db = openKodiDB()
 
     db.execute('REINDEX',)
     db.execute('VACUUM',)
@@ -243,13 +266,8 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle):     # add TV shows to Kodi D
 def kodiCleanDB(ContentDeleteURL, force):
 
     if addon.getSetting('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
-        try:
-            from sqlite3 import dbapi2 as sqlite
-        except:
-            from pysqlite2 import dbapi2 as sqlite
-                      
-        DB = os.path.join(xbmc.translatePath("special://database"), getDatabaseName())  
-        db = sqlite.connect(DB)
+
+        db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
          
         rfpos = ContentDeleteURL.find(':',7)        #  Get Mezzmo server info
@@ -303,6 +321,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if int(mepisode) > 0 or int(mseason) > 0:
         media = 'episode'
         episodes = 1
+        if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
+            xbmc.log('Mezzmo episode missing TV series name: ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)            
         curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN episode \
         USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)                \
         WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE',    \

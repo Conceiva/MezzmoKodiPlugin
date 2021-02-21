@@ -1,3 +1,14 @@
+v1.1.1.6
+
+-  Improved Kodi logging when a video is playing.  The log will now
+   show the movie / episode title which is playing vs. the raw uPNP
+   file name.
+-  Removed some duplicate code used for opening the Kodi database.
+-  Added logging during daily sync when a TV episode is missing a
+   series name in Mezzmo.
+-  Fixed issue where marked playcount feature would fail on movie
+   titles with nonASCII characters. 
+
 v1.1.1.5
 
 -  Minor performance improvement by streamlining and simplifying code

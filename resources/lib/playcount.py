@@ -30,7 +30,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')      
     newcount = '0'
 
-    xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle + ' ' + murl, xbmc.LOGDEBUG)
+    xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle.encode('utf-8', 'ignore') + ' ' + murl, xbmc.LOGDEBUG)
     xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
     ' ' + str(mseries), xbmc.LOGDEBUG)    
 
