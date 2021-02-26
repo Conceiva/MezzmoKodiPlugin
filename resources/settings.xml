@@ -14,6 +14,18 @@
 		</category>
 		<category id="content control" label="30362" help="">
 			<group id="1">
+				<setting id="bmdelay" type="integer" label="30377" help="">
+					<level>0</level>
+					<default>0</default>
+					<constraints>
+						<minimum>0</minimum>
+						<step>1</step>
+						<maximum>30</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
 				<setting id="content_pin" type="integer" label="30363" help="">
 					<level>0</level>
 					<default>0</default>

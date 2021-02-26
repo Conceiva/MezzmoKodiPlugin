@@ -19,6 +19,11 @@ def settings(setting, value = None):
         addon.setSetting(setting, value)
     else:
         return addon.getSetting(setting)
+
+def getObjectID(file):
+    end = file.rfind('/') + 1
+    objectID = file[end:]
+    return(objectID)  
    
 class XBMCPlayer(xbmc.Player):
     
@@ -31,6 +36,10 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackPaused(self):
         xbmc.log("Mezzmo Playback paused - LED OFF" , xbmc.LOGDEBUG)
+        contenturl = settings('contenturl')
+        objectID = getObjectID(file)
+        bmdelay = 15 - int(settings('bmdelay'))
+        bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()
@@ -38,14 +47,17 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackEnded(self):
         xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
+        contenturl = settings('contenturl')
+        objectID = getObjectID(file)
+        pos = 0
+        bookmark.SetBookmark(contenturl, objectID, str(pos))
  
     def onPlayBackStopped(self):
         contenturl = settings('contenturl')
-        xbmc.log("contenturl " + contenturl)
-        end = file.rfind('/') + 1
-        objectID = file[end:]
-        xbmc.log("Mezzmo Playback stopped at " + str(pos) + " in " + objectID, xbmc.LOGDEBUG)
-        bookmark.SetBookmark(contenturl, objectID, str(pos))
+        objectID = getObjectID(file)
+        bmdelay = 15 - int(settings('bmdelay'))
+        xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
+        bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
 
              
 player = XBMCPlayer()
@@ -56,6 +68,11 @@ while True:
     if xbmc.Player().isPlaying():
         file = xbmc.Player().getPlayingFile()
         pos = int(xbmc.Player().getTime())
+        if count % 60 == 0:                 # Update bookmark once a minute during playback
+            contenturl = settings('contenturl')
+            objectID = getObjectID(file)
+            bmdelay = 15 - int(settings('bmdelay'))            
+            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))    
         
     count += 1
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
