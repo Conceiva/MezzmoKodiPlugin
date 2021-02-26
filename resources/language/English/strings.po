@@ -231,3 +231,7 @@ msgstr ""
 msgctxt "#30376"
 msgid "Music Info"
 msgstr ""
+
+msgctxt "#30377"
+msgid "Bookmark Delay Seconds"
+msgstr ""

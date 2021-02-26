@@ -1,3 +1,10 @@
+v1.1.1.7
+
+-  Fixed bookmarks not being reset when end of file playback reached.
+-  Added bookmark delay adjustment to allow starting up to 30 seconds
+   behind from when playback was stopped.
+-  Added saving bookmark to Mezzmo once a minute during playback
+
 v1.1.1.6
 
 -  Improved Kodi logging when a video is playing.  The log will now

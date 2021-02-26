@@ -4,6 +4,7 @@
     <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
     </category>
     <category label="30362">
+    <setting id="bmdelay" type="slider" label="30377" default="0" range="0,1,30" option="int"/>
     <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
     <setting id="caching" type="bool" label="30366" default="false"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>
