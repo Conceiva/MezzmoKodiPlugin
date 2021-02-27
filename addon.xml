@@ -19,6 +19,10 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <minversion>1</minversion>
+    <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.jpg</fanart>
+    </assets>
     <summary lang="en">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</summary>
     <description lang="en">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</description>
   </extension>
