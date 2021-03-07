@@ -176,39 +176,6 @@ def mComment(minfo, mduration):			#  Update music metadata comments
     return(comment)
 
 
-def getTitle(plfile):                           # Find title in Kodi DB
-
-    db = openKodiDB()
-
-    rtrimpos = plfile.rfind('zv')
-    pfquery = "%" + plfile[rtrimpos:rtrimpos+7] + "%"
-    pequery = "%" + plfile[rtrimpos:rtrimpos+9] + "%"     
-
-    xbmc.log('Mezzmo query target: ' + pfquery, xbmc.LOGNOTICE)
-    xbmc.log('Mezzmo query target: ' + pequery, xbmc.LOGNOTICE)
- 
-    curpf = db.execute('SELECT C00 FROM movie inner join files on movie.idFile = files.idFile  \
-    where strFilename like ? ',(pfquery,))      # Check if file exists in Kodi DB movie table
-    curpe = db.execute('SELECT C00 FROM episode inner join files on episode.idFile = files.idFile  \
-    where strFilename like ? ',(pequery,))      # Check if file exists in Kodi DB episode table
-    mtitletuple = curpf.fetchone()     
-    etitletuple = curpe.fetchone() 
-
-    if etitletuple:                             # If found return title
-        eftitle = etitletuple[0]                # File title  
-        plfind = eftitle
-    elif mtitletuple:                           # If found return title
-        pftitle = mtitletuple[0]                # File title  
-        plfind = pftitle
-    else:
-        plfind = plfile
-
-    curpe.close()
-    curpf.close()  
-    db.close()
-    return(plfind)
-
-
 def optimizeDB():                               # Optimize Kodi DB 
 
     db = openKodiDB()

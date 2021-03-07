@@ -1,3 +1,8 @@
+v1.1.1.8
+
+-  Adjusted bookmark sync timer from 1 minute to every 30 seconds
+-  Removed unused code introduced in v1.1.1.6 .
+
 v1.1.1.7
 
 -  Fixed bookmarks not being reset when end of file playback reached.
