@@ -68,7 +68,7 @@ while True:
     if xbmc.Player().isPlaying():
         file = xbmc.Player().getPlayingFile()
         pos = int(xbmc.Player().getTime())
-        if count % 60 == 0:                 # Update bookmark once a minute during playback
+        if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
             contenturl = settings('contenturl')
             objectID = getObjectID(file)
             bmdelay = 15 - int(settings('bmdelay'))            

@@ -1,3 +1,13 @@
+v2.1.1.8
+
+-  Removed remaining UTF-8 calls which could impact displaying some 
+   movie titles with nonASCII characters.
+-  Incremented database to 119 to match Kodi production release
+-  Adjusted bookmark sync timer from 1 minute to every 30 seconds
+-  Added help comments to addon settings.  Note this new Kodi 19
+   feature is currently only supported by the Estuary skin.  
+   Eventually other skins will add support for help comments. 
+
 v2.1.1.7
 
 -  Fixed bookmarks not being reset when end of file playback reached.

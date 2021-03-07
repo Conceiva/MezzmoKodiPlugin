@@ -315,7 +315,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
-            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            elems = xml.etree.ElementTree.fromstring(result.text)
             
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
@@ -771,7 +772,8 @@ def handleSearch(content, contenturl, objectID, term):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
-            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            elems = xml.etree.ElementTree.fromstring(result.text)
                
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
