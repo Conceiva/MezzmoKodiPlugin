@@ -236,6 +236,10 @@ msgctxt "#30377"
 msgid "Bookmark Delay Seconds"
 msgstr ""
 
+msgctxt "#30378"
+msgid "Performance Logging Enabled"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -310,4 +314,8 @@ msgstr ""
 
 msgctxt "#30519"
 msgid "Music view display format."
+msgstr ""
+
+msgctxt "#30520"
+msgid "Logs performance stastics to the Kodi logfile.  Enable to see performance stats."
 msgstr ""

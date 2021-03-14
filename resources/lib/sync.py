@@ -198,6 +198,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         addon.setSetting('sync_offset', str(syncoffset))
         dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
         lvcount = 0                                    #  Reset live channel skip counter
+        addon.setSetting('perflog', 'false')           #  Disable performance logging
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGINFO) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGINFO) 

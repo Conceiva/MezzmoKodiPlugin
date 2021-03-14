@@ -45,7 +45,20 @@ def dbIndexes():			# Improve performance for database lookups
         db.commit()
         db.close()
     except:
-        xbmc.log('Mezzmo unable to execute dbIndexes.  Database may be locked.', xbmc.LOGINFO)          
+        xbmc.log('Mezzmo unable to execute dbIndexes.  Database may be locked.', xbmc.LOGINFO)   
+
+
+def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log performance stats
+        tduration = endtime - brtime
+        sduration = (patime - brtime) + srtime
+        pduration = tduration - sduration
+        displayrate = int(TotalMatches) / tduration
+        xbmc.log('Mezzmo stats: Playlist name is ' + ctitle, xbmc.LOGINFO)   
+        xbmc.log('Mezzmo stats: {:.2f}'.format(sduration) + "s server time  {:.2f}".format(pduration) \
+        + "s parsing time", xbmc.LOGINFO)
+        xbmc.log('Mezzmo stats: ' + TotalMatches + " items displayed in {:.2f}".format(tduration)    \
+        + "s = {:.2f}".format(displayrate) + " items/sec", xbmc.LOGINFO)          
+       
     
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
@@ -289,8 +302,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
+    global brtime, patime
+    srtime = 0  
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
+    perflog = addon.getSetting('perflog')
     kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
     kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
     menuitem1 = addon.getLocalizedString(30347)
@@ -353,6 +369,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'folders'
                 contentType = content_mapping(contentType)
 
+            ctitle = xbmc.getInfoLabel("ListItem.Label")           #  Get title of selected playlist      
             dbfile = media.openKodiDB()                  #  Open Kodi database    
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
@@ -712,12 +729,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft <= 0:
                 dbfile.commit()            
                 dbfile.close()             #  Final commit writes and close Kodi database  
+                if int(TotalMatches) > 49 and perflog == "true":
+                    endtime = time.time()
+                    perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle)
                 break
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)   
+                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGINFO) 
+                if int(TotalMatches) > 49 and perflog == "true":
+                    endtime = time.time()
+                    perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle)
                 break
             else:
                 pitemsleft = itemsleft            
@@ -728,8 +751,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft < 1000:
                 requestedCount = itemsleft
 
-            pin = addon.getSetting('content_pin')   
-            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)
+            pin = addon.getSetting('content_pin')
+            brtime2 = time.time()                       #  Additional browse begin time
+            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)        
+            srtime = srtime + (time.time() - brtime2)   #  Calculate total server time
     except Exception as e:
         printexception()
         pass
@@ -1124,7 +1149,7 @@ def handleSearch(content, contenturl, objectID, term):
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)   
+                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGINFO)   
                 break
             else:
                 pitemsleft = itemsleft            
@@ -1267,8 +1292,10 @@ elif mode[0] == 'server':
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         contentrestriction.SetContentRestriction(url[0], ip, 'true', pin)
-        
+
+    brtime = time.time()                                  #  Get start time of browse           
     content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
+    patime = time.time()                                  #  Get start time of parse 
     handleBrowse(content, url[0], objectID[0], parentID[0])
 
 elif mode[0] == 'search':

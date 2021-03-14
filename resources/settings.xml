@@ -63,6 +63,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="perflog" type="boolean" label="30378" help="30520">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiclean" type="boolean" label="30368" help="30508">
 					<level>0</level>
 					<default>false</default>

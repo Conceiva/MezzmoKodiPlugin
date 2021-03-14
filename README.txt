@@ -1,9 +1,18 @@
+v2.1.1.9
+
+-  Added a setting to enable performance logging on playlists with
+   50 or more items.  The total time to load a playlist, the playlist
+   items per second and the Mezzmo server response time will all be
+   logged to the Kodi logfile. Automatically disabled after the daily
+   sync to avoid bloating the Kodi logfile.
+-  Fixed Kodi 18 style logging call introduced in version 2.0.0.0k . 
+
 v2.1.1.8
 
 -  Removed remaining UTF-8 calls which could impact displaying some 
    movie titles with nonASCII characters.
 -  Incremented database to 119 to match Kodi production release
--  Adjusted bookmark sync timer from 1 minute to every 30 seconds
+-  Adjusted nookmark sync timer from 1 minute to every 30 seconds
 -  Added help comments to addon settings.  Note this new Kodi 19
    feature is currently only supported by the Estuary skin.  
    Eventually other skins will add support for help comments. 
