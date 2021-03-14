@@ -202,7 +202,8 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGINFO) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGINFO) 
-
+    if addon.getSetting('perflog') == 'true':          #  Check if performance logging is enabled
+        xbmc.log('Mezzmo performance logging is enabled.' , xbmc.LOGINFO) 
 
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
