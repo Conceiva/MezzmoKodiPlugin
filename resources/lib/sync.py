@@ -109,14 +109,14 @@ def checkDailySync():
         
     xbmc.log('Mezzmo initial daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)   
 
-    if int(currhour) > 5 and dailysync <> 0:
+    if int(currhour) > 7 and dailysync <> 0:
         dailysync = 0                                  #  Reset daily sync flag
         addon.setSetting('dailysync', str(dailysync))
         xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGNOTICE)
-    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 0:
+    elif int(currhour) >= 0 and int(currhour) <= 7 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
         xbmc.log('Mezzmo daily sync process flag set.', xbmc.LOGNOTICE)
-    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 1:
+    elif int(currhour) >= 0 and int(currhour) <= 7 and dailysync == 1:
         dailysync = 0         
 
     xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
@@ -197,6 +197,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         addon.setSetting('sync_offset', str(syncoffset))
         dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
         lvcount = 0                                    #  Reset live channel skip counter
+        addon.setSetting('perflog', 'false')           #  Disable performance logging
         xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGNOTICE) 
     else:
         xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGNOTICE) 

@@ -1,3 +1,11 @@
+v1.1.1.9
+
+-  Added a setting to enable performance logging on playlists with
+   50 or more items.  The total time to load a playlist, the playlist
+   items per second and the Mezzmo server response time will all be
+   logged to the Kodi logfile.  Automatically disabled after the daily
+   sync to avoid bloating the Kodi logfile.
+
 v1.1.1.8
 
 -  Adjusted bookmark sync timer from 1 minute to every 30 seconds
