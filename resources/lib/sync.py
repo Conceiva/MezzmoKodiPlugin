@@ -118,14 +118,14 @@ def checkDailySync():
         
     xbmc.log('Mezzmo initial daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)   
 
-    if int(currhour) > 7 and dailysync <> 0:
+    if int(currhour) > 5 and dailysync <> 0:
         dailysync = 0                                  #  Reset daily sync flag
         addon.setSetting('dailysync', str(dailysync))
         xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGNOTICE)
-    elif int(currhour) >= 0 and int(currhour) <= 7 and dailysync == 0:
+    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
         xbmc.log('Mezzmo daily sync process flag set.', xbmc.LOGNOTICE)
-    elif int(currhour) >= 0 and int(currhour) <= 7 and dailysync == 1:
+    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 1:
         dailysync = 0         
 
     xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
