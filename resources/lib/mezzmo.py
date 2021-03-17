@@ -654,7 +654,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
                     if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)                
-                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle)  # Check if Ok to add
+                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
                     if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
@@ -1110,7 +1110,7 @@ def handleSearch(content, contenturl, objectID, term):
                     if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
                         li.setCast(cast_dict)                
                     mtitle = media.displayTitles(title) 
-                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle)  # Check if Ok to add
+                    tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
                     if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         dbfile = media.openKodiDB()
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file

@@ -214,12 +214,21 @@ def displayTitles(mtitle):                     #  Remove common Mezzmo Display T
     return(dtitle)    
 
 
-def tvChecker(mseason, mepisode, mkoditv, mmtitle):     # add TV shows to Kodi DB if enabled and is TV show
+def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add check logic
     tvcheck = 1
     lvcheck = 0
+    nsyncount = 0
 
     if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'false':
         tvcheck = 0 
+
+    if mcategories != None and mcategories.text != None:
+        categories_text = mcategories.text.split(',')
+        for category in categories_text:
+            if category.strip().lower() == "nosync":
+                tvcheck = 0
+                nsyncount = 1
+                xbmc.log('Nosync file found: ' + mmtitle.encode('utf-8', 'ignore'), xbmc.LOGDEBUG)
 
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0
@@ -227,7 +236,7 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle):     # add TV shows to Kodi D
 
     #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGNOTICE)
 
-    return[tvcheck, lvcheck]
+    return[tvcheck, lvcheck, nsyncount]
 
 
 def kodiCleanDB(ContentDeleteURL, force):

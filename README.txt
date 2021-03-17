@@ -1,3 +1,10 @@
+v1.1.2.0
+
+-  Added Kodi DB nosync feature.  Adding a category named "nosync" to
+   a video file will keep it from being added to the Kodi database. 
+-  Improved sync logging to show total number of Live Channels and 
+   nosync videos along with the overall Mezzmo / Kodi sync percentage. 
+
 v1.1.1.9
 
 -  Added a setting to enable performance logging on playlists with
