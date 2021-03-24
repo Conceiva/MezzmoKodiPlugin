@@ -205,7 +205,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             dupelog = addon.getSetting('mdupelog')     #  Check if Mezzmo duplicate logging is enabled
             if dupelog == 'true':
                 xbmc.log('Mezzmo duplicate logging is enabled. ', xbmc.LOGINFO)
-            syncoffset = 0   
+            syncoffset = 0 
+            lvcount = 0                                #  Reset live channel skip counter
+            nsyncount = 0                              #  Reset nosync skip counter     
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
@@ -348,6 +350,11 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
                 if release_year != None:
                     release_year_text = release_year.text
+
+                release_date_text = ''
+                release_date = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_date')
+                if release_date != None:
+                    release_date_text = release_date.text
                 
                 description_text = ''
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
@@ -368,6 +375,11 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
+
+                date_added_text = ''                
+                date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
+                if date_added != None:
+                    date_added_text = date_added.text       
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -506,7 +518,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
-                    season_text, episode_text, album_text, last_played_text, dupelog)
+                    season_text, episode_text, album_text, last_played_text, date_added_text, dupelog)
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
@@ -519,7 +531,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         sort_title_text, season_text, episode_text, showId, dupelog)  
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text,          \
-                        writer_text, creator_text, release_year_text, rating_val, durationsecs, genre_text,      \
+                        writer_text, creator_text, release_date_text, rating_val, durationsecs, genre_text,      \
                         trailerurl, content_rating_text, icon, kodichange, backdropurl, dbfile,                  \
                         production_company_text, sort_title_text, dupelog)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie

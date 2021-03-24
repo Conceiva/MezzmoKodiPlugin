@@ -139,19 +139,13 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
     serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
 
-    curm = db.execute('SELECT count (DISTINCT idMovie) FROM movie INNER JOIN path    \
+    curm = db.execute('SELECT count (idFile) FROM files INNER JOIN path ON path.idPath = files.idPath \
     WHERE strpath LIKE ?', (serverport,))
-    mcount = curm.fetchone()[0]
-
-    cure = db.execute('SELECT count (DISTINCT idEpisode) FROM episode INNER JOIN path \
-    WHERE strpath LIKE ?', (serverport,))
-    ecount = cure.fetchone()[0]
+    recscount = curm.fetchone()[0]
     
-    recscount = mcount + ecount                 #  Total count of movies and TV episodes
     xbmc.log('Mezzmo total Kodi DB record count: ' + str(recscount), xbmc.LOGINFO)
 
-    curm.close()
-    cure.close()       
+    curm.close()   
     db.close()
     return(recscount) 
 
@@ -273,7 +267,7 @@ def kodiCleanDB(ContentDeleteURL, force):
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed, mdupelog): #  Check if path exists
+    mlplayed, mdateadded, mdupelog): #  Check if path exists
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
@@ -329,8 +323,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         pathnumb = pathtuple[0]
         curp.close()
 
-        db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed) values       \
-        (?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed))
+        db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed, dateAdded) values       \
+        (?, ?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed, mdateadded))
         cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck,)) 
         filetuple = cur.fetchone()
         filenumb = filetuple[0]
@@ -342,8 +336,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         fpcount = filetuple[1]
         flplayed = filetuple[3]       
         if fpcount != mplaycount or flplayed != mlplayed :    # If Mezzmo playcount or lastPlayed different
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?',   \
-            (mplaycount, mlplayed, filenumb,))
+            db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',   \
+            (mplaycount, mlplayed, mdateadded, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNINFO)
         if mdupelog == 'true':
             xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' + \

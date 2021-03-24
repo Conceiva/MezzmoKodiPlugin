@@ -1,3 +1,20 @@
+v2.1.2.1
+
+-  Fixed a nosync and Live Channel count error introduced in v2.1.2.0
+-  Fixed issue where Kodi 19 service.autoexec.py to automatically 
+   start the addon would not work with newer Kodi builds like LibreElec
+   due to a default parsing parameter change in Python 3.8 and higher. 
+-  Fixed Kodi DB record count to only count Mezzmo records in the Kodi
+   database vs. all Kodi DB records
+-  Improved the last played time to include both the date and time vs.
+   only the date.
+-  Improved the premiered date to include both the date and year vs.
+   only the year.
+ - Added syncing the Mezzmo date_added field to the Kodi database so
+   that the native Kodi interface will match Mezzmo.  
+   ***  Note this feature requires a Mezzmo update.  Please contact
+        Mezzmo support for the update *** 
+
 v2.1.2.0
 
 -  Added Kodi DB nosync feature.  Adding a category named "nosync" to
