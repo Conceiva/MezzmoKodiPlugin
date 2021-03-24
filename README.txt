@@ -1,3 +1,16 @@
+v1.1.2.1
+
+-  Fixed Kodi DB record count to only count Mezzmo records in the Kodi
+   database vs. all Kodi DB records
+-  Improved the last played time to include both the date and time vs.
+   only the date.
+-  Improved the premiered date to include both the date and year vs.
+   only the year.
+ - Added syncing the Mezzmo date_added field to the Kodi database so
+   that the native Kodi interface will match Mezzmo.  
+   ***  Note this feature requires a Mezzmo update.  Please contact
+        Mezzmo support for the update *** 
+
 v1.1.2.0
 
 -  Added Kodi DB nosync feature.  Adding a category named "nosync" to

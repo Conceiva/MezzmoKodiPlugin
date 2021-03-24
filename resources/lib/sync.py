@@ -66,14 +66,14 @@ def deleteTexturesCache(contenturl):        # do not cache texture images if cac
         addon.setSetting('caching', 'true') # reset back to true after clearing 
 
 
-def dbClose():		 # Close database and commit any pending writes on abort
+def dbClose():		 	        # Close database and commit any pending writes on abort
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
         from pysqlite2 import dbapi2 as sqlite
                       
     DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())
-    db = sqlite.connect(DB)              
+    db = sqlite.connect(DB)    
     
     db.commit()
     db.close()  
@@ -337,7 +337,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     genre_text = genre.text
                     
                 aired_text = ''
-                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')
+                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')                
                 if aired != None:
                     aired_text = aired.text
                   
@@ -350,6 +350,11 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
                 if release_year != None:
                     release_year_text = release_year.text
+
+                release_date_text = ''
+                release_date = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_date')
+                if release_date != None:
+                    release_date_text = release_date.text
                 
                 description_text = ''
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
@@ -369,7 +374,12 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
-                    creator_text = creator.text                   
+                    creator_text = creator.text   
+
+                date_added_text = ''                
+                date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
+                if date_added != None:
+                    date_added_text = date_added.text           
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -510,7 +520,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
-                    season_text, episode_text, album_text, last_played_text, dupelog)
+                    season_text, episode_text, album_text, last_played_text, date_added_text, dupelog)
                     #xbmc.log('Checking movie: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)                    
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
@@ -524,7 +534,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         sort_title_text, season_text, episode_text, showId, dupelog)  
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text,          \
-                        writer_text, creator_text, release_year_text, rating_val, durationsecs, genre_text,      \
+                        writer_text, creator_text, release_date_text, rating_val, durationsecs, genre_text,      \
                         trailerurl, content_rating_text, icon, kodichange, backdropurl, dbfile,                  \
                         production_company_text, sort_title_text, dupelog)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie

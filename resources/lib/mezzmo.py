@@ -422,7 +422,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     genre_text = genre.text
                     
                 aired_text = ''
-                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')
+                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')                
                 if aired != None:
                     aired_text = aired.text
                   
@@ -435,6 +435,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
                 if release_year != None:
                     release_year_text = release_year.text
+
+                release_date_text = ''
+                release_date = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_date')
+                if release_date != None:
+                    release_date_text = release_date.text
                 
                 description_text = ''
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
@@ -467,11 +472,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
-                    
-                lastplayed_text = ''
-                lastplayed = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}lastplayed')
-                if lastplayed != None:
-                    lastplayed_text = lastplayed.text
+                   
+                date_added_text = ''                
+                date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
+                if date_added != None:
+                    date_added_text = date_added.text
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -633,12 +638,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': last_played_text,
-                        'aired': aired_text,
+                        'aired': release_date_text,
                         'mpaa':content_rating_text,
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
                         'tvshowtitle':album_text,
+                        'dateadded':date_added_text,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
@@ -653,13 +659,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
                     if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
-                        li.setCast(cast_dict)                
+                        li.setCast(cast_dict)             
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
                     if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, 'false')
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds 
                         if filekey[4] == 1:
@@ -671,7 +677,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
-                            creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
@@ -902,6 +908,11 @@ def handleSearch(content, contenturl, objectID, term):
                 release_year = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_year')
                 if release_year != None:
                     release_year_text = release_year.text
+
+                release_date_text = ''
+                release_date = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}release_date')
+                if release_date != None:
+                    release_date_text = release_date.text
                 
                 description_text = ''
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
@@ -934,11 +945,11 @@ def handleSearch(content, contenturl, objectID, term):
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
-                    
-                lastplayed_text = ''
-                lastplayed = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}lastplayed')
-                if lastplayed != None:
-                    lastplayed_text = lastplayed.text
+
+                date_added_text = ''                
+                date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
+                if date_added != None:
+                    date_added_text = date_added.text
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
@@ -1087,13 +1098,14 @@ def handleSearch(content, contenturl, objectID, term):
                         'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
-                        'lastplayed': lastplayed_text,
+                        'lastplayed': last_played_text,
                         'aired': aired_text,
                         'mpaa':content_rating_text,
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
                         'tvshowtitle':album_text,
+                        'dateadded':date_added_text,
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
@@ -1116,7 +1128,7 @@ def handleSearch(content, contenturl, objectID, term):
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, 'false')
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         if filekey[4] == 1:
@@ -1128,7 +1140,7 @@ def handleSearch(content, contenturl, objectID, term):
                             sort_title_text, season_text, episode_text, showId, 'false')  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
-                            creator_text, release_year_text, rating_val, durationsecs, genre_text, trailerurl,           \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
