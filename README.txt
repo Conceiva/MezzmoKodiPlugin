@@ -1,7 +1,7 @@
 v2.1.2.1
 
 -  Fixed a nosync and Live Channel count error introduced in v2.1.2.0
--  Fixed issue where Kodi 19 service.autoexec.py to automatically 
+-  Fixed issue where Kodi 19 service.autoexec function to automatically 
    start the addon would not work with newer Kodi builds like LibreElec
    due to a default parsing parameter change in Python 3.8 and higher. 
 -  Fixed Kodi DB record count to only count Mezzmo records in the Kodi
