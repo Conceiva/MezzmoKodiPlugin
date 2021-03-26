@@ -111,7 +111,7 @@ def openNosyncDB():                                 #  Open Mezzmo noSync databa
     return(dbsync) 
 
 
-def CheckNosyncDB():                                 #  Verify Mezzmo noSync database
+def checkNosyncDB():                                 #  Verify Mezzmo noSync database
     try:
         from sqlite3 import dbapi2 as sqlite
     except:
