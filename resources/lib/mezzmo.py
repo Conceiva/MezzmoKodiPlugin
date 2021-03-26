@@ -29,23 +29,6 @@ args = urlparse.parse_qs(sys.argv[2][1:])
    
 installed_version = media.get_installedversion()
    
-def dbIndexes():			# Improve performance for database lookups
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                      
-    try:                      
-        DB = os.path.join(xbmc.translatePath("special://database"), media.getDatabaseName())  
-        db = sqlite.connect(DB)
-    
-        db.execute('DROP INDEX IF EXISTS ix_movie_file_3;',)     
-        #db.execute('CREATE UNIQUE INDEX "ix_movie_file_3" ON "movie" ("c00", "idFile");',)
-        db.commit()
-        db.close()
-    except:
-        xbmc.log('Mezzmo unable to execute dbIndexes.  Database may be locked.', xbmc.LOGNOTICE)
-
 
 def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log performance stats
         tduration = endtime - brtime
@@ -176,7 +159,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     media.kodiCleanDB(contenturl,0)             # Call function to delete Kodi actor database if user enabled. 
-    dbIndexes()
+
     
 def build_url(query):
     return base_url + '?' + urllib.urlencode(query)

@@ -99,6 +99,63 @@ def openKodiDB():                                 #  Open Kodi database
     return(db) 
 
 
+def openNosyncDB():                                 #  Open Mezzmo noSync database
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DBconn = os.path.join(xbmc.translatePath("special://database"), "Mezzmo10.db")  
+    dbsync = sqlite.connect(DBconn)
+
+    return(dbsync) 
+
+
+def CheckNosyncDB():                                 #  Verify Mezzmo noSync database
+    try:
+        from sqlite3 import dbapi2 as sqlite
+    except:
+        from pysqlite2 import dbapi2 as sqlite
+                      
+    DBconn = os.path.join(xbmc.translatePath("special://database"), "Mezzmo10.db")  
+    dbsync = sqlite.connect(DBconn)
+
+    dbsync.execute('CREATE table IF NOT EXISTS nosyncVideo (VideoTitle TEXT, Type TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS nosync_1 ON nosyncVideo (VideoTitle)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS nosync_2 ON nosyncVideo (Type)')
+
+    dbsync.commit()
+    dbsync.close()
+
+
+def syncCount(dbsync, mtitle, mtype):
+
+    #xbmc.log('Mezzmo nosync syncCount called: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)  
+    dupes = dbsync.execute('SELECT VideoTitle FROM nosyncVideo WHERE VideoTitle=? and Type=?', \
+    (mtitle, mtype))
+    dupetuple = dupes.fetchone() 
+    if dupetuple == None:                        # Ensure nosync doesn't exist 
+        #xbmc.log('Mezzmo nosync not found in db: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)   
+        dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))             
+        dbsync.commit()
+    dupes.close()
+
+def countsyncCount():                            # returns count records in noSync DB 
+
+    dbconn = openNosyncDB()
+   
+    curm = dbconn.execute('SELECT count (Type) FROM nosyncVideo WHERE Type LIKE ?', ("nosync",))
+    nosynccount = curm.fetchone()[0]
+
+    cure = dbconn.execute('SELECT count (Type) FROM nosyncVideo WHERE Type LIKE ?', ("livec",))
+    liveccount = cure.fetchone()[0]
+
+    cure.close()
+    curm.close()  
+    dbconn.close()
+    return[nosynccount, liveccount] 
+
+
 def getPath(itemurl):		                # Find path string for media file
 
     rtrimpos = itemurl.rfind('/')       
@@ -262,6 +319,20 @@ def kodiCleanDB(ContentDeleteURL, force):
         curf.close()
         db.commit()
         db.close()
+
+        try:                                        #  clears nosync DB
+            from sqlite3 import dbapi2 as sqlite
+        except:
+            from pysqlite2 import dbapi2 as sqlite
+                      
+        DBconn = os.path.join(xbmc.translatePath("special://database"), "Mezzmo10.db")  
+        dbsync = sqlite.connect(DBconn)
+
+        dbsync.execute('DELETE FROM nosyncVideo')
+
+        dbsync.commit()
+        dbsync.close()
+
         addon.setSetting('kodiclean', 'false')     # reset back to false after clearing
 
 

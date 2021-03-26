@@ -1,3 +1,11 @@
+v1.1.2.2
+
+-  Added a new separate nosync tracking database in Kodi to allow real
+   time tracking of nosync and Live Channels not written to the main 
+   Kodi database.  The new database name is Mezzmo10.db.  Nosync and
+   Live channel log counters will now update with each hourly background 
+   sync process.
+
 v1.1.2.1
 
 -  Fixed Kodi DB record count to only count Mezzmo records in the Kodi

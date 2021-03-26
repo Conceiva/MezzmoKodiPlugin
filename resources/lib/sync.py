@@ -19,8 +19,6 @@ import socket
 syncoffset = 400
 mezzmorecs = 0
 dupelog = 'false'
-lvcount = 0
-nsyncount = 0
 addon = xbmcaddon.Addon()
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
@@ -134,7 +132,7 @@ def checkDailySync():
 
 
 def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
-    global syncoffset, dupelog, lvcount, nsyncount 
+    global syncoffset, dupelog
     if ksync == 'true':                                  #  Check if enabled
         xbmc.log('Mezzmo sync beginning.', xbmc.LOGNOTICE)
         starttime = time.time()
@@ -144,14 +142,6 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         if newoffset != '':                         
             syncoffset = int(newoffset)
 
-        newlvcount = addon.getSetting('lvcount')          #  Get saved live channel count setting  
-        if newlvcount != '':                         
-            lvcount = int(newlvcount)
-
-        newnsyncount = addon.getSetting('nsyncount')      #  Get saved nosync count setting  
-        if newlvcount != '':                         
-            nsyncount = int(newnsyncount)
-
         clean = checkDailySync()                          #  Check sync flag
         if clean == 1 and count > 12:
             force = 1
@@ -160,6 +150,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)           #  Get record count in Kodi DB
+            recscount = media.countsyncCount()            #  Get nosync record count in nosync DB
+            nsyncount = recscount[0]
+            lvcount = recscount[1]                        #  Get Live Channel record count in nosync DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE) 
@@ -193,6 +186,9 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             if rows % 400 <> 0:                        #  Start back through the Mezzmo database
                 syncoffset = 400 
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
+            nsyncount = recscount[0]
+            lvcount = recscount[1]                     #  Get Live Channel record count in nosync DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE)  
@@ -204,19 +200,18 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             if dupelog == 'true':
                 xbmc.log('Mezzmo duplicate logging is enabled. ', xbmc.LOGNOTICE)
             syncoffset = 0
-            lvcount = 0                                #  Reset live channel skip counter
-            nsyncount = 0                              #  Reset nosync skip counter   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
+            recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
+            nsyncount = recscount[0]
+            lvcount = recscount[1]                     #  Get Live Channel record count in nosync DB
             xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
             xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE) 
             media.optimizeDB()                         #  Optimize DB after resync
             addon.setSetting('dailysync', '1')         #  Set daily sync flag  
-            addon.setSetting('perflog', 'false')       #  Disable performance logging
-            addon.setSetting('lvcount', str(lvcount))
-            addon.setSetting('nsyncount', str(nsyncount))     
+            addon.setSetting('perflog', 'false')       #  Disable performance logging  
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
@@ -231,7 +226,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
-    global mezzmorecs, dupelog, lvcount, nsyncount
+    global mezzmorecs, dupelog
     koditv = addon.getSetting('koditv')
     try:
         while True:
@@ -287,6 +282,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)             
 
             dbfile = media.openKodiDB()                   #  Open Kodi database
+            dbsync = media.openNosyncDB()                 #  Open Mezzmo nosync database
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
@@ -512,10 +508,10 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 #xbmc.log('Checking title: ' + title.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)  
                 mtitle = media.displayTitles(title)                           
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
-                if tvcheckval[1] == 1 and dsyncflag == 1:               #  Increment Live Channel counter
-                    lvcount = lvcount + 1
-                if tvcheckval[2] == 1 and dsyncflag == 1:               #  Increment nosync counter
-                    nsyncount = nsyncount + 1
+                if tvcheckval[1] == 1:                                  #  Update nosync database live channel
+                    media.syncCount(dbsync, mtitle, "livec")       
+                if tvcheckval[2] == 1:                                  #  Update nosync database nosync
+                    media.syncCount(dbsync, mtitle, "nosync")                    
                 if tvcheckval[0] == 1:  
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
@@ -551,6 +547,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             if itemsleft <= 0:
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
+                dbsync.commit()
+                dbsync.close()
                 return(TotalMatches)  
                 break
                         

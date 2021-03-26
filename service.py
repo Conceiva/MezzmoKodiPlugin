@@ -64,6 +64,7 @@ player = XBMCPlayer()
  
 monitor = xbmc.Monitor()
 
+media.CheckNosyncDB()                       # Check nosync database                      
 
 while True:
     if xbmc.Player().isPlaying():
