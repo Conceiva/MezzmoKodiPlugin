@@ -1,3 +1,14 @@
+v2.1.2.2
+
+-  Fixed sync issue with LibreElec running on a Raspberry Pi 4 where a
+   few Mezzmo records would not be inserted into either the Kodi or new
+   Mezzmo10 databases. 
+-  Added a new separate nosync tracking database in Kodi to allow real
+   time tracking of nosync and Live Channels not written to the main 
+   Kodi database.  The new database name is Mezzmo10.db.  Nosync and
+   Live channel log counters will now update with each hourly background 
+   sync process.
+
 v2.1.2.1
 
 -  Fixed a nosync and Live Channel count error introduced in v2.1.2.0

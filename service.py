@@ -63,6 +63,8 @@ class XBMCPlayer(xbmc.Player):
 player = XBMCPlayer()
  
 monitor = xbmc.Monitor()
+
+media.checkNosyncDB()                       # Check nosync database            
  
 while True:
     if xbmc.Player().isPlaying():
