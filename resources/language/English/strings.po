@@ -239,3 +239,11 @@ msgstr ""
 msgctxt "#30378"
 msgid "Performance Logging Enabled"
 msgstr ""
+
+msgctxt "#30379"
+msgid "Mezzmo mark autostart"
+msgstr ""
+
+msgctxt "#30380"
+msgid "Mezzmo unmark autostart"
+msgstr ""

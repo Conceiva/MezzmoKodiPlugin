@@ -156,6 +156,14 @@ def countsyncCount():                            # returns count records in noSy
     return[nosynccount, liveccount] 
 
 
+def autostart():                                #  Check for autostart
+
+    autourl = addon.getSetting('autostart')
+    if len(autourl) > 6:
+        xbmc.log('Mezzmo autostart enabled. ', xbmc.LOGNOTICE)        
+        xbmc.executebuiltin('ActivateWindow(%s, %s)' % ('10025', autourl))   
+
+
 def getPath(itemurl):		                # Find path string for media file
 
     rtrimpos = itemurl.rfind('/')       

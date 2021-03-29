@@ -1,3 +1,14 @@
+v1.1.2.3
+
+-  Fixed error condition if the addon tried to start and no Mezzmo servers
+   were found or selected.
+-  Fixed invalid handle messages in the Kodi logfile when browsing Mezzmo.
+-  Added autostart feature to allow you to mark / unmark a folder via the
+   context menu.  A folder marked for autostart will cause the addon to
+   start the addon automatically and load that folder whenever Kodi is
+   restarted.  You no longer need to deal with the various ways Kodi 
+   handles autoexec.py or manually determining the path to a folder.  
+
 v1.1.2.2
 
 -  Added a new separate nosync tracking database in Kodi to allow real

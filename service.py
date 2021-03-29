@@ -77,6 +77,9 @@ while True:
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))        
 
     count += 1
+    if count == 2:                          # Check for autostarting the Mezzmo GUI
+        media.autostart()
+
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlayingVideo():
             ptag = xbmc.Player().getVideoInfoTag()
