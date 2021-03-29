@@ -240,6 +240,14 @@ msgctxt "#30378"
 msgid "Performance Logging Enabled"
 msgstr ""
 
+msgctxt "#30379"
+msgid "Mezzmo mark autostart"
+msgstr ""
+
+msgctxt "#30380"
+msgid "Mezzmo unmark autostart"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

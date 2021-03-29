@@ -70,6 +70,8 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(addon.getSetting('ssdp_timeout'))
+    contenturl = ''    
+
     saved_servers = addon.getSetting('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
@@ -160,7 +162,8 @@ def listServers(force):
             pass
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
-    media.kodiCleanDB(contenturl,'')            # Call function to delete Kodi actor database if user enabled. 
+    if contenturl != None:
+        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled. 
 
     
 def build_url(query):
@@ -297,8 +300,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
     menuitem4 = addon.getLocalizedString(30373)
+    menuitem5 = addon.getLocalizedString(30379)
+    menuitem6 = addon.getLocalizedString(30380)
+    autostart = addon.getSetting('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
-    xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
+    #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -344,7 +350,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 li.setInfo(mediaClass_text, info)
                     
                 searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
-                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
+
+                itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
+                if autostart == '' or autostart == 'clear':
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s)'\
+                    % ("plugin.video.mezzmo", "auto", itempath))])
+                else:
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s)'\
+                    % ("plugin.video.mezzmo", "auto", "clear"))])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':
@@ -601,13 +616,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     pcdbfile = media.getDatabaseName() 
                     if playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, \
-                        itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),      \
+                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",\
+                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
                     elif playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", pctitle, \
-                        itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])        
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),       \
+                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", \
+                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
                
                     info = {
                         'duration': getSeconds(duration_text),
@@ -1297,7 +1312,7 @@ elif mode[0] == 'server':
 elif mode[0] == 'search':
     promptSearch()
     
-xbmcplugin.setPluginFanart(addon_handle, addon.getAddonInfo("path") + 'fanart.jpg', color2='0xFFFF3300')
+#xbmcplugin.setPluginFanart(addon_handle, addon.getAddonInfo("path") + 'fanart.jpg', color2='0xFFFF3300')
 
 def start():
     if mode == 'none':

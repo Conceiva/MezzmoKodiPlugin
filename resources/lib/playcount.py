@@ -2,11 +2,9 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import os
-import json
 import xbmcvfs
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
-import bookmark
 from datetime import datetime, timedelta
 
 
@@ -72,7 +70,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
     db.close()
 
 
-def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
+def setPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
 
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#X_SetPlaycount"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
@@ -99,27 +97,3 @@ def SetPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     return response
 
 
-title = sys.argv[1]
-vurl = sys.argv[2]
-vseason = sys.argv[3]
-vepisode = sys.argv[4]
-playcount = sys.argv[5]
-series = sys.argv[6]
-dbfile = sys.argv[7]
-contenturl = sys.argv[8]
-
-updateKodiPlaycount(int(playcount), title, vurl,     \
-int(vseason), int(vepisode), series, dbfile)                      #  Update Kodi DB playcount
-
-rtrimpos = vurl.rfind('/')
-mobjectID = vurl[rtrimpos+1:]                                     #  Get Mezzmo objectID
-
-if int(playcount) == 0:                                           #  Calcule new play count
-    newcount = '1'
-elif int(playcount) > 0:
-    newcount = '0'
-
-if mobjectID != None:                                             #  Update Mezzmo playcount if objectID exists
-    SetPlaycount(contenturl, mobjectID, newcount, title)
-    bookmark.SetBookmark(contenturl, mobjectID, '0')              #  Clear bookmark
-    xbmc.executebuiltin('Container.Refresh()')
