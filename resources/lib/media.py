@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 
 addon = xbmcaddon.Addon()
 
+lastcount = 0
+
 def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV show exists in database
 
     cure = db.execute('SELECT idShow FROM tvshow WHERE c00=? and c17=?',(seriesname,     \
@@ -421,9 +423,9 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',   \
             (mplaycount, mlplayed, mdateadded, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
-        if mdupelog == 'true' and filenumb != lastcount:
+        if mdupelog == 'true' and (filenumb + 80) < lastcount and filenumb > 80:
             xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' + \
-            mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
+            str(lastcount) + ' ' + mtitle, xbmc.LOGNOTICE)
         realfilenumb = filenumb      #  Save real file number before resetting found flag
         lastcount = filenumb         #  Save last file number found
         pathnumb = filetuple[2]
