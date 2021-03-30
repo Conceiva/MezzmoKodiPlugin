@@ -183,6 +183,11 @@ def content_mapping(contentType):               # Remap for skins which have lim
 def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
+    if contentType != 'movies' or contentType != 'episodes' or contentType != 'folders' \
+    or contentType != 'songs' or contentType != 'files' or contentType != 'servers'     \
+    or contentType != 'top' :                                 #  Handle other contentTypes
+        contentType = 'movies' 
+
     #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeon_nox_views = { 'List'   : 50  ,

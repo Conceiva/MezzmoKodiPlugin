@@ -1,3 +1,9 @@
+v1.1.2.4
+
+-  Major fix of contentType errors impacting many Kodi skins not being 
+   able to display content with certain Mezzmo categories including the
+   nosync category feature implemented in v1.1.2.2.
+  
 v1.1.2.3
 
 -  Fixed error condition if the addon tried to start and no Mezzmo servers
