@@ -348,6 +348,11 @@ def kodiCleanDB(ContentDeleteURL, force):
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
     mlplayed, mdateadded, mdupelog): #  Check if path exists
+    try:                             #  Track last file number added
+       lastcount
+    except NameError:
+        lastcount = 0
+     
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
     rfpos = itemurl.find(':',7)
@@ -419,10 +424,11 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',   \
             (mplaycount, mlplayed, mdateadded, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNINFO)
-        if mdupelog == 'true':
+        if mdupelog == 'true' and filenumb != lastcount:
             xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' + \
             mtitle, xbmc.LOGINFO)
         realfilenumb = filenumb      #  Save real file number before resetting found flag
+        lastcount = filenumb         #  Save last file number found
         pathnumb = filetuple[2]
         filenumb = 0     
             
