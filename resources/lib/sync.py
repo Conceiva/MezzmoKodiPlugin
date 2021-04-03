@@ -295,6 +295,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
                     xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+                else:
+                    icon = ''    
 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
@@ -318,13 +320,15 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
                         validf = 1	     #  Set valid file info flag
-                        
+
+                backdropurl = ''                            
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
-                                   
+
+                trailerurl = ''                                     
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
@@ -386,19 +390,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
-                if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text == 'TV show':
-                        categories_text = 'episode'
-                        contentType = 'episodes'
-                    elif categories_text == 'Movie':
-                        categories_text = 'movie'
-                        contentType = 'movies'
-                        album_text = ''
-                    else:
-                        categories_text = 'video'
-                        contentType = 'videos'
-                        album_text = ''
 
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')

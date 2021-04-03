@@ -248,6 +248,14 @@ msgctxt "#30380"
 msgid "Mezzmo unmark autostart"
 msgstr ""
 
+msgctxt "#30381"
+msgid "All Other View"
+msgstr ""
+
+msgctxt "#30382"
+msgid "Music Videos View"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -326,4 +334,12 @@ msgstr ""
 
 msgctxt "#30520"
 msgid "Logs performance stastics to the Kodi logfile.  Enable to see performance stats."
+msgstr ""
+
+msgctxt "#30521"
+msgid "All other content view display format."
+msgstr ""
+
+msgctxt "#30522"
+msgid "Music Videos view display format."
 msgstr ""
