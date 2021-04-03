@@ -485,14 +485,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
                     categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type  
-                    if categories_text.lower() == 'tv show':
+                    if categories_text[:7].lower() == 'tv show':
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text.lower() == 'movie':
+                    elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
                         album_text = ''
-                    elif categories_text.lower() == 'music video':
+                    elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
                         album_text = ''
@@ -962,14 +962,14 @@ def handleSearch(content, contenturl, objectID, term):
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
                     categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text.lower() == 'tv show':
+                    if categories_text[:7].lower() == 'tv show':
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text.lower() == 'movie':
+                    elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
                         album_text = ''
-                    elif categories_text.lower() == 'music video':
+                    elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
                         album_text = ''
