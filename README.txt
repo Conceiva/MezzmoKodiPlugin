@@ -6,7 +6,7 @@ v1.1.2.5
 -  Fixed an obscure bug where the sync process could fail if a duplicate
    file was found but it was not fully discovered by Mezzmo and was
    missing information.
--  Added support for Music Video category type in Mezzmo and associated
+-  Added support for a Music Video Mezzmo category type and associated
    Kodi view settings.
 
 v1.1.2.4
