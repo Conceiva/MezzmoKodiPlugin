@@ -247,3 +247,11 @@ msgstr ""
 msgctxt "#30380"
 msgid "Mezzmo unmark autostart"
 msgstr ""
+
+msgctxt "#30381"
+msgid "All Other View"
+msgstr ""
+
+msgctxt "#30382"
+msgid "Music Videos View"
+msgstr ""

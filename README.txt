@@ -1,3 +1,14 @@
+v1.1.2.5
+
+-  Improved fix of contentType errors.  The addon settings now include 
+   an All Other Content View setting to handle default contentType
+   view mapping vs. v1.1.2.4 which had a hard coded default.
+-  Fixed an obscure bug where the sync process could fail if a duplicate
+   file was found but it was not fully discovered by Mezzmo and was
+   missing information.
+-  Added support for Music Video category type in Mezzmo and associated
+   Kodi view settings.
+
 v1.1.2.4
 
 -  Major fix of contentType errors impacting many Kodi skins not being 

@@ -183,11 +183,7 @@ def content_mapping(contentType):               # Remap for skins which have lim
 def setViewMode(contentType):
 
     current_skin_name = xbmc.getSkinDir()
-    if contentType != 'movies' or contentType != 'episodes' or contentType != 'folders' \
-    or contentType != 'songs' or contentType != 'files' or contentType != 'servers'     \
-    or contentType != 'top' :                                 #  Handle other contentTypes
-        contentType = 'movies' 
-
+    #xbmc.log('The content type is ' + contentType, xbmc.LOGNOTICE)
     #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeon_nox_views = { 'List'   : 50  ,
@@ -489,12 +485,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
                     categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type  
-                    if categories_text == 'TV show':
+                    if categories_text.lower() == 'tv show':
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text == 'Movie':
+                    elif categories_text.lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        album_text = ''
+                    elif categories_text.lower() == 'music video':
+                        categories_text = 'musicvideo'
+                        contentType = 'musicvideos'
                         album_text = ''
                     else:
                         categories_text = 'video'
@@ -962,12 +962,16 @@ def handleSearch(content, contenturl, objectID, term):
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
                     categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text == 'TV show':
+                    if categories_text.lower() == 'tv show':
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text == 'Movie':
+                    elif categories_text.lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        album_text = ''
+                    elif categories_text.lower() == 'music video':
+                        categories_text = 'musicvideo'
+                        contentType = 'musicvideos'
                         album_text = ''
                     else:
                         categories_text = 'video'
