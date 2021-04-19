@@ -142,6 +142,7 @@ def syncCount(dbsync, mtitle, mtype):
         dbsync.commit()
     dupes.close()
 
+
 def countsyncCount():                            # returns count records in noSync DB 
 
     dbconn = openNosyncDB()

@@ -88,19 +88,21 @@ def getSeconds(t):
 
 def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real time updates when 90% sync achieved
 
-    mezzmorecords = mrecords - mlvcount - mnsyncount   #  Calculate adjusted Mezzmo records
-    if krecords > 0 and mezzmorecords > 0:             #  Calculate % sync
+    mezzmorecords = mrecords - mlvcount - mnsyncount          #  Calculate adjusted Mezzmo records
+    if krecords  >= mezzmorecords:                            #  100% maximum is Kodi > Mezzmo
+        completepct = 100.0
+    elif krecords > 0 and mezzmorecords > 0:                  #  Calculate % sync
         completepct = 1 / (float(mezzmorecords)/krecords) * 100.0
     else:
         completepct = 0
 
-    if int(mezzmorecords * .9) > krecords:             #  Check if in sync
-        addon.setSetting('kodiactor', 'true')          #  Enable real time updates  
+    if int(mezzmorecords * .9) > krecords:                    #  Check if in sync
+        addon.setSetting('kodiactor', 'true')                 #  Enable real time updates  
         addon.setSetting('kodichange', 'true')
         xbmc.log('Mezzmo sync process not yet in sync at {:.1f}'.format(completepct) +     \
         '%. Real time updates enabled.', xbmc.LOGNOTICE)
     else:
-        addon.setSetting('kodiactor', 'false')         #  Disable real time updates  
+        addon.setSetting('kodiactor', 'false')                #  Disable real time updates  
         addon.setSetting('kodichange', 'false')
         xbmc.log('Mezzmo sync process in sync at {:.1f}'.format(completepct) +              \
         '%. Real time updates disabled.', xbmc.LOGNOTICE)  

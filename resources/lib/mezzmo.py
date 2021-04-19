@@ -346,7 +346,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     
                 searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
                 
-                itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
+                itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ")
                 if autostart == '' or autostart == 'clear':
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s)'\
@@ -540,7 +540,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     imdb_text = imdb.text
                 
                 
-                dcmInfo_text = ''
+                dcmInfo_text = '0'
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
                 if dcmInfo != None:
                     dcmInfo_text = dcmInfo.text
@@ -690,8 +690,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                        
                 elif mediaClass_text == 'music':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), \
-                    (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
+                    #dcmInfo_text = '540'
+                    if int(dcmInfo_text) > 0:
+                        offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
+                        (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
+                        itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
+                    else:
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])   
+              
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -707,11 +714,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'playcount': playcount,
                         'lastplayed': last_played_text,
                     }
-                    li.setInfo(mediaClass_text, info)
                     mcomment = media.mComment(info, duration_text)
-                    li.setInfo(mediaClass_text, {'comment': mcomment,})
-                    contentType = 'songs'
+                    info.update(comment = mcomment)
+                    li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
+                    contentType = 'songs'
 
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
@@ -784,6 +791,8 @@ def handleSearch(content, contenturl, objectID, term):
     pitemsleft = -1
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
+    menuitem1 = addon.getLocalizedString(30347)
+    menuitem2 = addon.getLocalizedString(30346)
     kodichange = addon.getSetting('kodichange')      # Checks for change detection user setting
     kodiactor = addon.getSetting('kodiactor')        # Checks for actor info setting    
     sync.deleteTexturesCache(contenturl)             # Call function to delete textures cache if user enabled. 
@@ -1017,7 +1026,7 @@ def handleSearch(content, contenturl, objectID, term):
                     imdb_text = imdb.text
                 
                 
-                dcmInfo_text = ''
+                dcmInfo_text = '0'
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
                 if dcmInfo != None:
                     dcmInfo_text = dcmInfo.text
@@ -1159,7 +1168,14 @@ def handleSearch(content, contenturl, objectID, term):
                         dbfile.close()  
                           
                 elif mediaClass_text == 'music':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])
+                    if int(dcmInfo_text) > 0:
+                        offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
+                        (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
+                        itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
+                    else:
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])    
+
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -1174,9 +1190,9 @@ def handleSearch(content, contenturl, objectID, term):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    li.setInfo(mediaClass_text, info)
                     mcomment = media.mComment(info, duration_text)
-                    li.setInfo(mediaClass_text, {'comment': mcomment,})
+                    info.update(comment = mcomment)
+                    li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
 
