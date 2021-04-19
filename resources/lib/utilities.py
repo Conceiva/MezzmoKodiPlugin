@@ -38,12 +38,41 @@ def playCount():
 
 
 def autoStart():
-
     addon.setSetting('autostart', sys.argv[2])
     xbmc.log('Mezzmo autostart set to: ' + str(sys.argv[2]), xbmc.LOGINFO)      
     xbmc.executebuiltin('Container.Refresh()')    
+
+
+def playMusic():
+    itemurl = sys.argv[2]                                         # Extract passed variables
+    listItem = sys.argv[3]
+    mtitle = sys.argv[4]
+    micon = sys.argv[5]
+    mbackdropurl = sys.argv[6]
+    mbookmark = int(sys.argv[7])
+    lim=xbmcgui.ListItem(listItem)
+    lim.setInfo('music', {'Title': mtitle, })
+    lim.setArt({'thumb': micon, 'poster': micon, 'fanart': mbackdropurl})
+    xbmc.Player().play(item=itemurl, listitem=lim)
+    waitTime = 1
+    while True:                                                   # Wait for player to set seek time
+        if (xbmc.Player().isPlaying() == 0) and (waitTime < 5): 
+            waitTime += 1
+            xbmc.sleep(500)
+        elif (xbmc.Player().isPlaying() == 1) or (waitTime >= 5): # only wait 2.5 seconds
+            xbmc.sleep(300)
+            try:
+                xbmc.Player().seekTime(mbookmark)
+                xbmc.log('Mezzmo player seek time: ' + str(mbookmark), xbmc.LOGDEBUG)
+            except:
+                pass
+            break 
+
 
 if sys.argv[1] == 'count':                                        # Playcount modification call
     playCount()
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
     autoStart()
+elif sys.argv[1] == 'playm':                                      # Play music with bookmark
+    playMusic()
+

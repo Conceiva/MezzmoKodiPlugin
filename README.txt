@@ -1,3 +1,14 @@
+v2.1.2.6
+
+-  Fixed Kodi sync % calculation could be greater than 100% if Mezzmo
+   records were deleted.
+-  Added bookmark feature to music / audio files.  Mezzmo will now
+   automatically set the bookmark so you can continue replay from the
+   bookmark point like with video files.  This will be helpful for long
+   audio / music files like audio books and similar.
+   ***  Note this feature requires a Mezzmo update.  Please contact
+        Mezzmo support for the update *** 
+
 v2.1.2.5
 
 -  Improved fix of contentType errors.  The addon settings now include 
