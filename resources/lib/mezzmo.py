@@ -699,17 +699,19 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
-                    offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                    offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0 and playcount == 0:
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
-                        (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
-                        itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
+                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
+                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom',             \
+                        contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", \
+                        "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
                     elif int(dcmInfo_text) > 0 and playcount > 0:
-                       li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),      \
-                        (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
-                        itemurl, li, title, icon, backdropurl, dcmInfo_text)), (menuitem4, 'RunScript(%s, %s, %s, %s,    \
-                        %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text,       \
-                        episode_text, playcount, pcseries, 'audiom', contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
+                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
+                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom',             \
+                        contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", \
+                        "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)),  ])
                     elif int(dcmInfo_text) == 0 and playcount > 0:
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
                         (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
