@@ -2,7 +2,7 @@ v2.1.2.7
 
 -  Added displaying bookmark position to music / audio information
    screen.
--  Added new functionality Mezzmo Mark Watched conext menu option 
+-  Added new functionality Mezzmo Mark Watched context menu option 
    for music / audio files which will update the Mezzmo database 
    when clicked. This is the same feature which exists for video 
    files except the Kodi database isn't updated since audio files
