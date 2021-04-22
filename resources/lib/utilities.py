@@ -26,8 +26,9 @@ def playCount():
     title = title.decode('utf-8', 'ignore')   			  #  Handle commas
     series = series.decode('utf-8', 'ignore')    		  #  Handle commas
 
-    playcount.updateKodiPlaycount(int(mplaycount), title, vurl,     \
-    int(vseason), int(vepisode), series, dbfile)                  #  Update Kodi DB playcount
+    if dbfile != 'audiom':                                        #  Don't update Kodi for music
+        playcount.updateKodiPlaycount(int(mplaycount), title, vurl, int(vseason),     \
+        int(vepisode), series, dbfile)                            #  Update Kodi DB playcount
 
     rtrimpos = vurl.rfind('/')
     mobjectID = vurl[rtrimpos+1:]                                 #  Get Mezzmo objectID

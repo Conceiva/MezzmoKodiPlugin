@@ -622,7 +622,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),       \
                         (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", \
                         pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
-      
+
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -690,14 +690,28 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                        
                 elif mediaClass_text == 'music':
-                    #dcmInfo_text = '540'
-                    if int(dcmInfo_text) > 0:
-                        offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                    mtitle = media.displayTitles(title)					#  Normalize title
+                    pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
+                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                    if int(dcmInfo_text) > 0 and playcount == 0:
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
                         (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
                         itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
-                    else:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])   
+                    elif int(dcmInfo_text) > 0 and playcount > 0:
+                       li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),      \
+                        (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
+                        itemurl, li, title, icon, backdropurl, dcmInfo_text)), (menuitem4, 'RunScript(%s, %s, %s, %s,    \
+                        %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text,       \
+                        episode_text, playcount, pcseries, 'audiom', contenturl)) ])
+                    elif int(dcmInfo_text) == 0 and playcount > 0:
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
+                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
+                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])
+                    elif int(dcmInfo_text) == 0 and playcount == 0:
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
+                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",\
+                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])   
               
                     info = {
                         'duration': getSeconds(duration_text),
@@ -714,7 +728,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'playcount': playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text)
+                    mcomment = media.mComment(info, duration_text, offsetmenu[10:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
@@ -1168,8 +1182,8 @@ def handleSearch(content, contenturl, objectID, term):
                         dbfile.close()  
                           
                 elif mediaClass_text == 'music':
+                    offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0:
-                        offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
                         (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
                         itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
@@ -1190,7 +1204,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text)
+                    mcomment = media.mComment(info, duration_text, offsetmenu[10:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
