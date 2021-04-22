@@ -735,7 +735,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[10:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
@@ -1177,7 +1177,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[10:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
