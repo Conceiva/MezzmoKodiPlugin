@@ -228,21 +228,21 @@ def mComment(minfo, mduration,moffsetmenu):     #  Update music metadata comment
     mdurpad = '{0:26}'.format(mduration[3:-4])
     lplaypad = '{0:15}'.format('Last Played: ')
     if minfo['lastplayed'] == '0':
-        lplayed = 'Not Played Yet'
+        lplayed = 'Not Played Yet '
     else:
         lplayed = minfo['lastplayed']
+    width = 55 - len(lplayed)
+    lpcount = '{0:{width}}'.format(lplayed, width=width)
     if moffsetmenu == '00:00:00':
         moffsetmenu = 'No Bookmark Set'
-    lpcount = '{0:37}'.format(lplayed)
-    bmarkpad = '{0:16}'.format('Bookmark: ')
-    moffsetout = '{0:26}'.format(moffsetmenu)
+    bmarkpad = '{0:13}'.format('Bookmark: ')
     
     comment = str('\n[COLOR blue]' + artistpad + '[/COLOR]' + minfo['artist'][0]  \
     + '\n[COLOR blue]' + songpad + '[/COLOR]' + minfo['title']                    \
     + '\n[COLOR blue]' + playpad + '[/COLOR]' + pcount                            \
-    + '[COLOR blue]' + durpad + '[/COLOR]' + mdurpad                              \
+    + '[COLOR blue]' + durpad + '[/COLOR]' + mduration[3:-4]                      \
     + '\n[COLOR blue]' + lplaypad + '[/COLOR]' + lpcount                          \
-    + '[COLOR blue]' + bmarkpad + '[/COLOR]' + moffsetout)
+    + '[COLOR blue]' + bmarkpad + '[/COLOR]' + moffsetmenu)
 
     return(comment)
 
@@ -590,6 +590,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
         movietuple = curm.fetchone()
         movieId = movietuple[0]                     # Get real movieId
         db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(movieId), media_type))
+        curm.close() 
     if movieId != 0:
         ordernum = 0
         for actor in actorlist:     

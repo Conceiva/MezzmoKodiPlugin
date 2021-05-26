@@ -256,6 +256,10 @@ msgctxt "#30382"
 msgid "Music Videos View"
 msgstr ""
 
+msgctxt "#30383"
+msgid "Pause Autostop minutes"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -342,4 +346,8 @@ msgstr ""
 
 msgctxt "#30522"
 msgid "Music Videos view display format."
+msgstr ""
+
+msgctxt "#30523"
+msgid "Automatically stop paused video in minutes.  0 = never automatically stop paused video."
 msgstr ""

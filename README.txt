@@ -1,3 +1,14 @@
+v2.1.2.8
+
+-  Added dialog box response when no matching search results are found
+   on the Mezzmo server when performing a search.  Previously an empty
+   playlist was presented.
+-  Added new setting which you can select between 0 - 60 minutes to 
+   stop a paused playback.  0 means never stop a paused playback.  This
+   feature is useful if you walk away for a length of time and forget to
+   stop something you are watching.  The bookmark will be set so you can
+   resume watching where you left off.   
+
 v2.1.2.7
 
 -  Added displaying bookmark position to music / audio information

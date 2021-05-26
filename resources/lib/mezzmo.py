@@ -641,7 +641,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'cast': artist_text.split(','),
                         'artist': artist_text.split(','),
                         'rating': rating_val,
-                        'code': imdb_text,
+                        'imdbnumber': imdb_text,
                         'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
@@ -735,7 +735,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[11:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
@@ -827,7 +827,10 @@ def handleSearch(content, contenturl, objectID, term):
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
             
-            if NumberReturned == 0:
+            if int(NumberReturned) == 0:
+                dialog_text = "There were no matching search results found on your Mezzmo server."
+                xbmcgui.Dialog().ok("Mezzmo Search Results", dialog_text)
+                xbmc.executebuiltin('Action(ParentDir)')
                 break; #sanity check
                 
             if itemsleft == -1:
@@ -1093,7 +1096,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'cast': artist_text.split(','),
                         'artist': artist_text.split(','),
                         'rating': rating_val,
-                        'code': imdb_text,
+                        'imdbnumber': imdb_text,
                         'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
@@ -1177,7 +1180,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[11:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
