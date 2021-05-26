@@ -5,6 +5,7 @@
     </category>
     <category label="30362">
     <setting id="bmdelay" type="slider" label="30377" default="0" range="0,1,30" option="int"/>
+    <setting id="pastop" type="labelenum" label="30383" values="0|5|10|15|20|25|30|35|40|45|50|55|60" default="0"/>
     <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
     <setting id="caching" type="bool" label="30366" default="false"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>

@@ -635,7 +635,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'cast': artist_text.split(','),
                         'artist': artist_text.split(','),
                         'rating': rating_val,
-                        'code': imdb_text,
+                        'imdbnumber': imdb_text,
                         'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,
@@ -822,8 +822,11 @@ def handleSearch(content, contenturl, objectID, term):
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
-            
-            if NumberReturned == 0:
+        
+            if int(NumberReturned) == 0:
+                dialog_text = "There were no matching search results found on your Mezzmo server."
+                xbmcgui.Dialog().ok("Mezzmo Search Results", dialog_text)
+                xbmc.executebuiltin('Action(ParentDir)')
                 break; #sanity check
                 
             if itemsleft == -1:
@@ -1125,7 +1128,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'cast': artist_text.split(','),
                         'artist': artist_text.split(','),
                         'rating': rating_val,
-                        'code': imdb_text,
+                        'imdbnumber': imdb_text,
                         'mediatype': categories_text,
                         'season': season_text,
                         'episode': episode_text,

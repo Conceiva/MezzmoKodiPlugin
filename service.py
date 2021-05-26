@@ -10,7 +10,8 @@ import media
 
 pos = 0
 file = ''
-count = 0 
+count = 0
+pacount = 0
 
 def settings(setting, value = None):
     # Get or add addon setting
@@ -18,7 +19,8 @@ def settings(setting, value = None):
     if value:
         addon.setSetting(setting, value)
     else:
-        return addon.getSetting(setting)   
+        return addon.getSetting(setting)
+    del addon   
 
 def getObjectID(file):
     end = file.rfind('/') + 1
@@ -28,11 +30,13 @@ def getObjectID(file):
 class XBMCPlayer(xbmc.Player):
     
     def __init__(self, *args):
+        self.paflag = 0
         pass
  
     def onPlayBackStarted(self):
         file = xbmc.Player().getPlayingFile()
         xbmc.log("Playback started - " + file)
+        self.paflag = 0
  
     def onPlayBackPaused(self):
         xbmc.log("Playback paused - LED OFF")
@@ -40,10 +44,12 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         bmdelay = 15 - int(settings('bmdelay'))
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
+        self.paflag = 1
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()
         xbmc.log("Playback resumed - LED ON")
+        self.paflag = 0
  
     def onPlayBackEnded(self):
         xbmc.log("Playback ended - LED OFF")
@@ -51,6 +57,7 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         pos = 0
         bookmark.SetBookmark(contenturl, objectID, str(pos))
+        self.paflag = 0
  
     def onPlayBackStopped(self):
         contenturl = settings('contenturl')
@@ -58,6 +65,7 @@ class XBMCPlayer(xbmc.Player):
         bmdelay = 15 - int(settings('bmdelay'))
         xbmc.log("Playback stopped at " + str(pos  + bmdelay) + " in " + objectID)
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
+        self.paflag = 0
 
              
 player = XBMCPlayer()
@@ -80,6 +88,21 @@ while True:
     if count == 2:                          # Check for autostarting the Mezzmo GUI
         media.autostart()
 
+    pacount += 1 
+    if pacount % 30 == 0:                   # Check for paused video every 30 seconds
+        pastoptime = int(settings('pastop'))
+        xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +        \
+        ' ' + str(player.paflag), xbmc.LOGDEBUG)
+        if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
+            ptag = xbmc.Player().getVideoInfoTag()
+            ptitle = media.displayTitles(ptag.getTitle().decode('utf-8','ignore'))
+            xbmc.log('Mezzmo stopped paused playback: ' + ptitle.encode('utf-8','ignore') +     \
+            ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGNOTICE)
+            xbmc.Player().stop()
+            pacount = 0
+        elif player.paflag == 0:
+            pacount = 0
+ 
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlayingVideo():
             ptag = xbmc.Player().getVideoInfoTag()
