@@ -1,3 +1,9 @@
+v1.1.2.9
+
+-  Fixed issue with intermittient failures when upgrading the addon. 
+   Cause was service.py file not properly detecting Kodi force shutting
+   down the addon to do the upgrade.    
+
 v1.1.2.8
 
 -  Added dialog box response when no matching search results are found
