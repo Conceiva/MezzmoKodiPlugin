@@ -135,19 +135,26 @@ while True:
         count = 20
 
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
-        pin = settings('content_pin')
-        settings('content_pin', '')
-        url = settings('contenturl')
+        try:
+            pin = settings('content_pin')
+            settings('content_pin', '')
+            url = settings('contenturl')
+        except:
+            pass
         ip = ''
         try:
             ip = socket.gethostbyname(socket.gethostname())
         except Exception as e:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
-        xbmc.log("SetContentRestriction Off: " + url)
-        contentrestriction.SetContentRestriction(url, ip, 'false', pin)
-        sync.dbClose()
-        if pin and url:    
-            del pin
-            del url              
+        try:
+            xbmc.log("SetContentRestriction Off: " + url)
+            contentrestriction.SetContentRestriction(url, ip, 'false', pin)
+            sync.dbClose()
+            del pin, url, player, monitor, ptag, ptitle, pastoptime
+            del contenturl, pos, file, pacount, player.paflag, bmdelay
+        except:
+            pass
+            
         break # Abort was requested while waiting. Exit the while loop.
+
