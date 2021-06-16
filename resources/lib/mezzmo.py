@@ -4,7 +4,6 @@ import xbmcgui
 import xbmcplugin
 import ssdp
 import xbmcaddon
-import xbmcgui
 import urllib2
 import urllib
 import xml.etree.ElementTree
@@ -31,16 +30,27 @@ installed_version = media.get_installedversion()
    
 
 def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log performance stats
-        tduration = endtime - brtime
-        sduration = (patime - brtime) + srtime
-        pduration = tduration - sduration
-        displayrate = int(TotalMatches) / tduration
-        xbmc.log('Mezzmo stats: Playlist name is ' + ctitle.encode('utf-8'), xbmc.LOGNOTICE)   
-        xbmc.log('Mezzmo stats: {:.2f}'.format(sduration) + "s server time  {:.2f}".format(pduration) \
-        + "s parsing time", xbmc.LOGNOTICE)
-        xbmc.log('Mezzmo stats: ' + TotalMatches + " items displayed in {:.2f}".format(tduration)    \
-        + "s = {:.2f}".format(displayrate) + " items/sec", xbmc.LOGNOTICE)          
-    
+    tduration = endtime - brtime
+    sduration = (patime - brtime) + srtime
+    pduration = tduration - sduration
+    displayrate = int(TotalMatches) / tduration
+
+    psfile = media.openNosyncDB()                                        #  Open Perf Stats database
+
+    currDate = datetime.datetime.now().strftime('%Y-%m-%d')
+    currTime = datetime.datetime.now().strftime('%H:%M:%S')
+    if ctitle != ".." :
+        sduration = '{:.2f}'.format(sduration)  + "s"
+        pduration = '{:.2f}'.format(pduration)  + "s"
+        tduration = '{:.2f}'.format(tduration)  + "s"
+        displayrate = "{:.2f}".format(displayrate) + " i/s"        
+        psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
+        psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
+        pduration, sduration, tduration, displayrate))
+                          
+    psfile.commit()
+    psfile.close()
+
 
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
@@ -297,6 +307,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem4 = addon.getLocalizedString(30373)
     menuitem5 = addon.getLocalizedString(30379)
     menuitem6 = addon.getLocalizedString(30380)
+    menuitem7 = addon.getLocalizedString(30384)
     autostart = addon.getSetting('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
@@ -347,14 +358,25 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
                 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ")
-                if autostart == '' or autostart == 'clear':
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s)'\
-                    % ("plugin.video.mezzmo", "auto", itempath))])
-                else:
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s)'\
-                    % ("plugin.video.mezzmo", "auto", "clear"))])
+                autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
+                if (autostart == '' or autostart == 'clear') and perflog == "true" :
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
+                    ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
+                    "auto", itempath, autitle)) ])
+                elif len(autostart) > 6 and perflog == "true":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
+                    ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
+                    "auto", "clear", autitle)) ])
+                elif (autostart == '' or autostart == 'clear') and perflog == "false" :
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
+                elif len(autostart) > 6 and perflog == "false":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':

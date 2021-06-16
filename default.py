@@ -1,5 +1,5 @@
 
-import xbmcaddon
+#import xbmcaddon
 import os
 import time
 

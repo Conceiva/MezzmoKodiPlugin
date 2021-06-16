@@ -213,7 +213,6 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE) 
             media.optimizeDB()                         #  Optimize DB after resync
             addon.setSetting('dailysync', '1')         #  Set daily sync flag  
-            addon.setSetting('perflog', 'false')       #  Disable performance logging  
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
