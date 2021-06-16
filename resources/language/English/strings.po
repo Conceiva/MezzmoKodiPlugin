@@ -241,11 +241,11 @@ msgid "Performance Logging Enabled"
 msgstr ""
 
 msgctxt "#30379"
-msgid "Mezzmo mark autostart"
+msgid "Mezzmo Set Autostart"
 msgstr ""
 
 msgctxt "#30380"
-msgid "Mezzmo unmark autostart"
+msgid "Mezzmo Clear Autostart"
 msgstr ""
 
 msgctxt "#30381"
