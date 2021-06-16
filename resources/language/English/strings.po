@@ -260,6 +260,10 @@ msgctxt "#30383"
 msgid "Pause Autostop minutes"
 msgstr ""
 
+msgctxt "#30384"
+msgid "Mezzmo Performance Stats"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

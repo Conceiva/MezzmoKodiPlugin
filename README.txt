@@ -1,3 +1,17 @@
+v2.1.3.0
+
+-  Added dialog boxes asking to confirm clearing the autostart setting and
+   providing the playlist name when you set the addon to autostart.  These
+   will prevent accidentally clearing the autostart setting by simply 
+   clicking on the context menu and ensures the autostart setting is set
+   to the correct playlist you have selected.
+-  Updated the performance statistics to be available via the GUI for 14
+   days vs. previously just writing a log message to the Kodi.log file.  
+   The statistics can help you see the performance of your Mezzmo server 
+   Kodi device as you browse playlists.  Statistics are only written to the
+   database if the playlist has 50 or more items.  Smaller playlists
+   generally will not have any performance concerns.  
+
 v2.1.2.9
 
 -  Fixed issue with intermittient failures when upgrading the addon. 

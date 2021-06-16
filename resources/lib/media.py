@@ -129,6 +129,11 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE INDEX IF NOT EXISTS nosync_1 ON nosyncVideo (VideoTitle)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS nosync_2 ON nosyncVideo (Type)')
 
+    dbsync.execute('CREATE table IF NOT EXISTS mperfStats (psDate TEXT, psTime TEXT, \
+    psPlaylist TEXT, psCount TEXT, pSrvTime TEXT, mSrvTime TEXT, psTTime TEXT,       \
+    psDispRate TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS perfs_1 ON mperfStats (psDate)')
+
     dbsync.commit()
     dbsync.close()
 
@@ -348,6 +353,8 @@ def kodiCleanDB(ContentDeleteURL, force):
         dbsync = sqlite.connect(DBconn)
 
         dbsync.execute('DELETE FROM nosyncVideo')
+        newdate = (datetime.now() + timedelta(days=-13)).strftime('%Y-%m-%d')
+        dbsync.execute('DELETE FROM mperfStats WHERE psDate < ?', (newdate,))   
 
         dbsync.commit()
         dbsync.close()

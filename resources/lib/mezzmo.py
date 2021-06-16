@@ -4,7 +4,6 @@ import xbmcgui
 import xbmcplugin
 import ssdp
 import xbmcaddon
-import xbmcgui
 import xbmcvfs
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
@@ -33,15 +32,25 @@ args = urllib.parse.parse_qs(argmod)
 installed_version = media.get_installedversion()
 
 def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log performance stats
-        tduration = endtime - brtime
-        sduration = (patime - brtime) + srtime
-        pduration = tduration - sduration
-        displayrate = int(TotalMatches) / tduration
-        xbmc.log('Mezzmo stats: Playlist name is ' + ctitle, xbmc.LOGINFO)   
-        xbmc.log('Mezzmo stats: {:.2f}'.format(sduration) + "s server time  {:.2f}".format(pduration) \
-        + "s parsing time", xbmc.LOGINFO)
-        xbmc.log('Mezzmo stats: ' + TotalMatches + " items displayed in {:.2f}".format(tduration)    \
-        + "s = {:.2f}".format(displayrate) + " items/sec", xbmc.LOGINFO)          
+    tduration = endtime - brtime
+    sduration = (patime - brtime) + srtime
+    pduration = tduration - sduration
+    displayrate = int(TotalMatches) / tduration
+    psfile = media.openNosyncDB()                                        #  Open Perf Stats database
+
+    currDate = datetime.datetime.now().strftime('%Y-%m-%d')
+    currTime = datetime.datetime.now().strftime('%H:%M:%S')
+    if ctitle != ".." :
+        sduration = '{:.2f}'.format(sduration)  + "s"
+        pduration = '{:.2f}'.format(pduration)  + "s"
+        tduration = '{:.2f}'.format(tduration)  + "s"
+        displayrate = "{:.2f}".format(displayrate) + " i/s"        
+        psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
+        psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
+        pduration, sduration, tduration, displayrate))
+                          
+    psfile.commit()
+    psfile.close()
        
     
 def getSeconds(t):
@@ -163,7 +172,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
-        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled. 
+        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled.
 
     
 def build_url(query):
@@ -171,6 +180,7 @@ def build_url(query):
 
 
 def content_mapping(contentType):               # Remap for skins which have limied Top / Folder views
+    global addon
     current_skin_name = xbmc.getSkinDir()
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeonfoldermap = addon.getSetting('aeoncontentmap')
@@ -181,7 +191,7 @@ def content_mapping(contentType):               # Remap for skins which have lim
         estuaryfoldermap = addon.getSetting('estuarycontentmap')
         if estuaryfoldermap != 'Default':
             contentType = estuaryfoldermap.lower()
- 
+
     return(contentType)     
 
 
@@ -284,13 +294,13 @@ def setViewMode(contentType):
        except:
            xbmc.log("SetViewMode Failed: "+addon.getSetting('_view_mode'))
            xbmc.log("Skin: "+xbmc.getSkinDir())
-
+    del current_skin_name 
 
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
-    global brtime, patime
+    global brtime, patime, addon
     srtime = 0  
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
@@ -303,6 +313,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem4 = addon.getLocalizedString(30373)
     menuitem5 = addon.getLocalizedString(30379)
     menuitem6 = addon.getLocalizedString(30380)
+    menuitem7 = addon.getLocalizedString(30384)
     autostart = addon.getSetting('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
@@ -353,14 +364,25 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
-                if autostart == '' or autostart == 'clear':
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s)'\
-                    % ("plugin.video.mezzmo", "auto", itempath))])
-                else:
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',     \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s)'\
-                    % ("plugin.video.mezzmo", "auto", "clear"))])
+                autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
+                if (autostart == '' or autostart == 'clear') and perflog == "true" :
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
+                    ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
+                    "auto", itempath, autitle)) ])
+                elif len(autostart) > 6 and perflog == "true":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
+                    ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
+                    "auto", "clear", autitle)) ])
+                elif (autostart == '' or autostart == 'clear') and perflog == "false" :
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
+                elif len(autostart) > 6 and perflog == "false":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':
@@ -809,6 +831,7 @@ def handleSearch(content, contenturl, objectID, term):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
+    global addon
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
     menuitem1 = addon.getLocalizedString(30347)
@@ -1192,7 +1215,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'title': title,
                     }
                     li.setInfo(mediaClass_text, info)
-                    validf = 1	     #  Set valid file info flag
+                    validf = 1	           #  Set valid file info flag
                     contentType = 'files'
 
                 if validf == 1:  
@@ -1235,6 +1258,7 @@ def handleSearch(content, contenturl, objectID, term):
 
 def getUPnPClass():
 
+    global addon
     upnpClass = ''
     if addon.getSetting('search_video') == 'true':
         upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
@@ -1255,6 +1279,7 @@ def getUPnPClass():
 
 def getSearchCriteria(term):
 
+    global addon
     searchCriteria = ""
     
     if addon.getSetting('search_title') == 'true':
@@ -1300,6 +1325,7 @@ def getSearchCriteria(term):
     
 def promptSearch():
     term = ''
+    global addon
     #search_window = search.PopupWindow()
     #search_window.doModal()
     #term = search_window.term
@@ -1322,6 +1348,7 @@ def promptSearch():
         pin = addon.getSetting('content_pin')
         content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
         handleSearch(content, url[0], '0', searchCriteria)
+
     
 mode = args.get('mode', 'none')
 
@@ -1362,4 +1389,5 @@ elif mode[0] == 'search':
 def start():
     if mode == 'none':
         listServers(False)
+
 
