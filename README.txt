@@ -6,7 +6,7 @@ v2.1.3.1
    videos were not being detected due to the vast differences between Kodi 
    18 & 19 and all of the different client environments.
 -  Improved performance statistics viewing by fixing missing playlist data,
-   adding new views by playlist and all.  Changed retantion period to 500
+   adding new views by playlist and all.  Changed retention period to 500
    performance records instead of 14 days.  Improved view formatting and 
    added date field. Fixed issues with GoUp and Refresh actions causing
    incomplete playlist information.
