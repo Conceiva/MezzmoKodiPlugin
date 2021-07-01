@@ -1,3 +1,17 @@
+v1.1.3.1
+
+-  Improved Mezzmo duplicate video detection across all platforms and moved
+   reporting from the Kodi.log file to the addon database and they are now
+   available via the addon context menu GUI.  Previously a number of duplicate
+   videos were not being detected due to the vast differences between Kodi 
+   18 & 19 and all of the different client environments.
+-  Improved performance statistics viewing by fixing missing playlist data,
+   adding new views by playlist and all.  Changed retantion period to 500
+   performance records instead of 14 days.  Improved view formatting and 
+   added date field.  Fixed issues with GoUp and Refresh actions causing
+   incomplete playlist information.
+-  Added viewing of Mezzmo addon sync logs via the context menu GUI.  
+
 v1.1.3.0
 
 -  Added dialog boxes asking to confirm clearing the autostart setting and
@@ -8,8 +22,8 @@ v1.1.3.0
 -  Updated the performance statistics to be available via the GUI for 14
    days vs. previously just writing a log message to the Kodi.log file.  
    The statistics can help you see the performance of your Mezzmo server 
-   Kodi device as you browse playlists.  Statistics are only written to the
-   database if the playlist has 50 or more items.  Smaller playlists
+   and Kodi device as you browse playlists.  Statistics are only written to 
+   the database if the playlist has 50 or more items.  Smaller playlists
    generally will not have any performance concerns.  
 
 v1.1.2.9

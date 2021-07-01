@@ -99,13 +99,17 @@ def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real ti
     if int(mezzmorecords * .9) > krecords:                    #  Check if in sync
         addon.setSetting('kodiactor', 'true')                 #  Enable real time updates  
         addon.setSetting('kodichange', 'true')
-        xbmc.log('Mezzmo sync process not yet in sync at {:.1f}'.format(completepct) +     \
-        '%. Real time updates enabled.', xbmc.LOGNOTICE)
+        msynclog = 'Mezzmo sync process not yet in sync at {:.1f}'.format(completepct) +     \
+        '%. Real time updates enabled.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
     else:
         addon.setSetting('kodiactor', 'false')                #  Disable real time updates  
-        addon.setSetting('kodichange', 'false')
-        xbmc.log('Mezzmo sync process in sync at {:.1f}'.format(completepct) +              \
-        '%. Real time updates disabled.', xbmc.LOGNOTICE)  
+        addon.setSetting('kodichange', 'false') 
+        msynclog = 'Mezzmo sync process in sync at {:.1f}'.format(completepct) +              \
+        '%. Real time updates disabled.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
 
 def checkDailySync():
     currhour = datetime.datetime.now().strftime('%H')
@@ -121,10 +125,14 @@ def checkDailySync():
     if int(currhour) > 5 and dailysync <> 0:
         dailysync = 0                                  #  Reset daily sync flag
         addon.setSetting('dailysync', str(dailysync))
-        xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGNOTICE)
+        msynclog = 'Mezzmo daily sync process flag reset.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
     elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
-        xbmc.log('Mezzmo daily sync process flag set.', xbmc.LOGNOTICE)
+        msynclog = 'Mezzmo daily sync process flag set.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
     elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 1:
         dailysync = 0         
 
@@ -136,7 +144,9 @@ def checkDailySync():
 def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
     global syncoffset, dupelog
     if ksync == 'true':                                  #  Check if enabled
-        xbmc.log('Mezzmo sync beginning.', xbmc.LOGNOTICE)
+        msynclog = 'Mezzmo sync beginning.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
         starttime = time.time()
         rows = 0
 
@@ -155,16 +165,24 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()            #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]                        #  Get Live Channel record count in nosync DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE) 
+            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)            
+            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)    
+            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)    
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)
         elif clean == 0:                                  #  Hourly sync set of records
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
             if rows == None:                              #  Did sync get data from Mezzmo server ?
                 rows = 0
-                xbmc.log('Mezzmo sync process could not contact the Mezzmo server', xbmc.LOGNOTICE) 
+                msynclog = 'Mezzmo sync process could not contact the Mezzmo server'
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                media.mezlogUpdate(msynclog)   
             xbmc.log('Mezzmo sync offset = ' + str(syncoffset), xbmc.LOGDEBUG)  
             if rows == 400 and syncoffset % 400 == 0:     #  Mezzmo database > 400 records
                 syncoffset = syncoffset + rows - 400
@@ -191,16 +209,24 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]                     #  Get Live Channel record count in nosync DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE)  
+            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)            
+            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)    
+            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)     
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)                    
         elif clean == 1:                               #  Sync all daily
             addon.setSetting('kodiactor', 'false')     #  Disable real time updating ahead of full sync
             addon.setSetting('kodichange', 'false')
             dupelog = addon.getSetting('mdupelog')     #  Check if Mezzmo duplicate logging is enabled
             if dupelog == 'true':
-                xbmc.log('Mezzmo duplicate logging is enabled. ', xbmc.LOGNOTICE)
+                msynclog = 'Mezzmo duplicate logging is enabled. '
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                media.mezlogUpdate(msynclog)     
             syncoffset = 0
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
@@ -208,9 +234,15 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]                     #  Get Live Channel record count in nosync DB
-            xbmc.log('Mezzmo total Mezzmo record count: ' + str(mezzmorecs), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total Live Channels count: ' + str(lvcount), xbmc.LOGNOTICE)
-            xbmc.log('Mezzmo total nosync videos count: ' + str(nsyncount), xbmc.LOGNOTICE) 
+            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)            
+            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)    
+            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)    
             media.optimizeDB()                         #  Optimize DB after resync
             addon.setSetting('dailysync', '1')         #  Set daily sync flag  
         endtime = time.time()
@@ -218,11 +250,17 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
         addon.setSetting('sync_offset', str(syncoffset))
         dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
-        xbmc.log('Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference, xbmc.LOGNOTICE) 
+        msynclog = 'Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)   
     else:
-        xbmc.log('Mezzmo sync is disabled. ', xbmc.LOGNOTICE) 
+        msynclog = 'Mezzmo sync is disabled. '
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)    
     if addon.getSetting('perflog') == 'true':          #  Check if performance logging is enabled
-        xbmc.log('Mezzmo performance logging is enabled.' , xbmc.LOGNOTICE) 
+        msynclog = 'Mezzmo performance logging is enabled.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog) 
 
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'

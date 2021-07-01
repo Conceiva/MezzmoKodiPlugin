@@ -120,7 +120,9 @@ while True:
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
         if xbmc.Player().isPlayingVideo():
-            xbmc.log('Mezzmo sync skipped. A video is playing.', xbmc.LOGNOTICE)
+            msynclog = 'Mezzmo sync skipped. A video is playing.'
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)
         else:
             syncpin = settings('content_pin')
             syncurl = settings('contenturl') 

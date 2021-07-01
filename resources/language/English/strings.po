@@ -261,6 +261,9 @@ msgid "Pause Autostop minutes"
 msgstr ""
 
 msgctxt "#30384"
-msgid "Mezzmo Performance Stats"
+msgid "Mezzmo Logs & Stats"
 msgstr ""
 
+msgctxt "#30385"
+msgid "Refresh Flag"
+msgstr ""

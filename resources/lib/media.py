@@ -5,7 +5,7 @@ import xbmcaddon
 import os
 import json
 import urllib
-from datetime import datetime, timedelta
+from datetime import datetime
 
 addon = xbmcaddon.Addon()
 
@@ -114,13 +114,8 @@ def openNosyncDB():                                 #  Open Mezzmo noSync databa
 
 
 def checkNosyncDB():                                 #  Verify Mezzmo noSync database
-    try:
-        from sqlite3 import dbapi2 as sqlite
-    except:
-        from pysqlite2 import dbapi2 as sqlite
-                      
-    DBconn = os.path.join(xbmc.translatePath("special://database"), "Mezzmo10.db")  
-    dbsync = sqlite.connect(DBconn)
+
+    dbsync = openNosyncDB()
 
     dbsync.execute('CREATE table IF NOT EXISTS nosyncVideo (VideoTitle TEXT, Type TEXT)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS nosync_1 ON nosyncVideo (VideoTitle)')
@@ -130,6 +125,14 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     psPlaylist TEXT, psCount TEXT, pSrvTime TEXT, mSrvTime TEXT, psTTime TEXT,       \
     psDispRate TEXT)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS perfs_1 ON mperfStats (psDate)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS dupeTrack (dtDate TEXT, dtFnumb TEXT, \
+    dtLcount TEXT, dtTitle TEXT, dtType TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS dtrack_1 ON dupeTrack (dtDate)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS msyncLog (msDate TEXT, msTime TEXT,   \
+    msSyncDat TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS msync_1 ON msyncLog (msDate)')
 
     dbsync.commit()
     dbsync.close()
@@ -214,7 +217,9 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     WHERE strpath LIKE ?', (serverport,))
     recscount = curm.fetchone()[0]
 
-    xbmc.log('Mezzmo total Kodi DB record count: ' + str(recscount), xbmc.LOGNOTICE)
+    msynclog = 'Mezzmo total Kodi DB record count: ' + str(recscount)
+    xbmc.log(msynclog, xbmc.LOGNOTICE)
+    mezlogUpdate(msynclog)
 
     curm.close()
     #cure.close()    
@@ -262,8 +267,14 @@ def optimizeDB():                               # Optimize Kodi DB
     db.commit()    
     db.close()
 
+    db = openNosyncDB()                         # Optimize nosync DB
+    db.execute('REINDEX',)
+    db.execute('VACUUM',)
+    db.commit()    
+    db.close()
 
-def displayTitles(mtitle):                     #  Remove common Mezzmo Display Title variables
+
+def displayTitles(mtitle):                      #  Remove common Mezzmo Display Title variables
     ctitle = mtitle.encode('utf-8', 'ignore')
     if not str.isdigit(ctitle[:3]):
         intest1 = 1000
@@ -314,6 +325,40 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
     return[tvcheck, lvcheck, nsyncount]
 
 
+def checkDupes(filenumb, lastcount, mtitle):             #  Add Dupelicate logs to dupe DB
+
+    dlfile = openNosyncDB()                              #  Open Dupe log database
+
+    currdlDate = datetime.now().strftime('%Y-%m-%d')
+    curdl = dlfile.execute('SELECT * FROM dupeTrack WHERE dtDate=? and dtTitle=? and dtType=?',      \
+    (currdlDate, mtitle, 'V'))
+    dupltuple = curdl.fetchone()
+    if not dupltuple:				         # If not found add dupe log
+        dlfile.execute('INSERT into dupeTrack(dtDate, dtFnumb, dtLcount, dtTitle, dtType) values      \
+        (?, ?, ?, ?, ?)', (currdlDate, filenumb, lastcount, mtitle, "V"))
+        xbmc.log('Mezzmo duplicate found. Kodi DB record #: ' + str(filenumb) + ' Title: ' +          \
+        str(lastcount) + ' ' + mtitle, xbmc.LOGNOTICE)
+    else:
+        xbmc.log('Mezzmo duplicate already in DB. Kodi DB record #: ' + str(filenumb) + ' Title: ' +  \
+        str(lastcount) + ' ' + mtitle, xbmc.LOGNOTICE)        
+    dlfile.commit()
+    dlfile.close()
+     
+
+
+def mezlogUpdate(msynclog):                              #  Add Mezzmo sync logs to DB
+
+    msfile = openNosyncDB()                              #  Open Synclog database
+
+    currmsDate = datetime.now().strftime('%Y-%m-%d')
+    currmsTime = datetime.now().strftime('%H:%M:%S:%f')
+    msfile.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',               \
+   (currmsDate, currmsTime, msynclog))
+     
+    msfile.commit()
+    msfile.close()
+
+
 def kodiCleanDB(ContentDeleteURL, force):
 
     if addon.getSetting('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
@@ -328,7 +373,7 @@ def kodiCleanDB(ContentDeleteURL, force):
         db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
         db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
         xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
-        curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE         \
+        curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE     \
         strpath LIKE ?', (serverport,))             #  Get file and movie list
         idlist = curf.fetchall()
         for a in range(len(idlist)):                #  Delete Mezzmo file and Movie data
@@ -342,18 +387,16 @@ def kodiCleanDB(ContentDeleteURL, force):
         curf.close()
         db.commit()
         db.close()
-
-        try:                                        #  clears nosync DB
-            from sqlite3 import dbapi2 as sqlite
-        except:
-            from pysqlite2 import dbapi2 as sqlite
-                      
-        DBconn = os.path.join(xbmc.translatePath("special://database"), "Mezzmo10.db")  
-        dbsync = sqlite.connect(DBconn)
-
+ 
+        dbsync = openNosyncDB()                     #  clears nosync DB
         dbsync.execute('DELETE FROM nosyncVideo')
-        newdate = (datetime.now() + timedelta(days=-13)).strftime('%Y-%m-%d')
-        dbsync.execute('DELETE FROM mperfStats WHERE psDate < ?', (newdate,))        
+        dblimit = 500
+        dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
+        mperfStats order by psDate desc limit ?)', (dblimit,))
+        dbsync.execute('delete from dupeTrack where dtDate not in (select dtDate from       \
+        dupeTrack order by dtDate desc limit ?)', (dblimit,))      
+        dbsync.execute('delete from msyncLog where msDate not in (select msDate from       \
+        msyncLog order by msDate desc limit ?)', (dblimit,))      
 
         dbsync.commit()
         dbsync.close()
@@ -438,9 +481,9 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',   \
             (mplaycount, mlplayed, mdateadded, filenumb,))
             # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
-        if mdupelog == 'true' and (filenumb + 80) < lastcount and filenumb > 80:
-            xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' + \
-            str(lastcount) + ' ' + mtitle, xbmc.LOGNOTICE)
+        if mdupelog == 'true' and ((lastcount > filenumb and filenumb != 40) or (filenumb < 50 and filenumb >  \
+        lastcount) or (filenumb > 50 and lastcount == 0)): 
+            checkDupes(filenumb, lastcount, mtitle)           #  Add dupes to database
         realfilenumb = filenumb      #  Save real file number before resetting found flag
         lastcount = filenumb         #  Save last file number found
         pathnumb = filetuple[2]

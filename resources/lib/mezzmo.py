@@ -25,7 +25,6 @@ addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
-   
 installed_version = media.get_installedversion()
    
 
@@ -35,21 +34,24 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
     pduration = tduration - sduration
     displayrate = int(TotalMatches) / tduration
 
-    psfile = media.openNosyncDB()                                        #  Open Perf Stats database
+    if addon.getSetting('refreshflag') == '0':                           # Only update if not refresh
+        psfile = media.openNosyncDB()                                    # Open Perf Stats database
 
-    currDate = datetime.datetime.now().strftime('%Y-%m-%d')
-    currTime = datetime.datetime.now().strftime('%H:%M:%S')
-    if ctitle != ".." :
-        sduration = '{:.2f}'.format(sduration)  + "s"
-        pduration = '{:.2f}'.format(pduration)  + "s"
-        tduration = '{:.2f}'.format(tduration)  + "s"
-        displayrate = "{:.2f}".format(displayrate) + " i/s"        
-        psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
-        psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
-        pduration, sduration, tduration, displayrate))
+        currDate = datetime.datetime.now().strftime('%Y-%m-%d')
+        currTime = datetime.datetime.now().strftime('%H:%M:%S')
+        if ctitle != ".." and ctitle != "":                              # Do not save Go up and refresh actions
+            sduration = '{:.2f}'.format(sduration)  + "s"
+            pduration = '{:.2f}'.format(pduration)  + "s"
+            tduration = '{:.2f}'.format(tduration)  + "s"
+            displayrate = "{:.2f}".format(displayrate) + " i/s"        
+            psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
+            psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
+            pduration, sduration, tduration, displayrate))
                           
-    psfile.commit()
-    psfile.close()
+        psfile.commit()
+        psfile.close()
+    else:                                                                # Reset refresh flag
+        addon.setSetting('refreshflag', '0')        
 
 
 def getSeconds(t):
@@ -294,13 +296,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
     itemsleft = -1 
     pitemsleft = -1
-    global brtime, patime
+    global brtime, patime 
     srtime = 0  
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
     perflog = addon.getSetting('perflog')
+    duplogs = addon.getSetting('mdupelog')              # Check if Mezzmo duplicate logging is enabled
+    synlogs = addon.getSetting('kodisync')              # Check if Mezzmo background sync is enabled        
     kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
     kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
+    refreshflag = addon.getSetting('refreshflag')       # Checks for refresh
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -329,6 +334,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
+      
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -359,21 +365,21 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ")
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
-                if (autostart == '' or autostart == 'clear') and perflog == "true" :
+                if (autostart == '' or autostart == 'clear') and (perflog == "true" or duplogs == "true" or synlogs == "true"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and perflog == "true":
+                elif len(autostart) > 6 and (perflog == "true" or duplogs == "true" or synlogs == "true"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", "clear", autitle)) ])
-                elif (autostart == '' or autostart == 'clear') and perflog == "false" :
+                elif (autostart == '' or autostart == 'clear') and perflog == "false" and duplogs == "false" and synlogs == "false":
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
                     % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and perflog == "false":
+                elif len(autostart) > 6 and perflog == "false" and duplogs == "false" and synlogs == "false":
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
                     % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
@@ -384,8 +390,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 else:
                     contentType = 'folders'
                 contentType = content_mapping(contentType)
-
-            ctitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist             
+  
+            ctitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist
+            #xbmc.log('Mezzmo content title: ' + ctitle + ' ' + str(parentID) + ' ' + objectID, xbmc.LOGNOTICE)            
             dbfile = media.openKodiDB()                          #  Open Kodi database
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
@@ -637,13 +644,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     pcdbfile = media.getDatabaseName() 
                     if playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),      \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",\
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
+                        ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries,  \
+                        pcdbfile, contenturl)) ])
                     elif playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),       \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", \
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
+                        ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries,  \
+                        pcdbfile, contenturl)) ])        
 
                     info = {
                         'duration': getSeconds(duration_text),
@@ -789,7 +798,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                #xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)
+                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
                     perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle)

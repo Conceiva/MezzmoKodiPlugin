@@ -15,6 +15,7 @@
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="false"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
+    <setting id="refreshflag" type="text" label="30385" default="0" visible="false"/>
     </category>
     <!-- View -->
     <category label="30300">
