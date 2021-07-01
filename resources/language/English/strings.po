@@ -257,11 +257,15 @@ msgid "Music Videos View"
 msgstr ""
 
 msgctxt "#30383"
-msgid "Pause Autostop minutes"
+msgid "Pause Autostop Minutes"
 msgstr ""
 
 msgctxt "#30384"
-msgid "Mezzmo Performance Stats"
+msgid "Mezzmo Logs & Stats"
+msgstr ""
+
+msgctxt "#30385"
+msgid "Refresh Flag"
 msgstr ""
 
 msgctxt "#30501"

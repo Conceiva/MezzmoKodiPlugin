@@ -36,23 +36,27 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
     sduration = (patime - brtime) + srtime
     pduration = tduration - sduration
     displayrate = int(TotalMatches) / tduration
-    psfile = media.openNosyncDB()                                        #  Open Perf Stats database
 
-    currDate = datetime.datetime.now().strftime('%Y-%m-%d')
-    currTime = datetime.datetime.now().strftime('%H:%M:%S')
-    if ctitle != ".." :
-        sduration = '{:.2f}'.format(sduration)  + "s"
-        pduration = '{:.2f}'.format(pduration)  + "s"
-        tduration = '{:.2f}'.format(tduration)  + "s"
-        displayrate = "{:.2f}".format(displayrate) + " i/s"        
-        psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
-        psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
-        pduration, sduration, tduration, displayrate))
+    if addon.getSetting('refreshflag') == '0':                           # Only update if not refresh
+        psfile = media.openNosyncDB()                                    # Open Perf Stats database
+
+        currDate = datetime.datetime.now().strftime('%Y-%m-%d')
+        currTime = datetime.datetime.now().strftime('%H:%M:%S')
+        if ctitle != ".." and ctitle != "":                              # Do not save Go up and refresh actions
+            sduration = '{:.2f}'.format(sduration)  + "s"
+            pduration = '{:.2f}'.format(pduration)  + "s"
+            tduration = '{:.2f}'.format(tduration)  + "s"
+            displayrate = "{:.2f}".format(displayrate) + " i/s"        
+            psfile.execute('INSERT into mperfStats (psDate, psTime, psPlaylist, psCount, pSrvTime, mSrvTime,   \
+            psTTime, psDispRate) values (?, ?, ?, ?, ?, ?, ?, ?)', (currDate, currTime, ctitle, TotalMatches,  \
+            pduration, sduration, tduration, displayrate))
                           
-    psfile.commit()
-    psfile.close()
-       
-    
+        psfile.commit()
+        psfile.close()
+    else:                                                                # Reset refresh flag
+        addon.setSetting('refreshflag', '0')      
+  
+  
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
     td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
@@ -305,6 +309,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
     addon.setSetting('contenturl', contenturl)
     koditv = addon.getSetting('koditv')
     perflog = addon.getSetting('perflog')
+    duplogs = addon.getSetting('mdupelog')              # Check if Mezzmo duplicate logging is enabled
+    synlogs = addon.getSetting('kodisync')              # Check if Mezzmo background sync is enabled    
     kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
     kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
     menuitem1 = addon.getLocalizedString(30347)
@@ -365,21 +371,21 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
-                if (autostart == '' or autostart == 'clear') and perflog == "true" :
+                if (autostart == '' or autostart == 'clear') and (perflog == "true" or duplogs == "true" or synlogs == "true"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and perflog == "true":
+                elif len(autostart) > 6 and (perflog == "true" or duplogs == "true" or synlogs == "true"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", "clear", autitle)) ])
-                elif (autostart == '' or autostart == 'clear') and perflog == "false" :
+                elif (autostart == '' or autostart == 'clear') and perflog == "false" and duplogs == "false" and synlogs == "false":
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
                     % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and perflog == "false":
+                elif len(autostart) > 6 and perflog == "false" and duplogs == "false" and synlogs == "false":
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
                     % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
@@ -643,13 +649,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     pcdbfile = media.getDatabaseName() 
                     if playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),      \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",\
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
+                        ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries,  \
+                        pcdbfile, contenturl)) ])
                     elif playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),       \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count", \
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
+                        ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries,  \
+                        pcdbfile, contenturl)) ])      
                
                     info = {
                         'duration': getSeconds(duration_text),
