@@ -98,7 +98,9 @@ def listServers(force):
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
-    xbmc.log('Mezzmo server search: ' + str(len(servers)), xbmc.LOGNOTICE)
+    mgenlog ='Mezzmo server search: ' + str(len(servers))
+    xbmc.log(mgenlog, xbmc.LOGNOTICE)
+    media.mgenlogUpdate(mgenlog)
     for server in servers:
         url = server.location
         
@@ -172,7 +174,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
-        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled. 
+        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled.
 
     
 def build_url(query):
@@ -726,25 +728,27 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0 and playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
-                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom',             \
-                        contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", \
-                        "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount,        \
+                        pcseries, 'audiom', contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' %      \
+                        ("plugin.video.mezzmo", "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
                     elif int(dcmInfo_text) > 0 and playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
-                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom',             \
-                        contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", \
-                        "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)),  ])
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount,        \
+                        pcseries, 'audiom', contenturl)), (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' %      \
+                        ("plugin.video.mezzmo", "playm", itemurl, li, title, icon, backdropurl, dcmInfo_text)),  ])
                     elif int(dcmInfo_text) == 0 and playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",        \
-                        "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount,        \
+                        pcseries, 'audiom', contenturl)) ])
                     elif int(dcmInfo_text) == 0 and playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),     \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",\
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])   
+                        li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
+                        (menuitem2, 'Action(ParentDir)'), (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount,        \
+                        pcseries, 'audiom', contenturl)) ])   
               
                     info = {
                         'duration': getSeconds(duration_text),
@@ -768,7 +772,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'songs'
 
                 elif mediaClass_text == 'picture':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
+                    li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
+                    (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
                     info = {
                         'title': title,
                     }
@@ -798,7 +803,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)
+                mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlogUpdate(mgenlog)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
                     perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle)
@@ -1264,8 +1271,10 @@ def handleSearch(content, contenturl, objectID, term):
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
-                dbfile.close()             #  Final commit writes and close Kodi database
-                xbmc.log('Mezzmo items not displayed: ' + str(pitemsleft), xbmc.LOGNOTICE)   
+                dbfile.close()             #  Final commit writes and close Kodi database 
+                mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlogUpdate(mgenlog) 
                 break
             else:
                 pitemsleft = itemsleft            

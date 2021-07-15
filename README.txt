@@ -1,3 +1,11 @@
+v1.1.3.2
+
+-  Updated and simplified Mezzmo duplicate checking algorithm.  It is now
+   accurate and consistent across all platforms and versions of Kodi.
+-  Improved and streamlined Mezzmo statistics & Logs interface
+-  Added remaining Mezzmo addon general logs to Mezzmo stats & logs 
+   interface. 
+ 
 v1.1.3.1
 
 -  Improved Mezzmo duplicate video detection across all platforms and moved

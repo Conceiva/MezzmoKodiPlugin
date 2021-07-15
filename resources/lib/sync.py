@@ -40,8 +40,10 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     db.commit()
     cur.close()
     db.close()
-    xbmc.log('Mezzmo textures cache timers '  + str(rows) + ' rows updated.', xbmc.LOGNOTICE)   
-
+    mgenlog = 'Mezzmo textures cache timers '  + str(rows) + ' rows updated.'
+    xbmc.log(mgenlog, xbmc.LOGNOTICE)
+    media.mgenlogUpdate(mgenlog)
+  
 
 def deleteTexturesCache(contenturl):        # do not cache texture images if caching disabled
     if addon.getSetting('caching') == 'false':    
@@ -57,7 +59,10 @@ def deleteTexturesCache(contenturl):        # do not cache texture images if cac
         serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
         cur = db.execute('DELETE FROM texture WHERE url LIKE ?', (serverport,))        
         rows = cur.rowcount
-        xbmc.log('Mezzmo addon texture rows deleted: ' + str(rows), xbmc.LOGNOTICE)
+        mgenlog ='Mezzmo addon texture rows deleted: ' + str(rows)
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)
+
         db.commit()
         cur.close()
         db.close()
@@ -228,6 +233,8 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
                 xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)     
             syncoffset = 0
+            lvcount = 0                                #  Reset live channel skip counter
+            nsyncount = 0                              #  Reset nosync skip counter  
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 1000)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
@@ -438,8 +445,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                  
                 playcount = 0
                 playcount_text = ''
-                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
-                
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')                
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
