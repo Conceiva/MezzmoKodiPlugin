@@ -95,10 +95,15 @@ while True:
         if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
             ptag = xbmc.Player().getVideoInfoTag()
             ptitle = media.displayTitles(ptag.getTitle())
-            xbmc.log('Mezzmo stopped paused playback: ' + ptitle + ' at: ' + \
-            time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGINFO)
             xbmc.Player().stop()
             pacount = 0
+            mgenlog ='Mezzmo stopped paused playback: ' + ptitle +     \
+            ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlog ='###' + ptitle
+            media.mgenlogUpdate(mgenlog)
+            mgenlog ='Mezzmo stopped paused playback at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+            media.mgenlogUpdate(mgenlog)   
         elif player.paflag == 0:
             pacount = 0
 
@@ -106,13 +111,23 @@ while True:
         if xbmc.Player().isPlayingVideo():
             ptag = xbmc.Player().getVideoInfoTag()
             ptitle = media.displayTitles(ptag.getTitle())
-            xbmc.log('A video file is playing: ' + ptitle + ' at: ' +        \
-            time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGINFO)
+            mgenlog ='A video file is playing: ' + ptitle + ' at: ' +        \
+            time.strftime("%H:%M:%S", time.gmtime(pos))
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlog ='###' + ptitle
+            media.mgenlogUpdate(mgenlog)
+            mgenlog ='A video file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+            media.mgenlogUpdate(mgenlog)     
         elif xbmc.Player().isPlayingAudio():
             ptag = xbmc.Player().getMusicInfoTag()
             ptitle = media.displayTitles(ptag.getTitle())
-            xbmc.log('A music file is playing: ' + ptitle + ' at: ' +  \
-            time.strftime("%H:%M:%S", time.gmtime(pos)), xbmc.LOGINFO)                 
+            mgenlog ='A music file is playing: ' + ptitle + ' at: ' +        \
+            time.strftime("%H:%M:%S", time.gmtime(pos))
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlog ='###' + ptitle
+            media.mgenlogUpdate(mgenlog)
+            mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+            media.mgenlogUpdate(mgenlog)                
         else:
             contenturl = settings('contenturl')
             sync.updateTexturesCache(contenturl)
@@ -155,6 +170,9 @@ while True:
             sync.dbClose()
             del pin, url, player, monitor, ptag, ptitle, pastoptime
             del contenturl, pos, file, pacount, player.paflag, bmdelay
+            mgenlog ='Mezzmo addon shutdown.'
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)  
         except:
             pass
             

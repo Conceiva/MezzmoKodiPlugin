@@ -3,10 +3,10 @@ import xbmcgui
 import xbmcplugin
 import os
 import xbmcvfs
+import media
 import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
 from datetime import datetime, timedelta
-
 
 def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kdbfile):
 
@@ -59,12 +59,20 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, kd
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
-    elif filenumb == 0:     
-        xbmc.log('Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync. ' +      \
-        mtitle, xbmc.LOGINFO)    
-
+    elif filenumb == 0:   
+        mgenlog ='Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync.' +  mtitle
+        xbmc.log(mgenlog, xbmc.LOGNINFO)
+        mgenlog = '###' + mtitle
+        mgenlogUpdate(mgenlog)   
+        mgenlog ='Mezzmo no watched action taken.  File not found in Kodi DB. Please wait for sync.'
+        mgenlogUpdate(mgenlog)  
     if filenumb > 0:
-         xbmc.log('Mezzmo Kodi playcount set to ' + newcount + ' for: ' + mtitle, xbmc.LOGINFO)  
+        mgenlog ='Mezzmo Kodi playcount set to ' + newcount + ' for: ' + mtitle
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlog = '###' + mtitle
+        media.mgenlogUpdate(mgenlog)   
+        mgenlog ='Mezzmo Kodi playcount set to ' + newcount + ' for: '
+        media.mgenlogUpdate(mgenlog)  
 
     db.commit()
     db.close()
@@ -93,7 +101,15 @@ def setPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     except Exception as e:
         xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e), xbmc.LOGINFO)
         pass
-    xbmc.log('Mezzmo server playcount set to ' + count + ' for: ' + mtitle, xbmc.LOGINFO)          
+
+    mgenlog ='Mezzmo server playcount set to ' + count + ' for: ' +      \
+    mtitle
+    xbmc.log(mgenlog, xbmc.LOGINFO)
+    mgenlog = '###' + mtitle
+    media.mgenlogUpdate(mgenlog)   
+    mgenlog ='Mezzmo server playcount set to ' + count + ' for: '
+    media.mgenlogUpdate(mgenlog)             
+
     return response
 
 

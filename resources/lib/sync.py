@@ -40,7 +40,9 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     db.commit()
     cur.close()
     db.close()
-    xbmc.log('Mezzmo textures cache timers '  + str(rows) + ' rows updated.', xbmc.LOGINFO)       
+    mgenlog = 'Mezzmo textures cache timers '  + str(rows) + ' rows updated.'
+    xbmc.log(mgenlog, xbmc.LOGINFO)
+    media.mgenlogUpdate(mgenlog)     
 
 
 def deleteTexturesCache(contenturl):    # do not cache texture images if caching disabled
@@ -57,7 +59,9 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
         cur = db.execute('DELETE FROM texture WHERE url LIKE ?', (serverport,))        
         rows = cur.rowcount
-        xbmc.log('Mezzmo addon texture rows deleted: ' + str(rows), xbmc.LOGINFO)
+        mgenlog ='Mezzmo addon texture rows deleted: ' + str(rows)
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+
         db.commit()
         cur.close()
         db.close()
@@ -120,19 +124,21 @@ def checkDailySync():
     else:
         dailysync = 0
         addon.setSetting('dailysync', '0')             #  Set daily sync flag
-        msynclog = 'Mezzmo daily sync process flag reset.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
-        media.mezlogUpdate(msynclog)
+
+    xbmc.log('Mezzmo initial daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG) 
+
     if int(currhour) > 5 and dailysync != 0:
         dailysync = 0                                  #  Reset daily sync flag
         addon.setSetting('dailysync', str(dailysync))
-        xbmc.log('Mezzmo daily sync process flag reset.', xbmc.LOGINFO)
-    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 0:
+        msynclog = 'Mezzmo daily sync process flag reset.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)
+    elif int(currhour) >= 0 and int(currhour) <= 6 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
         msynclog = 'Mezzmo daily sync process flag set.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
-    elif int(currhour) >= 0 and int(currhour) <= 5 and dailysync == 1:
+    elif int(currhour) >= 0 and int(currhour) <= 6 and dailysync == 1:
         dailysync = 0         
 
     xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
@@ -226,7 +232,7 @@ def syncMezzmo(syncurl, syncpin, count, ksync):          #  Sync Mezzmo to Kodi
                 msynclog = 'Mezzmo duplicate logging is enabled. '
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 media.mezlogUpdate(msynclog)    
-            syncoffset = 0 
+            syncoffset = 0
             lvcount = 0                                #  Reset live channel skip counter
             nsyncount = 0                              #  Reset nosync skip counter     
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 1000, syncpin)
@@ -355,7 +361,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         video_width = int(resolution_text[0:mid])
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
-                        validf = 1	     #  Set valid file info flag
 
                 backdropurl = ''                            
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
