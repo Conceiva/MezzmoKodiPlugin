@@ -477,7 +477,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         (mseries, ppathnumb, mseason, mepisode))     # Check if episode exists in Kodi DB under parent path 
         filetuple = curf.fetchone()
         curf.close()
-        xbmc.log('Checking path for : ' + mtitle, xbmc.LOGDEBUG)     # Path check debugging
+        xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGDEBUG)     # Path check debugging
     else:
         media = 'movie'
         episodes = 0
