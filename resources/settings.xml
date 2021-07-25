@@ -75,10 +75,18 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="kodisync" type="boolean" label="30371" help="30506">
+				<setting id="kodisyncvar" type="string" label="30371" help="30506">
 					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
+					<default>Normal</default>
+					<constraints>
+						<options>
+							<option label="Off">Off</option>
+							<option label="Daily">Daily</option>
+							<option label="Newest">Newest</option>
+							<option label="Normal">Normal</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
 				</setting>
 				<setting id="mdupelog" type="boolean" label="30374" help="30507">
 					<level>0</level>

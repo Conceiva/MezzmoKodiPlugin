@@ -13,13 +13,6 @@ file = ''
 count = 0 
 pacount = 0
 
-def settings(setting, value = None):
-    # Get or add addon setting
-    addon = xbmcaddon.Addon()
-    if value:
-        addon.setSetting(setting, value)
-    else:
-        return addon.getSetting(setting)
 
 def getObjectID(file):
     end = file.rfind('/') + 1
@@ -39,9 +32,9 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackPaused(self):
         xbmc.log("Mezzmo Playback paused - LED OFF" , xbmc.LOGDEBUG)
-        contenturl = settings('contenturl')
+        contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
-        bmdelay = 15 - int(settings('bmdelay'))
+        bmdelay = 15 - int(media.settings('bmdelay'))
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
         self.paflag = 1
  
@@ -52,16 +45,16 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackEnded(self):
         xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
-        contenturl = settings('contenturl')
+        contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         pos = 0
         bookmark.SetBookmark(contenturl, objectID, str(pos))
         self.paflag = 0
  
     def onPlayBackStopped(self):
-        contenturl = settings('contenturl')
+        contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
-        bmdelay = 15 - int(settings('bmdelay'))
+        bmdelay = 15 - int(media.settings('bmdelay'))
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
         self.paflag = 0
@@ -78,9 +71,9 @@ while True:
         file = xbmc.Player().getPlayingFile()
         pos = int(xbmc.Player().getTime())
         if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
-            contenturl = settings('contenturl')
+            contenturl = media.settings('contenturl')
             objectID = getObjectID(file)
-            bmdelay = 15 - int(settings('bmdelay'))            
+            bmdelay = 15 - int(media.settings('bmdelay'))            
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))    
         
     count += 1
@@ -89,7 +82,7 @@ while True:
 
     pacount += 1 
     if pacount % 30 == 0:                   # Check for paused video every 30 seconds
-        pastoptime = int(settings('pastop'))
+        pastoptime = int(media.settings('pastop'))
         xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +    \
         ' ' + str(player.paflag), xbmc.LOGDEBUG)
         if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
@@ -129,7 +122,7 @@ while True:
             mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
             media.mgenlogUpdate(mgenlog)                
         else:
-            contenturl = settings('contenturl')
+            contenturl = media.settings('contenturl')
             sync.updateTexturesCache(contenturl)
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
@@ -138,24 +131,20 @@ while True:
             xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
         else:
-            syncpin = settings('content_pin')
-            syncurl = settings('contenturl') 
-            ksync = settings('kodisync')           
+            syncpin = media.settings('content_pin')
+            syncurl = media.settings('contenturl')           
             if syncpin and syncurl:       
-                sync.syncMezzmo(syncurl, syncpin, count, ksync)
-                del syncpin
-                del syncurl
-            if ksync:
-                del ksync
+                sync.syncMezzmo(syncurl, syncpin, count)
+                del syncpin, syncurl
 
     if count > 86419:                      # Reset counter daily
         count = 20
 
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         try:
-            pin = settings('content_pin')
-            settings('content_pin', '')
-            url = settings('contenturl')
+            pin = media.settings('content_pin')
+            media.settings('content_pin', '')
+            url = media.settings('contenturl')
         except:
             pass
         ip = ''

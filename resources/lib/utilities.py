@@ -43,13 +43,14 @@ def autoStart():
     if sys.argv[2] == "clear":                                    # Ensure user really wants to clear autostart
         aumsg = "Are you sure you want to clear your curent Mezzmo addon autostart setting ?"
         cselect = autdialog.yesno('Mezzmo Autostart Clear', aumsg)
+        auplaylist = sys.argv[2]
     else:                                                         # Confirm new autostart setting
         auplaylist = sys.argv[3]
         aumsg = "Confirm setting Mezzmo addon autostart to: \n\n" + auplaylist 
         cselect = autdialog.yesno('Mezzmo Autostart Setting', aumsg)
     if cselect == 1 :
-        xbmcaddon.Addon().setSetting('autostart', sys.argv[2])
-        mgenlog ='Mezzmo autostart set to: ' + str(sys.argv[2])
+        media.settings('autostart', sys.argv[2])
+        mgenlog ='Mezzmo autostart set to: ' + auplaylist
         xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)        
     xbmc.executebuiltin('Container.Refresh()')   
@@ -371,7 +372,7 @@ def displayGenLogs():
 
 
 def containerRefresh():                                           # Refresh container 
-    xbmcaddon.Addon().setSetting('refreshflag', '1')              # Set refresh flag for perf monitoring
+    media.settings('refreshflag', '1')                            # Set refresh flag for perf monitoring
     xbmc.executebuiltin('Container.Refresh()')
 
 

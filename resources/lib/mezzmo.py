@@ -37,7 +37,7 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
     pduration = tduration - sduration
     displayrate = int(TotalMatches) / tduration
 
-    if addon.getSetting('refreshflag') == '0':                           # Only update if not refresh
+    if media.settings('refreshflag') == '0':                             # Only update if not refresh
         psfile = media.openNosyncDB()                                    # Open Perf Stats database
 
         currDate = datetime.datetime.now().strftime('%Y-%m-%d')
@@ -54,7 +54,7 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
         psfile.commit()
         psfile.close()
     else:                                                                # Reset refresh flag
-        addon.setSetting('refreshflag', '0')      
+        media.settings('refreshflag', '0')      
   
   
 def getSeconds(t):
@@ -82,19 +82,19 @@ def printexception():
     xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(), exc_obj))
 
 def listServers(force):
-    timeoutval = float(addon.getSetting('ssdp_timeout'))
+    timeoutval = float(media.settings('ssdp_timeout'))
     contenturl = ''    
 
-    saved_servers = addon.getSetting('saved_servers')
+    saved_servers = media.settings('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
-        addon.setSetting('saved_servers', pickle.dumps(servers,0,fix_imports=True))
+        media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
     else:
         saved_servers = saved_servers.encode('utf-8')
         servers = pickle.loads(saved_servers, fix_imports=True)
         
-    onlyShowMezzmo = addon.getSetting('only_mezzmo_servers') == 'true'
+    onlyShowMezzmo = media.settings('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
     li = xbmcgui.ListItem('Refresh')
@@ -102,12 +102,14 @@ def listServers(force):
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
-    mgenlog ='Mezzmo server search: ' + str(len(servers))
+    mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' uPNP servers found.'
     xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
         url = server.location        
-        xbmc.log('Mezzmo server url: ' + url, xbmc.LOGINFO)
+        mgenlog ='Mezzmo server url: ' + url[:48]
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
         
         try:
             response = urllib.request.urlopen(url)
@@ -188,12 +190,12 @@ def build_url(query):
 def content_mapping(contentType):               # Remap for skins which have limied Top / Folder views
     current_skin_name = xbmc.getSkinDir()
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
-        aeonfoldermap = addon.getSetting('aeoncontentmap')
+        aeonfoldermap = media.settings('aeoncontentmap')
         if aeonfoldermap != 'Default':
             contentType = aeonfoldermap.lower()
 
     if current_skin_name == 'skin.estuary':
-        estuaryfoldermap = addon.getSetting('estuarycontentmap')
+        estuaryfoldermap = media.settings('estuarycontentmap')
         if estuaryfoldermap != 'Default':
             contentType = estuaryfoldermap.lower()
 
@@ -232,7 +234,7 @@ def setViewMode(contentType):
                        'Music_JukeBox'   : 603,
                        'Fullscreen_Wall' : 609, }
         
-        view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
+        view_mode = media.settings(contentType + '_view_mode' + '_aeon')
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
@@ -254,7 +256,7 @@ def setViewMode(contentType):
                        'Wall'       : 500 ,
                        'BigList'    : 510 }
         
-        view_mode = addon.getSetting(contentType + '_view_mode' + '_aeon')
+        view_mode = media.settings(contentType + '_view_mode' + '_aeon')
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
@@ -270,34 +272,34 @@ def setViewMode(contentType):
                        'Banner'     : 501 ,
                        'FanArt'     : 502 }
         
-        view_mode = addon.getSetting(contentType + '_view_mode' + '_estuary')
+        view_mode = media.settings(contentType + '_view_mode' + '_estuary')
         if view_mode != 'Default':
         
             selected_mode = estuary_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
 
-    elif addon.getSetting(contentType + '_view_mode') != "0":
+    elif media.settings(contentType + '_view_mode') != "0":
        try:
-           if addon.getSetting(contentType + '_view_mode') == "1": # List
+           if media.settings(contentType + '_view_mode') == "1": # List
                xbmc.executebuiltin('Container.SetViewMode(502)')
-           elif addon.getSetting(contentType + '_view_mode') == "2": # Big List
+           elif media.settings(contentType + '_view_mode') == "2": # Big List
                xbmc.executebuiltin('Container.SetViewMode(51)')
-           elif addon.getSetting(contentType + '_view_mode') == "3": # Thumbnails
+           elif media.settings(contentType + '_view_mode') == "3": # Thumbnails
                xbmc.executebuiltin('Container.SetViewMode(500)')
-           elif addon.getSetting(contentType + '_view_mode') == "4": # Poster Wrap
+           elif media.settings(contentType + '_view_mode') == "4": # Poster Wrap
                xbmc.executebuiltin('Container.SetViewMode(501)')
-           elif addon.getSetting(contentType + '_view_mode') == "5": # Fanart
+           elif media.settings(contentType + '_view_mode') == "5": # Fanart
                xbmc.executebuiltin('Container.SetViewMode(508)')
-           elif addon.getSetting(contentType + '_view_mode') == "6":  # Media info
+           elif media.settings(contentType + '_view_mode') == "6":  # Media info
                xbmc.executebuiltin('Container.SetViewMode(504)')
-           elif addon.getSetting(contentType + '_view_mode') == "7": # Media info 2
+           elif media.settings(contentType + '_view_mode') == "7": # Media info 2
                xbmc.executebuiltin('Container.SetViewMode(503)')
-           elif addon.getSetting(contentType + '_view_mode') == "8": # Media info 3
+           elif media.settings(contentType + '_view_mode') == "8": # Media info 3
                xbmc.executebuiltin('Container.SetViewMode(515)')
-           elif addon.getSetting(contentType + '_view_mode') == "9": # Music info
+           elif media.settings(contentType + '_view_mode') == "9": # Music info
                xbmc.executebuiltin('Container.SetViewMode(506)')    
        except:
-           xbmc.log("SetViewMode Failed: "+addon.getSetting('_view_mode'))
+           xbmc.log("SetViewMode Failed: "+media.settings('_view_mode'))
            xbmc.log("Skin: "+xbmc.getSkinDir())
     del current_skin_name 
 
@@ -307,13 +309,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
     pitemsleft = -1
     global brtime, patime
     srtime = 0  
-    addon.setSetting('contenturl', contenturl)
-    koditv = addon.getSetting('koditv')
-    perflog = addon.getSetting('perflog')
-    duplogs = addon.getSetting('mdupelog')              # Check if Mezzmo duplicate logging is enabled
-    synlogs = addon.getSetting('kodisync')              # Check if Mezzmo background sync is enabled    
-    kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
-    kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
+    media.settings('contenturl', contenturl)
+    koditv = media.settings('koditv')
+    perflog = media.settings('perflog')   
+    kodichange = media.settings('kodichange')         # Checks for change detection user setting
+    kodiactor = media.settings('kodiactor')           # Checks for actor info setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -321,7 +321,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem5 = addon.getLocalizedString(30379)
     menuitem6 = addon.getLocalizedString(30380)
     menuitem7 = addon.getLocalizedString(30384)
-    autostart = addon.getSetting('autostart')
+    autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
     try:
@@ -372,24 +372,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
-                if (autostart == '' or autostart == 'clear') and (perflog == "true" or duplogs == "true" or synlogs == "true"):
+                if (autostart == '' or autostart == 'clear'):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and (perflog == "true" or duplogs == "true" or synlogs == "true"):
+                elif len(autostart) > 6 :
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", "clear", autitle)) ])
-                elif (autostart == '' or autostart == 'clear') and perflog == "false" and duplogs == "false" and synlogs == "false":
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
-                    % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 and perflog == "false" and duplogs == "false" and synlogs == "false":
-                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
-                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
-                    % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':
@@ -821,7 +813,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft < 1000:
                 requestedCount = itemsleft
 
-            pin = addon.getSetting('content_pin')
+            pin = media.settings('content_pin')
             brtime2 = time.time()                       #  Additional browse begin time
             content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)        
             srtime = srtime + (time.time() - brtime2)   #  Calculate total server time
@@ -845,12 +837,12 @@ def handleSearch(content, contenturl, objectID, term):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
-    addon.setSetting('contenturl', contenturl)
-    koditv = addon.getSetting('koditv')
+    media.settings('contenturl', contenturl)
+    koditv = media.settings('koditv')
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
-    kodichange = addon.getSetting('kodichange')         # Checks for change detection user setting
-    kodiactor = addon.getSetting('kodiactor')           # Checks for actor info setting
+    kodichange = media.settings('kodichange')         # Checks for change detection user setting
+    kodiactor = media.settings('kodiactor')           # Checks for actor info setting
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
     
     try:
@@ -1254,7 +1246,7 @@ def handleSearch(content, contenturl, objectID, term):
             if itemsleft < 1000:
                 requestedCount = itemsleft
             
-            pin = addon.getSetting('content_pin')   
+            pin = media.settings('content_pin')   
             content = browse.Search(contenturl, objectID, term, offset, requestedCount, pin)
     except Exception as e:
         printexception()
@@ -1274,16 +1266,16 @@ def handleSearch(content, contenturl, objectID, term):
 def getUPnPClass():
 
     upnpClass = ''
-    if addon.getSetting('search_video') == 'true':
+    if media.settings('search_video') == 'true':
         upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
 
-    if addon.getSetting('search_music') == 'true':
+    if media.settings('search_music') == 'true':
         if len(upnpClass) != 0:
             upnpClass += " or "
 
         upnpClass += "upnp:class derivedfrom &quot;object.item.audioItem&quot;"
 
-    if addon.getSetting('search_photo') == 'true':
+    if media.settings('search_photo') == 'true':
         if len(upnpClass) != 0:
             upnpClass += " or "
             
@@ -1295,40 +1287,40 @@ def getSearchCriteria(term):
 
     searchCriteria = ""
     
-    if addon.getSetting('search_title') == 'true':
+    if media.settings('search_title') == 'true':
         searchCriteria += "dc:title=&quot;" + term + "&quot;"
 
-    if addon.getSetting('search_album') == 'true':
+    if media.settings('search_album') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
         searchCriteria += "upnp:album=&quot;" + term + "&quot;"
 
-    if addon.getSetting('search_artist') == 'true':
+    if media.settings('search_artist') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
         searchCriteria += "upnp:artist=&quot;" + term + "&quot;"
 
-    if addon.getSetting('search_tagline') == 'true':
+    if media.settings('search_tagline') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
         searchCriteria += "dc:description=&quot;" + term + "&quot;"
     
-    if addon.getSetting('search_description') == 'true':
+    if media.settings('search_description') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
         searchCriteria += "upnp:longDescription=&quot;" + term + "&quot;"
     
-    if addon.getSetting('search_keywords') == 'true':
+    if media.settings('search_keywords') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
         searchCriteria += "keywords=&quot;" + term + "&quot;"
 
-    if addon.getSetting('search_creator') == 'true':
+    if media.settings('search_creator') == 'true':
         if len(searchCriteria) != 0:
             searchCriteria += " or "
 
@@ -1357,7 +1349,7 @@ def promptSearch():
         
         url = args.get('contentdirectory', '')
         
-        pin = addon.getSetting('content_pin')
+        pin = media.settings('content_pin')
         content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
         handleSearch(content, url[0], '0', searchCriteria)
 
@@ -1376,7 +1368,7 @@ elif mode[0] == 'server':
     url = args.get('contentdirectory', '')
     objectID = args.get('objectID', '0')
     parentID = args.get('parentID', '0')
-    pin = addon.getSetting('content_pin')
+    pin = media.settings('content_pin')
     
     if parentID[0] == '0':
         import socket
