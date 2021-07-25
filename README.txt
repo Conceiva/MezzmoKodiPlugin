@@ -1,3 +1,19 @@
+v1.1.3.3
+
+-  Additional improvements with logs into the Mezzmo statistics & Logs 
+   interface and reporting including now showing all uPNP servers known
+   by the Mezzmo addon.
+-  Added the ability to tune the background sync process.  There are now
+   4 options:  Off, Daily, Newest and Normal.  Off and Normal are the same
+   On / Off options from previous versions.  Daily only runs the daily full
+   sync process and no hourly sync.  Newest only checks for new Mezzmo 
+   videos each hour and then a full daily sync.  Newest is sufficient for 
+   most instances where a lot of changes are not taking place to existing 
+   videos and Mezzmo information.  Normal is the default setting.  
+-  Standardized how addon settings are written and retrieved from Kodi. This
+   eliminated an issue where settings values were sometimes changing if you 
+   didn't retstart Kodi after making a change.
+
 v1.1.3.2
 
 -  Updated and simplified Mezzmo duplicate checking algorithm.  It is now

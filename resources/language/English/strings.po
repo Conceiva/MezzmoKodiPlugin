@@ -205,11 +205,11 @@ msgid "Add TV Episodes to Kodi DB"
 msgstr ""
 
 msgctxt "#30370"
-msgid "Kodi DB Change detection"
+msgid "Kodi DB Change Detection"
 msgstr ""
 
 msgctxt "#30371"
-msgid "Mezzmo background sync"
+msgid "Mezzmo Background Sync"
 msgstr ""
 
 msgctxt "#30372"

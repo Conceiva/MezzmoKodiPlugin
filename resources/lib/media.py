@@ -7,7 +7,14 @@ import json
 import urllib
 from datetime import datetime
 
-addon = xbmcaddon.Addon()
+
+def settings(setting, value = None):
+    # Get or add addon setting
+    if value:
+        xbmcaddon.Addon().setSetting(setting, value)
+    else:
+        return xbmcaddon.Addon().getSetting(setting)
+
 
 def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV show exists in database
 
@@ -171,7 +178,7 @@ def countsyncCount():                            # returns count records in noSy
 
 def autostart():                                #  Check for autostart
 
-    autourl = addon.getSetting('autostart')
+    autourl = settings('autostart')
     mgenlog ='Mezzmo background service started.'
     xbmc.log(mgenlog, xbmc.LOGNOTICE)
     mgenlogUpdate(mgenlog)  
@@ -386,7 +393,7 @@ def mgenlogUpdate(mgenlog):                              #  Add Mezzmo general l
 
 def kodiCleanDB(ContentDeleteURL, force):
 
-    if addon.getSetting('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
+    if settings('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
 
         db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
@@ -431,7 +438,7 @@ def kodiCleanDB(ContentDeleteURL, force):
         dbsync.commit()
         dbsync.close()
 
-        addon.setSetting('kodiclean', 'false')     # reset back to false after clearing
+        settings('kodiclean', 'false')     # reset back to false after clearing
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
