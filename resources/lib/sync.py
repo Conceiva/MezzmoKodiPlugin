@@ -115,6 +115,23 @@ def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real ti
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
 
+    kodisync = media.settings('kodisync')                     #  Check Kodi auto sync
+    mksync = media.settings('kodisyncvar')                    #  Get sync setting 
+    if kodisync == 'true':
+        if int(completepct) > 90 and mksync != 'Off'      \
+        and mksync != 'Newest':                               #  Set to Newest > 90%
+            media.settings('kodisyncvar', 'Newest') 
+            msynclog = 'Mezzmo autosync set to Newest.'
+            xbmc.log(msynclog, xbmc.LOGINFO)
+            media.mezlogUpdate(msynclog)
+        elif int(completepct) < 90 and mksync != 'Off'    \
+        and mksync != 'Normal':                               #  Set to Normal < 90%
+            media.settings('kodisyncvar', 'Normal') 
+            msynclog = 'Mezzmo autosync set to Normal.'
+            xbmc.log(msynclog, xbmc.LOGINFO)
+            media.mezlogUpdate(msynclog)
+
+
 def checkDailySync():
     currhour = datetime.datetime.now().strftime('%H')
     syncflag = media.settings('dailysync')
@@ -147,7 +164,7 @@ def checkDailySync():
 
 def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
     global syncoffset, dupelog
-    ksync = xbmcaddon.Addon('plugin.video.mezzmo').getSetting('kodisyncvar')
+    ksync = media.settings('kodisyncvar')                #  Get sync setting
     if ksync != 'Off':                                   #  Check if enabled
         msynclog = 'Mezzmo sync beginning.'
         xbmc.log(msynclog, xbmc.LOGINFO)
@@ -265,7 +282,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)  
     if ksync != 'Daily':
-        msynclog = 'Mezzmo sync setting is: ' + ksync
+        msynclog = 'Mezzmo sync setting is: ' + media.settings('kodisyncvar') 
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)    
     if media.settings('perflog') == 'true':           #  Check if performance logging is enabled
@@ -596,8 +613,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = media.settings('content_pin') 
             content = browse.Browse(syncurl, objectId, 'BrowseDirectChildren', offset, requestedCount, syncpin)
-            dbfile.close()             #  Final commit writes and close Kodi database
-            dbsync.close()
     except Exception as e:
         printsyncexception()
         pass

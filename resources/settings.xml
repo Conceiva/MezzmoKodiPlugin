@@ -88,6 +88,11 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="kodisync" type="boolean" label="30386" help="30524">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="mdupelog" type="boolean" label="30374" help="30507">
 					<level>0</level>
 					<default>false</default>

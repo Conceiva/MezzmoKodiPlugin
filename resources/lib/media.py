@@ -422,7 +422,7 @@ def kodiCleanDB(ContentDeleteURL, force):
 
         dbsync = openNosyncDB()                     #  clears nosync DB
         dbsync.execute('DELETE FROM nosyncVideo')
-        dblimit = 1000
+        dblimit = 2000
         dblimit2 = 500
         dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
         mperfStats order by psDate desc limit ?)', (dblimit2,))

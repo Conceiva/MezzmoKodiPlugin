@@ -1,3 +1,11 @@
+v2.1.3.4
+
+-  New autosync feature which will adjust background sync process based
+   upon sync % between Kodi and Mezzmo.  If < 90% sync the sync process 
+   will be changed to Normal and once > 90% it will be moved back to 
+   Newest.  The default for this feature is disabled and it will not work
+   if the sync setting is Off.
+
 v2.1.3.3
 
 -  Additional improvements with logs into the Mezzmo statistics & Logs 
