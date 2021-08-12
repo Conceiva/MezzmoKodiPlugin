@@ -267,3 +267,7 @@ msgstr ""
 msgctxt "#30385"
 msgid "Refresh Flag"
 msgstr ""
+
+msgctxt "#30386"
+msgid "Auto Background Sync"
+msgstr ""

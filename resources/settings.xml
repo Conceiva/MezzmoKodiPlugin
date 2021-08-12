@@ -12,6 +12,7 @@
     <setting id="koditv" type="bool" label="30369" default="false"/>
     <setting id="kodichange" type="bool" label="30370" default="true"/>
     <setting id="kodisyncvar" type="labelenum" label="30371" values="Off|Daily|Newest|Normal" default="Normal"/>
+    <setting id="kodisync" type="bool" label="30386" default="false"/>
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="false"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
