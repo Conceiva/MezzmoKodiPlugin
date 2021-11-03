@@ -124,12 +124,20 @@ def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real ti
             msynclog = 'Mezzmo autosync set to Newest.'
             xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
-        elif int(completepct) < 90 and mksync != 'Off'    \
-        and mksync != 'Normal':                               #  Set to Normal < 90%
+        elif int(completepct) <= 90 and mksync != 'Off'   \
+        and mksync != 'Normal':                               #  Set to Normal <= 90%
             media.settings('kodisyncvar', 'Normal') 
             msynclog = 'Mezzmo autosync set to Normal.'
             xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
+        else:
+            msynclog = 'Mezzmo autosync is enabled.'
+            xbmc.log(msynclog, xbmc.LOGINFO)
+            media.mezlogUpdate(msynclog)
+    else:
+        msynclog = 'Mezzmo autosync is disabled.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)                
 
 
 def checkDailySync():
@@ -382,6 +390,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         video_width = int(resolution_text[0:mid])
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
+                        validf = 1	     #  Set valid file info flag
 
                 backdropurl = ''                            
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
@@ -561,11 +570,11 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
 
                 mtitle = media.displayTitles(title)                          
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
-                if tvcheckval[1] == 1:                                  #  Update nosync database live channel
+                if tvcheckval[1] == 1 and validf == 1:                  #  Update nosync database live channel
                     media.syncCount(dbsync, mtitle, "livec")       
-                if tvcheckval[2] == 1:                                  #  Update nosync database nosync
+                if tvcheckval[2] == 1 and validf == 1:                  #  Update nosync database nosync
                     media.syncCount(dbsync, mtitle, "nosync")               
-                if tvcheckval[0] == 1:  
+                if tvcheckval[0] == 1 and validf == 1:  
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \

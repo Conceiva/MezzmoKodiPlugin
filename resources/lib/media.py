@@ -471,7 +471,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
             mgenlog ='Mezzmo episode missing TV series name: ' + mtitle
             xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
+            mgenlog = '###' + mtitle
             mgenlogUpdate(mgenlog)
             mgenlog ='Mezzmo episode missing TV series name: '
             mgenlogUpdate(mgenlog)   
@@ -790,7 +790,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
             mgenlog ='The Mezzmo incomplete streamdetails repaired for : ' + mtitle
             xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
+            mgenlog = '###' + mtitle
             mgenlogUpdate(mgenlog)
             mgenlog ='The Mezzmo incomplete streamdetails repaired for : '
             mgenlogUpdate(mgenlog)   
