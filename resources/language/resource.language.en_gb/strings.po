@@ -271,3 +271,7 @@ msgstr ""
 msgctxt "#30386"
 msgid "Auto Background Sync"
 msgstr ""
+
+msgctxt "#30387"
+msgid "Mezzmo View Mapping"
+msgstr ""

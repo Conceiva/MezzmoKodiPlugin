@@ -197,6 +197,8 @@ def content_mapping(contentType):               # Remap for skins which have lim
     
 def setViewMode(contentType):
 
+    if media.settings('viewmap')  == 'false':	#  Mezzmo view mapping is disabled
+        return
     current_skin_name = xbmc.getSkinDir()
     #xbmc.log('The content type is ' + contentType, xbmc.LOGNOTICE)
     #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
@@ -231,6 +233,7 @@ def setViewMode(contentType):
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
             
     elif current_skin_name == 'skin.aeon.madnox':
         aeon_nox_views = { 'List'       : 50  ,
@@ -253,6 +256,7 @@ def setViewMode(contentType):
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
         
     elif current_skin_name == 'skin.estuary':
         estuary_views = { 'List'       : 50  ,
@@ -269,26 +273,36 @@ def setViewMode(contentType):
         if view_mode != 'Default':      
             selected_mode = estuary_views[view_mode]          
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
 
     elif media.settings(contentType + '_view_mode') != "0":
        try:
            if media.settings(contentType + '_view_mode') == "1":   # List
                xbmc.executebuiltin('Container.SetViewMode(502)')
+               xbmc.executebuiltin('Container.SetViewMode(502)')
            elif media.settings(contentType + '_view_mode') == "2": # Big List
+               xbmc.executebuiltin('Container.SetViewMode(51)')
                xbmc.executebuiltin('Container.SetViewMode(51)')
            elif media.settings(contentType + '_view_mode') == "3": # Thumbnails
                xbmc.executebuiltin('Container.SetViewMode(500)')
+               xbmc.executebuiltin('Container.SetViewMode(500)')
            elif media.settings(contentType + '_view_mode') == "4": # Poster Wrap
+               xbmc.executebuiltin('Container.SetViewMode(501)')
                xbmc.executebuiltin('Container.SetViewMode(501)')
            elif media.settings(contentType + '_view_mode') == "5": # Fanart
                xbmc.executebuiltin('Container.SetViewMode(508)')
+               xbmc.executebuiltin('Container.SetViewMode(508)')
            elif media.settings(contentType + '_view_mode') == "6":  # Media info
+               xbmc.executebuiltin('Container.SetViewMode(504)')
                xbmc.executebuiltin('Container.SetViewMode(504)')
            elif media.settings(contentType + '_view_mode') == "7": # Media info 2
                xbmc.executebuiltin('Container.SetViewMode(503)')
+               xbmc.executebuiltin('Container.SetViewMode(503)')
            elif media.settings(contentType + '_view_mode') == "8": # Media info 3
                xbmc.executebuiltin('Container.SetViewMode(515)')
+               xbmc.executebuiltin('Container.SetViewMode(515)')
            elif media.settings(contentType + '_view_mode') == "9": # Music info
+               xbmc.executebuiltin('Container.SetViewMode(506)')
                xbmc.executebuiltin('Container.SetViewMode(506)')    
        except:
            xbmc.log("SetViewMode Failed: "+media.settings('_view_mode'))

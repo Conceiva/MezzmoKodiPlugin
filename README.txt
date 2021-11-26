@@ -1,3 +1,12 @@
+v1.1.3.6
+
+-  Fixed exception bug which could occur if Kodi stopped playing a file 
+   at excatly the same time the addon attempted to stop playback.
+-  Added setting to allow enabling / disabling the Mezzmo addon from 
+   managing Kodi views.
+-  Added workaround for Kodi Leila bug breaking view mapping.
+   ***  Note this fix may not work on Kodi running on some platforms *** 
+
 v1.1.3.5
 
 -  Added check to ensue proper audio codec information is received from

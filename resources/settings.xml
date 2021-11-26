@@ -21,6 +21,7 @@
     <!-- View -->
     <category label="30300">
     <setting id="only_mezzmo_servers" type="bool" label="30350" default="true"/>
+    <setting id="viewmap" type="bool" label="30387" default="true"/>
     <setting id="skinname" type="enum" label="30061" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
 	
     <!--Confluence Skin-->
