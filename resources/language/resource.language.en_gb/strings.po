@@ -257,7 +257,7 @@ msgid "Music Videos View"
 msgstr ""
 
 msgctxt "#30383"
-msgid "Pause Autostop minutes"
+msgid "Pause Autostop Minutes"
 msgstr ""
 
 msgctxt "#30384"
@@ -274,4 +274,104 @@ msgstr ""
 
 msgctxt "#30387"
 msgid "Mezzmo View Mapping"
+msgstr ""
+
+msgctxt "#30501"
+msgid "Set bookmark delay 0-30 secs behind current playback position."
+msgstr ""
+
+msgctxt "#30502"
+msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are update devery 30 minutes.  Disabling can slow down performance."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Add Mezzmo actor information to Kodi database during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
+msgstr ""
+
+msgctxt "#30504"
+msgid "Add Mezzmo TV episodes to the Kodi database."
+msgstr ""
+
+msgctxt "#30505"
+msgid "Detect Mezzmo metadata changes during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
+msgstr ""
+
+msgctxt "#30506"
+msgid "Background sync process to keep Mezzmo and Kodi databases in sync.  Automatically disables real time updates when sync is achieved."
+msgstr ""
+
+msgctxt "#30507"
+msgid "Logs duplicate entries in the Mezzmo database to the Kodi logfile during daily sync process (Midnight to 6AM). A handy feature to keep your Mezzmo database clean."
+msgstr ""
+
+msgctxt "#30508"
+msgid "Clears the Mezzmo entries in your Kodi database upon Mezzmo addon startup.  It will be set to disabled when the data is removed.  A regular database clear is part of the daily sync process.  This option is for one time clearing."
+msgstr ""
+
+msgctxt "#30509"
+msgid "Enable to only see Mezzmo uPNP servers.  Disable to see all."
+msgstr ""
+
+msgctxt "#30510"
+msgid "Select skin to change Mezzmo addon view options."
+msgstr ""
+
+msgctxt "#30511"
+msgid "Top folder view display format."
+msgstr ""
+
+msgctxt "#30512"
+msgid "Folder view display format."
+msgstr ""
+
+msgctxt "#30513"
+msgid "Top folder view mapping to a specific view format."
+msgstr ""
+
+msgctxt "#30514"
+msgid "Folder view mapping to a specific view format."
+msgstr ""
+
+msgctxt "#30515"
+msgid "Photos view display format."
+msgstr ""
+
+msgctxt "#30516"
+msgid "Servers view display format."
+msgstr ""
+
+msgctxt "#30517"
+msgid "Movies view display format."
+msgstr ""
+
+msgctxt "#30518"
+msgid "TV Shows / Episodes view display format."
+msgstr ""
+
+msgctxt "#30519"
+msgid "Music view display format."
+msgstr ""
+
+msgctxt "#30520"
+msgid "Logs performance stastics to the Kodi logfile.  Enable to see performance stats."
+msgstr ""
+
+msgctxt "#30521"
+msgid "All other content view display format."
+msgstr ""
+
+msgctxt "#30522"
+msgid "Music Videos view display format."
+msgstr ""
+
+msgctxt "#30523"
+msgid "Automatically stop paused video in minutes.  0 = never automatically stop paused video."
+msgstr ""
+
+msgctxt "#30524"
+msgid "Automatically adjust sync setting based upon Kodi sync with Mezzmo."
+msgstr ""
+
+msgctxt "#30525"
+msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Deafault is enabled."
 msgstr ""

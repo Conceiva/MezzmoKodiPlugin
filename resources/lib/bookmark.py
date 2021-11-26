@@ -1,5 +1,5 @@
-import urllib2
-import urllib
+import urllib.request, urllib.error, urllib.parse
+import urllib.request, urllib.parse, urllib.error
 import xbmc
 
 def SetBookmark(url, objectID, pos):
@@ -19,12 +19,12 @@ def SetBookmark(url, objectID, pos):
     </u:X_SetBookmark>
   </s:Body>
 </s:Envelope>'''
-    req = urllib2.Request(url, body, headers)
+    req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=60).read()
+        response = urllib.request.urlopen(req, timeout=60).read()
     except Exception as e:
-        xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e))
+        xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e), xbmc.LOGINFO)
         pass
         
     return response

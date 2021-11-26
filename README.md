@@ -8,7 +8,7 @@ Features:
 - More metadata than standard UPnP view
 - Full Mezzmo and Kodi database synchronization using a background process
 - Modify video watched status in Mezzmo from the addon
-- Automatically start the addon on your favorite playlist 
+- Automatically start the addon on your favorite playlist  
 - Search for media in the server
 - Default view modes for Movies, TV Shows and others
 - Play music
