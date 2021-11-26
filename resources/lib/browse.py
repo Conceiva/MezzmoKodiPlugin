@@ -1,5 +1,5 @@
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
+import urllib2
+import urllib
 import xbmc
 
 def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
@@ -28,19 +28,14 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     </u:Browse>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body.encode('utf-8'), headers)
-    #req = urllib.request.Request(url, body, headers)
-    #xbmc.log('The body is: ' + str(body), xbmc.LOGINFO)
-    #xbmc.log('The url is: ' + str(url), xbmc.LOGINFO)
-    #xbmc.log('The header is: ' + str(headers), xbmc.LOGINFO)
+    req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib.request.urlopen(req, timeout=60).read().decode('utf-8')
-        #response = urllib.request.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass
-    #xbmc.log('The current response is: ' + str(response), xbmc.LOGINFO)    
+        
     return response
 
 def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
@@ -69,10 +64,10 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     </u:Search>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body.encode('utf-8'), headers)
+    req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib.request.urlopen(req, timeout=60).read().decode('utf-8')
+        response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Search: ' + str(e))
         pass

@@ -10,14 +10,14 @@ import media
 
 pos = 0
 file = ''
-count = 0 
+count = 0
 pacount = 0
 
 
 def getObjectID(file):
     end = file.rfind('/') + 1
     objectID = file[end:]
-    return(objectID)  
+    return(objectID)    
    
 class XBMCPlayer(xbmc.Player):
     
@@ -27,11 +27,11 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackStarted(self):
         file = xbmc.Player().getPlayingFile()
-        xbmc.log("Mezzmo Playback started - " + file, xbmc.LOGDEBUG)
+        xbmc.log("Playback started - " + file)
         self.paflag = 0
  
     def onPlayBackPaused(self):
-        xbmc.log("Mezzmo Playback paused - LED OFF" , xbmc.LOGDEBUG)
+        xbmc.log("Playback paused - LED OFF")
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
@@ -40,11 +40,11 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()
-        xbmc.log("Mezzmo Playback resumed - LED ON" , xbmc.LOGDEBUG)
+        xbmc.log("Playback resumed - LED ON")
         self.paflag = 0
  
     def onPlayBackEnded(self):
-        xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
+        xbmc.log("Playback ended - LED OFF")
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         pos = 0
@@ -55,7 +55,7 @@ class XBMCPlayer(xbmc.Player):
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
+        xbmc.log("Playback stopped at " + str(pos  + bmdelay) + " in " + objectID)
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
         self.paflag = 0
 
@@ -64,18 +64,18 @@ player = XBMCPlayer()
  
 monitor = xbmc.Monitor()
 
-media.checkNosyncDB()                       # Check nosync database            
- 
+media.checkNosyncDB()                       # Check nosync database                      
+
 while True:
     if xbmc.Player().isPlaying():
         file = xbmc.Player().getPlayingFile()
-        pos = int(xbmc.Player().getTime())
+        pos = long(xbmc.Player().getTime())
         if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
             contenturl = media.settings('contenturl')
             objectID = getObjectID(file)
             bmdelay = 15 - int(media.settings('bmdelay'))            
-            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))    
-        
+            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))        
+
     count += 1
     if count == 2:                          # Check for autostarting the Mezzmo GUI
         media.autostart()
@@ -83,59 +83,59 @@ while True:
     pacount += 1 
     if pacount % 30 == 0:                   # Check for paused video every 30 seconds
         pastoptime = int(media.settings('pastop'))
-        xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +    \
+        xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +        \
         ' ' + str(player.paflag), xbmc.LOGDEBUG)
         try:
             if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
                 ptag = xbmc.Player().getVideoInfoTag()
-                ptitle = media.displayTitles(ptag.getTitle())
+                ptitle = media.displayTitles(ptag.getTitle().decode('utf-8','ignore'))
                 xbmc.Player().stop()
                 pacount = 0
-                mgenlog ='Mezzmo stopped paused playback: ' + ptitle +     \
+                mgenlog ='Mezzmo stopped paused playback: ' + ptitle.encode('utf-8','ignore') +     \
                 ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-                xbmc.log(mgenlog, xbmc.LOGINFO)
-                mgenlog ='###' + ptitle
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlog ='###' + ptitle.encode('utf-8','ignore')
                 media.mgenlogUpdate(mgenlog)
                 mgenlog ='Mezzmo stopped paused playback at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-                media.mgenlogUpdate(mgenlog) 
+                media.mgenlogUpdate(mgenlog)   
             elif player.paflag == 0:
                 pacount = 0
         except:
             pass 
-
+ 
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlayingVideo():
             ptag = xbmc.Player().getVideoInfoTag()
-            ptitle = media.displayTitles(ptag.getTitle())
-            mgenlog ='A video file is playing: ' + ptitle + ' at: ' +        \
+            ptitle = media.displayTitles(ptag.getTitle().decode('utf-8','ignore'))
+            mgenlog ='A video file is playing: ' + ptitle.encode('utf-8','ignore') + ' at: ' +  \
             time.strftime("%H:%M:%S", time.gmtime(pos))
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog ='###' + ptitle
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            mgenlog ='###' + ptitle.encode('utf-8','ignore')
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A video file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-            media.mgenlogUpdate(mgenlog)     
+            media.mgenlogUpdate(mgenlog)  
         elif xbmc.Player().isPlayingAudio():
             ptag = xbmc.Player().getMusicInfoTag()
-            ptitle = media.displayTitles(ptag.getTitle())
-            mgenlog ='A music file is playing: ' + ptitle + ' at: ' +        \
+            ptitle = media.displayTitles(ptag.getTitle().decode('utf-8','ignore'))               
+            mgenlog ='A music file is playing: ' + ptitle.encode('utf-8','ignore') + ' at: ' +  \
             time.strftime("%H:%M:%S", time.gmtime(pos))
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog ='###' + ptitle
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            mgenlog ='###' + ptitle.encode('utf-8','ignore')
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-            media.mgenlogUpdate(mgenlog)                
+            media.mgenlogUpdate(mgenlog) 
         else:
             contenturl = media.settings('contenturl')
             sync.updateTexturesCache(contenturl)
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
-        if xbmc.Player().isPlaying():
+        if xbmc.Player().isPlayingVideo():
             msynclog = 'Mezzmo sync skipped. A video is playing.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
             media.mezlogUpdate(msynclog)
         else:
             syncpin = media.settings('content_pin')
-            syncurl = media.settings('contenturl')           
+            syncurl = media.settings('contenturl')     
             if syncpin and syncurl:       
                 sync.syncMezzmo(syncurl, syncpin, count)
                 del syncpin, syncurl
@@ -162,11 +162,11 @@ while True:
             sync.dbClose()
             del pin, url, player, monitor, ptag, ptitle, pastoptime
             del contenturl, pos, file, pacount, player.paflag, bmdelay
-            mgenlog ='Mezzmo addon shutdown.'
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            media.mgenlogUpdate(mgenlog)  
         except:
             pass
-            
+        mgenlog ='Mezzmo addon shutdown.'
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)  
+        
         break # Abort was requested while waiting. Exit the while loop.
 

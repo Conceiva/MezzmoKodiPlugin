@@ -1,5 +1,5 @@
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
+import urllib2
+import urllib
 import xbmc
 
 def SetContentRestriction(url, ip, enabled, pin):
@@ -21,10 +21,10 @@ def SetContentRestriction(url, ip, enabled, pin):
     </u:CVA_SetContentRestriction>
   </s:Body>
 </s:Envelope>'''
-    req = urllib.request.Request(url, body.encode('utf-8'), headers)
+    req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib.request.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN CVA_SetContentRestriction: ' + str(e))
         pass

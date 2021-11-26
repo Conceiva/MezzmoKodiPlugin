@@ -4,18 +4,16 @@ import xbmcgui
 import xbmcplugin
 import ssdp
 import xbmcaddon
-import xbmcvfs
-import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
+import urllib2
+import urllib
 import xml.etree.ElementTree
 import re
 import xml.etree.ElementTree as ET
-import urllib.parse
+import urlparse
 import browse
 import contentrestriction
 import xbmc
 import linecache
-import sys
 import datetime
 import time
 import json
@@ -23,13 +21,12 @@ import os
 import media
 import sync
 
-#addon = xbmcaddon.Addon()
+addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
-argmod = sys.argv[2][1:].replace(';','&')    #  Handle change in urllib parsing to default to &
-args = urllib.parse.parse_qs(argmod)
-
+args = urlparse.parse_qs(sys.argv[2][1:])
 installed_version = media.get_installedversion()
+   
 
 def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log performance stats
     tduration = endtime - brtime
@@ -54,9 +51,9 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
         psfile.commit()
         psfile.close()
     else:                                                                # Reset refresh flag
-        media.settings('refreshflag', '0')      
-  
-  
+        media.settings('refreshflag', '0')        
+
+
 def getSeconds(t):
     x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
     td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
@@ -83,37 +80,36 @@ def printexception():
 
 def listServers(force):
     timeoutval = float(media.settings('ssdp_timeout'))
-    contenturl = ''    
+    contenturl = ''
 
     saved_servers = media.settings('saved_servers')
     if len(saved_servers) == 0 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
-        media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
+        media.settings('saved_servers', pickle.dumps(servers))
     else:
-        saved_servers = saved_servers.encode('utf-8')
-        servers = pickle.loads(saved_servers, fix_imports=True)
+        servers = pickle.loads(saved_servers)
         
+    
     onlyShowMezzmo = media.settings('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
-    li = xbmcgui.ListItem('Refresh')
-    li.setArt({'icon':xbmcaddon.Addon().getAddonInfo("path") + '/resources/media/refresh.png'})
+    li = xbmcgui.ListItem('Refresh', iconImage=addon.getAddonInfo("path") + '/resources/media/refresh.png')
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' uPNP servers found.'
-    xbmc.log(mgenlog, xbmc.LOGINFO)
+    xbmc.log(mgenlog, xbmc.LOGNOTICE)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
-        url = server.location        
+        url = server.location       
         mgenlog ='Mezzmo server url: ' + url[:48]
-        xbmc.log(mgenlog, xbmc.LOGINFO)
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)
         
         try:
-            response = urllib.request.urlopen(url)
-            xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
+            response = urllib2.urlopen(url)
+            xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
         
@@ -126,7 +122,7 @@ def listServers(force):
             isMezzmo = False
             
             if manufacturer != None and manufacturer == 'Conceiva Pty. Ltd.':
-                iconurl = xbmcaddon.Addon().getAddonInfo("path") + '/icon.png'   
+                iconurl = addon.getAddonInfo("path") + '/icon.png'   
                 isMezzmo = True
             elif iconList != None:
                 bestWidth = 0
@@ -134,7 +130,6 @@ def listServers(force):
                     mimetype = icon.find('mimetype').text
                     width = icon.find('width').text
                     height = icon.find('height').text
-                    width = int(width)
                     if width > bestWidth:
                         bestWidth = width
                         iconurl = icon.find('url').text
@@ -149,7 +144,7 @@ def listServers(force):
                             
                             iconurl = url[:end-length] + '/' + iconurl
             else:
-                iconurl = xbmcaddon.Addon().getAddonInfo("path") + '/resources/media/otherserver.png'        
+                iconurl = addon.getAddonInfo("path") + '/resources/media/otherserver.png'        
             
             if isMezzmo or onlyShowMezzmo == False:
                 contenturl = ''
@@ -171,8 +166,8 @@ def listServers(force):
 
                 itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
                 
-                li = xbmcgui.ListItem(friendlyname)
-                li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': xbmcaddon.Addon().getAddonInfo("path") + 'fanart.jpg'})
+                li = xbmcgui.ListItem(friendlyname, iconImage=iconurl)
+                li.setArt({'thumb': iconurl, 'poster': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         except Exception as e:
             printexception()
@@ -184,10 +179,9 @@ def listServers(force):
 
     
 def build_url(query):
-    return base_url + '?' + urllib.parse.urlencode(query)
+    return base_url + '?' + urllib.urlencode(query)
 
-
-def content_mapping(contentType):               # Remap for skins which have limited Top / Folder views
+def content_mapping(contentType):               # Remap for skins which have limied Top / Folder views
     current_skin_name = xbmc.getSkinDir()
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeonfoldermap = media.settings('aeoncontentmap')
@@ -198,17 +192,16 @@ def content_mapping(contentType):               # Remap for skins which have lim
         estuaryfoldermap = media.settings('estuarycontentmap')
         if estuaryfoldermap != 'Default':
             contentType = estuaryfoldermap.lower()
-
+ 
     return(contentType)     
-
-
+    
 def setViewMode(contentType):
 
     if media.settings('viewmap')  == 'false':	#  Mezzmo view mapping is disabled
         return
     current_skin_name = xbmc.getSkinDir()
-    #xbmc.log('The content type is ' + contentType, xbmc.LOGINFO)
-    #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGINFO)    
+    #xbmc.log('The content type is ' + contentType, xbmc.LOGNOTICE)
+    #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGNOTICE)
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeon_nox_views = { 'List'   : 50  ,
                        'InfoWall'   : 51  ,
@@ -240,17 +233,18 @@ def setViewMode(contentType):
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
             
     elif current_skin_name == 'skin.aeon.madnox':
-        aeon_nox_views = { 'List'   : 50  ,
+        aeon_nox_views = { 'List'       : 50  ,
                        'InfoWall'   : 51  ,
-                       'Landscape'  : 503 ,
-                       'ShowCase1'  : 501 ,
-                       'ShowCase2'  : 501 ,
+                       'Landscape'  : 503  ,
+                       'ShowCase1'  : 501  ,
+                       'ShowCase2'  : 501  ,
                        'TriPanel'   : 52  ,
-                       'Posters'    : 510 ,
+                       'Posters'    : 510  ,
                        'Shift'      : 57  ,
-                       'BannerWall' : 508 ,
+                       'BannerWall' : 508  ,
                        'Logo'       : 59  ,
                        'Wall'       : 500 ,
                        'LowList'    : 501 ,
@@ -262,9 +256,10 @@ def setViewMode(contentType):
         if view_mode != 'Default':
             selected_mode = aeon_nox_views[view_mode]
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
         
     elif current_skin_name == 'skin.estuary':
-        estuary_views = { 'List'    : 50  ,
+        estuary_views = { 'List'       : 50  ,
                        'Posters'    : 51  ,
                        'IconWall'   : 52  ,
                        'Shift'      : 53  ,
@@ -275,30 +270,39 @@ def setViewMode(contentType):
                        'FanArt'     : 502 }
         
         view_mode = media.settings(contentType + '_view_mode' + '_estuary')
-        if view_mode != 'Default':
-        
-            selected_mode = estuary_views[view_mode]
+        if view_mode != 'Default':      
+            selected_mode = estuary_views[view_mode]          
+            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
             xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
 
     elif media.settings(contentType + '_view_mode') != "0":
        try:
-           if media.settings(contentType + '_view_mode') == "1": # List
+           if media.settings(contentType + '_view_mode') == "1":   # List
+               xbmc.executebuiltin('Container.SetViewMode(502)')
                xbmc.executebuiltin('Container.SetViewMode(502)')
            elif media.settings(contentType + '_view_mode') == "2": # Big List
                xbmc.executebuiltin('Container.SetViewMode(51)')
+               xbmc.executebuiltin('Container.SetViewMode(51)')
            elif media.settings(contentType + '_view_mode') == "3": # Thumbnails
+               xbmc.executebuiltin('Container.SetViewMode(500)')
                xbmc.executebuiltin('Container.SetViewMode(500)')
            elif media.settings(contentType + '_view_mode') == "4": # Poster Wrap
                xbmc.executebuiltin('Container.SetViewMode(501)')
+               xbmc.executebuiltin('Container.SetViewMode(501)')
            elif media.settings(contentType + '_view_mode') == "5": # Fanart
+               xbmc.executebuiltin('Container.SetViewMode(508)')
                xbmc.executebuiltin('Container.SetViewMode(508)')
            elif media.settings(contentType + '_view_mode') == "6":  # Media info
                xbmc.executebuiltin('Container.SetViewMode(504)')
+               xbmc.executebuiltin('Container.SetViewMode(504)')
            elif media.settings(contentType + '_view_mode') == "7": # Media info 2
+               xbmc.executebuiltin('Container.SetViewMode(503)')
                xbmc.executebuiltin('Container.SetViewMode(503)')
            elif media.settings(contentType + '_view_mode') == "8": # Media info 3
                xbmc.executebuiltin('Container.SetViewMode(515)')
+               xbmc.executebuiltin('Container.SetViewMode(515)')
            elif media.settings(contentType + '_view_mode') == "9": # Music info
+               xbmc.executebuiltin('Container.SetViewMode(506)')
                xbmc.executebuiltin('Container.SetViewMode(506)')    
        except:
            xbmc.log("SetViewMode Failed: "+media.settings('_view_mode'))
@@ -307,25 +311,29 @@ def setViewMode(contentType):
 
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
-    itemsleft = -1
+    itemsleft = -1 
     pitemsleft = -1
-    global brtime, patime
+    global brtime, patime 
     srtime = 0  
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
-    perflog = media.settings('perflog')   
-    kodichange = media.settings('kodichange')         # Checks for change detection user setting
-    kodiactor = media.settings('kodiactor')           # Checks for actor info setting
-    menuitem1 = xbmcaddon.Addon().getLocalizedString(30347)
-    menuitem2 = xbmcaddon.Addon().getLocalizedString(30346)
-    menuitem3 = xbmcaddon.Addon().getLocalizedString(30372)
-    menuitem4 = xbmcaddon.Addon().getLocalizedString(30373)
-    menuitem5 = xbmcaddon.Addon().getLocalizedString(30379)
-    menuitem6 = xbmcaddon.Addon().getLocalizedString(30380)
-    menuitem7 = xbmcaddon.Addon().getLocalizedString(30384)
+    perflog = media.settings('perflog')
+    duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
+    synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled        
+    kodichange = media.settings('kodichange')           # Checks for change detection user setting
+    kodiactor = media.settings('kodiactor')             # Checks for actor info setting
+    refreshflag = media.settings('refreshflag')         # Checks for refresh
+    menuitem1 = addon.getLocalizedString(30347)
+    menuitem2 = addon.getLocalizedString(30346)
+    menuitem3 = addon.getLocalizedString(30372)
+    menuitem4 = addon.getLocalizedString(30373)
+    menuitem5 = addon.getLocalizedString(30379)
+    menuitem6 = addon.getLocalizedString(30380)
+    menuitem7 = addon.getLocalizedString(30384)
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
-    #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
+    #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
+
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -335,16 +343,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
-            
             if NumberReturned == 0:
                 break; #sanity check
                 
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
-            #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
-            elems = xml.etree.ElementTree.fromstring(result.text)
+            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
+      
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -359,31 +366,40 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)    
+                    xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title)
-                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': xbmcaddon.Addon().getAddonInfo("path") + 'fanart.jpg'})
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                
                 mediaClass_text = 'video'
                 info = {
                         'plot': description_text,
                 }
                 li.setInfo(mediaClass_text, info)
                     
-                searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
-
-                itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
+                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                
+                itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ")
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
-                if (autostart == '' or autostart == 'clear'):
+                if (autostart == '' or autostart == 'clear') and (perflog == "true" or duplogs == "true" or synlogs != "Off"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", itempath, autitle)) ])
-                elif len(autostart) > 6 :
+                elif len(autostart) > 6 and (perflog == "true" or duplogs == "true" or synlogs != "Off"):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem6, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
                     "auto", "clear", autitle)) ])
+                elif (autostart == '' or autostart == 'clear') and perflog == "false" and duplogs == "false" and synlogs == "Off":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem5, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", itempath, autitle)) ])
+                elif len(autostart) > 6 and perflog == "false" and duplogs == "false" and synlogs == "Off":
+                    li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
+                    'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem6, 'RunScript(%s, %s, %s, %s)' \
+                    % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 if parentID == '0':
@@ -391,19 +407,20 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 else:
                     contentType = 'folders'
                 contentType = content_mapping(contentType)
-
-            ctitle = xbmc.getInfoLabel("ListItem.Label")           #  Get title of selected playlist      
-            dbfile = media.openKodiDB()                  #  Open Kodi database    
+  
+            ctitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist
+            #xbmc.log('Mezzmo content title: ' + ctitle + ' ' + str(parentID) + ' ' + objectID, xbmc.LOGNOTICE)            
+            dbfile = media.openKodiDB()                          #  Open Kodi database
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text
+                    icon = albumartUri.text  
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+                    xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
@@ -412,10 +429,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 video_height = 0
                 aspect = 0.0
                 validf = 0
-
+                
                 if res != None:
-                    itemurl = res.text
-                    #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGINFO)
+                    itemurl = res.text 
+                    #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
                     subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
                     duration_text = res.get('duration')
                     if duration_text == None:
@@ -433,12 +450,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     backdropurl = backdropurl.text
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
-
-                li = xbmcgui.ListItem(title)
-                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+                
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
-                  
+                    
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
@@ -449,7 +466,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     genre_text = genre.text
                     
                 aired_text = ''
-                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')
+                aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')                
                 if aired != None:
                     aired_text = aired.text
                   
@@ -481,25 +498,25 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    artist_text = artist.text
+                    artist_text = artist.text.encode('utf-8', 'ignore')
 
                 actor_list = ''
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
                         new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
-
+                   
                 date_added_text = ''                
                 date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
                 if date_added != None:
@@ -513,7 +530,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
+                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type  
                     if categories_text[:7].lower() == 'tv show':
                         categories_text = 'episode'
                         contentType = 'episodes'
@@ -529,7 +546,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         categories_text = 'video'
                         contentType = 'videos'
                         album_text = ''
-                        
+
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
@@ -591,8 +608,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
                 if sort_title != None:
-                    sort_title_text = sort_title.text    
-
+                    sort_title_text = sort_title.text
+              
                 video_codec_text = ''
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
                 if video_codec != None:
@@ -625,7 +642,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         if stream.get('selected') == 'auto' or stream.get('selected') == 'true':
                             subtitle_lang = stream.get('language')
                             break
-                                   
+
                 #mediaClass 
                 mediaClass_text = 'video'
                 mediaClass = item.find('.//{urn:schemas-sony-com:av}mediaClass')
@@ -637,11 +654,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
-                        
+                     
                 if mediaClass_text == 'video' and validf == 1:    
                     mtitle = media.displayTitles(title)					#  Normalize title
-                    pctitle = '"' + mtitle + '"'  		                        #  Handle commas
-                    pcseries = '"' + album_text + '"'                                   #  Handle commas
+                    pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
+                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     pcdbfile = media.getDatabaseName() 
                     if playcount == 0:
                         li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
@@ -652,8 +669,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
                         (menuitem2, 'Action(ParentDir)'), (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
                         ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount, pcseries,  \
-                        pcdbfile, contenturl)) ])      
-               
+                        pcdbfile, contenturl)) ])        
+
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -671,7 +688,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'season': season_text,
                         'episode': episode_text,
                         'lastplayed': last_played_text,
-                        'aired': aired_text,
+                        'aired': release_date_text,
                         'mpaa':content_rating_text,
                         'studio':production_company_text,
                         'playcount':playcount,
@@ -691,16 +708,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    if installed_version >= '19':       #  Update cast with thumbnail support in Kodi v19 and higher
-                        li.setCast(cast_dict)                
+                    if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
+                        li.setCast(cast_dict)             
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
-                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
+                    if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
-                        xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
-                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
+                        #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
+                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -718,12 +735,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
-                        xbmc.log('The movie name is: ' + mtitle, xbmc.LOGDEBUG)  
-                             
+                        xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
+                                       
                 elif mediaClass_text == 'music':
                     mtitle = media.displayTitles(title)					#  Normalize title
-                    pctitle = '"' + mtitle + '"'  		                        #  Handle commas
-                    pcseries = '"' + album_text + '"'                                   #  Handle commas
+                    pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
+                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0 and playcount == 0:
                         li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
@@ -746,8 +763,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),   \
                         (menuitem2, 'Action(ParentDir)'), (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' \
                         % ("plugin.video.mezzmo", "count", pctitle, itemurl, season_text, episode_text, playcount,        \
-                        pcseries, 'audiom', contenturl)) ])  
-
+                        pcseries, 'audiom', contenturl)) ])   
+              
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -757,12 +774,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'rating': rating_val,
                         'discnumber': season_text,
                         'mediatype': 'song',
+                        #'dbid': '5',
                         'tracknumber': episode_text,
                         'album': album_text,
-                        'playcount':playcount,
+                        'playcount': playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[11:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
@@ -770,27 +788,28 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
-                    (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)') ])                     
+                    (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
                     info = {
                         'title': title,
                     }
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'files'
-                 
+
                 if validf == 1: 
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
                 else:
-                    dialog_text = "Video file:  " + title + " is invalid. Check Mezzmo video properties for this file."
-                    xbmcgui.Dialog().ok("Mezzmo", dialog_text)
-
-            itemsleft = itemsleft - int(NumberReturned) - 1
-            dbfile.commit()                #  Commit writes
+                    dialog_text = "Video file:  " + title.encode('utf-8') + " is invalid."
+                    dialog_text2 = "Check Mezzmo video properties for this file."
+                    xbmcgui.Dialog().ok("Mezzmo", dialog_text, dialog_text2)
             
+            itemsleft = itemsleft - int(NumberReturned)
             xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
-            if itemsleft <= 0:
-                dbfile.commit()            
-                dbfile.close()             #  Final commit writes and close Kodi database  
+            dbfile.commit()                #  Commit writes
+
+            if itemsleft == 0:
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
                     perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle)
@@ -800,7 +819,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 mgenlogUpdate(mgenlog)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
@@ -814,10 +833,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
             requestedCount = 1000
             if itemsleft < 1000:
                 requestedCount = itemsleft
-
+            
             pin = media.settings('content_pin')
-            brtime2 = time.time()                       #  Additional browse begin time
-            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)        
+            brtime2 = time.time()                       #  Additional browse begin time   
+            content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)
             srtime = srtime + (time.time() - brtime2)   #  Calculate total server time
     except Exception as e:
         printexception()
@@ -841,11 +860,11 @@ def handleSearch(content, contenturl, objectID, term):
     pitemsleft = -1
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
-    menuitem1 = xbmcaddon.Addon().getLocalizedString(30347)
-    menuitem2 = xbmcaddon.Addon().getLocalizedString(30346)
-    kodichange = media.settings('kodichange')         # Checks for change detection user setting
-    kodiactor = media.settings('kodiactor')           # Checks for actor info setting
-    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
+    menuitem1 = addon.getLocalizedString(30347)
+    menuitem2 = addon.getLocalizedString(30346)
+    kodichange = media.settings('kodichange')        # Checks for change detection user setting
+    kodiactor = media.settings('kodiactor')          # Checks for actor info setting    
+    sync.deleteTexturesCache(contenturl)             # Call function to delete textures cache if user enabled. 
     
     try:
         while True:
@@ -856,7 +875,7 @@ def handleSearch(content, contenturl, objectID, term):
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
-            
+        
             if int(NumberReturned) == 0:
                 dialog_text = "There were no matching search results found on your Mezzmo server."
                 xbmcgui.Dialog().ok("Mezzmo Search Results", dialog_text)
@@ -866,19 +885,55 @@ def handleSearch(content, contenturl, objectID, term):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
-            #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
-            elems = xml.etree.ElementTree.fromstring(result.text)
-               
+            elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
+            
+            for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
+                title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
+                containerid = container.get('id')
+                
+                description_text = ''
+                description = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
+                if description != None and description.text != None:
+                    description_text = description.text
+    
+                icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
+                if icon != None:
+                    icon = icon.text
+                    if (icon[-4:]) !=  '.jpg': 
+                        icon = icon + '.jpg'
+                        xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)  
+
+                itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                
+                mediaClass_text = 'video'
+                info = {
+                        'plot': description_text,
+                }
+                li.setInfo(mediaClass_text, info)
+                    
+                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
+                
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                if parentID == '0':
+                    contentType = 'top'
+                else:
+                    contentType = 'folders'
+                
+   
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
                 icon = None
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
-                    icon = albumartUri.text
+                    icon = albumartUri.text  
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)    
+                        xbmc.log('Handle search second icon is: ' + icon, xbmc.LOGDEBUG)    
+
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -886,9 +941,10 @@ def handleSearch(content, contenturl, objectID, term):
                 video_height = 0
                 aspect = 0.0
                 validf = 0
-                
+
                 if res != None:
                     itemurl = res.text 
+                    #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
                     subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
                     duration_text = res.get('duration')
                     if duration_text == None:
@@ -900,22 +956,22 @@ def handleSearch(content, contenturl, objectID, term):
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
                         validf = 1	     #  Set valid file info flag
-
+                        
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
                 
-                li = xbmcgui.ListItem(title)
-                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+                li = xbmcgui.ListItem(title, iconImage=icon)
+                li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
-
+                    
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
-                    
+                
                 genre_text = ''
                 genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
                 if genre != None:
@@ -945,28 +1001,28 @@ def handleSearch(content, contenturl, objectID, term):
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
-
+                      
                 imageSearchUrl = ''
                 imageSearchUrl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imageSearchUrl')
                 if imageSearchUrl != None:
                     imageSearchUrl = imageSearchUrl.text
-                                      
+                   
                 artist_text = ''
                 artist = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if artist != None:
-                    artist_text = artist.text
+                    artist_text = artist.text.encode('utf-8', 'ignore')
 
                 actor_list = ''
-                cast_dict = []        # Added cast & thumbnail display from Mezzmo server
+                cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None:
-                    actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                 
+                    actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
+                    for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  
+                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGNOTICE)  # uncomment for thumbnail debugging
                         new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))                  
+                        cast_dict.append(dict(zip(cast_dict_keys, new_record)))
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -1020,7 +1076,7 @@ def handleSearch(content, contenturl, objectID, term):
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
-                    
+                 
                 last_played_text = ''
                 last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
                 if last_played != None:
@@ -1064,7 +1120,7 @@ def handleSearch(content, contenturl, objectID, term):
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
                 if sort_title != None:
-                    sort_title_text = sort_title.text    
+                    sort_title_text = sort_title.text
                 
                 video_codec_text = ''
                 video_codec = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}video_codec')
@@ -1111,9 +1167,8 @@ def handleSearch(content, contenturl, objectID, term):
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
                         
-                if mediaClass_text == 'video' and validf == 1:  
-                    li.addContextMenuItems([ (xbmcaddon.Addon().getLocalizedString(30347), 'Container.Refresh'), (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)'), (xbmcaddon.Addon().getLocalizedString(30348), 'Action(Info)') ])
-                    
+                if mediaClass_text == 'video' and validf == 1:        
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])           
                     info = {
                         'duration': getSeconds(duration_text),
                         'genre': genre_text,
@@ -1135,7 +1190,6 @@ def handleSearch(content, contenturl, objectID, term):
                         'mpaa':content_rating_text,
                         'studio':production_company_text,
                         'playcount':playcount,
-                        'lastplayed': last_played_text,
                         'trailer':trailerurl,
                         'tvshowtitle':album_text,
                         'dateadded':date_added_text,
@@ -1152,20 +1206,18 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addStreamInfo('video', video_info)
                     li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
                     li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    if installed_version >= '19':         #  Update cast with thumbnail support in Kodi v19 and higher
-                        li.setCast(cast_dict)  
-
+                    if installed_version >= '17':       #  Update cast with thumbnail support in Kodi v17 and higher
+                        li.setCast(cast_dict)                
                     mtitle = media.displayTitles(title) 
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
-                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
+                    if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         dbfile = media.openKodiDB()
-                        mtitle = media.displayTitles(title)
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
-                        #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
-                        durationsecs = getSeconds(duration_text)            #  convert duration to seconds before passing
+                        #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
+                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -1183,10 +1235,10 @@ def handleSearch(content, contenturl, objectID, term):
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
                         audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
-                        #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
+                        #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE) 
                         dbfile.commit()
-                        dbfile.close() 
-                      
+                        dbfile.close()  
+                          
                 elif mediaClass_text == 'music':
                     offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0:
@@ -1194,7 +1246,7 @@ def handleSearch(content, contenturl, objectID, term):
                         (offsetmenu, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "playm",      \
                         itemurl, li, title, icon, backdropurl, dcmInfo_text)) ])
                     else:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])    
 
                     info = {
                         'duration': getSeconds(duration_text),
@@ -1210,38 +1262,38 @@ def handleSearch(content, contenturl, objectID, term):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }
-                    mcomment = media.mComment(info, duration_text, offsetmenu[11:])
+                    mcomment = media.mComment(info, duration_text, offsetmenu[12:])
                     info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
 
                 elif mediaClass_text == 'picture':
-                    li.addContextMenuItems([ (xbmcaddon.Addon().getLocalizedString(30347), 'Container.Refresh'), (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)') ])                   
+                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                    
                     info = {
                         'title': title,
                     }
                     li.setInfo(mediaClass_text, info)
-                    validf = 1	           #  Set valid file info flag
+                    validf = 1	     #  Set valid file info flag
                     contentType = 'files'
-
-                if validf == 1:  
+                 
+                if validf == 1:   
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
-            itemsleft = itemsleft - int(NumberReturned) - 1
+            itemsleft = itemsleft - int(NumberReturned)
             if itemsleft == 0:
-                break
+                break             
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
-                dbfile.close()             #  Final commit writes and close Kodi database
+                dbfile.close()             #  Final commit writes and close Kodi database 
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
                 xbmc.log(mgenlog, xbmc.LOGNOTICE)
-                mgenlogUpdate(mgenlog)   
+                mgenlogUpdate(mgenlog) 
                 break
             else:
                 pitemsleft = itemsleft            
-                        
+            
             # get the next items
             offset = int(TotalMatches) - itemsleft
             requestedCount = 1000
@@ -1354,7 +1406,6 @@ def promptSearch():
         pin = media.settings('content_pin')
         content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
         handleSearch(content, url[0], '0', searchCriteria)
-
     
 mode = args.get('mode', 'none')
 
@@ -1382,7 +1433,7 @@ elif mode[0] == 'server':
             pass
         contentrestriction.SetContentRestriction(url[0], ip, 'true', pin)
 
-    brtime = time.time()                                  #  Get start time of browse           
+    brtime = time.time()                                  #  Get start time of browse        
     content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
     patime = time.time()                                  #  Get start time of parse 
     handleBrowse(content, url[0], objectID[0], parentID[0])
@@ -1395,5 +1446,4 @@ elif mode[0] == 'search':
 def start():
     if mode == 'none':
         listServers(False)
-
 

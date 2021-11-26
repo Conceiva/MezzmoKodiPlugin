@@ -3,15 +3,19 @@ import xbmcgui
 import xbmcplugin
 import os
 import bookmark
-import playcount
 import xbmcaddon
+import playcount
 from media import openNosyncDB, get_installedversion
 import media
 from datetime import datetime, timedelta
 
+#xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
+#xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGNOTICE)
+#xbmc.log('The arguments are: ' + str(sys.argv), xbmc.LOGNOTICE)
+
 
 def playCount():
-    title = sys.argv[2]                                          # Extract passed variables
+    title = sys.argv[2]                                           # Extract passed variables
     vurl = sys.argv[3]
     vseason = sys.argv[4]
     vepisode = sys.argv[5]
@@ -19,6 +23,9 @@ def playCount():
     series = sys.argv[7]
     dbfile = sys.argv[8]
     contenturl = sys.argv[9]
+
+    title = title.decode('utf-8', 'ignore')   			  #  Handle commas
+    series = series.decode('utf-8', 'ignore')    		  #  Handle commas
 
     if dbfile != 'audiom':                                        #  Don't update Kodi for music
         playcount.updateKodiPlaycount(int(mplaycount), title, vurl, int(vseason),     \
@@ -37,23 +44,21 @@ def playCount():
         bookmark.SetBookmark(contenturl, mobjectID, '0')          #  Clear bookmark
         xbmc.executebuiltin('Container.Refresh()')
 
-
 def autoStart():
     autdialog = xbmcgui.Dialog()
     if sys.argv[2] == "clear":                                    # Ensure user really wants to clear autostart
         aumsg = "Are you sure you want to clear your curent Mezzmo addon autostart setting ?"
         cselect = autdialog.yesno('Mezzmo Autostart Clear', aumsg)
-        auplaylist = sys.argv[2]
     else:                                                         # Confirm new autostart setting
-        auplaylist = sys.argv[3]
+        auplaylist = sys.argv[3].encode('utf-8', 'ignore')
         aumsg = "Confirm setting Mezzmo addon autostart to: \n\n" + auplaylist 
         cselect = autdialog.yesno('Mezzmo Autostart Setting', aumsg)
     if cselect == 1 :
         media.settings('autostart', sys.argv[2])
-        mgenlog ='Mezzmo autostart set to: ' + auplaylist
-        xbmc.log(mgenlog, xbmc.LOGINFO)
-        media.mgenlogUpdate(mgenlog)        
-    xbmc.executebuiltin('Container.Refresh()')   
+        mgenlog ='Mezzmo autostart set to: ' + str(sys.argv[2])
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)       
+    xbmc.executebuiltin('Container.Refresh()')
 
 
 def playMusic():
@@ -90,39 +95,58 @@ def displayPerfStats():
     pdfile = openNosyncDB()                                   # Open Perf Stats database
     pdates = []
     plists = []
+    pselect = []
     curpf = pdfile.execute('SELECT DISTINCT dtDate FROM dupeTrack ORDER BY dtDate DESC', )
-    pstatdates = curpf.fetchall()                             # Get dates from database
-    if pstatdates:                                            # If dates in duplicate table
-        pselect = ["Mezzmo Duplicate Logs"]
-    pselect.extend(["Mezzmo Addon Sync Logs"])
+    dstatdates = curpf.fetchall()                             # Get dates from database
+    if dstatdates and len(pselect) > 0:                       # If dates in duplicate table
+        pselect.extend = ["Mezzmo Duplicate Logs"]
+    elif dstatdates and len(pselect) == 0: 
+        pselect = ["Mezzmo Duplicate Logs"]   
+     
+    curpf = pdfile.execute('SELECT DISTINCT msDate FROM msyncLog ORDER BY msDate DESC', )
+    mstatdates = curpf.fetchall()                             # Get dates from database
+    if mstatdates and len(pselect) > 0:                       # If dates in sync table 
+        pselect.extend(["Mezzmo Addon Sync Logs"])
+    elif mstatdates and len(pselect) == 0: 
+        pselect = ["Mezzmo Addon Sync Logs"]   
 
     curpf = pdfile.execute('SELECT DISTINCT psDate FROM mperfStats ORDER BY psDate DESC', )
     pstatdates = curpf.fetchall()                             # Get dates from database
-    if pstatdates:                                            # If dates in performance table
+    if pstatdates and len(pselect) > 0:                       # If dates in performance table
         pselect.extend(["Mezzmo Addon Performance Logs", "Performance By Playlist"])
+    elif pstatdates and len(pselect) == 0: 
+        pselect = ["Mezzmo Addon Performance Logs", "Performance By Playlist"] 
 
     curpf = pdfile.execute('SELECT DISTINCT mgDate FROM mgenLog ORDER BY mgDate DESC', )
-    pstatdates = curpf.fetchall()                             # Get dates from database
-    if pstatdates:                                            # If dates in general table
+    gstatdates = curpf.fetchall()                             # Get dates from database
+    if gstatdates and len(pselect) > 0:                       # If dates in general table
         pselect.extend(["Mezzmo Addon General Logs"])
+    elif gstatdates and len(pselect) == 0: 
+        pselect = ["Mezzmo Addon General Logs"] 
 
-    ddialog = xbmcgui.Dialog()    
-    vdate = ddialog.select('Select Mezzmo Logs or Stats View', pselect)
-    xbmc.log('Mezzmo performance selection is: ' + pselect[vdate], xbmc.LOGDEBUG)    
+    if len(pselect) > 0:                                      #  Verify something to display
+        ddialog = xbmcgui.Dialog()                            #  If so, display selection box   
+        vdate = ddialog.select('Select Mezzmo Logs or Stats View', pselect)
+        xbmc.log('Mezzmo performance selection is: ' + pselect[vdate], xbmc.LOGDEBUG)    
+    else:
+        dialog_text = "No Mezzmo addon logs or statistics found to display."
+        xbmcgui.Dialog().ok("Mezzmo Logs & Performance Stats", dialog_text)
+        pdfile.close()
+        return          
 
     if vdate < 0:                                             # User cancel
         pdfile.close()
         return      
     elif (pselect[vdate]) == "Mezzmo Duplicate Logs":
-        displayDupeLogs()
+        displayDupeLogs(dstatdates)
         pdfile.close()
         return
     elif (pselect[vdate]) == "Mezzmo Addon Sync Logs":
-        displaySyncLogs()
+        displaySyncLogs(mstatdates)
         pdfile.close()
         return
     elif (pselect[vdate]) == "Mezzmo Addon General Logs":
-        displayGenLogs()
+        displayGenLogs(gstatdates)
         pdfile.close()
         return
     elif (pselect[vdate]) == "Performance By Playlist":       # Select Playlist to display
@@ -130,7 +154,7 @@ def displayPerfStats():
         pstatlists = curpf.fetchall()                         # Get playlists from database
         for rlist in pstatlists:
             x = str(rlist).replace("('","").replace("',)","")
-            plists.append(x)                                  # Convert rows to list for dialog box
+            plists.append(x[3:])                              # Convert rows to list for dialog box
         vdate = ddialog.select('Select Mezzmo Performance Stats Playlist', plists)
         if vdate < 0:                                         # User cancel
             pdfile.close()
@@ -146,7 +170,7 @@ def displayPerfStats():
         for rdate in pstatdates:
             x = str(rdate).replace("('","").replace("',)","")
             if a < 30:
-                pdates.append(x)                              # Convert rows to list for dialog box
+                pdates.append(x[3:])                          # Convert rows to list for dialog box
             a += 1
         vdate = ddialog.select('Select Mezzmo Performance Stats Date', pdates)
         if vdate < 0:                                         # User cancel
@@ -194,30 +218,28 @@ def displayPerfStats():
             textval1 = textval1 + "\n" + perfdate + perftime + tmatches + stime + ptime + ttime + drate +  plist
         dialog.textviewer(headval, textval1)
                                        
-    else:                                                   # No records found for date selected   
+    else:                                                     # No records found for date selected   
         textval1 = "No Mezzmo addon performance stats found."
-        dialog.textviewer('Mezzmo Performance Stats', textval1)
+        dialog.textviewer('Mezzmo Performance Stats', textval1)  
         mgenlog ='Mezzmo no performance stats found in database. '
-        xbmc.log(mgenlog, xbmc.LOGINFO)
-        media.mgenlogUpdate(mgenlog)           
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)        
     pdfile.close()
 
 
-def displayDupeLogs():
+def displayDupeLogs(dstatdates):
    
-    dlfile = openNosyncDB()                                       # Open Dupe logs database
+    dlfile = openNosyncDB()                                   # Open Dupe logs database
 
     dldates = ["All"]
     dialog = xbmcgui.Dialog()
 
-    dupdate = dlfile.execute('SELECT DISTINCT dtDate FROM dupeTrack ORDER BY dtDate DESC', ) 
-    mstatdates = dupdate.fetchall()                           # Get dates from database
-    if mstatdates:        
+    if dstatdates: 
         a = 0       
-        for rdate in mstatdates:
+        for rdate in dstatdates:
             x = str(rdate).replace("('","").replace("',)","")
             if a < 30:
-                dldates.append(x)                             # Convert rows to list for dialog box
+                dldates.append(x[3:])                         # Convert rows to list for dialog box
             a += 1
         mdate = dialog.select('Select Duplicate Videos Date', dldates)
         if mdate < 0:                                         # User cancel
@@ -235,13 +257,13 @@ def displayDupeLogs():
         dlfile.close()
         return        
 
-    dllogs = curdl.fetchall()                                     # Get dupe logs from database      
+    dllogs = curdl.fetchall()                                 # Get dupe logs from database      
     textval1 = "{:^25}".format("Date") + "{:^21}".format("Record #") + "{:>32}".format     \
     ("Duplicate Mezzmo Entry")
     textval1 = textval1 + "\n" 
 
     if dllogs:
-        for a in range(len(dllogs)):                              # Display logs if exist   
+        for a in range(len(dllogs)):                          # Display logs if exist   
             dldate = dllogs[a][0]
             recnumb = dllogs[a][1]
             ctitle = "                " + dllogs[a][3]
@@ -256,30 +278,28 @@ def displayDupeLogs():
                 frecnumb = "{:>13}".format(recnumb)
             textval1 = textval1 + "\n" + dldate + frecnumb + ctitle[:64]
         dialog.textviewer(headval, textval1)                                     
-    else:                                                        # No records found for date selected   
+    else:                                                     # No records found for date selected   
         textval1 = "No Mezzmo duplicate logs found."
         dialog.textviewer(headval, textval1)
         mgenlog ='Mezzmo no dupe logs found in database. '
-        xbmc.log(mgenlog, xbmc.LOGINFO)
-        media.mgenlogUpdate(mgenlog)                
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)                 
     dlfile.close()
 
 
-def displaySyncLogs():
+def displaySyncLogs(mstatdates):
 
-    dsfile = openNosyncDB()                                       # Open Sync logs database
+    dsfile = openNosyncDB()                                   # Open Sync logs database
 
     msdates = ["All"]
     msdialog = xbmcgui.Dialog()   
 
-    cursync = dsfile.execute('SELECT DISTINCT msDate FROM msyncLog ORDER BY msDate DESC', )
-    mstatdates = cursync.fetchall()                           # Get dates from database
-    if mstatdates:        
+    if mstatdates: 
         a = 0         
         for rdate in mstatdates:
             x = str(rdate).replace("('","").replace("',)","")
             if a < 30:
-                msdates.append(x)                             # Convert rows to list for dialog box
+                msdates.append(x[3:])                         # Convert rows to list for dialog box
             a += 1
         mdate = msdialog.select('Select Sync Logs Date', msdates)
         if mdate < 0:                                         # User cancel
@@ -298,39 +318,37 @@ def displaySyncLogs():
         dsfile.close()
         return        
 
-    mslogs = cursync.fetchall()                                   # Get sync logs from database
+    mslogs = cursync.fetchall()                               # Get sync logs from database
     textval1 = "{:^38}".format("Date") + "{:>32}".format("Sync Log Message")
     textval1 = textval1 + "\n" 
 
     if mslogs:
-        for a in range(len(mslogs)):                              # Display logs if exist   
+        for a in range(len(mslogs)):                          # Display logs if exist   
             msdate = mslogs[a][0]
-            mstime = mslogs[a][1][:8]                             # Strip off milliseconds
+            mstime = mslogs[a][1][:8]                         # Strip off milliseconds
             msdatetime = msdate + "   " + mstime + "      "
             msynclog = mslogs[a][2]
             textval1 = textval1 + "\n" + msdatetime + msynclog
         msdialog.textviewer(headval, textval1)                                     
-    else:                                                         # No records found for date selected   
-        textval1 = "No Mezzmo Sync logs found."                   # Should never happen. Safety check
+    else:                                                     # No records found for date selected   
+        textval1 = "No Mezzmo Sync logs found."               # Should never happen. Safety check
         msdialog.textviewer(headval, textval1)
     dsfile.close()
 
 
-def displayGenLogs():
+def displayGenLogs(gstatdates):
 
-    dsfile = openNosyncDB()                                       # Open Sync logs database
+    dsfile = openNosyncDB()                                   # Open Sync logs database
 
     msdates = ["All"]
     msdialog = xbmcgui.Dialog()   
 
-    cursync = dsfile.execute('SELECT DISTINCT mgDate FROM mgenLog ORDER BY mgDate DESC', )
-    mstatdates = cursync.fetchall()                           # Get dates from database
-    if mstatdates:        
+    if gstatdates:  
         a = 0       
-        for rdate in mstatdates:
+        for rdate in gstatdates:
             x = str(rdate).replace("('","").replace("',)","")
             if a < 30:
-                msdates.append(x)                             # Convert rows to list for dialog box
+                msdates.append(x[3:])                         # Convert rows to list for dialog box
             a += 1
         mdate = msdialog.select('Select General Logs Date', msdates)
         if mdate < 0:                                         # User cancel
@@ -344,38 +362,37 @@ def displayGenLogs():
             (msdates[mdate],))
             headval = 'Mezzmo General Logs for:  ' + msdates[mdate][5:] + "-" + msdates[mdate][:4]
     else:                                                     # No sync logs found for date selected
-        textval1 = "No Mezzmo general logs found."               # Should never happen. Safety check 
+        textval1 = "No Mezzmo general logs found."            # Should never happen. Safety check 
         msdialog.textviewer("Mezzmo General Logs", textval1)            
         dsfile.close()
         return        
 
-    mglogs = cursync.fetchall()                                   # Get sync logs from database
+    mglogs = cursync.fetchall()                               # Get sync logs from database
     textval1 = "{:^38}".format("Date") + "{:>32}".format("General Log Message")
     textval1 = textval1 + "\n" 
 
     if mglogs:
-        for a in range(len(mglogs)):                              # Display logs if exist   
+        for a in range(len(mglogs)):                          # Display logs if exist   
             msdate = mglogs[a][0]
-            mstime = mglogs[a][1][:8]                             # Strip off milliseconds
+            mstime = mglogs[a][1][:8]                         # Strip off milliseconds
             msynclog = mglogs[a][2]
-            if msynclog[0:3] == '###':                            # Detect multiline logs
+            if msynclog[0:3] == '###':                        # Detect multiline logs
                 msynclog = msynclog[3:]
                 msdatetime = "{:>44}".format(" ")
             else:
                 msdatetime = msdate + "   " + mstime + "      "
             textval1 = textval1 + "\n" + msdatetime + msynclog
         msdialog.textviewer(headval, textval1)                                     
-    else:                                                         # No records found for date selected   
-        textval1 = "No Mezzmo general logs found."                # Should never happen. Safety check
+    else:                                                     # No records found for date selected   
+        textval1 = "No Mezzmo general logs found."            # Should never happen. Safety check
         msdialog.textviewer(headval, textval1)
     dsfile.close()
-
 
 def containerRefresh():                                           # Refresh container 
     media.settings('refreshflag', '1')                            # Set refresh flag for perf monitoring
     xbmc.executebuiltin('Container.Refresh()')
 
-
+ 
 if sys.argv[1] == 'count':                                        # Playcount modification call
     playCount()
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
