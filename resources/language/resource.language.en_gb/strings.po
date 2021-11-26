@@ -272,6 +272,10 @@ msgctxt "#30386"
 msgid "Auto Background Sync"
 msgstr ""
 
+msgctxt "#30387"
+msgid "Mezzmo View Mapping"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -366,4 +370,8 @@ msgstr ""
 
 msgctxt "#30524"
 msgid "Automatically adjust sync setting based upon Kodi sync with Mezzmo."
+msgstr ""
+
+msgctxt "#30525"
+msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Deafault is enabled."
 msgstr ""

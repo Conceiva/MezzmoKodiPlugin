@@ -23,7 +23,7 @@ import os
 import media
 import sync
 
-addon = xbmcaddon.Addon()
+#addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 argmod = sys.argv[2][1:].replace(';','&')    #  Handle change in urllib parsing to default to &
@@ -98,7 +98,7 @@ def listServers(force):
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
     li = xbmcgui.ListItem('Refresh')
-    li.setArt({'icon':addon.getAddonInfo("path") + '/resources/media/refresh.png'})
+    li.setArt({'icon':xbmcaddon.Addon().getAddonInfo("path") + '/resources/media/refresh.png'})
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
@@ -126,7 +126,7 @@ def listServers(force):
             isMezzmo = False
             
             if manufacturer != None and manufacturer == 'Conceiva Pty. Ltd.':
-                iconurl = addon.getAddonInfo("path") + '/icon.png'   
+                iconurl = xbmcaddon.Addon().getAddonInfo("path") + '/icon.png'   
                 isMezzmo = True
             elif iconList != None:
                 bestWidth = 0
@@ -149,7 +149,7 @@ def listServers(force):
                             
                             iconurl = url[:end-length] + '/' + iconurl
             else:
-                iconurl = addon.getAddonInfo("path") + '/resources/media/otherserver.png'        
+                iconurl = xbmcaddon.Addon().getAddonInfo("path") + '/resources/media/otherserver.png'        
             
             if isMezzmo or onlyShowMezzmo == False:
                 contenturl = ''
@@ -172,7 +172,7 @@ def listServers(force):
                 itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
                 
                 li = xbmcgui.ListItem(friendlyname)
-                li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': xbmcaddon.Addon().getAddonInfo("path") + 'fanart.jpg'})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
         except Exception as e:
             printexception()
@@ -187,7 +187,7 @@ def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
 
 
-def content_mapping(contentType):               # Remap for skins which have limied Top / Folder views
+def content_mapping(contentType):               # Remap for skins which have limited Top / Folder views
     current_skin_name = xbmc.getSkinDir()
     if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
         aeonfoldermap = media.settings('aeoncontentmap')
@@ -204,6 +204,8 @@ def content_mapping(contentType):               # Remap for skins which have lim
 
 def setViewMode(contentType):
 
+    if media.settings('viewmap')  == 'false':	#  Mezzmo view mapping is disabled
+        return
     current_skin_name = xbmc.getSkinDir()
     #xbmc.log('The content type is ' + contentType, xbmc.LOGINFO)
     #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGINFO)    
@@ -301,7 +303,7 @@ def setViewMode(contentType):
        except:
            xbmc.log("SetViewMode Failed: "+media.settings('_view_mode'))
            xbmc.log("Skin: "+xbmc.getSkinDir())
-    del current_skin_name 
+
 
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
@@ -314,13 +316,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
     perflog = media.settings('perflog')   
     kodichange = media.settings('kodichange')         # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')           # Checks for actor info setting
-    menuitem1 = addon.getLocalizedString(30347)
-    menuitem2 = addon.getLocalizedString(30346)
-    menuitem3 = addon.getLocalizedString(30372)
-    menuitem4 = addon.getLocalizedString(30373)
-    menuitem5 = addon.getLocalizedString(30379)
-    menuitem6 = addon.getLocalizedString(30380)
-    menuitem7 = addon.getLocalizedString(30384)
+    menuitem1 = xbmcaddon.Addon().getLocalizedString(30347)
+    menuitem2 = xbmcaddon.Addon().getLocalizedString(30346)
+    menuitem3 = xbmcaddon.Addon().getLocalizedString(30372)
+    menuitem4 = xbmcaddon.Addon().getLocalizedString(30373)
+    menuitem5 = xbmcaddon.Addon().getLocalizedString(30379)
+    menuitem6 = xbmcaddon.Addon().getLocalizedString(30380)
+    menuitem7 = xbmcaddon.Addon().getLocalizedString(30384)
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
@@ -361,7 +363,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title)
-                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon.getAddonInfo("path") + 'fanart.jpg'})
+                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': xbmcaddon.Addon().getAddonInfo("path") + 'fanart.jpg'})
                 mediaClass_text = 'video'
                 info = {
                         'plot': description_text,
@@ -768,7 +770,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (menuitem1, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "refresh")),     \
-                    (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                     
+                    (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)') ])                     
                     info = {
                         'title': title,
                     }
@@ -839,8 +841,8 @@ def handleSearch(content, contenturl, objectID, term):
     pitemsleft = -1
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
-    menuitem1 = addon.getLocalizedString(30347)
-    menuitem2 = addon.getLocalizedString(30346)
+    menuitem1 = xbmcaddon.Addon().getLocalizedString(30347)
+    menuitem2 = xbmcaddon.Addon().getLocalizedString(30346)
     kodichange = media.settings('kodichange')         # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')           # Checks for actor info setting
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
@@ -1110,7 +1112,7 @@ def handleSearch(content, contenturl, objectID, term):
                         mediaClass_text = 'picture'
                         
                 if mediaClass_text == 'video' and validf == 1:  
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'Action(Info)') ])
+                    li.addContextMenuItems([ (xbmcaddon.Addon().getLocalizedString(30347), 'Container.Refresh'), (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)'), (xbmcaddon.Addon().getLocalizedString(30348), 'Action(Info)') ])
                     
                     info = {
                         'duration': getSeconds(duration_text),
@@ -1215,7 +1217,7 @@ def handleSearch(content, contenturl, objectID, term):
                     contentType = 'songs'
 
                 elif mediaClass_text == 'picture':
-                    li.addContextMenuItems([ (addon.getLocalizedString(30347), 'Container.Refresh'), (addon.getLocalizedString(30346), 'Action(ParentDir)') ])                   
+                    li.addContextMenuItems([ (xbmcaddon.Addon().getLocalizedString(30347), 'Container.Refresh'), (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)') ])                   
                     info = {
                         'title': title,
                     }

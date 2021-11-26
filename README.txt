@@ -1,11 +1,16 @@
+v2.1.3.6
+
+-  Fixed exception bug which could occur if Kodi stopped playing a file 
+   at excatly the same time the addon attempted to stop playback.
+-  Added setting to allow enabling / disabling the Mezzmo addon from 
+   managing Kodi views.
+
 v2.1.3.5
 
 -  Fixed issue where daily sync would fail if a TV episode was missing the
    series information.
 -  Added check to ensue proper audio codec information is received from
    Mezzmo before inserting video into the Kodi database.
--  Added log entry to indicate whether the new autosync feature introduced
-   in v2.1.3.4 is enabled or disabled.
 -  Updated the addon.xml and language file formats to align to the newer
    Kodi addon standards.
 

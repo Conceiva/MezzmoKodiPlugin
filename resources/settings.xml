@@ -129,6 +129,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="viewmap" type="boolean" label="30387" help="30525">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="skinname" type="integer" label="30061" help="30510">
 					<level>0</level>
 					<default>Estuary</default>

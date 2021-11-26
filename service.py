@@ -85,20 +85,23 @@ while True:
         pastoptime = int(media.settings('pastop'))
         xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +    \
         ' ' + str(player.paflag), xbmc.LOGDEBUG)
-        if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
-            ptag = xbmc.Player().getVideoInfoTag()
-            ptitle = media.displayTitles(ptag.getTitle())
-            xbmc.Player().stop()
-            pacount = 0
-            mgenlog ='Mezzmo stopped paused playback: ' + ptitle +     \
-            ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog ='###' + ptitle
-            media.mgenlogUpdate(mgenlog)
-            mgenlog ='Mezzmo stopped paused playback at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-            media.mgenlogUpdate(mgenlog)   
-        elif player.paflag == 0:
-            pacount = 0
+        try:
+            if pastoptime > 0 and pacount >= pastoptime * 60 and player.paflag == 1:
+                ptag = xbmc.Player().getVideoInfoTag()
+                ptitle = media.displayTitles(ptag.getTitle())
+                xbmc.Player().stop()
+                pacount = 0
+                mgenlog ='Mezzmo stopped paused playback: ' + ptitle +     \
+                ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+                xbmc.log(mgenlog, xbmc.LOGINFO)
+                mgenlog ='###' + ptitle
+                media.mgenlogUpdate(mgenlog)
+                mgenlog ='Mezzmo stopped paused playback at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
+                media.mgenlogUpdate(mgenlog) 
+            elif player.paflag == 0:
+                pacount = 0
+        except:
+            pass 
 
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
         if xbmc.Player().isPlayingVideo():
