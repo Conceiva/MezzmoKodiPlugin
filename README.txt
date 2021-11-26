@@ -1,7 +1,7 @@
 v2.1.3.6
 
 -  Fixed exception bug which could occur if Kodi stopped playing a file 
-   at excatly the same time the addon attempted to stop playback.
+   at exactly the same time the addon attempted to stop playback.
 -  Added setting to allow enabling / disabling the Mezzmo addon from 
    managing Kodi views.
 
