@@ -36,7 +36,8 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
         bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
-        self.paflag = 1
+        if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
+            self.paflag = 1
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()

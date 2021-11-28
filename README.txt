@@ -1,3 +1,9 @@
+v1.1.3.7
+
+-  Adjusted stopped playback feature introduced in v1.1.2.8 to only work
+   with paused Mezzmo playback.  Previously it stopped any paused Kodi 
+   audio or video file.
+
 v1.1.3.6
 
 -  Fixed exception bug which could occur if Kodi stopped playing a file 
