@@ -1,6 +1,6 @@
 v2.1.3.7
 
--  Adjusted stopped playback feature introduced in v2.1.2.8 to only work
+-  Adjusted stop playback feature introduced in v2.1.2.8 to only work
    with paused Mezzmo playback.  Previously it stopped any paused Kodi 
    audio or video file.
 
