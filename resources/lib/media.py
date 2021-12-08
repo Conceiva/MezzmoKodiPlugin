@@ -68,11 +68,10 @@ def get_installedversion():
     if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']['major']
     return str(version_installed)
-    
-installed_version = get_installedversion()
 
 
 def getDatabaseName():
+    installed_version = get_installedversion()
     if installed_version == '10':
         return "MyVideos37.db"
     elif installed_version == '11':
@@ -150,6 +149,15 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.close()
 
 
+def getServerport(contenturl):                  #  Get Mezzmo server port info
+
+    lfpos = contenturl.find(':',7)
+    rfpos = contenturl.find('/', lfpos)             
+    serverport = contenturl[lfpos+1:rfpos]
+    #xbmc.log('Mezzmo server port is: ' + serverport, xbmc.LOGINFO)     
+    return(serverport)
+
+
 def syncCount(dbsync, mtitle, mtype):
 
     #xbmc.log('Mezzmo nosync syncCount called: ' + mtitle, xbmc.LOGINFO)  
@@ -200,8 +208,8 @@ def getPath(itemurl):		            # Find path string for media file
 
 def getMServer(itemurl):		    # Find server string for media file
 
-    rtrimpos = itemurl.rfind(':',7)      
-    serverid = itemurl[:rtrimpos+7]
+    rtrimpos = itemurl.find('/', 7)  
+    serverid = itemurl[:rtrimpos+1]
     #xbmc.log('The serverid : ' + serverid, xbmc.LOGINFO)
     return(serverid)  
 
@@ -225,8 +233,7 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
 
     db = openKodiDB()
 
-    rfpos = contenturl.find(':',7)              #  Get Mezzmo server port info
-    serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
+    serverport = '%' + getServerport(contenturl) + '%'     #  Get Mezzmo server port info
 
     curm = db.execute('SELECT count (idFile) FROM files INNER JOIN path ON path.idPath = files.idPath \
     WHERE strpath LIKE ?', (serverport,))
@@ -324,12 +331,10 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
         tvcheck = 0 
 
     if mcategories != None and mcategories.text != None:
-        categories_text = mcategories.text.split(',')
-        for category in categories_text:
-            if category.strip().lower() == "nosync":
-                tvcheck = 0
-                nsyncount = 1
-                xbmc.log('Nosync file found: ' + mmtitle, xbmc.LOGDEBUG)
+        if 'nosync' in mcategories.text.lower():
+            tvcheck = 0
+            nsyncount = 1
+            xbmc.log('Nosync file found: ' + mmtitle, xbmc.LOGDEBUG)
 
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0
@@ -340,7 +345,7 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
     return[tvcheck, lvcheck, nsyncount]
 
 
-def checkDupes(filenumb, lastcount, mtitle):             #  Add Dupeplicate logs to dupe DB
+def checkDupes(filenumb, lastcount, mtitle):             #  Add Dupelicate logs to dupe DB
 
     dlfile = openNosyncDB()                              #  Open Dupe log database
 
@@ -395,9 +400,8 @@ def kodiCleanDB(ContentDeleteURL, force):
 
         db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
-         
-        rfpos = ContentDeleteURL.find(':',7)      #  Get Mezzmo server info
-        serverport = '%' + ContentDeleteURL[rfpos+1:rfpos+6] + '%'
+
+        serverport = '%' + getServerport(ContentDeleteURL) + '%'     #  Get Mezzmo server port info
 
         db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
         db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
@@ -444,8 +448,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
-    rfpos = itemurl.find(':',7)
-    serverport = itemurl[rfpos+1:rfpos+6]      #  Get Mezzmo server port info 
+    serverport = getServerport(itemurl)        #  Get Mezzmo server port info 
     xbmc.log('Mezzmo checkDbPath path check and file check: ' + str(mpath) + ' ' + str(filecheck), xbmc.LOGDEBUG)
     if mlplayed == '0':                        #  Set Mezzmo last played to null if 0
         mlplayed = ''
@@ -593,7 +596,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
                 mgenlog ='There was a Mezzmo metadata change detected: '
                 mgenlogUpdate(mgenlog)
             else:
-                checkDupes(movienumb, '0', mtitle)                    #  Add dupes to database
+                checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update
         curm.close()
     else:

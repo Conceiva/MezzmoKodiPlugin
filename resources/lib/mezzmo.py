@@ -56,15 +56,7 @@ def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle):    # Log p
     else:                                                                # Reset refresh flag
         media.settings('refreshflag', '0')      
   
-  
-def getSeconds(t):
-    x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
-    td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
-    seconds = int((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
-    if seconds == None:
-        seconds = 0
-    return seconds
-    
+
 def message(msg):
     __addon__ = xbmcaddon.Addon()
     __addonname__ = __addon__.getAddonInfo('name')
@@ -655,7 +647,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pcdbfile, contenturl)) ])      
                
                     info = {
-                        'duration': getSeconds(duration_text),
+                        'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -681,7 +673,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(getSeconds(duration_text)))
+                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
                     video_info = {
                         'codec': video_codec_text,
                         'aspect': aspect,
@@ -700,7 +692,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
-                        durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds
+                        durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -749,7 +741,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         pcseries, 'audiom', contenturl)) ])  
 
                     info = {
-                        'duration': getSeconds(duration_text),
+                        'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1115,7 +1107,7 @@ def handleSearch(content, contenturl, objectID, term):
                     li.addContextMenuItems([ (xbmcaddon.Addon().getLocalizedString(30347), 'Container.Refresh'), (xbmcaddon.Addon().getLocalizedString(30346), 'Action(ParentDir)'), (xbmcaddon.Addon().getLocalizedString(30348), 'Action(Info)') ])
                     
                     info = {
-                        'duration': getSeconds(duration_text),
+                        'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1142,7 +1134,7 @@ def handleSearch(content, contenturl, objectID, term):
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(getSeconds(duration_text)))
+                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
                     video_info = {
                         'codec': video_codec_text,
                         'aspect': aspect,
@@ -1165,7 +1157,7 @@ def handleSearch(content, contenturl, objectID, term):
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
-                        durationsecs = getSeconds(duration_text)            #  convert duration to seconds before passing
+                        durationsecs = sync.getSeconds(duration_text)       #  convert duration to seconds before passing
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -1197,7 +1189,7 @@ def handleSearch(content, contenturl, objectID, term):
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
 
                     info = {
-                        'duration': getSeconds(duration_text),
+                        'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
