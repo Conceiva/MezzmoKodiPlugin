@@ -2,6 +2,7 @@
 <settings>
     <category label="30339">
     <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
+    <setting id="saved_servers" type="text" label="30388" default="" visible="false"/>
     </category>
     <category label="30362">
     <setting id="bmdelay" type="slider" label="30377" default="0" range="0,1,30" option="int"/>
@@ -17,6 +18,10 @@
     <setting id="perflog" type="bool" label="30378" default="false"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
     <setting id="refreshflag" type="text" label="30385" default="0" visible="false"/>
+    <setting id="autostart" type="text" label="30388" default="" visible="false"/>
+    <setting id="contenturl" type="text" label="30388" default="" visible="false"/>
+    <setting id="dailysync" type="text" label="30388" default="0" visible="false"/>
+    <setting id="sync_offset" type="text" label="30388" default="0" visible="false"/>
     </category>
     <!-- View -->
     <category label="30300">

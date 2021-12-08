@@ -1,6 +1,13 @@
+v1.1.3.8
+
+-  Fixed bug which would cause sync failures if the Mezzmo TCP port 
+   number was less than 10000.
+-  Code cleanup and fixing some Mezzmo addon settings error messages
+   when running Kodi in debug mode. 
+
 v1.1.3.7
 
--  Adjusted stop playback feature introduced in v1.1.2.8 to only work
+-  Adjusted stopped playback feature introduced in v1.1.2.8 to only work
    with paused Mezzmo playback.  Previously it stopped any paused Kodi 
    audio or video file.
 

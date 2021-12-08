@@ -275,3 +275,7 @@ msgstr ""
 msgctxt "#30387"
 msgid "Mezzmo View Mapping"
 msgstr ""
+
+msgctxt "#30388"
+msgid "Hidden variable"
+msgstr ""

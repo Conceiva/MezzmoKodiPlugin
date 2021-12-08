@@ -30,8 +30,7 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
     db = sqlite.connect(DB)
 
-    rfpos = contenturl.find(':',7)      #  Get Mezzmo server info
-    serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
+    serverport = '%' + media.getServerport(contenturl) + '%'     #  Get Mezzmo server port info
     newtime = (datetime.datetime.now() + datetime.timedelta(days=-3)).strftime('%Y-%m-%d %H:%M:%S')
     cur = db.execute('UPDATE texture SET lasthashcheck=? WHERE URL LIKE ? and lasthashcheck=?', \
     (newtime, serverport, ""))          # Update Mezzmo image cache timers with no dates 
@@ -54,8 +53,7 @@ def deleteTexturesCache(contenturl):        # do not cache texture images if cac
         DB = os.path.join(xbmc.translatePath("special://database"), "Textures13.db")
         db = sqlite.connect(DB)
 
-        rfpos = contenturl.find(':',7)      #  Get Mezzmo server info
-        serverport = '%' + contenturl[rfpos+1:rfpos+6] + '%'
+        serverport = '%' + media.getServerport(contenturl) + '%'     #  Get Mezzmo server port info     
         cur = db.execute('DELETE FROM texture WHERE url LIKE ?', (serverport,))        
         rows = cur.rowcount
         mgenlog ='Mezzmo addon texture rows deleted: ' + str(rows)
