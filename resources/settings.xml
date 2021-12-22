@@ -396,6 +396,33 @@
 					</dependencies>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="videos_view_mode" type="integer" label="30381" help="30521" parent="skinname">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option label="30345">0</option>
+							<option label="30331">1</option>
+							<option label="30332">2</option>
+							<option label="30333">3</option>
+							<option label="30334">4</option>
+							<option label="30335">5</option>
+							<option label="30336">6</option>
+							<option label="30337">7</option>
+							<option label="30338">8</option>
+							<option label="30376">9</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="skinname">1</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="aeoncontentmap" type="string" label="30375" help="30513" parent="skinname">
 					<level>0</level>
 					<default>Default</default>

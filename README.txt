@@ -1,3 +1,10 @@
+v2.1.3.9
+
+-  Fixed bug which would cause a sync failure if the Mezzmo addon received
+   a bad setting value from Kodi.
+-  Added All Other view mapping setting to the Confluence skin to match
+   the Estuary and Aeon skin views.
+
 v2.1.3.8
 
 -  Fixed bug which would cause sync failures if the Mezzmo TCP port 
