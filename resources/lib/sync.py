@@ -179,8 +179,12 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         rows = 0
 
         newoffset = media.settings('sync_offset')        #  Get saved offset setting  
-        if newoffset != '':                         
+        try:                         
             syncoffset = int(newoffset)
+        except:
+            syncoffset = 0
+            media.settings('sync_offset', str(syncoffset))
+
 
         clean = checkDailySync()                          #  Check sync flag
         if clean == 1 and count > 12:
