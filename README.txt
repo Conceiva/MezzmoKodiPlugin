@@ -4,6 +4,9 @@ v2.1.3.9
    a bad setting value from Kodi.
 -  Added All Other view mapping setting to the Confluence skin to match
    the Estuary and Aeon skin views.
+-  Fixed bug which would cause an exception error if the Mezzmo mark
+   watched / unwatched feature was used prior to a video being added to
+   the Kodi database by the sync process.
 
 v2.1.3.8
 
