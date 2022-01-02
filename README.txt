@@ -1,3 +1,10 @@
+v1.1.4.0
+
+-  Fixed very obscure bug which could cause exception errors till the daily
+   sync process ran if the Mezzmo hourly sync process attempted to add a video
+   to the Kodi DB at the exact same time Mezzmo was adding the same record
+   to its database and had not completed gathering all of the artwork.  
+
 v1.1.3.9
 
 -  Fixed bug which would cause a sync failure if the Mezzmo addon received
