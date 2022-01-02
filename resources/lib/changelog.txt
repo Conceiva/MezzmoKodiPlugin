@@ -1,0 +1,23 @@
+0.0.0.12:
+- Added setArt for folders
+
+0.0.0.11:
+- Added cache for servers to SSDP is not required unless refreshing
+
+0.0.0.10:
+- Fixed error causing browse to fail
+
+0.0.0.8:
+- Added support for setting views from Aeon Nox Skin
+- Added content rating PIN
+- Fixed playcount value being set
+
+0.0.0.7:
+- Added support for search
+- Limited forced views to confluence skin
+
+0.0.0.4:
+- Added Setting for top level folder view mode
+- Added video stream information (codec, channels, aspect ratio)
+- Increased browse item request from 50 to 500
+- Added Setting to only list Mezzmo servers
