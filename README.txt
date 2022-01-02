@@ -1,3 +1,13 @@
+v2.1.4.0
+
+-  Fixed bug introduced in v2.1.3.8 which would cause an exception error
+   on new installations of the Mezzmo Kodi 19 addon due to the Kodi settings
+   format being different between Kodi 18 and Kodi 19.
+-  Fixed very obscure bug which could cause exception errors till the daily
+   sync process ran if the Mezzmo hourly sync process attempted to add a video
+   to the Kodi DB at the exact same time Mezzmo was adding the same record
+   to its database and had not completed gathering all of the artwork.  
+ 
 v2.1.3.9
 
 -  Fixed bug which would cause a sync failure if the Mezzmo addon received

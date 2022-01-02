@@ -216,16 +216,20 @@ def getMServer(itemurl):		    # Find server string for media file
 
 def urlMatch(url1, url2):                       #  Check if URLs match with or without DNS
 
-    if not url1[7].isdigit() or not url2[7].isdigit():    
-        compare1 = url1[url1.rfind(':'):]       #  If DNS only compare port and file name
-        compare2 = url2[url2.rfind(':'):]       
-    else:
-        compare1 = url1
-        compare2 = url2
-    #xbmc.log('Compare1 and Compare2 : ' + compare1 + " " + compare2, xbmc.LOGINFO)
-    if compare1 == compare2:
-        return(True)
-    else:
+    try:
+        if not url1[7].isdigit() or not url2[7].isdigit():    
+            compare1 = url1[url1.rfind(':'):]   #  If DNS only compare port and file name
+            compare2 = url2[url2.rfind(':'):]       
+        else:
+            compare1 = url1
+            compare2 = url2
+        #xbmc.log('Compare1 and Compare2 : ' + compare1 + " " + compare2, xbmc.LOGINFO)
+        if compare1 == compare2:
+            return(True)
+        else:
+            return(False)
+    except:
+        pass
         return(False)
 
 
@@ -742,7 +746,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             INNER JOIN path USING (idpath) INNER JOIN art ON episode.idEpisode=art.media_id WHERE idFile=? and    \
             media_type=? ORDER BY strAudioCodec', (int(fileId[1]), media_type))
         idflist = scur.fetchall()
-        rows = len(idflist)
+        rows = len(idflist)     
         if rows == 4:                              # Ensure all data exsts
             sdur = idflist[0][0]
             svcodec = idflist[0][1]		   # Get video codec from Kodi DB
@@ -750,7 +754,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             filenumb = idflist[2][3]
             kpath = idflist[2][4]
             movienumb = idflist[2][5]
-            kicon = idflist[1][6]                  # Get Kodi DB thumbnail URL
+            kicon = idflist[1][6]                  # Get Kodi DB thumbnail URL 
             pathmatch = urlMatch(mpath, kpath)     # Check if paths match
             iconmatch = urlMatch(micon, kicon)     # Check if icons match 
             if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or pathmatch is False or \
