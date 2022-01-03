@@ -74,7 +74,7 @@ def listServers(force):
     contenturl = ''
 
     saved_servers = media.settings('saved_servers')
-    if len(saved_servers) == 0 or force:
+    if len(saved_servers) < 3 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
         media.settings('saved_servers', pickle.dumps(servers))

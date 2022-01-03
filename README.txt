@@ -1,3 +1,9 @@
+v1.1.4.1
+
+-  Fixed new Mezzmo addon installation bug where sync process would cause an
+   exception error prior to a Mezzmo server being selected. The sync process
+   will now skip until a valid Mezzmo server is selected. 
+
 v1.1.4.0
 
 -  Fixed very obscure bug which could cause exception errors till the daily

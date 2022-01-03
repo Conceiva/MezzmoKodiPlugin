@@ -35,9 +35,10 @@ class XBMCPlayer(xbmc.Player):
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
-        if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
-            self.paflag = 1
+        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
+            if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
+                self.paflag = 1
  
     def onPlayBackResumed(self):
         file = self.getPlayingFile()
@@ -49,16 +50,18 @@ class XBMCPlayer(xbmc.Player):
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         pos = 0
-        bookmark.SetBookmark(contenturl, objectID, str(pos))
         self.paflag = 0
+        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+            bookmark.SetBookmark(contenturl, objectID, str(pos))
  
     def onPlayBackStopped(self):
         contenturl = media.settings('contenturl')
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        xbmc.log("Playback stopped at " + str(pos  + bmdelay) + " in " + objectID)
-        bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
+        xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         self.paflag = 0
+        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
 
              
 player = XBMCPlayer()
@@ -75,7 +78,8 @@ while True:
             contenturl = media.settings('contenturl')
             objectID = getObjectID(file)
             bmdelay = 15 - int(media.settings('bmdelay'))            
-            bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))        
+            if len(contenturl) > 5:         # Ensure Mezzmo server has been selected            
+                bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))         
 
     count += 1
     if count == 2:                          # Check for autostarting the Mezzmo GUI
@@ -105,6 +109,7 @@ while True:
             pass 
  
     if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
+        contenturl = media.settings('contenturl')
         if xbmc.Player().isPlayingVideo():
             ptag = xbmc.Player().getVideoInfoTag()
             ptitle = media.displayTitles(ptag.getTitle().decode('utf-8','ignore'))
@@ -125,8 +130,11 @@ while True:
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
             media.mgenlogUpdate(mgenlog) 
+        elif len(contenturl) < 5:
+            mgenlog ='Mezzmo no servers selected yet.  Cache update process skipped.'
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            media.mgenlogUpdate(mgenlog)
         else:
-            contenturl = media.settings('contenturl')
             sync.updateTexturesCache(contenturl)
 
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
@@ -137,9 +145,12 @@ while True:
         else:
             syncpin = media.settings('content_pin')
             syncurl = media.settings('contenturl')     
-            if syncpin and syncurl:       
+            if syncpin and syncurl and len(syncurl) > 5:       
                 sync.syncMezzmo(syncurl, syncpin, count)
-                del syncpin, syncurl
+            else:                          # Ensure Mezzmo server has been selected 
+                msynclog ='Mezzmo no servers selected yet.  Mezzmo sync skipped.'
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                media.mezlogUpdate(msynclog)
 
     if count > 86419:                      # Reset counter daily
         count = 20
@@ -163,11 +174,11 @@ while True:
             sync.dbClose()
             del pin, url, player, monitor, ptag, ptitle, pastoptime
             del contenturl, pos, file, pacount, player.paflag, bmdelay
+            mgenlog = 'Mezzmo addon shutdown.'
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            media.mgenlogUpdate(mgenlog)  
         except:
             pass
-        mgenlog ='Mezzmo addon shutdown.'
-        xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        media.mgenlogUpdate(mgenlog)  
         
         break # Abort was requested while waiting. Exit the while loop.
 
