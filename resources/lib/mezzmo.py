@@ -78,7 +78,7 @@ def listServers(force):
     contenturl = ''    
 
     saved_servers = media.settings('saved_servers')
-    if len(saved_servers) == 0 or force:
+    if len(saved_servers) < 3 or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
         # save the servers for faster loading
         media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
@@ -366,7 +366,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ") 
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
-                if (autostart == '' or autostart == 'clear'):
+                if (autostart == '' or autostart == 'clear' or autostart == '""'):
                     li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search',          \
                     'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'), (menuitem7, 'RunScript(%s, %s)' %       \
                     ("plugin.video.mezzmo", "performance")), (menuitem5, 'RunScript(%s, %s, %s, %s)'  % ("plugin.video.mezzmo",    \
