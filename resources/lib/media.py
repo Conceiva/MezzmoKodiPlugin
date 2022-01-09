@@ -15,7 +15,7 @@ def settings(setting, value = None):
     if value:
         xbmcaddon.Addon().setSetting(setting, value)
     else:
-        return xbmcaddon.Addon().getSetting(setting)
+        return xbmcaddon.Addon().getSetting(setting)   
 
 
 def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV show exists in database
@@ -132,6 +132,10 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     psPlaylist TEXT, psCount TEXT, pSrvTime TEXT, mSrvTime TEXT, psTTime TEXT,       \
     psDispRate TEXT)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS perfs_1 ON mperfStats (psDate)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS perfs_2 ON mperfStats (psPlaylist)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS mperfIndex (psObject TEXT, psPlaylist TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mperfs_1 ON mperfIndex (psPlaylist)')
 
     dbsync.execute('CREATE table IF NOT EXISTS dupeTrack (dtDate TEXT, dtFnumb TEXT, \
     dtLcount TEXT, dtTitle TEXT, dtType TEXT)')
@@ -400,8 +404,16 @@ def mgenlogUpdate(mgenlog):                              #  Add Mezzmo general l
 
 def kodiCleanDB(ContentDeleteURL, force):
 
-    if settings('kodiclean') == 'true' or force == 1:  #  clears Kodi DB Mezzmo data if enabled in setings
-
+    if settings('kodiclean') == 'true':                #  clears Kodi DB Mezzmo data if enabled in setings
+        autdialog = xbmcgui.Dialog()
+        kcmsg = "Confirm clearing the Mezzmo data in the Kodi database.  "
+        kcmsg = kcmsg + "\nIt will be rebuilt with the sync process." 
+        cselect = autdialog.yesno('Mezzmo Kodi Database Clear', kcmsg)
+        if cselect == 0 :
+            settings('kodiclean', 'false')             #  reset back to false
+            return
+        force = 1                                      #  Ok to clear database
+    if force == 1:                                     #  clears Kodi DB Mezzmo data check for sync process
         db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
 
@@ -444,7 +456,12 @@ def kodiCleanDB(ContentDeleteURL, force):
         dbsync.commit()
         dbsync.close()
 
-        settings('kodiclean', 'false')    # reset back to false after clearing
+        if settings('kodiclean') == 'true':
+            settings('kodiclean', 'false')    # reset back to false after clearing
+            name = xbmcaddon.Addon().getAddonInfo('name')
+            cleanmsg = xbmcaddon.Addon().getLocalizedString(30389)
+            icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+            xbmcgui.Dialog().notification(name, cleanmsg, icon)
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \

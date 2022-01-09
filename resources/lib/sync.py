@@ -170,6 +170,11 @@ def checkDailySync():
 
 def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
     global syncoffset, dupelog
+    if 'ContentDirectory' not in syncurl:
+        msynclog = 'Mezzmo sync process aborted.  Invalid server selected.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)
+        return 
     ksync = media.settings('kodisyncvar')                #  Get sync setting
     if ksync != 'Off':                                   #  Check if enabled
         msynclog = 'Mezzmo sync beginning.'

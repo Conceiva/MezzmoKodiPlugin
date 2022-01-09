@@ -12,7 +12,7 @@
 				</setting>
 				<setting id="saved_servers" type="string" label="30388" help="">
 					<level>0</level>
-					<default>""</default>
+					<default>none</default>
 					<dependencies>
 						<dependency type="visible">
 							<condition on="property" name="InfoBool">false</condition>
@@ -79,7 +79,7 @@
 				</setting>
 				<setting id="koditv" type="boolean" label="30369" help="30504">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="kodichange" type="boolean" label="30370" help="30505">
@@ -120,18 +120,6 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="refreshflag" type="string" label="30385" help="">
-					<level>0</level>
-					<default>0</default>
-					<dependencies>
-						<dependency type="visible">
-							<condition on="property" name="InfoBool">false</condition>
-						</dependency>
-					</dependencies>
-					<control type="edit" format="string">
-						<heading>30385</heading>
-					</control>
-				</setting>
 				<setting id="autostart" type="string" label="30388" help="">
 					<level>0</level>
 					<default>clear</default>
@@ -146,7 +134,7 @@
 				</setting>
 				<setting id="contenturl" type="string" label="30388" help="">
 					<level>0</level>
-					<default>""</default>
+					<default>none</default>
 					<dependencies>
 						<dependency type="visible">
 							<condition on="property" name="InfoBool">false</condition>

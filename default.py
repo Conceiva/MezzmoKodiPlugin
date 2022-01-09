@@ -11,4 +11,6 @@ import mezzmo
 
 mezzmo.start()
 
+del GLOBAL_SETUP
+
 #sys.modules.clear()

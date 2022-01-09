@@ -280,6 +280,10 @@ msgctxt "#30388"
 msgid "Hidden variable"
 msgstr ""
 
+msgctxt "#30389"
+msgid "Mezzmo data successfully cleared from Kodi database."
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -293,7 +297,7 @@ msgid "Add Mezzmo actor information to Kodi database during playlist browsing.  
 msgstr ""
 
 msgctxt "#30504"
-msgid "Add Mezzmo TV episodes to the Kodi database."
+msgid "Add Mezzmo TV episodes to the Kodi database.  Default is enabled."
 msgstr ""
 
 msgctxt "#30505"
