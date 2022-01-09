@@ -78,7 +78,7 @@ while True:
             contenturl = media.settings('contenturl')
             objectID = getObjectID(file)
             bmdelay = 15 - int(media.settings('bmdelay'))            
-            if len(contenturl) > 5:         # Ensure Mezzmo server has been selected            
+            if contenturl != 'none':        # Ensure Mezzmo server has been selected            
                 bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))         
 
     count += 1
@@ -130,7 +130,7 @@ while True:
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
             media.mgenlogUpdate(mgenlog) 
-        elif len(contenturl) < 5:
+        elif contenturl == 'none':
             mgenlog ='Mezzmo no servers selected yet.  Cache update process skipped.'
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)
@@ -144,9 +144,16 @@ while True:
             media.mezlogUpdate(msynclog)
         else:
             syncpin = media.settings('content_pin')
-            syncurl = media.settings('contenturl')     
+            syncurl = media.settings('contenturl')
+            xbmc.log('Mezzmo contenturl is: ' + str(syncurl), xbmc.LOGDEBUG)        
             if syncpin and syncurl and len(syncurl) > 5:       
-                sync.syncMezzmo(syncurl, syncpin, count)
+                try:             
+                    sync.syncMezzmo(syncurl, syncpin, count)
+                except:
+                    msynclog ='Mezzmo sync process failed with an exception error.'
+                    xbmc.log(msynclog, xbmc.LOGNOTICE)
+                    media.mezlogUpdate(msynclog)    
+                    pass            
             else:                          # Ensure Mezzmo server has been selected 
                 msynclog ='Mezzmo no servers selected yet.  Mezzmo sync skipped.'
                 xbmc.log(msynclog, xbmc.LOGNOTICE)

@@ -1,3 +1,23 @@
+v.1.1.4.2
+
+-  Additional fixes to detect improper Kodi settings causing exception errors
+   in sync process.
+-  Changed default setting for syncing Mezzmo TV episodes to the Kodi database
+   from disabled to enabled.
+-  Added GUI confirmation when clearing the Kodi DB via the addon settings.  
+   This will avoid accidental clearing of Mezzmo data in the Kodi database. 
+-  Fixed performance logging sometimes recording the selected item instead of 
+   the playlist name during folder refreshes, utilizing the Mezzmo mark 
+   watched / unwatched function and other similar activities. 
+-  Added menu option to clear performance logs.
+-  Fixed addon fanart not displaying due to improper file location pointer.
+-  Fixed Kodi.log message "default.py has left several classes in memory 
+   that we couldn't clean up." when running on LibreElec.
+-  Added GUI notification if the Mezzmo server stops responding while browsing
+   playlists. 
+-  Improved the speed, stability and user friendliness of the Logs & Stats
+   reporting.
+
 v1.1.4.1
 
 -  Fixed new Mezzmo addon installation bug where sync process would cause an

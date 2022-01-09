@@ -2,7 +2,7 @@
 <settings>
     <category label="30339">
     <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
-    <setting id="saved_servers" type="text" label="30388" default="" visible="false"/>
+    <setting id="saved_servers" type="text" label="30388" default="none" visible="false"/>
     </category>
     <category label="30362">
     <setting id="bmdelay" type="slider" label="30377" default="0" range="0,1,30" option="int"/>
@@ -10,16 +10,15 @@
     <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
     <setting id="caching" type="bool" label="30366" default="false"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>
-    <setting id="koditv" type="bool" label="30369" default="false"/>
+    <setting id="koditv" type="bool" label="30369" default="true"/>
     <setting id="kodichange" type="bool" label="30370" default="true"/>
     <setting id="kodisyncvar" type="labelenum" label="30371" values="Off|Daily|Newest|Normal" default="Normal"/>
     <setting id="kodisync" type="bool" label="30386" default="false"/>
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="false"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
-    <setting id="refreshflag" type="text" label="30385" default="0" visible="false"/>
-    <setting id="autostart" type="text" label="30388" default="" visible="false"/>
-    <setting id="contenturl" type="text" label="30388" default="" visible="false"/>
+    <setting id="autostart" type="text" label="30388" default="clear" visible="false"/>
+    <setting id="contenturl" type="text" label="30388" default="none" visible="false"/>
     <setting id="dailysync" type="text" label="30388" default="0" visible="false"/>
     <setting id="sync_offset" type="text" label="30388" default="0" visible="false"/>
     </category>

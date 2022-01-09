@@ -279,3 +279,7 @@ msgstr ""
 msgctxt "#30388"
 msgid "Hidden variable"
 msgstr ""
+
+msgctxt "#30389"
+msgid "Mezzmo data successfully cleared from Kodi database."
+msgstr ""
