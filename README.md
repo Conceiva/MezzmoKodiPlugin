@@ -1,4 +1,4 @@
-# MezzmoKodiPlugin
+# MezzmoKodiPlugin for Kodi 18 and below
 An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.  
 
 Features:
@@ -7,8 +7,11 @@ Features:
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view
 - Full Mezzmo and Kodi database synchronization using a background process
+- Automatically stop paused playback user selectable timer
+- Performance statistics and log viewing
+- Option for managing Kodi artwork caching for Mezzmo
 - Modify video watched status in Mezzmo from the addon
-- Automatically start the addon on your favorite playlist 
+- Automatically start the addon on your favorite playlist  
 - Search for media in the server
 - Default view modes for Movies, TV Shows and others
 - Play music
