@@ -1,7 +1,7 @@
-# MezzmoKodiPlugin for Kodi 19 and higher
-An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.  
+# MezzmoKodiPlugin for Kodi 18 and below
+An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.
 
-<a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/master">Kodi 18 link</a>
+<a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/Kodi-19+">Kodi 19+ link</a>  
 
 Features:
 - Play and resume videos
