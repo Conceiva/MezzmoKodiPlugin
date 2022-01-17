@@ -1,6 +1,11 @@
 import urllib2
 import urllib
 import xbmc
+import media
+
+srvrtime = int(media.settings('srvrtime'))
+if not srvrtime:
+    srvrtime = 60
 
 def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
 
@@ -31,7 +36,8 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=srvrtime).read()
+        #response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass
@@ -67,7 +73,8 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=srvrtime).read()
+        #response = urllib2.urlopen(req, timeout=60).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Search: ' + str(e))
         pass

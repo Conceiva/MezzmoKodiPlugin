@@ -3,7 +3,7 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 <a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/Kodi-19+">Kodi 19+ link</a>  
 
-Features:
+<b>Features: </b>
 - Play and resume videos
 - Share resume points between other devices through the Mezzmo server
 - Shows media in the sort order from the server
@@ -12,9 +12,9 @@ Features:
 - Automatically stop paused playback user selectable timer
 - Performance statistics and log viewing
 - Option for managing Kodi artwork caching for Mezzmo
-- Modify video watched status in Mezzmo from the addon
-- Automatically start the addon on your favorite playlist  
-- Search for media in the server
+- Modify video watched status in Mezzmo from the Kodi GUI
+- Automatically start on your favorite playlist  
+- Search for media in the server with prior search history
 - Default view modes for Movies, TV Shows and others
 - Play music
 - View Photos
