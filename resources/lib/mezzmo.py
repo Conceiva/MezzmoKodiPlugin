@@ -109,17 +109,15 @@ def listServers(force):
     xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
-        url = server.location        
-        mgenlog ='Mezzmo server url: ' + url[:48]
-        xbmc.log(mgenlog, xbmc.LOGINFO)
-        media.mgenlogUpdate(mgenlog)
-        
+        url = server.location                
         try:
             response = urllib.request.urlopen(url)
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
-        
+            mgenlog ='Mezzmo uPNP server url: ' + url[:48]
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)        
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
             manufacturer = device.find('manufacturer').text
@@ -177,6 +175,13 @@ def listServers(force):
                 li = xbmcgui.ListItem(friendlyname)
                 li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': addon_fanart})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+        except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
+            mgenlog = 'Mezzmo uPNP server not responding: ' + url
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)  
+            dialog_text = 'uPNP server not responding: ' + url
+            xbmcgui.Dialog().ok("uPNP Server Error", dialog_text)
+            pass  
         except Exception as e:
             printexception()
             pass
@@ -1340,13 +1345,18 @@ def promptSearch():
     #term = search_window.term
     #isCancelled = search_window.isCancelled
     #del search_window
-    kb = xbmc.Keyboard('', 'Search')
-    kb.setHeading('Enter Search text')
-    kb.doModal()
-    if (kb.isConfirmed()):
-        term = kb.getText()
+    term = media.priorSearch()
+    if term == 'cancel':
+        return               #  User cancel
+    if len(term) == 0:
+        kb = xbmc.Keyboard('', 'Search')
+        kb.setHeading('Enter Search text')
+        kb.doModal()
+        if (kb.isConfirmed()):
+            term = kb.getText()
     if len(term) > 0:
-        xbmc.executebuiltin("ActivateWindow(busydialog)")
+        #xbmc.executebuiltin("ActivateWindow(busydialog)")
+        media.addSearch(term)
         upnpClass = getUPnPClass()
         searchCriteria = getSearchCriteria(term)
         
@@ -1356,8 +1366,15 @@ def promptSearch():
         
         pin = media.settings('content_pin')
         content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
-        handleSearch(content, url[0], '0', searchCriteria)
-
+        if len(content) > 0:                                  #  Check for server response
+            handleSearch(content, url[0], '0', searchCriteria)
+        else:
+            mgenlog ='Mezzmo no response from server. '
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)
+            dialog_text = "The Mezzmo server did not respond."
+            xbmcgui.Dialog().ok("Mezzmo Server Error", dialog_text)
+            listServers(False)
     
 mode = args.get('mode', 'none')
 
@@ -1396,7 +1413,7 @@ elif mode[0] == 'server':
         media.mgenlogUpdate(mgenlog)
         dialog_text = "The Mezzmo server did not respond."
         xbmcgui.Dialog().ok("Mezzmo Server Error", dialog_text)
-        listServers(True)
+        listServers(False)
 
 elif mode[0] == 'search':
     promptSearch()

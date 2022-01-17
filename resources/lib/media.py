@@ -18,6 +18,63 @@ def settings(setting, value = None):
         return xbmcaddon.Addon().getSetting(setting)   
 
 
+def priorSearch():                                    # Check for prior searches
+    
+    try:
+        srchlimit = int(settings('srchlimit'))        # Number of prior searches to present 
+        if srchlimit == '':                           # Check search history setting
+            srchlimit = 10
+        if srchlimit == 0:                            # If zero new search
+            return('')
+        pdfile = openNosyncDB()                       # Open Perf Stats database
+        pselect = []
+        curps = pdfile.execute('SELECT msSearch FROM mSearch order by msDate desc LIMIT ?', (srchlimit,))
+        psrchtext = curps.fetchall()                  # Get previous from search database
+        if psrchtext:                                 # If prior searches in search table 
+            pselect = ["[COLOR blue]Enter new search[/COLOR]"]
+            for stext in psrchtext:
+                x = str(stext).replace("('","").replace("',)","")
+                pselect.append(x)                     # Convert rows to list for dialog box
+            ddialog = xbmcgui.Dialog()
+            xbmc.log('The current list is: ' + str(pselect), xbmc.LOGDEBUG)  
+            vdate = ddialog.select('Prior Search Text', pselect)
+            if vdate > 0:                             # User selection
+                term = pselect[vdate]
+            elif vdate == -1:                         # User cancel
+                term = 'cancel'
+            elif vdate == 0:                          # User new search
+                term = '' 
+        else:                                         # No previous searches
+            term = ''  
+        pdfile.close()
+        xbmc.log('The user selection is: ' + str(term), xbmc.LOGDEBUG) 
+        return(term)
+    except:
+        mgenlog ='Mezzmo problem getting prior searches from DB: '
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)
+        return('')
+        pass          
+
+
+def addSearch(stext):                                  # Add new searches
+    
+    try:
+        psfile = openNosyncDB()                        # Open Perf Stats database
+        currentDateTime = datetime.now()
+        psfile.execute('INSERT or REPLACE into mSearch (msDate, msSearch) values (?, ?)',   \
+        (currentDateTime, stext))
+        psfile.execute('delete from mSearch where msDate not in (select msDate from         \
+        mSearch order by msDate desc limit ?)', (30,))  
+        psfile.commit() 
+        psfile.close()
+    except:
+        mgenlog ='Mezzmo problem writing new search to DB: ' + str(stext)
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)          
+        pass
+
+
 def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV show exists in database
 
     cure = db.execute('SELECT idShow FROM tvshow WHERE c00=? and c17=?',(seriesname,     \
@@ -148,6 +205,10 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE table IF NOT EXISTS mgenLog (mgDate TEXT, mgTime TEXT,   \
     mgGenDat TEXT)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS mgen_1 ON mgenLog (mgDate)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS mSearch (msDate TIMESTAMP, msSearch TEXT)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS msearch_2 ON mSearch (msSearch)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS msearch_1 ON mSearch (msDate)')
 
     dbsync.commit()
     dbsync.close()

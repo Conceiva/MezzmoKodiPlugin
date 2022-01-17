@@ -1,3 +1,14 @@
+v.2.1.4.3
+
+-  Added Mezzmo server timeout setting and reorganized all timer settings
+   into a common tab.
+-  Added prior search history for quick repeat searches with user defined
+   setting for number of prior searches to display.
+-  Added GUI notification if the Mezzmo server stops responding while 
+   performing searches.
+-  Added GUI nofitication if a uPNP server stops responding during addon
+   startup. 
+
 v.2.1.4.2
 
 -  Additional fixes to detect improper Kodi settings causing exception errors

@@ -81,11 +81,11 @@ msgid "Media info 3"
 msgstr ""
 
 msgctxt "#30339"
-msgid "SSDP Search"
+msgid "Timers"
 msgstr ""
 
 msgctxt "#30340"
-msgid "Time (seconds)"
+msgid "Server Search Time (seconds)"
 msgstr ""
 
 msgctxt "#30341"
@@ -233,7 +233,7 @@ msgid "Music Info"
 msgstr ""
 
 msgctxt "#30377"
-msgid "Bookmark Delay 0-30 seconds"
+msgid "Bookmark Delay 0-30 (seconds)"
 msgstr ""
 
 msgctxt "#30378"
@@ -257,7 +257,7 @@ msgid "Music Videos View"
 msgstr ""
 
 msgctxt "#30383"
-msgid "Pause Autostop Minutes"
+msgid "Pause Autostop (minutes)"
 msgstr ""
 
 msgctxt "#30384"
@@ -282,6 +282,14 @@ msgstr ""
 
 msgctxt "#30389"
 msgid "Mezzmo data successfully cleared from Kodi database."
+msgstr ""
+
+msgctxt "#30390"
+msgid "Server Timeout 10-60 (seconds)"
+msgstr ""
+
+msgctxt "#30391"
+msgid "Search history 0-30 (searches)"
 msgstr ""
 
 msgctxt "#30501"
@@ -381,5 +389,17 @@ msgid "Automatically adjust sync setting based upon Kodi sync with Mezzmo."
 msgstr ""
 
 msgctxt "#30525"
-msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Deafault is enabled."
+msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Default is enabled."
+msgstr ""
+
+msgctxt "#30526"
+msgid "Mezzmo addon server response timeout value.  Default is 60 seconds."
+msgstr ""
+
+msgctxt "#30527"
+msgid "Mezzmo addon new uPNP server discovery timeout value.  Default is 5 seconds."
+msgstr ""
+
+msgctxt "#30528"
+msgid "Number of previous searches to display 0-30.  Default is 10 searches"
 msgstr ""
