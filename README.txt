@@ -6,7 +6,7 @@ v.1.1.4.3
    setting for number of prior searches to display.
 -  Added GUI notification if the Mezzmo server stops responding while 
    performing searches.
--  Added GUI nofitication if a uPNP server stops responding during addon
+-  Added GUI notification if a uPNP server stops responding during addon
    startup. 
 
 v.1.1.4.2
