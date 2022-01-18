@@ -3,6 +3,8 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 <a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/master">Kodi 18 link</a>
 
+<a href="http://www.mezzmo.com/wiki/doku.php?id=mezzmo_for_kodi_user_guide">Kodi Addon User Guide</a> 
+
 <b>Features: </b>
 - Play and resume videos
 - Share resume points between other devices through the Mezzmo server
