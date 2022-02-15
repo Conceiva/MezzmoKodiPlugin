@@ -126,6 +126,11 @@ Thumbs.db
 # Folder config file
 Desktop.ini
 
+#############
+## Kodi Repo
+#############
+*sha256
+*.gz
 
 #############
 ## Python
