@@ -1,7 +1,9 @@
-# MezzmoKodiPlugin for Kodi 18 and below
+# MezzmoKodiPlugin Repository Manifest Files
 An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.
 
+<a href="https://github.com/Conceiva/MezzmoKodiPlugin">Kodi 18 link</a>
 <a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/Kodi-19+">Kodi 19+ link</a>
+
 
 <a href="http://www.mezzmo.com/wiki/doku.php?id=mezzmo_for_kodi_user_guide">Kodi Addon User Guide</a>  
 
