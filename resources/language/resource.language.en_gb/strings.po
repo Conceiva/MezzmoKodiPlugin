@@ -81,11 +81,11 @@ msgid "Media info 3"
 msgstr ""
 
 msgctxt "#30339"
-msgid "Timers"
+msgid "Timers & Servers"
 msgstr ""
 
 msgctxt "#30340"
-msgid "Server Search Time (seconds)"
+msgid "Server Search Time (secs)"
 msgstr ""
 
 msgctxt "#30341"
@@ -233,7 +233,7 @@ msgid "Music Info"
 msgstr ""
 
 msgctxt "#30377"
-msgid "Bookmark Delay 0-30 (seconds)"
+msgid "Bookmark Delay 0-30 (secs)"
 msgstr ""
 
 msgctxt "#30378"
@@ -257,7 +257,7 @@ msgid "Music Videos View"
 msgstr ""
 
 msgctxt "#30383"
-msgid "Pause Autostop (minutes)"
+msgid "Pause Autostop (mins)"
 msgstr ""
 
 msgctxt "#30384"
@@ -285,11 +285,147 @@ msgid "Mezzmo data successfully cleared from Kodi database."
 msgstr ""
 
 msgctxt "#30390"
-msgid "Server Timeout 10-60 (seconds)"
+msgid "Mezzmo Server Timeout 10-60 (secs)"
 msgstr ""
 
 msgctxt "#30391"
-msgid "Search history 0-30 (searches)"
+msgid "Search History 0-30 (searches)"
+msgstr ""
+
+msgctxt "#30392"
+msgid "Select Mezzmo Sync Server"
+msgstr ""
+
+msgctxt "#30393"
+msgid "Missing information from uPNP server to support playback."
+msgstr ""
+
+msgctxt "#30394"
+msgid "This uPNP server uses native uPNP support to play media.  Would you like to enable this in Kodi ?"
+msgstr ""
+
+msgctxt "#30395"
+msgid "There was a problem enabling Kodi uPNP support.  Please check the Kodi logs and the uPNP settings in Services."
+msgstr ""
+
+msgctxt "#30396"
+msgid "Mezzmo uPNP Kodi Setting"
+msgstr ""
+
+msgctxt "#30397"
+msgid "Kodi uPNP support enabled."
+msgstr ""
+
+msgctxt "#30398"
+msgid "Mezzmo uPNP Server Discovery"
+msgstr ""
+
+msgctxt "#30399"
+msgid "No Mezzmo servers found."
+msgstr ""
+
+msgctxt "#30400"
+msgid "Mezzmo sync server updated automatically: "
+msgstr ""
+
+msgctxt "#30401"
+msgid "Mezzmo Sync Server"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Refreshing uPNP Server List.  Please wait."
+msgstr ""
+
+msgctxt "#30403"
+msgid "Mezzmo sync server search. No uPNP servers found."
+msgstr ""
+
+msgctxt "#30404"
+msgid "uPNP Server Error"
+msgstr ""
+
+msgctxt "#30405"
+msgid "uPNP server not responding: "
+msgstr ""
+
+msgctxt "#30406"
+msgid "Mezzmo uPNP Playback"
+msgstr ""
+
+msgctxt "#30407"
+msgid "The Mezzmo server did not respond."
+msgstr ""
+
+msgctxt "#30408"
+msgid "Mezzmo Server Error"
+msgstr ""
+
+msgctxt "#30409"
+msgid "Select Mezzmo Sync Server"
+msgstr ""
+
+msgctxt "#30410"
+msgid "Other uPNP Server Timeout 10-60 (secs)"
+msgstr ""
+
+msgctxt "#30411"
+msgid "Picture Slideshow Pause 2-20 (secs)"
+msgstr ""
+
+msgctxt "#30412"
+msgid "Mezzmo Slideshow Viewer"
+msgstr ""
+
+msgctxt "#30413"
+msgid "Kodi is unable to display pictures via native uPNP.  Please choose a different uPNP server for viewing pictures."
+msgstr ""
+
+msgctxt "#30414"
+msgid "There were no matching search results found on your Mezzmo server."
+msgstr ""
+
+msgctxt "#30415"
+msgid "Select Picture Viewing Format"
+msgstr ""
+
+msgctxt "#30416"
+msgid "Select Picture to View"
+msgstr ""
+
+msgctxt "#30417"
+msgid "Slideshow"
+msgstr ""
+
+msgctxt "#30418"
+msgid "Pictures Normal Delay"
+msgstr ""
+
+msgctxt "#30419"
+msgid "Pictures Extended Delay"
+msgstr ""
+
+msgctxt "#30420"
+msgid "Mezzmo Search Results"
+msgstr ""
+
+msgctxt "#30421"
+msgid "The server returned no items for the selected playlist."
+msgstr ""
+
+msgctxt "#30422"
+msgid "Mezzmo Search Results"
+msgstr ""
+
+msgctxt "#30423"
+msgid "Mezzmo Server Response"
+msgstr ""
+
+msgctxt "#30424"
+msgid "uPNP Server Response"
+msgstr ""
+
+msgctxt "#30425"
+msgid "Slideshow Viewer"
 msgstr ""
 
 msgctxt "#30501"
@@ -297,7 +433,7 @@ msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
 
 msgctxt "#30502"
-msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are update devery 30 minutes.  Disabling can slow down performance."
+msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance."
 msgstr ""
 
 msgctxt "#30503"
@@ -348,6 +484,26 @@ msgctxt "#30514"
 msgid "Folder view mapping to a specific view format."
 msgstr ""
 
+msgctxt "#30415"
+msgid "Select Picture Viewing Format"
+msgstr ""
+
+msgctxt "#30416"
+msgid "Select Picture to View"
+msgstr ""
+
+msgctxt "#30417"
+msgid "Slideshow"
+msgstr ""
+
+msgctxt "#30418"
+msgid "Pictures Normal Delay"
+msgstr ""
+
+msgctxt "#30419"
+msgid "Pictures Extended Delay"
+msgstr ""
+
 msgctxt "#30515"
 msgid "Photos view display format."
 msgstr ""
@@ -393,7 +549,7 @@ msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have 
 msgstr ""
 
 msgctxt "#30526"
-msgid "Mezzmo addon server response timeout value.  Default is 60 seconds."
+msgid "Mezzmo addon Mezzmo server response timeout value.  Default is 60 seconds."
 msgstr ""
 
 msgctxt "#30527"
@@ -402,4 +558,20 @@ msgstr ""
 
 msgctxt "#30528"
 msgid "Number of previous searches to display 0-30.  Default is 10 searches"
+msgstr ""
+
+msgctxt "#30529"
+msgid "Select and view Mezzmo server to sync with Kodi. "
+msgstr ""
+
+msgctxt "#30530"
+msgid "Mezzmo addon non-Mezzmo server response timeout value.  Default is 60 seconds."
+msgstr ""
+
+msgctxt "#30531"
+msgid "Adjust slideshow pause between photos / images 2-20 secs.  Default is 3 seconds."
+msgstr ""
+
+msgctxt "#30532"
+msgid "Enable slideshow viewer when browsing pictures.  When enabled a prompt will be displayed asking if the pictures should be shown using a slidewshow viewer.  Default is enabled."
 msgstr ""

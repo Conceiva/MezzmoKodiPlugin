@@ -15,7 +15,31 @@
 						<popup>false</popup>
 					</control>
 				</setting>
+				<setting id="slidetime" type="integer" label="30411" help="30531">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<minimum>2</minimum>
+						<step>1</step>
+						<maximum>20</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
 				<setting id="srvrtime" type="integer" label="30390" help="30526">
+					<level>0</level>
+					<default>60</default>
+					<constraints>
+						<minimum>10</minimum>
+						<step>5</step>
+						<maximum>60</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="gsrvrtime" type="integer" label="30410" help="30530">
 					<level>0</level>
 					<default>60</default>
 					<constraints>
@@ -53,6 +77,12 @@
                                                         <option>55</option>
                                                         <option>60</option>
 						</options>
+                                <setting id="getservers" type="action" label="30392" help="30529">
+	                                 <level>0</level>
+	                                 <data>RunScript(plugin.video.mezzmo,servers)</data>
+	                                 <control type="button" format="action">
+	                                 </control>
+                                </setting>
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
@@ -190,6 +220,11 @@
 					<control type="toggle"/>
 				</setting>
 				<setting id="viewmap" type="boolean" label="30387" help="30525">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="slideshow" type="boolean" label="30425" help="30532">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>

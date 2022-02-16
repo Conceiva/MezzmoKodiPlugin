@@ -7,6 +7,7 @@ import playcount
 import xbmcaddon
 from media import openNosyncDB, get_installedversion
 import media
+from server import displayServers
 from datetime import datetime, timedelta
 
 
@@ -158,10 +159,8 @@ def perfStats():                                                 # Mezzmo Addon 
     curpf = pdfile.execute('SELECT DISTINCT psDate FROM mperfStats ORDER BY psDate DESC', )
     pstatdates = curpf.fetchall()                                # Get dates from database
     a = 0
-    for rdate in pstatdates:
-        x = str(rdate).replace("('","").replace("',)","")
-        if a < 30:
-            pdates.append(x)                                     # Convert rows to list for dialog box
+    while a < len(pstatdates) and a < 30:
+        pdates.append(pstatdates[a][0])                          # Convert rows to list for dialog box
         a += 1
     ddialog = xbmcgui.Dialog()  
     vdate = ddialog.select('Select Mezzmo Performance Stats Date', pdates)
@@ -228,9 +227,10 @@ def perfPlaylist():                                              # Performance B
     plists = []
     curpf = pdfile.execute('SELECT DISTINCT psPlaylist FROM mperfStats ORDER BY psPlaylist ASC', )
     pstatlists = curpf.fetchall()                                # Get playlists from database
-    for rlist in pstatlists:
-        x = str(rlist).replace("('","").replace("',)","")
-        plists.append(x)                                         # Convert rows to list for dialog box
+    a = 0
+    while a < len(pstatlists):
+        plists.append(pstatlists[a][0])                          # Convert rows to list for dialog box
+        a += 1
     ddialog = xbmcgui.Dialog() 
     vdate = ddialog.select('Select Mezzmo Performance Stats Playlist', plists)
     if vdate < 0:                                                # User cancel
@@ -256,10 +256,8 @@ def displayDupeLogs():
     mstatdates = dupdate.fetchall()                              # Get dates from database
     if mstatdates:        
         a = 0       
-        for rdate in mstatdates:
-            x = str(rdate).replace("('","").replace("',)","")
-            if a < 30:
-                dldates.append(x)                                # Convert rows to list for dialog box
+        while a < len(mstatdates) and a < 30:
+            dldates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
             a += 1
         mdate = dialog.select('Select Duplicate Videos Date', dldates)
         if mdate < 0:                                            # User cancel
@@ -319,10 +317,8 @@ def displaySyncLogs():
     mstatdates = cursync.fetchall()                              # Get dates from database
     if mstatdates:        
         a = 0         
-        for rdate in mstatdates:
-            x = str(rdate).replace("('","").replace("',)","")
-            if a < 30:
-                msdates.append(x)                                # Convert rows to list for dialog box
+        while a < len(mstatdates) and a < 30:
+            msdates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
             a += 1
         mdate = msdialog.select('Select Sync Logs Date', msdates)
         if mdate < 0:                                            # User cancel
@@ -372,10 +368,8 @@ def displayGenLogs():
     mstatdates = cursync.fetchall()                              # Get dates from database
     if mstatdates:        
         a = 0       
-        for rdate in mstatdates:
-            x = str(rdate).replace("('","").replace("',)","")
-            if a < 30:
-                msdates.append(x)                                # Convert rows to list for dialog box
+        while a < len(mstatdates) and a < 30:
+            msdates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
             a += 1
         mdate = msdialog.select('Select General Logs Date', msdates)
         if mdate < 0:                                            # User cancel
@@ -445,3 +439,5 @@ elif sys.argv[1] == 'playm':                                      # Play music w
     playMusic()
 elif sys.argv[1] == 'performance':                                # Display Performance stats
     displayMenu()
+elif sys.argv[1] == 'servers':                                    # Display Sync srvers
+    displayServers()

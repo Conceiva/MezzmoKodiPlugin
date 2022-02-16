@@ -34,10 +34,6 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
   </s:Body>
 </s:Envelope>'''
     req = urllib.request.Request(url, body.encode('utf-8'), headers)
-    #req = urllib.request.Request(url, body, headers)
-    #xbmc.log('The body is: ' + str(body), xbmc.LOGINFO)
-    #xbmc.log('The url is: ' + str(url), xbmc.LOGINFO)
-    #xbmc.log('The header is: ' + str(headers), xbmc.LOGINFO)
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=srvrtime).read().decode('utf-8')

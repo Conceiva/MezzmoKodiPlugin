@@ -1,4 +1,34 @@
-v.2.1.4.3
+v2.1.4.4
+
+-  Added a GUI notification when browsing a playlist and the server returns
+   no results due to it being empty on the server.
+-  New feature allows for viewing pictures in a slideshow or individually
+   with a normal or extended presentation time.  A View Setting was added to
+   allow adjusting the slideshow and picture presentation times. The 
+   slideshow has 3 controls:  Pause, Play / Resume, and Stop.  An additional
+   View setting was added to enable / disable the slideshow feature.  The 
+   default is enabled.
+-  Added ability to display pictures regardless of whether the addon is 
+   launched in Kodi under Pictures, Videos or Music.
+-  Added / restored support for non-Mezzmo uPNP servers.  The addon will now
+   detect the model of the uPNP server it is connecting to and will adjust 
+   capabilities to what the uPNP server will support.  Mezzmo advanced
+   functionality like sync, bookmark / playcount sharing and more will only
+   work with Mezzmo servers. 
+-  Added GUI progress notification during uPNP server discovery so you can
+   now see what is happening.
+-  Added setting for sync server selection.  This will allow syncing to your
+   Mezzmo server while browsing another uPNP server or another Mezzmo server.
+   If there is only one Mezzmo server found the addon will automatically make
+   it the sync server.  Syncing to multiple Mezzmo servers isn't supported at 
+   this time.
+-  Improved uPNP server discovery by adjusting the multicast TTL timer.  
+-  Improved uPNP server response validation to ignore missing or invalid 
+   responses.
+-  Created Kodi Mezzmo repository for updates.  Updates will now be automatic
+   and available via the Kodi GUI.
+
+v2.1.4.3
 
 -  Added Mezzmo server timeout setting and reorganized all timer settings
    into a common tab.
@@ -9,7 +39,7 @@ v.2.1.4.3
 -  Added GUI notification if a uPNP server stops responding during addon
    startup. 
 
-v.2.1.4.2
+v2.1.4.2
 
 -  Additional fixes to detect improper Kodi settings causing exception errors
    in sync process.

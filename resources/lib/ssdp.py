@@ -61,7 +61,7 @@ def discover(service, timeout=5, retries=1, mx=3, wifi_found_cb=None):
     for _ in range(retries):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
+        sock.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 20)
         sockMessage = message.format(*group, st=service, mx=mx)
         if pyVersion == 3:
             sockMessage = sockMessage.encode("utf-8")

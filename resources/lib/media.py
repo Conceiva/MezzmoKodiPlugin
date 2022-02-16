@@ -3,10 +3,9 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmcvfs
-import os
+import os, sys, linecache
 import json
 import urllib.request, urllib.error, urllib.parse
-import urllib.request, urllib.parse, urllib.error
 from datetime import datetime
 
 
@@ -17,6 +16,8 @@ def settings(setting, value = None):
     else:
         return xbmcaddon.Addon().getSetting(setting)   
 
+def translate(text):
+    return xbmcaddon.Addon().getLocalizedString(text)
 
 def priorSearch():                                    # Check for prior searches
     
@@ -210,6 +211,17 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS msearch_2 ON mSearch (msSearch)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS msearch_1 ON mSearch (msDate)')
 
+    dbsync.execute('CREATE table IF NOT EXISTS mServers (srvUrl TEXT, srvName TEXT,  \
+    controlUrl TEXT, mSync TEXT, sManuf TEXT, sModel TEXT, sIcon TEXT, sDescr TEXT,  \
+    sUdn TEXT)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mserver_1 ON mServers (controlUrl)')
+    dbsync.commit()
+
+    try:
+        dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
+    except:
+       xbmc.log('Mezzmo check nosync DB. No column sUdn: ' , xbmc.LOGDEBUG)     
+
     dbsync.commit()
     dbsync.close()
 
@@ -264,12 +276,14 @@ def autostart():                                #  Check for autostart
         xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog) 
 
+
 def getPath(itemurl):		            # Find path string for media file
 
     rtrimpos = itemurl.rfind('/')           # Check for container / path change
     pathcheck = itemurl[:rtrimpos+1]
     #xbmc.log('The media file path is : ' + pathcheck, xbmc.LOGINFO)
     return(pathcheck)   
+
 
 def getMServer(itemurl):		    # Find server string for media file
 
@@ -463,6 +477,19 @@ def mgenlogUpdate(mgenlog):                              #  Add Mezzmo general l
         pass
 
 
+def getSyncURL():                                      # Get Sync srver URL
+
+    svrfile = openNosyncDB()                           # Open server database    
+    curps = svrfile.execute('SELECT controlUrl FROM mServers WHERE mSync=?', ('Yes',))
+    srvrtuple = curps.fetchone()                       # Get server from database
+    if srvrtuple:
+        syncurl = srvrtuple[0]
+    else:                                              # Sync srver not set yet
+        syncurl = 'None'
+    svrfile.close()
+    return syncurl    
+
+
 def kodiCleanDB(ContentDeleteURL, force):
 
     if settings('kodiclean') == 'true':                #  clears Kodi DB Mezzmo data if enabled in setings
@@ -475,10 +502,17 @@ def kodiCleanDB(ContentDeleteURL, force):
             return
         force = 1                                      #  Ok to clear database
     if force == 1:                                     #  clears Kodi DB Mezzmo data check for sync process
-        db = openKodiDB()
-        xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
 
-        serverport = '%' + getServerport(ContentDeleteURL) + '%'     #  Get Mezzmo server port info
+        syncurl = getSyncURL()                         #  Get Mezzmo sync server URL
+        if syncurl == 'None':
+            mgenlog ='Kodi database Mezzmo not cleared.  Missing valid Mezzmo sync server'
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlogUpdate(mgenlog)            
+            return
+        db = openKodiDB()
+        xbmc.log('Content delete URL: ' + syncurl, xbmc.LOGDEBUG)
+
+        serverport = '%' + getServerport(syncurl) + '%'     #  Get Mezzmo server port info
 
         db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
         db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
@@ -901,3 +935,15 @@ def insertArt(movienumb, db, media_type, murl, micon):
     (movienumb, media_type, 'thumb', micon))
     db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
     (movienumb, media_type, 'icon', micon))
+
+
+def printexception():
+
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(),     \
+    exc_obj), xbmc.LOGINFO)
