@@ -13,24 +13,25 @@ import urlparse
 import browse
 import contentrestriction
 import xbmc
-import linecache
 import datetime
 import time
 import json
 import os
 import media
 import sync
+from server import updateServers, getContentURL, picDisplay, showSingle
+from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
-installed_version = media.get_installedversion()
 
 addon_path = xbmcaddon.Addon().getAddonInfo("path")
 addon_icon = addon_path + '/resources/icon.png'
 addon_fanart = addon_path + '/resources/fanart.jpg'
-   
+
+installed_version = media.get_installedversion()   
 
 def perfStats(TotalMatches, brtime, endtime, patime, srtime, ctitle, pobject):    # Log performance stats
     tduration = endtime - brtime
@@ -71,19 +72,15 @@ def message(msg):
  
     xbmcgui.Dialog().ok(__addonname__, str(msg))
 
-def printexception():
-    exc_type, exc_obj, tb = sys.exc_info()
-    f = tb.tb_frame
-    lineno = tb.tb_lineno
-    filename = f.f_code.co_filename
-    linecache.checkcache(filename)
-    line = linecache.getline(filename, lineno, f.f_globals)
-    xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(), exc_obj))
 
 def listServers(force):
     timeoutval = float(media.settings('ssdp_timeout'))
     contenturl = ''
 
+    msgdialogprogress = xbmcgui.DialogProgress()
+    dialogmsg = media.translate(30402)
+    dialoghead = media.translate(30398)
+    msgdialogprogress.create(dialoghead, dialogmsg)
     saved_servers = media.settings('saved_servers')
     if len(saved_servers) < 5 or saved_servers == 'none' or force:
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
@@ -101,6 +98,14 @@ def listServers(force):
     
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
+    srvcount = len(servers)
+    addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
+    ddialogmsg = dialogmsg + addtlmsg
+    msgdialogprogress.update(50, ddialogmsg)
+    if force:
+        xbmc.sleep(1000)
+    a = 0
+
     mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' uPNP servers found.'
     xbmc.log(mgenlog, xbmc.LOGNOTICE)
     media.mgenlogUpdate(mgenlog)
@@ -116,7 +121,26 @@ def listServers(force):
             media.mgenlogUpdate(mgenlog)   
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
-            manufacturer = device.find('manufacturer').text
+            manufacturer = device.find('manufacturer')
+            if manufacturer != None:
+                manufacturer = manufacturer.text
+            else:
+                manufacturer = 'None'
+            modelnumber = device.find('modelNumber')
+            if modelnumber != None:
+                modelnumber = modelnumber.text
+            else:
+                modelnumber = 'None'
+            udn = device.find('UDN')
+            if udn != None:
+                udn = udn.text
+            else:
+                udn = 'None'
+            description = device.find('modelDescription')
+            if description != None:
+                description = description.text
+            else:
+                description = 'None'            
             serviceList = device.find('serviceList')
             iconList = device.find('iconList')
             iconurl = ''
@@ -156,13 +180,11 @@ def listServers(force):
                         contenturl = service.find('controlURL').text
                         if contenturl.startswith('/'):
                             end = url.find('/', 8)
-                            length = len(url)
-                            
+                            length = len(url)                           
                             contenturl = url[:end-length] + contenturl
-                        else:
+                        elif 'http' not in contenturl:
                             end = url.rfind('/')
-                            length = len(url)
-                            
+                            length = len(url)                            
                             contenturl = url[:end-length] + '/' + contenturl
 
                 itemurl = build_url({'mode': 'server', 'contentdirectory': contenturl})   
@@ -170,16 +192,26 @@ def listServers(force):
                 li = xbmcgui.ListItem(friendlyname, iconImage=iconurl)
                 li.setArt({'thumb': iconurl, 'poster': iconurl, 'icon': iconurl, 'fanart': addon_fanart})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                updateServers(url, friendlyname, contenturl, manufacturer, modelnumber, iconurl, description, udn) 
         except urllib2.URLError, urllib2.HTTPError:    # Detect Server Issues
             mgenlog = 'Mezzmo uPNP server not responding: ' + url
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)  
-            dialog_text = 'uPNP server not responding: ' + url
-            xbmcgui.Dialog().ok("uPNP Server Error", dialog_text) 
+            dialog_text = media.translate(30405) + url
+            xbmcgui.Dialog().ok(media.translate(30404), dialog_text) 
             pass                  
         except Exception as e:
-            printexception()
+            media.printexception()
             pass
+        a += 1
+        percent = int(a / float(srvcount) * 50) + 50
+        dialogmsg = str(a) + ' / ' + str(srvcount) + ' server completed.' 
+        msgdialogprogress.update(percent, dialogmsg)
+        if srvcount > 5:
+            xbmc.sleep(200)
+        else:
+            xbmc.sleep(100)            
+    msgdialogprogress.close() 
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
@@ -327,7 +359,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
     koditv = media.settings('koditv')
     perflog = media.settings('perflog')
     duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
-    synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled        
+    synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled
+    slideshow = media.settings('slideshow')             # Check if slideshow is enabled        
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     menuitem1 = addon.getLocalizedString(30347)
@@ -350,14 +383,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
-            if NumberReturned == 0:
+
+            if int(NumberReturned) == 0:
+                dialog_text = media.translate(30421) + '\n' + xbmc.getInfoLabel("ListItem.Label")
+                xbmcgui.Dialog().ok(media.translate(30423), dialog_text)
+                xbmc.executebuiltin('Action(ParentDir)')
                 break; #sanity check
                 
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
-              
+            picnotify = 0              
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 containerid = container.get('id')
@@ -374,7 +411,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         icon = icon + '.jpg'
                     xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
 
-                itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
+                itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,        \
+                'contentdirectory': contenturl})        
                 li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})  
               
@@ -384,7 +422,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 }
                 li.setInfo(mediaClass_text, info)
                     
-                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
+                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl,            \
+                'objectID': containerid})
                 
                 itempath = xbmc.getInfoLabel("ListItem.FileNameAndPath ")
                 autitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist 
@@ -400,12 +439,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
                 
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                picnotify += 1
                 if parentID == '0':
                     contentType = 'top'
                 else:
                     contentType = 'folders'
                 contentType = content_mapping(contentType)
-  
+
+
+            piclist = []  
             ctitle = xbmc.getInfoLabel("ListItem.Label")         #  Get title of selected playlist
             xbmc.log('Mezzmo content title: ' + str(ctitle) + ' ' + str(parentID) + ' ' + objectID +     \
             ' Content type: ' + contentType, xbmc.LOGDEBUG)            
@@ -503,7 +545,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None:
+                if actors != None and imageSearchUrl != None:
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
@@ -652,7 +694,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if mediaClass_text == 'M':
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
-                        mediaClass_text = 'picture'
+                        mediaClass_text = 'pictures'
                      
                 if mediaClass_text == 'video' and validf == 1:    
                     mtitle = media.displayTitles(title)					#  Normalize title
@@ -781,7 +823,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
 
-                elif mediaClass_text == 'picture':
+                elif mediaClass_text == 'pictures':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])                    
                     info = {
                         'title': title,
@@ -789,9 +831,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'files'
-
+                    picnotify += 1
+                    itemdict = {
+                        'title': title,
+                         'url': itemurl,
+                    }
+                    piclist.append(itemdict)
+                    if picnotify == int(NumberReturned) and slideshow == 'true':
+                        picDisplay(piclist)
+                    itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
                 if validf == 1: 
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                    #xbmc.log('Mezzmo item URL is: ' + str(itemurl), xbmc.LOGNOTICE)
                 else:
                     dialog_text = "Video file:  " + title.encode('utf-8') + " is invalid."
                     dialog_text2 = "Check Mezzmo video properties for this file."
@@ -835,7 +886,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
             content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)
             srtime = srtime + (time.time() - brtime2)   #  Calculate total server time
     except Exception as e:
-        printexception()
+        media.printexception()
         pass
     setViewMode(contentType)
     if contentType == 'top' or contentType == 'folders':
@@ -873,8 +924,8 @@ def handleSearch(content, contenturl, objectID, term):
             TotalMatches = browseresponse.find('TotalMatches').text
         
             if int(NumberReturned) == 0:
-                dialog_text = "There were no matching search results found on your Mezzmo server."
-                xbmcgui.Dialog().ok("Mezzmo Search Results", dialog_text)
+                dialog_text = media.translate(30414)
+                xbmcgui.Dialog().ok(media.translate(30420), dialog_text)
                 xbmc.executebuiltin('Action(ParentDir)')
                 break; #sanity check
                 
@@ -1012,7 +1063,7 @@ def handleSearch(content, contenturl, objectID, term):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None:
+                if actors != None and imageSearchUrl != None:
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
@@ -1213,7 +1264,7 @@ def handleSearch(content, contenturl, objectID, term):
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
-                        durationsecs = getSeconds(sync.duration_text)       #  convert movie duration to seconds before passing
+                        durationsecs = sync.getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text)
@@ -1272,6 +1323,7 @@ def handleSearch(content, contenturl, objectID, term):
                     li.setInfo(mediaClass_text, info)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'files'
+                    itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
                  
                 if validf == 1:   
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
@@ -1299,7 +1351,7 @@ def handleSearch(content, contenturl, objectID, term):
             pin = media.settings('content_pin')   
             content = browse.Search(contenturl, objectID, term, offset, requestedCount, pin)
     except Exception as e:
-        printexception()
+        media.printexception()
         pass
     xbmcplugin.setContent(addon_handle, contentType)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_UNSORTED)
@@ -1380,11 +1432,6 @@ def getSearchCriteria(term):
     
 def promptSearch():
     term = ''
-    #search_window = search.PopupWindow()
-    #search_window.doModal()
-    #term = search_window.term
-    #isCancelled = search_window.isCancelled
-    #del search_window
     term = media.priorSearch()
     if term == 'cancel':
         return               #  User cancel
@@ -1412,8 +1459,8 @@ def promptSearch():
             mgenlog ='Mezzmo no response from server. '
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)
-            dialog_text = "The Mezzmo server did not respond."
-            xbmcgui.Dialog().ok("Mezzmo Server Error", dialog_text)
+            dialog_text = media.translate(30407)
+            xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
             listServers(False)
     
 mode = args.get('mode', 'none')
@@ -1431,7 +1478,11 @@ elif mode[0] == 'server':
     objectID = args.get('objectID', '0')
     parentID = args.get('parentID', '0')
     pin = media.settings('content_pin')
-    
+    if media.settings('only_mezzmo_servers') == 'false':
+        manufacturer = getContentURL(url[0])
+    else:
+        manufacturer = 'Conceiva'
+    #xbmc.log('Mezzmo contenturl is: ' + str(url[0]) + ' ' + str(manufacturer) + ' ' + str(mode), xbmc.LOGNOTICE)        
     if parentID[0] == '0':
         import socket
         ip = ''
@@ -1442,21 +1493,29 @@ elif mode[0] == 'server':
             pass
         contentrestriction.SetContentRestriction(url[0], ip, 'true', pin)
 
-    brtime = time.time()                                  #  Get start time of browse        
-    content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
-    patime = time.time()                                  #  Get start time of parse
-    if len(content) > 0:                                  #  Check for server response
+    if 'Conceiva' in manufacturer:         #  Check for server response
+        brtime = time.time()               #  Get start time of browse                  
+        content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
+        patime = time.time()               #  Get start time of parse 
         handleBrowse(content, url[0], objectID[0], parentID[0])
-    else:
+    elif 'Conceiva' not in manufacturer:   #  Check for server response
+        content = gBrowse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
+        ghandleBrowse(content, url[0], objectID[0], parentID[0])
+
+    if len(content) == 0:
         mgenlog ='Mezzmo no response from server. '
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)
-        dialog_text = "The Mezzmo server did not respond."
-        xbmcgui.Dialog().ok("Mezzmo Server Error", dialog_text)
+        dialog_text = media.translate(30407)
+        xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
         listServers(False)
                  
 elif mode[0] == 'search':
     promptSearch()
+
+elif mode[0] == 'picture':
+    url = args.get('itemurl', '')
+    showSingle(url)
     
 def start():
     if mode == 'none':

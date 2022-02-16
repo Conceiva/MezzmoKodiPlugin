@@ -2,7 +2,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import xbmcaddon
-import os
+import os, sys, linecache
 import json
 import urllib
 from datetime import datetime
@@ -15,6 +15,8 @@ def settings(setting, value = None):
     else:
         return xbmcaddon.Addon().getSetting(setting)
 
+def translate(text):
+    return xbmcaddon.Addon().getLocalizedString(text)
 
 def priorSearch():                                    # Check for prior searches
     
@@ -205,6 +207,17 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE table IF NOT EXISTS mSearch (msDate TIMESTAMP, msSearch TEXT)')
     dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS msearch_2 ON mSearch (msSearch)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS msearch_1 ON mSearch (msDate)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS mServers (srvUrl TEXT, srvName TEXT,  \
+    controlUrl TEXT, mSync TEXT, sManuf TEXT, sModel TEXT, sIcon TEXT, sDescr TEXT,  \
+    sUdn TEXT)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mserver_1 ON mServers (controlUrl)')
+    dbsync.commit()
+
+    try:
+        dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
+    except:
+       xbmc.log('Mezzmo check nosync DB. No column sUdn: ' , xbmc.LOGDEBUG) 
 
     dbsync.commit()
     dbsync.close()
@@ -883,7 +896,6 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
         scur.close()
 
 
-
 def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels):
 
     db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
@@ -905,3 +917,13 @@ def insertArt(movienumb, db, media_type, murl, micon):
     db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
     (movienumb, media_type, 'icon', micon))
 
+
+def printexception():
+    exc_type, exc_obj, tb = sys.exc_info()
+    f = tb.tb_frame
+    lineno = tb.tb_lineno
+    filename = f.f_code.co_filename
+    linecache.checkcache(filename)
+    line = linecache.getline(filename, lineno, f.f_globals)
+    xbmc.log( 'EXCEPTION IN ({0}, LINE {1} "{2}"): {3}'.format(filename, lineno, line.strip(),      \
+    exc_obj), xbmc.LOGNOTICE)

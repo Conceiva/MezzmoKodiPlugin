@@ -7,6 +7,7 @@ import socket
 import contentrestriction
 import sync
 import media
+from server import checkSync, getContentURL
 
 pos = 0
 file = ''
@@ -26,41 +27,52 @@ class XBMCPlayer(xbmc.Player):
         pass
  
     def onPlayBackStarted(self):
-        file = xbmc.Player().getPlayingFile()
-        xbmc.log("Playback started - " + file)
+        try:
+            file = xbmc.Player().getPlayingFile()
+            xbmc.log("Playback started - " + file, xbmc.LOGDEBUG)
+        except:
+            file = 'File playing is not video or audio'
+            pass
         self.paflag = 0
  
     def onPlayBackPaused(self):
         xbmc.log("Playback paused - LED OFF")
         contenturl = media.settings('contenturl')
+        manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
                 self.paflag = 1
  
     def onPlayBackResumed(self):
-        file = self.getPlayingFile()
-        xbmc.log("Playback resumed - LED ON")
+        try:
+            file = self.getPlayingFile()
+            xbmc.log("Mezzmo Playback resumed - LED ON" , xbmc.LOGDEBUG)
+        except:
+            file = 'File playing is not video or audio'
+            pass
         self.paflag = 0
  
     def onPlayBackEnded(self):
-        xbmc.log("Playback ended - LED OFF")
+        xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
         contenturl = media.settings('contenturl')
+        manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         pos = 0
         self.paflag = 0
-        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
  
     def onPlayBackStopped(self):
         contenturl = media.settings('contenturl')
+        manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         self.paflag = 0
-        if len(contenturl) > 5:             # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
 
              
@@ -76,10 +88,11 @@ while True:
         pos = long(xbmc.Player().getTime())
         if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
             contenturl = media.settings('contenturl')
+            manufacturer = getContentURL(contenturl)
             objectID = getObjectID(file)
-            bmdelay = 15 - int(media.settings('bmdelay'))            
-            if contenturl != 'none':        # Ensure Mezzmo server has been selected            
-                bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))         
+            bmdelay = 15 - int(media.settings('bmdelay'))
+            if contenturl != 'none' and 'Conceiva' in manufacturer:   # Ensure Mezzmo server has been selected            
+                bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))           
 
     count += 1
     if count == 2:                          # Check for autostarting the Mezzmo GUI
@@ -144,9 +157,10 @@ while True:
             media.mezlogUpdate(msynclog)
         else:
             syncpin = media.settings('content_pin')
-            syncurl = media.settings('contenturl')
-            xbmc.log('Mezzmo contenturl is: ' + str(syncurl), xbmc.LOGDEBUG)        
-            if syncpin and syncurl and len(syncurl) > 5:       
+            syncset = media.settings('kodisyncvar')
+            syncurl = checkSync()           # Get server control URL
+            xbmc.log('Mezzmo contenturl is: ' + str(syncurl), xbmc.LOGDEBUG)                       
+            if syncpin and syncset != 'Off' and syncurl != 'None':      
                 try:             
                     sync.syncMezzmo(syncurl, syncpin, count)
                 except:
@@ -154,7 +168,7 @@ while True:
                     xbmc.log(msynclog, xbmc.LOGNOTICE)
                     media.mezlogUpdate(msynclog)    
                     pass            
-            else:                          # Ensure Mezzmo server has been selected 
+            elif syncset != 'Off' and syncurl == 'None':  # Ensure Mezzmo server has been selected 
                 msynclog ='Mezzmo no servers selected yet.  Mezzmo sync skipped.'
                 xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)
