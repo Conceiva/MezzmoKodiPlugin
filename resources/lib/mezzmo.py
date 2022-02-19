@@ -19,6 +19,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle
+from server import clearPictures, updatePictures
 from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
@@ -362,6 +363,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem5 = addon.getLocalizedString(30379)
     menuitem6 = addon.getLocalizedString(30380)
     menuitem7 = addon.getLocalizedString(30384)
+    menuitem8 = addon.getLocalizedString(30412)
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
@@ -440,6 +442,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 contentType = content_mapping(contentType)
 
             piclist = []
+            clearPictures()  
             ctitle = xbmc.getInfoLabel("ListItem.Label")           #  Get title of selected playlist
             xbmc.log('Mezzmo content title: ' + ctitle + ' ' + str(parentID) + ' ' + objectID +     \
             ' Content type: ' + contentType, xbmc.LOGDEBUG)       
@@ -815,7 +818,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     contentType = 'songs'
 
                 elif mediaClass_text == 'pictures':
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])                    
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'), \
+                    (menuitem8, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "pictures")) ]) 
                     info = {
                         'title': title,
                     }
@@ -828,8 +832,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                          'url': itemurl,
                     }
                     piclist.append(itemdict)
-                    if picnotify == int(NumberReturned) and slideshow == 'true':
-                        picDisplay(piclist)
+                    if picnotify == int(NumberReturned):                   # Update picture DB
+                        updatePictures(piclist)
+                        if slideshow == 'true':                            # Slideshow display prompt
+                            picDisplay()
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
                 if validf == 1: 
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)

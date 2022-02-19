@@ -7,7 +7,7 @@ import playcount
 import xbmcaddon
 from media import openNosyncDB, get_installedversion
 import media
-from server import displayServers
+from server import displayServers, picDisplay
 from datetime import datetime, timedelta
 
 
@@ -439,5 +439,7 @@ elif sys.argv[1] == 'playm':                                      # Play music w
     playMusic()
 elif sys.argv[1] == 'performance':                                # Display Performance stats
     displayMenu()
-elif sys.argv[1] == 'servers':                                    # Display Sync srvers
+elif sys.argv[1] == 'servers':                                    # Display Sync servers
     displayServers()
+elif sys.argv[1] == 'pictures':                                   # Display Pictures
+    picDisplay()

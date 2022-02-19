@@ -20,8 +20,8 @@ def updateServers(url, name, controlurl, manufacturer, model, icon, description,
     curps = svrfile.execute('SELECT srvName FROM mServers WHERE controlUrl=?', (controlurl,))
     srvrtuple = curps.fetchone()                                 # Get servers from database
     if not srvrtuple:				                 # If not found add server
-        curps.execute('INSERT into mServers (srvUrl, srvName, controlUrl, mSync, sManuf, sModel,  \
-        sIcon, sDescr, sUdn) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (url, name, controlurl, 'No',   \
+        svrfile.execute('INSERT into mServers (srvUrl, srvName, controlUrl, mSync, sManuf, sModel,  \
+        sIcon, sDescr, sUdn) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (url, name, controlurl, 'No',     \
         manufacturer, model, icon, description, udn[5:]))
 
     svrfile.commit()
@@ -292,8 +292,8 @@ def upnpCheck():                                                 # Check Kodi uP
                 mgenlog ='Mezzmo Kodi uPNP Setting failed.'
                 xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlogUpdate(mgenlog)
-            
 
+            
 def clearServers():                                              # Clear server data
 
     try:
@@ -310,6 +310,70 @@ def clearServers():                                              # Clear server 
         msynclog = 'Mezzmo sync server clearing error.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog)   
+
+
+def clearPictures():                                             # Clear picture data
+
+    try:
+        picfile = openNosyncDB()                                 # Open picture database
+        picfile.execute('DELETE FROM mPictures',)  
+        picfile.commit()
+        picfile.close()
+        mgenlog = 'Mezzmo picture DB cleared.'
+        xbmc.log(mgenlog, xbmc.LOGDEBUG)
+        mgenlogUpdate(mgenlog)  
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo clearing picture error.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)   
+
+
+def updatePictures(piclist):                                     # Update picture DB with list
+
+    try:
+        picfile = openNosyncDB()                                 # Open picture DB
+        a = 0
+        while a < len(piclist):
+            title = str(piclist[a]['title'])
+            url = str(piclist[a]['url'])
+            picfile.execute('INSERT into mPictures (mpTitle, mpUrl) values (?, ?)', (title, url,))
+            a += 1     
+        picfile.commit()
+        picfile.close()
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo update picture error.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)       
+
+    
+def getPictures():                                               # Get pictures from DB
+
+    try:
+        picfile = openNosyncDB()                                 # Open picture DB
+        curps = picfile.execute('SELECT mpTitle, mpUrl FROM mPictures')
+        pictuple = curps.fetchall()                              # Get pictures from database
+        piclist = []
+        a = 0
+        while a < len(pictuple):
+            itemdict = {
+                'title': pictuple[a][0],
+                'url': pictuple[a][1],
+            }
+            piclist.append(itemdict)
+            a += 1
+        picfile.close()     
+        #xbmc.log('Mezzmo piclist dictionary: ' + str(piclist), xbmc.LOGINFO) 
+        return(piclist)
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo get picture error.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)  
 
 
 def getContentURL(contenturl):                                   # Check for manufacturer match
@@ -370,9 +434,10 @@ def picURL(itemurl):                                            # Check for prop
         mgenlogUpdate(mgenlog)   
 
 
-def picDisplay(piclist):                                         # Picture slideshow presenter
+def picDisplay():                                                # Picture slideshow presenter
 
     try:
+        piclist = getPictures()                                  # Get pictures from picture DB
         slidetime = int(settings('slidetime'))                   # Get slide pause time
         #xbmc.log('Mezzmo picture list: ' + str(piclist) , xbmc.LOGINFO)  
         if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over uPNP

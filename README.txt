@@ -1,3 +1,8 @@
+v2.1.4.6
+
+- Added context menu item for all pictures to be able to launch Mezzmo addon
+  slideshow viewer.
+
 v2.1.4.4
 
 -  Added a GUI notification when browsing a playlist and the server returns

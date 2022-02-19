@@ -77,15 +77,15 @@
                                                         <option>55</option>
                                                         <option>60</option>
 						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
                                 <setting id="getservers" type="action" label="30392" help="30529">
 	                                 <level>0</level>
 	                                 <data>RunScript(plugin.video.mezzmo,servers)</data>
 	                                 <control type="button" format="action">
 	                                 </control>
                                 </setting>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
 				<setting id="saved_servers" type="string" label="30388" help="">
 					<level>0</level>
 					<default>none</default>

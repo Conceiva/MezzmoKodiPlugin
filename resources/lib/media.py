@@ -215,6 +215,11 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     controlUrl TEXT, mSync TEXT, sManuf TEXT, sModel TEXT, sIcon TEXT, sDescr TEXT,  \
     sUdn TEXT)')
     dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mserver_1 ON mServers (controlUrl)')
+
+    dbsync.execute('CREATE table IF NOT EXISTS mPictures (mpTitle TEXT, mpUrl TEXT,   \
+    mpVar1 TEXT, mpVar2 TEXT, mpVar3 TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mpicture_1 ON mPictures (mpTitle)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mpicture_2 ON mPictures (mpUrl)')
     dbsync.commit()
 
     try:
