@@ -425,5 +425,5 @@ msgid "uPNP Server Response"
 msgstr ""
 
 msgctxt "#30425"
-msgid "Slideshow Viewer"
+msgid "Automatic Slideshow Viewer"
 msgstr ""

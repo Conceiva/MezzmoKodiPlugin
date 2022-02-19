@@ -1,3 +1,9 @@
+v1.1.4.6
+
+- Added context menu item for all pictures to be able to launch Mezzmo addon
+  slideshow viewer.
+- Fixed slideshow bug introduced in v1.1.4.5.
+
 v1.1.4.4
 
 -  Fixed search function often returning no results due to duration error.
