@@ -10,7 +10,7 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 - Play and resume videos
 - Share resume points between other devices through the Mezzmo server
 - Shows media in the sort order from the server
-- More metadata than standard UPnP view
+- More metadata than standard UPnP view with support for most uPNP servers
 - Full Mezzmo and Kodi database synchronization using a background process
 - Automatically stop paused playback user selectable timer
 - Performance statistics and log viewing
@@ -20,6 +20,7 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 - Search for media in the server with prior search history
 - Default view modes for Movies, TV Shows and others
 - Play music
-- View Photos with a built-in slideshow viewer
+- View Photos manually or with a built-in slideshow viewer
+- Automatic software updates
 
 <img src="http://www.conceiva.com/images/moviedetails.png" width="100%">
