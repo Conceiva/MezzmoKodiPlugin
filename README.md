@@ -20,7 +20,7 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 - Search for media in the server with prior search history
 - Default view modes for Movies, TV Shows and others
 - Play music
-- View Photos manually or with a built-in slideshow viewer
+- View Photos manually or with the built-in slideshow viewer
 - Automatic software updates
 
 <img src="http://www.conceiva.com/images/moviedetails.png" width="100%">

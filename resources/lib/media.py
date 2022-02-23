@@ -33,9 +33,8 @@ def priorSearch():                                    # Check for prior searches
         psrchtext = curps.fetchall()                  # Get previous from search database
         if psrchtext:                                 # If prior searches in search table 
             pselect = ["[COLOR blue]Enter new search[/COLOR]"]
-            for stext in psrchtext:
-                x = str(stext).replace("('","").replace("',)","")
-                pselect.append(x)                     # Convert rows to list for dialog box
+            for x in range(len(psrchtext)):
+                pselect.append(psrchtext[x][0])       # Convert rows to list for dialog box
             ddialog = xbmcgui.Dialog()
             xbmc.log('The current list is: ' + str(pselect), xbmc.LOGDEBUG)  
             vdate = ddialog.select('Prior Search Text', pselect)
@@ -150,6 +149,8 @@ def getDatabaseName():
         return "MyVideos116.db"
     elif installed_version == '19':
         return "MyVideos119.db"
+    elif installed_version == '20':
+        return "MyVideos120.db"
        
     return ""  
 

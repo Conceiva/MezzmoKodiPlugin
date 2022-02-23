@@ -308,10 +308,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 if trailerurl != None:
                     trailerurl = trailerurl.text
                 
-                genre_text = ''
-                genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
-                if genre != None:
-                    genre_text = genre.text
+                genre_text = []
+                for genre in item.findall('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre'):
+                    if genre != None:
+                        genre_text.append(genre.text)              
+                #xbmc.log('Mezzmo genre list is: ' + str(genre_text), xbmc.LOGINFO)
                     
                 aired_text = ''
                 aired = item.find('.//{http://purl.org/dc/elements/1.1/}date')
@@ -352,18 +353,36 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
+                #xbmc.log('Mezzmo actor list is: ' + str(actors.text), xbmc.LOGINFO) 
                 if actors != None and imageSearchUrl != None:
+                    xbmc.log('Mezzmo actor list is: ' + actors.text.encode('utf-8'), xbmc.LOGINFO)  
                     actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
                         #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
                         new_record = [ a.strip() , actorSearchUrl]
                         cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                elif actors == None:
+                    actor_list = []
+                    for actor in item.findall('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}actor'):
+                        if actor != None:
+                            actor_list.append(actor.text)
+                    artist_text = actor_list                
+                    #xbmc.log('Mezzmo actor list is: ' + str(actor_list), xbmc.LOGINFO)
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
                     creator_text = creator.text
+                else:
+                    creator = item.find('.//{http://purl.org/dc/elements/1.1/}creator')
+                    if creator != None:
+                        creator_text = creator.text
+
+                director_text = ''
+                director = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}director')
+                if director != None:
+                    creator_text = director.text
 
                 date_added_text = ''                
                 date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
@@ -422,6 +441,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
                 if writer != None:
                     writer_text = writer.text
+
+                writer_text = ''
+                writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}author')
+                if writer != None:
+                    writer_text = writer.text
                        
                 content_rating_text = ''
                 content_rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}content_rating')
@@ -450,6 +474,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
+                if production_company != None:
+                    production_company_text = production_company.text
+
+                production_company_text = ''
+                production_company = item.find('.//{http://purl.org/dc/elements/1.1/}publisher')
                 if production_company != None:
                     production_company_text = production_company.text
 
@@ -510,8 +539,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         'director': creator_text,
                         'tagline': tagline_text,
                         'writer': writer_text,
-                        'cast': artist_text.split(','),
-                        'artist': artist_text.split(','),
+                        'cast': artist_text,
+                        'artist': artist_text,
                         'rating': rating_val,
                         'imdbnumber': imdb_text,
                         'mediatype': categories_text,
@@ -547,7 +576,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
-                        'artist': artist_text.split(','),
+                        'artist': artist_text,
                         'rating': rating_val,
                         'discnumber': season_text,
                         'mediatype': 'song',

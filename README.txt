@@ -1,3 +1,9 @@
+v2.1.4.7
+
+-  Added initial support for Kodi v20 Nexus
+-  Additional code cleanup and optimization for the Logs & Stats reporting.
+-  Improved metadata for uPNP servers including actors, directors and genre.
+
 v2.1.4.6
 
 - Added context menu item for all pictures to be able to launch Mezzmo addon

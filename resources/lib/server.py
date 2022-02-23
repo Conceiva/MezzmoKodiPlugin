@@ -36,14 +36,12 @@ def displayServers():
         curps = svrfile.execute('SELECT srvName, mSync, sManuf, controlUrl FROM mServers        \
         WHERE sManuf LIKE ?', ('Conceiva%',))
         srvresults = curps.fetchall()                            # Get servers from database
-        a = 0
-        while a < len(srvresults):
+        for a in range(len(srvresults)):
             if srvresults[a][1] == 'Yes':                        # Is sync server ?
                 syncserver = srvresults[a][0] + ' - [COLOR blue]Sync Server[/COLOR]'
                 servers.append(syncserver)            
             elif srvresults[a][1] == 'No':
                 servers.append(srvresults[a][0])                 # Convert rows to list for dialog box
-            a += 1
         ddialog = xbmcgui.Dialog()  
         ssync = ddialog.select(translate(30392), servers)
         if ssync < 0:                                            # User cancel
@@ -158,8 +156,20 @@ def getServers():                                                # Find uPNP ser
                 device = e.find('device')
                 friendlyname = device.find('friendlyName').text
                 manufacturer = device.find('manufacturer').text
-                modelnumber = device.find('modelNumber').text
-                udn = device.find('UDN').text
+                if manufacturer != None:
+                    manufacturer = manufacturer.text
+                else:
+                    manufacturer = 'None'
+                modelnumber = device.find('modelNumber')
+                if modelnumber != None:
+                    modelnumber = modelnumber.text
+                else:
+                    modelnumber = 'None'
+                udn = device.find('UDN')
+                if udn != None:
+                    udn = udn.text
+                else:
+                    udn = 'None'
                 description = device.find('modelDescription')
                 if description != None:
                     description = description.text
@@ -321,7 +331,7 @@ def clearPictures():                                             # Clear picture
         picfile.close()
         mgenlog = 'Mezzmo picture DB cleared.'
         xbmc.log(mgenlog, xbmc.LOGDEBUG)
-        mgenlogUpdate(mgenlog)  
+        #mgenlogUpdate(mgenlog)  
 
     except Exception as e:
         printexception()
@@ -357,14 +367,12 @@ def getPictures():                                               # Get pictures 
         curps = picfile.execute('SELECT mpTitle, mpUrl FROM mPictures')
         pictuple = curps.fetchall()                              # Get pictures from database
         piclist = []
-        a = 0
-        while a < len(pictuple):
+        for a in range(len(pictuple)):
             itemdict = {
                 'title': pictuple[a][0],
                 'url': pictuple[a][1],
             }
             piclist.append(itemdict)
-            a += 1
         picfile.close()     
         #xbmc.log('Mezzmo piclist dictionary: ' + str(piclist), xbmc.LOGINFO) 
         return(piclist)
@@ -479,11 +487,8 @@ def showPictureMenu(piclist, slidetime):                         # Picture viewe
     while pselect >= 0:
         try:
             pictures = []
-            a = 0
-   
-            while a < len(piclist):
-                pictures.append(piclist[a]['title'])             # Convert rows to list for dialog box
-                a += 1     
+            for a in range(len(piclist)):
+                pictures.append(piclist[a]['title'])             # Convert rows to list for dialog box    
             ddialog = xbmcgui.Dialog()  
             pselect = ddialog.select(translate(30416), pictures)
             if pselect < 0:                                      # User cancel
