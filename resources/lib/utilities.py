@@ -162,12 +162,10 @@ def perfStats():                                                 # Mezzmo Addon 
 
     pdfile = openNosyncDB()                                      # Open Perf Stats database
     pdates = ["All"]
-    curpf = pdfile.execute('SELECT DISTINCT psDate FROM mperfStats ORDER BY psDate DESC', )
+    curpf = pdfile.execute('SELECT DISTINCT psDate FROM mperfStats ORDER BY psDate DESC LIMIT 30', )
     pstatdates = curpf.fetchall()                                # Get dates from database
-    a = 0
-    while a < len(pstatdates) and a < 30:
+    for a in range(len(pstatdates)):
         pdates.append(pstatdates[a][0])                          # Convert rows to list for dialog box
-        a += 1
     ddialog = xbmcgui.Dialog()  
     vdate = ddialog.select('Select Mezzmo Performance Stats Date', pdates)
     if vdate < 0:                                                # User cancel
@@ -233,10 +231,8 @@ def perfPlaylist():                                              # Performance B
     plists = []
     curpf = pdfile.execute('SELECT DISTINCT psPlaylist FROM mperfStats ORDER BY psPlaylist ASC', )
     pstatlists = curpf.fetchall()                                # Get playlists from database
-    a = 0
-    while a < len(pstatlists):
+    for a in range(len(pstatlists)):
         plists.append(pstatlists[a][0])                          # Convert rows to list for dialog box
-        a += 1                                    # Convert rows to list for dialog box
     ddialog = xbmcgui.Dialog() 
     vdate = ddialog.select('Select Mezzmo Performance Stats Playlist', plists)
     if vdate < 0:                                                # User cancel
@@ -258,13 +254,11 @@ def displayDupeLogs():
     mdate = 0
     dialog = xbmcgui.Dialog()
 
-    dupdate = dlfile.execute('SELECT DISTINCT dtDate FROM dupeTrack ORDER BY dtDate DESC', ) 
+    dupdate = dlfile.execute('SELECT DISTINCT dtDate FROM dupeTrack ORDER BY dtDate DESC LIMIT 30', ) 
     mstatdates = dupdate.fetchall()                              # Get dates from database
     if mstatdates:        
-        a = 0       
-        while a < len(mstatdates) and a < 30:
+        for a in range(len(mstatdates)):
             dldates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
-            a += 1
         mdate = dialog.select('Select Duplicate Videos Date', dldates)
         if mdate < 0:                                            # User cancel
             dlfile.close()
@@ -319,13 +313,11 @@ def displaySyncLogs():
     msdates = ["All"]
     msdialog = xbmcgui.Dialog()   
 
-    cursync = dsfile.execute('SELECT DISTINCT msDate FROM msyncLog ORDER BY msDate DESC', )
+    cursync = dsfile.execute('SELECT DISTINCT msDate FROM msyncLog ORDER BY msDate DESC LIMIT 30', )
     mstatdates = cursync.fetchall()                              # Get dates from database
     if mstatdates:        
-        a = 0         
-        while a < len(mstatdates) and a < 30:
+        for a in range(len(mstatdates)):
             msdates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
-            a += 1
         mdate = msdialog.select('Select Sync Logs Date', msdates)
         if mdate < 0:                                            # User cancel
             dsfile.close()
@@ -370,13 +362,11 @@ def displayGenLogs():
     msdates = ["All"]
     msdialog = xbmcgui.Dialog()   
 
-    cursync = dsfile.execute('SELECT DISTINCT mgDate FROM mgenLog ORDER BY mgDate DESC', )
+    cursync = dsfile.execute('SELECT DISTINCT mgDate FROM mgenLog ORDER BY mgDate DESC LIMIT 30', )
     mstatdates = cursync.fetchall()                              # Get dates from database
     if mstatdates:        
-        a = 0       
-        while a < len(mstatdates) and a < 30:
+        for a in range(len(mstatdates)):
             msdates.append(mstatdates[a][0])                     # Convert rows to list for dialog box
-            a += 1
         mdate = msdialog.select('Select General Logs Date', msdates)
         if mdate < 0:                                            # User cancel
             dsfile.close()
