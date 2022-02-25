@@ -291,20 +291,37 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         xbmc.executebuiltin('Action(ParentDir)')             
                         break
 
-                upnpclass_text = ''
-                upnpclass = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}class')
-                if upnpclass != None:
-                    upnpclass_text = upnpclass.text
-                    #xbmc.log('The class is: ' + str(upnpclass_text), xbmc.LOGNOTICE)   
-     
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
 
+                poster = ''
+                thumb = ''
+                res2 = item.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
+                for protocol in res2:
+                    protocolinfo = protocol.attrib["protocolInfo"]
+                    if 'poster' in protocolinfo:
+                        poster = protocol.text
+                    if 'thumb' in protocolinfo:
+                        thumb = protocol.text
+                    if 'fanart' in protocolinfo and backdropurl == None:
+                        backdropurl = protocol.text
+                    if 'icon' in protocolinfo and icon == None:
+                        icon = protocol.text                              
+
+                upnpclass_text = ''
+                upnpclass = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}class')
+                if upnpclass != None:
+                    upnpclass_text = upnpclass.text  
+
                 li = xbmcgui.ListItem(title)
-                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+                if len(thumb) > 0 and len(poster) > 0:
+                    li.setArt({'thumb': thumb, 'poster': poster, 'icon': icon, 'fanart': backdropurl})
+                else:
+                    li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
                   
@@ -390,11 +407,19 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 date_added = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}date_added')
                 if date_added != None:
                     date_added_text = date_added.text
+                else:                                                  # Kodi uPNP 
+                    date_added = item.find('.//{urn:schemas-xbmc-org:metadata-1-0/}dateadded')
+                    if date_added != None:
+                        date_added_text = date_added.text
                    
                 tagline_text = ''
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
                 if tagline != None:
                     tagline_text = tagline.text
+                else:                                                 # Kodi uPNP
+                    tagline = item.find('.//{http://purl.org/dc/elements/1.1/}description')
+                    if tagline != None:
+                        tagline_text = tagline.text
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
@@ -428,14 +453,23 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                  
                 playcount = 0
                 playcount_text = ''
-                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')
-                
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')               
                 if playcountElem != None:
+                    playcount_text = playcountElem.text
+                    playcount = int(playcount_text)
+
+                playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}playbackCount')               
+                if playcountElem != None:                              # Kodi uPNP
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
                  
                 last_played_text = ''
                 last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
+                if last_played != None:
+                    last_played_text = last_played.text
+
+                last_played_text = ''                                 # Kodi uPNP
+                last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}lastPlaybackTime')
                 if last_played != None:
                     last_played_text = last_played.text
                         
@@ -444,7 +478,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 if writer != None:
                     writer_text = writer.text
 
-                writer_text = ''
+                writer_text = ''                                      # Kodi uPNP
                 writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}author')
                 if writer != None:
                     writer_text = writer.text
@@ -453,13 +487,17 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 content_rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}content_rating')
                 if content_rating != None:
                     content_rating_text = content_rating.text
+
+                content_rating_text = ''                              # Kodi uPNP
+                content_rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}rating')
+                if content_rating != None:
+                    content_rating_text = content_rating.text
               
                 imdb_text = ''
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
-                
-                
+                                
                 dcmInfo_text = '0'
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
                 if dcmInfo != None:
@@ -473,6 +511,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     rating_val = rating.text
                     rating_val = float(rating_val) * 2
                     rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+
+                rating_val = ''                                        # Kodi uPNP
+                rating = item.find('.//{urn:schemas-xbmc-org:metadata-1-0/}userrating')
+                if rating != None:
+                    rating_val = rating.text
                 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')

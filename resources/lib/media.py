@@ -482,8 +482,19 @@ def mgenlogUpdate(mgenlog):                              #  Add Mezzmo general l
         pass
 
 
-def kodiCleanDB(ContentDeleteURL, force):
+def kodiCleanDB(force):                                #  Clear Mezzmo data from Kodi database
 
+    ContentDeleteURL = getSyncUrl()                    #  Get current sync contenturl
+    if ContentDeleteURL == 'None':
+        mgenlog = xbmcaddon.Addon().getLocalizedString(30426)
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        mgenlogUpdate(mgenlog)
+        settings('kodiclean', 'false')
+        name = xbmcaddon.Addon().getAddonInfo('name')
+        cleanmsg = xbmcaddon.Addon().getLocalizedString(30426)
+        icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+        xbmcgui.Dialog().notification(name, cleanmsg, icon)
+        return    
     if settings('kodiclean') == 'true':                #  clears Kodi DB Mezzmo data if enabled in setings
         autdialog = xbmcgui.Dialog()
         kcmsg = "Confirm clearing the Mezzmo data in the Kodi database.  "
@@ -542,6 +553,27 @@ def kodiCleanDB(ContentDeleteURL, force):
             cleanmsg = xbmcaddon.Addon().getLocalizedString(30389)
             icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
             xbmcgui.Dialog().notification(name, cleanmsg, icon)
+
+
+def getSyncUrl():                                                # Get current sync content URLs
+
+    try:
+        svrfile = openNosyncDB()                                 # Open server database    
+        curps = svrfile.execute('SELECT controlUrl FROM mServers WHERE mSync=?', ('Yes',))
+        srvrtuple = curps.fetchone()                             # Get server from database
+        if srvrtuple:
+            syncurl = srvrtuple[0]
+        else:
+            syncurl = 'None'
+        svrfile.close()
+        return (syncurl)
+
+    except Exception as e:
+        printexception()
+        msynclog = 'Mezzmo erro getting sync URL.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        mezlogUpdate(msynclog)
+        return ('None')
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
@@ -641,9 +673,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         dupm = db.execute('SELECT idMovie FROM movie WHERE idFile=? and c00=?', (fileId[0], mtitle))
         dupmtuple = dupm.fetchone() 
         if dupmtuple == None:                                        # Ensure movie doesn't exist
-            db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10, \
-            C23) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, mwriter,   \
-            mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5])) #  Add movie 
+            db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10,     \
+            C23, userrating) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, \
+            mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate)) #  Add movie 
             cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
             movietuple = cur.fetchone()
             movienumb = movietuple[0]                                # get new movie id 
@@ -683,9 +715,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         or kyear != myear or krating != mrating or kgenres != mgenre or int(kduration) != mduration \
         or kstudio != mstudio or kstitle != mstitle:                  # Update movie info if changed
             mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
-            db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, c12=?, \
-            c18=?, c10=?, c23=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, myear,    \
-            mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], movienumb)) #  Update movie information
+            db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, c12=?,     \
+            c18=?, c10=?, c23=?, userrating=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, \
+            myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], movienumb, murate)) #  Update movie information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
@@ -716,9 +748,9 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         dupe = db.execute('SELECT idEpisode FROM episode WHERE idFile=? and c00=?', (fileId[0], mtitle))
         dupetuple = dupe.fetchone() 
         if dupetuple == None:                                        # Ensure episode doesn't exist
-            db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19) values    \
-            (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter, mseason,  \
-            mepisode, maired[:10], shownumb, fileId[5]))             #  Add episode information
+            db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19, userrating) \
+            values (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter,   \
+            mseason, mepisode, maired[:10], shownumb, fileId[5], murate))  #  Add episode information
             cur = db.execute('SELECT idEpisode FROM episode WHERE idFile=?',(str(fileId[0]),))  
             episodetuple = cur.fetchone()
             movienumb = episodetuple[0]                              # get new movie id  
@@ -754,9 +786,9 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         #xbmc.log('Checking episode for changes : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)     
         if kplot != mplot or int(kduration) != mduration or kdirector != mdirector or kwriter != mwriter    \
         or kseason != mseason or kepisode != mepisode or kaired != maired[:10] or kshow != shownumb: 
-            db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=? \
-            WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode, maired[:10],      \
-            shownumb, fileId[5], movienumb))                          #  Update Episode information
+            db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=?,\
+            userrating WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,        \
+            maired[:10], shownumb, fileId[5], movienumb, murate))      #  Update Episode information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             seasonId = checkSeason(db, shownumb, mseason)
             db.execute('UPDATE episode SET idSeason=? WHERE idEpisode=?', (seasonId, movienumb,))

@@ -1,3 +1,10 @@
+v1.1.4.8
+
+-  Additional metadata for uPNP servers including MPAA rating, playcount,
+   user rating, tagline and artwork.
+-  Fixed bug where Kodi database manual clearing would fail if uPNP servers
+   were displayed. 
+
 v1.1.4.7
 
 -  Additional code cleanup and optimization for the Logs & Stats reporting.

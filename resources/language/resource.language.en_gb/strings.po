@@ -427,3 +427,7 @@ msgstr ""
 msgctxt "#30425"
 msgid "Automatic Slideshow Viewer"
 msgstr ""
+
+msgctxt "#30426"
+msgid "Mezzmo data not cleared from Kodi DB.  No sync server selected."
+msgstr ""

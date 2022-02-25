@@ -97,7 +97,7 @@ def listServers(force):
     li = xbmcgui.ListItem('Refresh')
     li.setArt({'icon': addon_path + '/resources/media/refresh.png'})
     
-    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
 
     srvcount = len(servers)
     addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
@@ -216,7 +216,7 @@ def listServers(force):
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
-        media.kodiCleanDB(contenturl,0)         # Call function to delete Kodi actor database if user enabled.
+        media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
 
     
 def build_url(query):
