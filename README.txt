@@ -1,3 +1,10 @@
+v2.1.4.8
+
+-  Additional metadata for uPNP servers including MPAA rating, playcount,
+   user rating, tagline and artwork.
+-  Fixed bug where Kodi database manual clearing would fail if uPNP servers
+   were displayed. 
+
 v2.1.4.7
 
 -  Added initial support for Kodi v20 Nexus

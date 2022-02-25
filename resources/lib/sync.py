@@ -193,7 +193,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         clean = checkDailySync()                          #  Check sync flag
         if clean == 1 and count > 12:
             force = 1
-            media.kodiCleanDB(syncurl,force)              #  Clear Kodi database daily
+            media.kodiCleanDB(force)                      #  Clear Kodi database daily
         if count < 12:   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
