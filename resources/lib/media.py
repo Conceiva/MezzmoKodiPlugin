@@ -738,7 +738,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
             db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, c12=?,     \
             c18=?, c10=?, c23=?, userrating=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, \
-            myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], movienumb, murate)) #  Update movie information
+            myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate, movienumb)) #  Update movie information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
@@ -809,7 +809,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         or kseason != mseason or kepisode != mepisode or kaired != maired[:10] or kshow != shownumb: 
             db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=?,\
             userrating WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,        \
-            maired[:10], shownumb, fileId[5], movienumb, murate))      #  Update Episode information
+            maired[:10], shownumb, fileId[5], murate, movienumb))     #  Update Episode information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             seasonId = checkSeason(db, shownumb, mseason)
             db.execute('UPDATE episode SET idSeason=? WHERE idEpisode=?', (seasonId, movienumb,))

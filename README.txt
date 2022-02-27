@@ -1,3 +1,8 @@
+v2.1.4.9
+
+-  Fixed bug introduced in v2.1.4.8 which caused metadata updates to changed
+   movies / episodes in Kodi DB to fail due to userrating added to database.
+
 v2.1.4.8
 
 -  Additional metadata for uPNP servers including MPAA rating, playcount,
