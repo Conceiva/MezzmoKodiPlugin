@@ -1,3 +1,8 @@
+v1.1.5.0
+
+-  Fixed another bug introduced in v1.1.4.8 which caused metadata updates to 
+   changed episodes in Kodi DB to fail due to userrating added to database.
+
 v1.1.4.9
 
 -  Fixed bug introduced in v1.1.4.8 which caused metadata updates to changed
