@@ -1,3 +1,16 @@
+v1.1.5.1
+
+-  Added CSV export capability for Kodi and Mezzmo addon databases.
+-  Modified Logs & Stats GUI reporting limit to the 2,000 most recent records.
+   Older records can be access via the new CSV export utility.
+-  Added inserting the Mezzmo audio track language field to the Kodi DB 
+   streamdetails table.  Previously just the codec type and # of channels
+   were inserted. 
+-  Fixed improper duration information from Twonky uPNP server impacting 
+   displaying music and videos.
+-  Fixed artist information from Windows 10 uPNP server.
+-  Fixed displaying some audio tracks from Tversity uPNP server.
+
 v1.1.5.0
 
 -  Fixed another bug introduced in v1.1.4.8 which caused metadata updates to 
