@@ -197,7 +197,7 @@ msgid "Kodi DB actor information copy"
 msgstr ""
 
 msgctxt "#30368"
-msgid "Kodi DB clear on startup"
+msgid "Kodi DB clear Mezzmo data on startup"
 msgstr ""
 
 msgctxt "#30369"
@@ -432,6 +432,30 @@ msgctxt "#30426"
 msgid "Mezzmo data not cleared from Kodi DB.  No sync server selected."
 msgstr ""
 
+msgctxt "#30427"
+msgid "Export Data From Database"
+msgstr ""
+
+msgctxt "#30428"
+msgid "Mezzmo database extract successful at: \n"
+msgstr ""
+
+msgctxt "#30429"
+msgid "Mezzmo Database Export"
+msgstr ""
+
+msgctxt "#30430"
+msgid "Mezzmo experienced an error exporting database table:  "
+msgstr ""
+
+msgctxt "#30431"
+msgid "Mezzmo Export Error for Database"
+msgstr ""
+
+msgctxt "#30432"
+msgid "Select Database Table(s) to Export"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -508,6 +532,26 @@ msgctxt "#30419"
 msgid "Pictures Extended Delay"
 msgstr ""
 
+msgctxt "#30420"
+msgid "Mezzmo experienced a problem exporting the Kodi DB table: "
+msgstr ""
+
+msgctxt "#30421"
+msgid "Kodi DB Export Error"
+msgstr ""
+
+msgctxt "#30422"
+msgid "Mezzmo Kodi database successful at: \n"
+msgstr ""
+
+msgctxt "#30423"
+msgid "Mezzmo Export of Kodi Database"
+msgstr ""
+
+msgctxt "#30424"
+msgid "Select Kodi DB Table to Export"
+msgstr ""
+
 msgctxt "#30515"
 msgid "Photos view display format."
 msgstr ""
@@ -578,4 +622,8 @@ msgstr ""
 
 msgctxt "#30532"
 msgid "Enable slideshow viewer when browsing pictures.  When enabled a prompt will be displayed asking if the pictures should be shown using a slidewshow viewer.  Default is enabled."
+msgstr ""
+
+msgctxt "#30533"
+msgid "Select Kodi DB or Mezzmo addon table(s) for export to CSV format for external use."
 msgstr ""

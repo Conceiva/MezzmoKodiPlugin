@@ -157,11 +157,17 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="kodiclean" type="boolean" label="30368" help="30508">
-					<level>0</level>
+                               <setting id="exportdata" type="action" label="30427" help="30533">
+	                                 <level>0</level>
+	                                 <data>RunScript(plugin.video.mezzmo,export)</data>
+	                                 <control type="button" format="action">
+	                                 </control>
+                                </setting>
+                               <setting id="kodiclean" type="boolean" label="30368" help="30508">
+	                                 <level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
-				</setting>
+                                </setting>
 				<setting id="autostart" type="string" label="30388" help="">
 					<level>0</level>
 					<default>clear</default>

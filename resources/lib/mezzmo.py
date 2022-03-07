@@ -218,7 +218,6 @@ def listServers(force):
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
-
     
 def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
@@ -766,8 +765,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
-                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
-                        audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
+                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
+                        audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         xbmc.log('The movie name is: ' + mtitle, xbmc.LOGDEBUG)  
                              
@@ -1241,8 +1240,8 @@ def handleSearch(content, contenturl, objectID, term):
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
-                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
-                        audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
+                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
+                        audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                         dbfile.commit()

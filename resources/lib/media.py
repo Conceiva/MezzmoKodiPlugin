@@ -554,8 +554,8 @@ def kodiCleanDB(force):
 
         dbsync = openNosyncDB()                     #  clears nosync DB
         dbsync.execute('DELETE FROM nosyncVideo')
-        dblimit = 2000
-        dblimit2 = 500
+        dblimit = 10000
+        dblimit2 = 10000
         dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
         mperfStats order by psDate desc limit ?)', (dblimit2,))
         dbsync.execute('delete from dupeTrack where dtDate not in (select dtDate from       \
@@ -808,7 +808,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         if kplot != mplot or int(kduration) != mduration or kdirector != mdirector or kwriter != mwriter    \
         or kseason != mseason or kepisode != mepisode or kaired != maired[:10] or kshow != shownumb: 
             db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=?,\
-            userrating WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,        \
+            userrating=? WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,      \
             maired[:10], shownumb, fileId[5], murate, movienumb))     #  Update Episode information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             seasonId = checkSeason(db, shownumb, mseason)
@@ -871,7 +871,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
                 #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGINFO)  
 
 
-def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mduration, mtitle,   \
+def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mlang, mduration, mtitle,  \
     kchange, itemurl, micon, murl, db, mpath, mdupelog):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
@@ -883,7 +883,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
        media_type = 'episode'
 
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
-        insertStreams(fileId[0], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
+        insertStreams(fileId[0], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
     elif kchange == 'true':             #  Update stream details, filename, artwork and movie duration if changes
         if fileId[4] == 0:
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
@@ -928,7 +928,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 xbmc.log('Mezzmo streamdetails kicon micon are: ' + str(kicon) + ' ' + str(micon), xbmc.LOGDEBUG)
                 delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
                 db.execute(delete_query)          #  Delete old stream info
-                insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
+                insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
                 curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
                 pathtuple = curp.fetchone()
                 if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
@@ -944,7 +944,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 curp.close()
         else:                                   # Repair missing streamdetails data
             db.execute('DELETE FROM streamdetails WHERE idFile=?',(fileId[1],))
-            insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels)
+            insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
             mgenlog ='The Mezzmo incomplete streamdetails repaired for : ' + mtitle
             xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlog = '###' + mtitle
@@ -953,13 +953,13 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             mgenlogUpdate(mgenlog)   
         scur.close()
 
-def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels):
+def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang):
 
-    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth, \
-    iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect,       \
-    mvwidth, mvheight, mduration))
-    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels) values     \
-    (?, ?, ? ,?)', (filenumb, '1', macodec, mchannels))
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strVideoCodec, fVideoAspect, iVideoWidth,        \
+    iVideoHeight, iVideoDuration) values (?, ?, ?, ?, ? ,? ,?)', (filenumb, '0', mvcodec, maspect, mvwidth,      \
+    mvheight, mduration))
+    db.execute('INSERT into STREAMDETAILS (idFile, iStreamType, strAudioCodec, iAudioChannels, strAudioLanguage) \
+    values (?, ?, ? ,?, ?)', (filenumb, '1', macodec, mchannels, mlang))
     db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
 
 
