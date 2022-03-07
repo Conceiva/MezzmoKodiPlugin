@@ -774,8 +774,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
-                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
-                        audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
+                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
+                        audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                        
@@ -1285,8 +1285,8 @@ def handleSearch(content, contenturl, objectID, term):
                             sort_title_text, 'false')
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
-                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
-                        audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,\
+                        media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
+                        audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE) 
                         dbfile.commit()

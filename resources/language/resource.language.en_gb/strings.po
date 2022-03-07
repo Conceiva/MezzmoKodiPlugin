@@ -197,7 +197,7 @@ msgid "Kodi DB actor information copy"
 msgstr ""
 
 msgctxt "#30368"
-msgid "Kodi DB clear on startup"
+msgid "Kodi DB clear Mezzmo data on startup"
 msgstr ""
 
 msgctxt "#30369"
@@ -430,4 +430,28 @@ msgstr ""
 
 msgctxt "#30426"
 msgid "Mezzmo data not cleared from Kodi DB.  No sync server selected."
+msgstr ""
+
+msgctxt "#30427"
+msgid "Export Data From Database"
+msgstr ""
+
+msgctxt "#30428"
+msgid "Mezzmo database extract successful at: \n"
+msgstr ""
+
+msgctxt "#30429"
+msgid "Mezzmo Database Export"
+msgstr ""
+
+msgctxt "#30430"
+msgid "Mezzmo experienced an error exporting database table:  "
+msgstr ""
+
+msgctxt "#30431"
+msgid "Mezzmo Export Error for Database"
+msgstr ""
+
+msgctxt "#30432"
+msgid "Select Database Table(s) to Export"
 msgstr ""

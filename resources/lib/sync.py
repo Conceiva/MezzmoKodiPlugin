@@ -606,8 +606,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         production_company_text, sort_title_text, dupelog)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
-                    media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,  \
-                    audio_codec_text, audio_channels_text, durationsecs, mtitle, kodichange, itemurl,      \
+                    media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
+                    audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog)      # Update movie stream info 
                     xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                                       

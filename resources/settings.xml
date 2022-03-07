@@ -7,7 +7,7 @@
     <setting id="gsrvrtime" type="slider" label="30410" default="60" range="10,5,60" option="int"/>
     <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
     <setting id="pastop" type="labelenum" label="30383" values="0|5|10|15|20|25|30|35|40|45|50|55|60" default="0"/>
-    <setting type="action" label="30392" action="RunScript(plugin.video.mezzmo,servers)"/>
+    <setting id="getservers" type="action" label="30392" action="RunScript(plugin.video.mezzmo,servers)"/>
     <setting id="saved_servers" type="text" label="30388" default="none" visible="false"/>
     </category>
     <category label="30362">
@@ -20,6 +20,7 @@
     <setting id="kodisync" type="bool" label="30386" default="false"/>
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="false"/>
+    <setting type="action" label="30427" action="RunScript(plugin.video.mezzmo,export)"/>
     <setting id="kodiclean" type="bool" label="30368" default="false"/>
     <setting id="autostart" type="text" label="30388" default="clear" visible="false"/>
     <setting id="contenturl" type="text" label="30388" default="none" visible="false"/>

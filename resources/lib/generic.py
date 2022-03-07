@@ -263,9 +263,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     itemurl = res.text
                     #xbmc.log('The current URL is: ' + itemurl, xbmc.LOGNOTICE)
                     subtitleurl = res.get('{http://www.pv.com/pvns/}subtitleFileUri')            
-                    duration_text = res.get('duration')
+                    duration_text = res.get('duration') 
                     if duration_text == None:
                         duration_text = '00:00:00.000'
+                    elif len(duration_text) < 9:          #  Check for proper duration Twonky
+                        duration_text = duration_text + '.000'                  
                     elif int(duration_text[len(duration_text)-3:len(duration_text)]) <> 0:  
                         duration_text = duration_text[:6] + '.000'    
                     #xbmc.log('The duration is: ' + str(duration_text), xbmc.LOGNOTICE)                    
@@ -388,7 +390,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                             actor_list.append(actor.text.encode('utf-8'))
                     artist_text = actor_list                
                     #xbmc.log('Mezzmo actor list is: ' + str(actor_list), xbmc.LOGNOTICE)
-
+               
+                #if len(actor_list) == 0:            # Sanity check for missing artists
+                #    artist_text = ["Unknown artist"]
+                if isinstance(artist_text, str):            # Sanity check for missing artists
+                    artist_text = ["Unknown artist"]                
+          
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
@@ -616,7 +623,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ]) 
-                    offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                    #offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     info = {
                         'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
@@ -631,8 +638,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         'playcount':playcount,
                         'lastplayed': last_played_text,
                     }                    
-                    mcomment = media.mComment(info, duration_text, offsetmenu[11:])
-                    info.update(comment = mcomment)
+                    #mcomment = media.mComment(info, duration_text, offsetmenu[11:])
+                    #info.update(comment = mcomment)
                     li.setInfo(mediaClass_text, info)
                     contentType = 'songs'
 

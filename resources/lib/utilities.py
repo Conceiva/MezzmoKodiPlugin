@@ -9,6 +9,7 @@ from media import openNosyncDB, get_installedversion
 import media
 from server import displayServers, picDisplay
 from datetime import datetime, timedelta
+from exports import selectExport
 
 #xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
 #xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGNOTICE)
@@ -48,7 +49,7 @@ def playCount():
 
 def autoStart():
     autdialog = xbmcgui.Dialog()
-    if sys.argv[2] == "clear":                                    # Ensure user really wants to clear autostart
+    if sys.argv[2] == "clear":                                    # Ensure user reMost Recenty wants to clear autostart
         aumsg = "Are you sure you want to clear your curent Mezzmo addon autostart setting ?"
         cselect = autdialog.yesno('Mezzmo Autostart Clear', aumsg)
     else:                                                         # Confirm new autostart setting
@@ -161,7 +162,7 @@ def displayMenu():
 def perfStats():                                                 # Mezzmo Addon Performance Logs
 
     pdfile = openNosyncDB()                                      # Open Perf Stats database
-    pdates = ["All"]
+    pdates = ["Most Recent"]
     curpf = pdfile.execute('SELECT DISTINCT psDate FROM mperfStats ORDER BY psDate DESC LIMIT 30', )
     pstatdates = curpf.fetchall()                                # Get dates from database
     for a in range(len(pstatdates)):
@@ -171,8 +172,8 @@ def perfStats():                                                 # Mezzmo Addon 
     if vdate < 0:                                                # User cancel
         pdfile.close()
         return
-    elif (pdates[vdate]) == "All":
-        curpf = pdfile.execute('SELECT * FROM mperfStats ORDER BY psDate DESC, psTime DESC',)
+    elif (pdates[vdate]) == "Most Recent":
+        curpf = pdfile.execute('SELECT * FROM mperfStats ORDER BY psDate DESC, psTime DESC LIMIT 2000',)
         headval = 'Mezzmo Performance Stats for:  ' + pdates[vdate]
     else:
         curpf = pdfile.execute('SELECT * FROM mperfStats WHERE psDate=? ORDER BY psTime DESC', (pdates[vdate],))
@@ -250,7 +251,7 @@ def displayDupeLogs():
    
     dlfile = openNosyncDB()                                      # Open Dupe logs database
 
-    dldates = ["All"]
+    dldates = ["Most Recent"]
     mdate = 0
     dialog = xbmcgui.Dialog()
 
@@ -263,9 +264,9 @@ def displayDupeLogs():
         if mdate < 0:                                            # User cancel
             dlfile.close()
             return
-        elif (dldates[mdate]) == "All":
-            curdl = dlfile.execute('SELECT * FROM dupeTrack ORDER BY dtDate DESC',)
-            headval = "All Mezzmo Duplicate Video Logs"
+        elif (dldates[mdate]) == "Most Recent":
+            curdl = dlfile.execute('SELECT * FROM dupeTrack ORDER BY dtDate DESC LIMIT 2000',)
+            headval = "Most Recent Mezzmo Duplicate Video Logs"
         elif len(dldates[mdate]) > 0:                            # Get records for selected date
             curdl = dlfile.execute('SELECT * FROM dupeTrack WHERE dtDate=?', (dldates[mdate],))
             headval = 'Mezzmo Duplicate Videos for:  ' + dldates[mdate][5:] + "-" + dldates[mdate][:4]
@@ -310,7 +311,7 @@ def displaySyncLogs():
 
     dsfile = openNosyncDB()                                       # Open Sync logs database
 
-    msdates = ["All"]
+    msdates = ["Most Recent"]
     msdialog = xbmcgui.Dialog()   
 
     cursync = dsfile.execute('SELECT DISTINCT msDate FROM msyncLog ORDER BY msDate DESC LIMIT 30', )
@@ -322,9 +323,9 @@ def displaySyncLogs():
         if mdate < 0:                                            # User cancel
             dsfile.close()
             return
-        elif (msdates[mdate]) == "All":
-            cursync = dsfile.execute('SELECT * FROM msyncLog ORDER BY msDate DESC, msTime DESC',)
-            headval = "Mezzmo All Sync Logs" 
+        elif (msdates[mdate]) == "Most Recent":
+            cursync = dsfile.execute('SELECT * FROM msyncLog ORDER BY msDate DESC, msTime DESC LIMIT 2000',)
+            headval = "Mezzmo Most Recent Sync Logs" 
         elif len(msdates[mdate]) > 0:                           # Get records for selected date
             cursync = dsfile.execute('SELECT * FROM msyncLog WHERE msDate=? ORDER BY msTime DESC', \
             (msdates[mdate],))
@@ -359,7 +360,7 @@ def displayGenLogs():
 
     dsfile = openNosyncDB()                                       # Open Sync logs database
 
-    msdates = ["All"]
+    msdates = ["Most Recent"]
     msdialog = xbmcgui.Dialog()   
 
     cursync = dsfile.execute('SELECT DISTINCT mgDate FROM mgenLog ORDER BY mgDate DESC LIMIT 30', )
@@ -371,9 +372,9 @@ def displayGenLogs():
         if mdate < 0:                                            # User cancel
             dsfile.close()
             return
-        elif (msdates[mdate]) == "All":
-            cursync = dsfile.execute('SELECT * FROM mgenLog ORDER BY mgDate DESC, mgTime DESC',)
-            headval = "Mezzmo All General Logs" 
+        elif (msdates[mdate]) == "Most Recent":
+            cursync = dsfile.execute('SELECT * FROM mgenLog ORDER BY mgDate DESC, mgTime DESC  LIMIT 2000',)
+            headval = "Mezzmo Most Recent General Logs" 
         elif len(msdates[mdate]) > 0:                            # Get records for selected date
             cursync = dsfile.execute('SELECT * FROM mgenLog WHERE mgDate=? ORDER BY mgTime DESC', \
             (msdates[mdate],))
@@ -421,13 +422,13 @@ def clearPerf():                                                  # Clear perfor
         mgenlog ='Mezzmo performance logs cleared by user.'
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)   
-        dialog_text = "All Mezzmo performance logs were deleted."
+        dialog_text = "Most Recent Mezzmo performance logs were deleted."
         perfdialog.ok("Mezzmo Clear Performance Logs", dialog_text)            
     perfile.close()
     return
 
  
-if sys.argv[1] == 'count':                                        # Playcount modification call
+if sys.argv[1] == 'count':                                        # Playcount modification cMost Recent
     playCount()
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
     autoStart()
@@ -439,4 +440,5 @@ elif sys.argv[1] == 'servers':                                    # Display Sync
     displayServers()
 elif sys.argv[1] == 'pictures':                                   # Display Pictures
     picDisplay()
-
+elif sys.argv[1] == 'export':                                     # Export data
+    selectExport()
