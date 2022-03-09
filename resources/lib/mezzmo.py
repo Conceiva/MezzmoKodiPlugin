@@ -98,7 +98,7 @@ def listServers(force):
     li = xbmcgui.ListItem('Refresh')
     li.setArt({'icon': addon_path + '/resources/media/refresh.png'})
     
-    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     srvcount = len(servers)
     addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
