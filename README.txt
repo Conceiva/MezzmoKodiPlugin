@@ -1,3 +1,8 @@
+v1.1.5.2
+
+-  Fixed bug introduced in v1.1.4.8 which was causing invalid handle errors
+   in the Kodi logs and improper displaying of uPNP servers after a Refresh.
+
 v1.1.5.1
 
 -  Added CSV export capability for Kodi and Mezzmo addon databases.
