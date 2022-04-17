@@ -428,7 +428,7 @@ def clearPerf():                                                  # Clear perfor
     return
 
  
-if sys.argv[1] == 'count':                                        # Playcount modification cMost Recent
+if sys.argv[1] == 'count':                                        # Playcount modification Most Recent
     playCount()
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
     autoStart()
