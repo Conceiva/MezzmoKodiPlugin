@@ -1421,7 +1421,6 @@ def promptSearch():
             media.mgenlogUpdate(mgenlog)
             dialog_text = media.translate(30407)
             xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
-            listServers(False)
     
 mode = args.get('mode', 'none')
 
@@ -1468,7 +1467,6 @@ elif mode[0] == 'server':
         media.mgenlogUpdate(mgenlog)
         dialog_text = media.translate(30407)
         xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
-        listServers(False)
 
 elif mode[0] == 'search':
     promptSearch()

@@ -1,3 +1,10 @@
+v2.1.5.3
+
+-  Removed command introduced in version 2.1.4.3 which would cause the uPNP
+   server discovery message status window to be displayed anytime a uPNP
+   server stopped responding.  This added extra unnecessary clicks to recover
+   from a Mezzmo or UPNP server restart.
+
 v2.1.5.2
 
 -  Fixed bug introduced in v2.1.4.8 which was causing invalid handle errors
