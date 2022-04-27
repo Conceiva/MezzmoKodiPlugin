@@ -747,12 +747,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
-                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
+                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
+                        categories_text)
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
                         if filekey[4] == 1:
-                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
+                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
                             production_company_text)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
@@ -1222,8 +1223,9 @@ def handleSearch(content, contenturl, objectID, term):
                         mtitle = media.displayTitles(title)
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
-                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
+                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
+                        categories_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert duration to seconds before passing
                         if filekey[4] == 1:

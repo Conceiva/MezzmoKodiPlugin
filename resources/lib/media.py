@@ -416,15 +416,17 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
     lvcheck = 0
     nsyncount = 0
 
-    if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'false':
-        tvcheck = 0 
+    if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'Off':  #  Don't add TV shows
+        tvcheck = 0
 
     if mcategories != None and mcategories.text != None:
         if 'nosync' in mcategories.text.lower():
             tvcheck = 0
             nsyncount = 1
             xbmc.log('Nosync file found: ' + mmtitle, xbmc.LOGDEBUG)
-
+        if ('tv show' not in mcategories.text.lower()) and mkoditv == 'Category':
+            tvcheck == 0
+            
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0
         lvcheck = 1
@@ -598,7 +600,7 @@ def getSyncUrl():                                                # Get current s
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed, mdateadded, mdupelog): #  Check if path exists
+    mlplayed, mdateadded, mdupelog, mkoditv, mcategory): #  Check if path exists
 
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
@@ -622,7 +624,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curpp.close() 
     ppathnumb = ppathtuple[0]         # Parent path number
     
-    if int(mepisode) > 0 or int(mseason) > 0:
+    if ((int(mepisode) > 0 or int(mseason)) > 0 and mkoditv == 'Season') or (mcategory == 'episode' and mkoditv == 'Category'):
         media = 'episode'
         episodes = 1
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name

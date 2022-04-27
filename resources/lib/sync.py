@@ -467,6 +467,23 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
+                if categories != None and categories.text != None:
+                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
+                    if categories_text[:7].lower() == 'tv show':
+                        categories_text = 'episode'
+                        contentType = 'episodes'
+                    elif categories_text[:5].lower() == 'movie':
+                        categories_text = 'movie'
+                        contentType = 'movies'
+                        album_text = ''
+                    elif categories_text[:11].lower() == 'music video':
+                        categories_text = 'musicvideo'
+                        contentType = 'musicvideos'
+                        album_text = ''
+                    else:
+                        categories_text = 'video'
+                        contentType = 'videos'
+                        album_text = ''
 
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
@@ -584,7 +601,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
-                    season_text, episode_text, album_text, last_played_text, date_added_text, dupelog)
+                    season_text, episode_text, album_text, last_played_text, date_added_text, dupelog, koditv,  \
+                    categories_text)
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync

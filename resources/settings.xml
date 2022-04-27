@@ -119,10 +119,17 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="koditv" type="boolean" label="30369" help="30504">
+				<setting id="koditv" type="string" label="30369" help="30504">
 					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
+					<default>Season</default>
+					<constraints>
+						<options>
+							<option label="Off">Off</option>
+							<option label="Season & Episode">Season</option>
+							<option label="Category">Category</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
 				</setting>
 				<setting id="kodichange" type="boolean" label="30370" help="30505">
 					<level>0</level>
