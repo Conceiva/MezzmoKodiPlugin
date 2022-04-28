@@ -624,7 +624,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curpp.close() 
     ppathnumb = ppathtuple[0]         # Parent path number
     
-    if ((int(mepisode) > 0 or int(mseason)) > 0 and mkoditv == 'Season') or (mcategory == 'episode' and mkoditv == 'Category'):
+    if ((int(mepisode) > 0 or int(mseason) > 0) and mkoditv == 'Season') or (mcategory == 'episode' and mkoditv == 'Category'):
         media = 'episode'
         episodes = 1
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
