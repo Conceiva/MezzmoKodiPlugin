@@ -23,7 +23,7 @@ def playCount():
 
     if dbfile != 'audiom':                                        #  Don't update Kodi for music
         playcount.updateKodiPlaycount(int(mplaycount), title, vurl, int(vseason),     \
-        int(vepisode), series, dbfile)                            #  Update Kodi DB playcount
+        int(vepisode), series)                                    #  Update Kodi DB playcount
 
     rtrimpos = vurl.rfind('/')
     mobjectID = vurl[rtrimpos+1:]                                 #  Get Mezzmo objectID
@@ -421,6 +421,51 @@ def clearPerf():                                                  # Clear perfor
     return
 
 
+def trDisplay():                                                  # Play trailers
+
+    try:
+        title = sys.argv[2]                                       # Extract passed variables
+        trcount = int(sys.argv[3])
+        #xbmc.log("Mezzmo trailer title request: " + title, xbmc.LOGINFO)
+        mtitle = title
+        dsfile = openNosyncDB()                                   # Open Sync logs database
+
+        traillist = []
+        msdialog = xbmcgui.Dialog()   
+
+        curtrail = dsfile.execute('SELECT trUrl, trID from mTrailers WHERE trTitle=? ORDER BY   \
+        trID ASC LIMIT ?', (mtitle, trcount,))
+        mtrailers = curtrail.fetchall()                            # Get dates from database
+        dsfile.close()
+        trselect = x = 1
+        if mtrailers:        
+            for a in range(len(mtrailers)):
+                traillist.append("Trailer " + str(x))              # Convert rows to list for dialog box
+                x += 1
+            trselect = msdialog.select('Select Trailer: ' + mtitle[:60], traillist)
+            if trselect < 0:                                       # User cancel
+                #dsfile.close()
+                return
+            else:
+              itemurl = '"' + mtrailers[trselect][0] + '"'
+              mgenlog ='Mezzmo trailer ' + str(trselect + 1) + ' selected for: '  + title
+              xbmc.log(mgenlog, xbmc.LOGINFO)
+              media.mgenlogUpdate(mgenlog) 
+              #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGINFO)
+              json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
+              "params":{"item":{"file":%s }},"id":1}' % (itemurl))   
+        else:
+            #xbmc.log("Mezzmo no trailers found: " + title, xbmc.LOGINFO)
+            mgenlog ='Mezzmo no trailers found for: ' + title
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)         
+            trdialog = xbmcgui.Dialog()
+            dialog_text = "No trailers found. Please wait for the daily sync process."        
+            trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
+    except:
+        xbmc.log("Mezzmo problem displaying trailers for: " + title, xbmc.LOGINFO)
+
+
 if sys.argv[1] == 'count':                                        # Playcount modification call
     playCount()
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
@@ -435,4 +480,5 @@ elif sys.argv[1] == 'pictures':                                   # Display Pict
     picDisplay()
 elif sys.argv[1] == 'export':                                     # Export data
     selectExport()
-
+elif sys.argv[1] == 'trailer':                                    # Display trailers
+    trDisplay()

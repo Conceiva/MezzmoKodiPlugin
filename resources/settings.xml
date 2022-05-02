@@ -125,7 +125,7 @@
 					<constraints>
 						<options>
 							<option label="Off">Off</option>
-							<option label="Season & Episode">Season</option>
+							<option label="Season">Season</option>
 							<option label="Category">Category</option>
 						</options>
 					</constraints>
@@ -242,7 +242,19 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="skinname" type="integer" label="30061" help="30510">
+				<setting id="trcount" type="string" label="30433" help="30534">
+					<level>0</level>
+					<default>10</default>
+					<constraints>
+						<options>
+							<option>0</option>
+							<option>10</option>
+                                        		<option>20</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="skinname" type="integer" label="30361" help="30510">
 					<level>0</level>
 					<default>Estuary</default>
 					<constraints>

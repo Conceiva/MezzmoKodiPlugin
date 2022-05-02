@@ -409,6 +409,14 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
                 if trailerurl != None:
                     trailerurl = trailerurl.text
+
+                trailerurls = []                                  
+                trailers = item.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
+                if trailerurl != None:                
+                    for trailer in trailers:
+                        trailer_text = trailer.text
+                        trailerurls.append(trailer_text)
+                        #xbmc.log('Mezzmo trailers: ' + str(trailerurls), xbmc.LOGINFO)
                 
                 genre_text = ''
                 genre = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}genre')
@@ -623,6 +631,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog)      # Update movie stream info 
+                    media.addTrailers(dbsync, mtitle, trailerurls)      # Update movie trailers info
                     #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                                                       
             itemsleft = itemsleft - int(NumberReturned)

@@ -223,6 +223,12 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE INDEX IF NOT EXISTS mpicture_2 ON mPictures (mpUrl)')
     dbsync.commit()
 
+    dbsync.execute('CREATE table IF NOT EXISTS mTrailers (trTitle TEXT, trUrl TEXT,   \
+    trID TEXT, trPlay TEXT, trVar1 TEXT, trVar2 TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_1 ON mTrailers (trTitle)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_2 ON mTrailers (trID)')
+    dbsync.commit()
+
     try:
         dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
     except:
@@ -268,6 +274,28 @@ def countsyncCount():                           # returns count records in noSyn
     curm.close()  
     dbconn.close()
     return[nosynccount, liveccount] 
+
+
+def addTrailers(dbsync, mtitle, trailers):      #  Add movie trailers to Syncdb
+
+    try:
+        trlength = len(trailers)
+        #xbmc.log('Mezzmo trailers: ' + str(trlength) , xbmc.LOGINFO) 
+        if trlength > 0:
+            dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
+            dupetuple = dupes.fetchone()
+            #xbmc.log('Mezzmo trailers: ' + str(trlength) + ' ' + str(trailers) , xbmc.LOGINFO)  
+            if dupetuple[0] != trlength: 
+                a = 1
+                for trailer in trailers:
+                    dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay) values (?, ?, ?, ?)', \
+                    (mtitle, trailer, str(a), "0"))
+                    a += 1             
+            dbsync.commit()
+            dupes.close()
+
+    except:
+        xbmc.log('Mezzmo problem adding trailers to db: ' + mtitle.encode('utf-8'), xbmc.LOGINFO)  
 
 
 def autostart():                                #  Check for autostart
@@ -556,6 +584,7 @@ def kodiCleanDB(force):
 
         dbsync = openNosyncDB()                     #  clears nosync DB
         dbsync.execute('DELETE FROM nosyncVideo')
+        dbsync.execute('DELETE FROM mTrailers')
         dblimit = 10000
         dblimit2 = 10000
         dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
