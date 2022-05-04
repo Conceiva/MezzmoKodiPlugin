@@ -572,7 +572,9 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         mgenlogUpdate(mgenlog) 
         #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGINFO)
         #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGINFO)
-        li = xbmcgui.ListItem("Trailer  " + trselect + " - " + mtitle)
+        lititle = "Trailer  #" + trselect + " - " + mtitle
+        li = xbmcgui.ListItem(lititle)
+        li.setInfo('video', {'Title': lititle})
         li.setArt({'thumb': icon, 'poster': icon}) 
         xbmc.Player().play(itemurl, li)
     except:

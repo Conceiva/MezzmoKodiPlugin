@@ -28,7 +28,7 @@
         <icon>resources/icon.png</icon>
         <fanart>resources/fanart.jpg</fanart>
     </assets>
-    <summary lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</summary>
+    <summary lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server. </summary>
     <description lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</description>
   </extension>
 </addon>

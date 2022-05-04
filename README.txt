@@ -4,6 +4,7 @@ v2.1.5.4
    and category if by TV Show type in Mezzmo.  Default is episode/season.
 -  Added optional support for multiple trailers per movie (up to 20).
 -  Fixed missing label in addon View Settings.
+-  Simplified Sync process logging
 
 v2.1.5.3
 
