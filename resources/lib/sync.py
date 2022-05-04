@@ -201,15 +201,8 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()            #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]                        #  Get Live Channel record count in nosync DB
-            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)            
-            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)    
-            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)  
+            trailcount = recscount[2]
+            syncLogging(recscount, mezzmorecs)            #  Write sync logs 
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)
         elif clean == 0 and ksync != 'Daily':             #  Hourly sync set of records
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
@@ -246,15 +239,8 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]     
-            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)            
-            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)    
-            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)  
+            trailcount = recscount[2]
+            syncLogging(recscount, mezzmorecs)         #  Write sync logs 
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)                      
         elif clean == 1:                               #  Sync all daily
             media.settings('kodiactor', 'false')       #  Disable real time updating ahead of full sync
@@ -273,15 +259,8 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
             lvcount = recscount[1]                     #  Get Live Channel record count in nosync DB
-            msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)            
-            msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)    
-            msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
-            xbmc.log(msynclog, xbmc.LOGINFO)
-            media.mezlogUpdate(msynclog)   
+            trailcount = recscount[2]
+            syncLogging(recscount, mezzmorecs)         #  Write sync logs 
             media.optimizeDB()                         #  Optimize DB after resync
             media.settings('dailysync', '1')           #  Set daily sync flag
         endtime = time.time()
@@ -658,7 +637,26 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     except Exception as e:
         printsyncexception()
         pass
+
         
+def syncLogging(counts, mezzmorecs):
+
+        nsyncount = counts[0]
+        lvcount = counts[1]                                  #  Get Live Channel record count in nosync DB
+        trailcount = counts[2]
+        msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)            
+        msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)    
+        msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)    
+        msynclog = 'Mezzmo total movie trailer count: ' + str(trailcount)
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog) 
+
 
 def printsyncexception():
     exc_type, exc_obj, tb = sys.exc_info()

@@ -7,7 +7,7 @@ import playcount
 import xbmcaddon
 from media import openNosyncDB, get_installedversion
 import media
-from server import displayServers, picDisplay
+from server import displayServers, picDisplay, displayTrailers
 from datetime import datetime, timedelta
 from exports import selectExport
 
@@ -426,6 +426,7 @@ def trDisplay():                                                  # Play trailer
     try:
         title = sys.argv[2]                                       # Extract passed variables
         trcount = int(sys.argv[3])
+        icon = sys.argv[4]
         #xbmc.log("Mezzmo trailer title request: " + title, xbmc.LOGINFO)
         mtitle = title
         dsfile = openNosyncDB()                                   # Open Sync logs database
@@ -435,25 +436,21 @@ def trDisplay():                                                  # Play trailer
 
         curtrail = dsfile.execute('SELECT trUrl, trID from mTrailers WHERE trTitle=? ORDER BY   \
         trID ASC LIMIT ?', (mtitle, trcount,))
-        mtrailers = curtrail.fetchall()                            # Get dates from database
+        mtrailers = curtrail.fetchall()                            # Get trailers from database
         dsfile.close()
         trselect = x = 1
         if mtrailers:        
             for a in range(len(mtrailers)):
-                traillist.append("Trailer " + str(x))              # Convert rows to list for dialog box
+                traillist.append("Trailer  #" + str(x))            # Convert rows to list for dialog box
                 x += 1
             trselect = msdialog.select('Select Trailer: ' + mtitle[:60], traillist)
             if trselect < 0:                                       # User cancel
                 #dsfile.close()
                 return
             else:
-              itemurl = '"' + mtrailers[trselect][0] + '"'
-              mgenlog ='Mezzmo trailer ' + str(trselect + 1) + ' selected for: '  + title
-              xbmc.log(mgenlog, xbmc.LOGINFO)
-              media.mgenlogUpdate(mgenlog) 
-              #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGINFO)
-              json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
-              "params":{"item":{"file":%s }},"id":1}' % (itemurl))   
+              #itemurl = '"' + mtrailers[trselect][0] + '"'
+              itemurl = mtrailers[trselect][0]
+              displayTrailers(title, itemurl, icon, str(trselect + 1))  
         else:
             #xbmc.log("Mezzmo no trailers found: " + title, xbmc.LOGINFO)
             mgenlog ='Mezzmo no trailers found for: ' + title
@@ -463,7 +460,12 @@ def trDisplay():                                                  # Play trailer
             dialog_text = "No trailers found. Please wait for the daily sync process."        
             trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
     except:
-        xbmc.log("Mezzmo problem displaying trailers for: " + title, xbmc.LOGINFO)
+        mgenlog ='Mezzmo problem displaying trailers for: ' + title
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+        trdialog = xbmcgui.Dialog()
+        dialog_text = mgenlog        
+        trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
 
 
 if sys.argv[1] == 'count':                                        # Playcount modification call

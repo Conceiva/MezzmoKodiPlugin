@@ -696,18 +696,17 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
-                    #pcdbfile = media.getDatabaseName() 
                     if int(trcount) > 0 and trailerurl != None:
                         if playcount == 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
                             pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
-                            'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount))])
+                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon))])
                         elif playcount > 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
                             pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
-                            'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount)) ])       
+                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])       
                     else:  
                         if playcount == 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
