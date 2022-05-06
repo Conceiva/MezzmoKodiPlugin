@@ -11,18 +11,7 @@ from datetime import datetime, timedelta
 
 def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
 
-    #try:
-    #    from sqlite3 import dbapi2 as sqlite
-    #except:
-    #    from pysqlite2 import dbapi2 as sqlite
-                      
-    #DB = os.path.join(xbmc.translatePath("special://database"), kdbfile)  
-    #db = sqlite.connect(DB)
-
     db = media.openKodiDB()
-
-    #rfpos = murl.find(':',7)                               #  Get Mezzmo server port info
-    #serverport = '%' + murl[rfpos+1:rfpos+6] + '%'
 
     serverport = '%' + media.getServerport(murl) + '%'     #  Get Mezzmo server port info
 
