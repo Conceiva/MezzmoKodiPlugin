@@ -364,6 +364,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     slideshow = media.settings('slideshow')             # Check if slideshow is enabled        
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
+    trcount = media.settings('trcount')                 # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -372,6 +373,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem6 = addon.getLocalizedString(30380)
     menuitem7 = addon.getLocalizedString(30384)
     menuitem8 = addon.getLocalizedString(30412)
+    menuitem9 = addon.getLocalizedString(30434)
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
@@ -703,15 +705,26 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
-                    pcdbfile = media.getDatabaseName() 
-                    if playcount == 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])
-                    elif playcount > 0:
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                        pctitle, itemurl, season_text, episode_text, playcount, pcseries, pcdbfile, contenturl)) ])       
+                    if int(trcount) > 0 and trailerurl != None:
+                        if playcount == 0:
+                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
+                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon ))])
+                        elif playcount > 0:
+                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
+                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])       
+                    else:  
+                        if playcount == 0:
+                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])
+                        elif playcount > 0:
+                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])       
 
                     info = {
                         'duration': sync.getSeconds(duration_text),
@@ -756,12 +769,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
-                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
+                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
+                        categories_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds 
                         if filekey[4] == 1:
-                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
+                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,   \
                             production_company_text)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
@@ -913,8 +927,10 @@ def handleSearch(content, contenturl, objectID, term):
     pitemsleft = -1
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
+    trcount = media.settings('trcount')              # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
+    menuitem9 = addon.getLocalizedString(30434)
     kodichange = media.settings('kodichange')        # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')          # Checks for actor info setting    
     sync.deleteTexturesCache(contenturl)             # Call function to delete textures cache if user enabled. 
@@ -1219,9 +1235,18 @@ def handleSearch(content, contenturl, objectID, term):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
-                        
-                if mediaClass_text == 'video' and validf == 1:        
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'), (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])           
+
+                if mediaClass_text == 'video' and validf == 1:
+                    mtitle = media.displayTitles(title)					#  Normalize title
+                    pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
+                    if int(trcount) > 0 and trailerurl != None:        
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])  
+                    else:                              
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])    
+       
                     info = {
                         'duration': sync.getSeconds(duration_text),
                         'genre': genre_text,
@@ -1267,12 +1292,13 @@ def handleSearch(content, contenturl, objectID, term):
                         dbfile = media.openKodiDB()
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
-                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,      \
-                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false')
+                        filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
+                        season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
+                        categories_text)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = sync.getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         if filekey[4] == 1:
-                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
+                            showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
                             production_company_text)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \

@@ -455,3 +455,11 @@ msgstr ""
 msgctxt "#30432"
 msgid "Select Database Table(s) to Export"
 msgstr ""
+
+msgctxt "#30433"
+msgid "Multiple Trailer Count"
+msgstr ""
+
+msgctxt "#30434"
+msgid "Mezzmo Play Trailers"
+msgstr ""

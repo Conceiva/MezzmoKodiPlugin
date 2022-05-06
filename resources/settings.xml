@@ -14,7 +14,7 @@
     <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
     <setting id="caching" type="bool" label="30366" default="false"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>
-    <setting id="koditv" type="bool" label="30369" default="true"/>
+    <setting id="koditv" type="labelenum" label="30369" values="Off|Season|Category" default="Season"/>
     <setting id="kodichange" type="bool" label="30370" default="true"/>
     <setting id="kodisyncvar" type="labelenum" label="30371" values="Off|Daily|Newest|Normal" default="Normal"/>
     <setting id="kodisync" type="bool" label="30386" default="false"/>
@@ -32,7 +32,8 @@
     <setting id="only_mezzmo_servers" type="bool" label="30350" default="true"/>
     <setting id="viewmap" type="bool" label="30387" default="true"/>
     <setting id="slideshow" type="bool" label="30425" default="true"/>
-    <setting id="skinname" type="enum" label="30061" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
+    <setting id="trcount" type="labelenum" label="30433" values="0|10|20" default="10"/>
+    <setting id="skinname" type="enum" label="30361" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
 	
     <!--Confluence Skin-->
     <setting id="top_view_mode" type="enum" label="30349" lvalues="30345|30331|30332|30333" default="1" subsetting="true"  visible="eq(-1,1)" enable="eq(-1,1)"/>

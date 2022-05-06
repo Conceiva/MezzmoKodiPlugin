@@ -565,3 +565,27 @@ def showSingle(url):                                             # Display indiv
         mgenlog = 'Mezzmo error displaying single picture.'
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         mgenlogUpdate(mgenlog) 
+
+
+def displayTrailers(title, itemurl, icon, trselect):              # Display trailers
+
+    try:
+        mtitle = title.decode('utf-8', 'ignore')   	          # Handle commas
+        mgenlog ='Mezzmo trailer #' + trselect + ' selected for: '  + title
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        mgenlogUpdate(mgenlog) 
+        #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGNOTICE)
+        #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGNOTICE)
+        lititle = "Trailer  #" + trselect + " - " + mtitle
+        li = xbmcgui.ListItem(lititle)
+        li.setInfo('video', {'Title': lititle})
+        li.setArt({'thumb': icon, 'poster': icon}) 
+        xbmc.Player().play(itemurl, li)
+    except:
+        mgenlog ='Mezzmo problem playing trailer #' + trselect + ' - ' + title
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        mgenlogUpdate(mgenlog)         
+        trdialog = xbmcgui.Dialog()
+        dialog_text = mgenlog        
+        trdialog.ok("Mezzmo Trailer Playback Error", dialog_text) 
+
