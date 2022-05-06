@@ -1,3 +1,12 @@
+v2.1.5.4
+
+-  Added option for supporting Season 0 episodes 0.  Episodes are determined
+   by season and episode numbers if option is by episode/season and by category
+   being TV Show in Mezzmo if option is category.  Default is episode/season.
+-  Added optional support for multiple trailers per movie (up to 20).
+-  Fixed missing label in addon View Settings.
+-  Simplified Sync process logging
+
 v2.1.5.3
 
 -  Removed command introduced in version 2.1.4.3 which would cause the uPNP

@@ -223,6 +223,13 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE INDEX IF NOT EXISTS mpicture_2 ON mPictures (mpUrl)')
     dbsync.commit()
 
+    dbsync.execute('CREATE table IF NOT EXISTS mTrailers (trTitle TEXT, trUrl TEXT,   \
+    trID TEXT, trPlay TEXT, trVar1 TEXT, trVar2 TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_1 ON mTrailers (trTitle)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_2 ON mTrailers (trID)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_3 ON mTrailers (trUrl)')
+    dbsync.commit()
+
     try:
         dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
     except:
@@ -264,10 +271,38 @@ def countsyncCount():                           # returns count records in noSyn
     cure = dbconn.execute('SELECT count (Type) FROM nosyncVideo WHERE Type LIKE ?', ("livec",))
     liveccount = cure.fetchone()[0]
 
+    curt = dbconn.execute('SELECT count (trUrl) FROM mTrailers',)
+    trailcount = curt.fetchone()[0]
+
     cure.close()
-    curm.close()  
+    curm.close()
+    curt.close()    
     dbconn.close()
-    return[nosynccount, liveccount] 
+    return[nosynccount, liveccount, trailcount] 
+
+
+def addTrailers(dbsync, mtitle, trailers):      #  Add movie trailers to Syncdb
+
+    try:
+        trlength = len(trailers)
+        #xbmc.log('Mezzmo trailers: ' + str(trlength) , xbmc.LOGINFO) 
+        if trlength > 0:
+            dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
+            dupetuple = dupes.fetchone()
+            #xbmc.log('Mezzmo trailers: ' + str(trlength) + ' ' + str(trailers) , xbmc.LOGINFO)  
+            if dupetuple[0] != trlength and dupetuple[0] != 0:
+                dbsync.execute('DELETE from mTrailers WHERE trTitle=?', (mtitle,))  
+            if dupetuple[0] != trlength or dupetuple[0] == 0: 
+                a = 1
+                for trailer in trailers:
+                    dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay) values (?, ?, ?, ?)', \
+                    (mtitle, trailer, str(a), "0"))
+                    a += 1            
+            dbsync.commit()
+            dupes.close()
+
+    except:
+        xbmc.log('Mezzmo problem adding trailers to db: ' + mtitle.encode('utf-8'), xbmc.LOGINFO)  
 
 
 def autostart():                                #  Check for autostart
@@ -416,15 +451,17 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
     lvcheck = 0
     nsyncount = 0
 
-    if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'false':
-        tvcheck = 0 
+    if (int(mseason) > 0  or int(mepisode) > 0) and mkoditv == 'Off':  #  Don't add TV shows
+        tvcheck = 0
 
     if mcategories != None and mcategories.text != None:
         if 'nosync' in mcategories.text.lower():
             tvcheck = 0
             nsyncount = 1
             xbmc.log('Nosync file found: ' + mmtitle, xbmc.LOGDEBUG)
-
+        if ('tv show' not in mcategories.text.lower()) and mkoditv == 'Category':
+            tvcheck == 0
+            
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0
         lvcheck = 1
@@ -554,6 +591,7 @@ def kodiCleanDB(force):
 
         dbsync = openNosyncDB()                     #  clears nosync DB
         dbsync.execute('DELETE FROM nosyncVideo')
+        dbsync.execute('DELETE FROM mTrailers')
         dblimit = 10000
         dblimit2 = 10000
         dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
@@ -598,7 +636,7 @@ def getSyncUrl():                                                # Get current s
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed, mdateadded, mdupelog): #  Check if path exists
+    mlplayed, mdateadded, mdupelog, mkoditv, mcategory): #  Check if path exists
 
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
@@ -622,7 +660,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curpp.close() 
     ppathnumb = ppathtuple[0]         # Parent path number
     
-    if int(mepisode) > 0 or int(mseason) > 0:
+    if ((int(mepisode) > 0 or int(mseason) > 0) and mkoditv == 'Season') or (mcategory == 'episode' and mkoditv == 'Category'):
         media = 'episode'
         episodes = 1
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name

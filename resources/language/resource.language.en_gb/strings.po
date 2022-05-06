@@ -456,6 +456,14 @@ msgctxt "#30432"
 msgid "Select Database Table(s) to Export"
 msgstr ""
 
+msgctxt "#30433"
+msgid "Multiple Trailer Count"
+msgstr ""
+
+msgctxt "#30434"
+msgid "Mezzmo Play Trailers"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -469,7 +477,7 @@ msgid "Add Mezzmo actor information to Kodi database during playlist browsing.  
 msgstr ""
 
 msgctxt "#30504"
-msgid "Add Mezzmo TV episodes to the Kodi database.  Default is enabled."
+msgid "Add Mezzmo TV episodes to the Kodi database.  Options are to match by season & episode or by media category.  Default is season & episode.  Category is handy when you have both season and episode = 0 TV media files."
 msgstr ""
 
 msgctxt "#30505"
@@ -510,46 +518,6 @@ msgstr ""
 
 msgctxt "#30514"
 msgid "Folder view mapping to a specific view format."
-msgstr ""
-
-msgctxt "#30415"
-msgid "Select Picture Viewing Format"
-msgstr ""
-
-msgctxt "#30416"
-msgid "Select Picture to View"
-msgstr ""
-
-msgctxt "#30417"
-msgid "Slideshow"
-msgstr ""
-
-msgctxt "#30418"
-msgid "Pictures Normal Delay"
-msgstr ""
-
-msgctxt "#30419"
-msgid "Pictures Extended Delay"
-msgstr ""
-
-msgctxt "#30420"
-msgid "Mezzmo experienced a problem exporting the Kodi DB table: "
-msgstr ""
-
-msgctxt "#30421"
-msgid "Kodi DB Export Error"
-msgstr ""
-
-msgctxt "#30422"
-msgid "Mezzmo Kodi database successful at: \n"
-msgstr ""
-
-msgctxt "#30423"
-msgid "Mezzmo Export of Kodi Database"
-msgstr ""
-
-msgctxt "#30424"
-msgid "Select Kodi DB Table to Export"
 msgstr ""
 
 msgctxt "#30515"
@@ -626,4 +594,8 @@ msgstr ""
 
 msgctxt "#30533"
 msgid "Select Kodi DB or Mezzmo addon table(s) for export to CSV format for external use."
+msgstr ""
+
+msgctxt "#30534"
+msgid "Select number of trailers to display on Mezzmo Play Trailers context menu option.  Default is 10.  0 disables multiple trailers."
 msgstr ""

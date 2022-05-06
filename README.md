@@ -9,20 +9,22 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 A tool to help manage Mezzmo actor artwork across the Poster and UserPoster folders.
 
 <b>Features: </b>
-- Play and resume videos
+- Play and resume videos with 0-30 sec rewind / lookback option
 - Share resume points between other devices through the Mezzmo server
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most uPNP servers
-- Full Mezzmo and Kodi database synchronization using a background process
+- Automatic Mezzmo and Kodi database synchronization using a background process
 - Automatically stop paused playback user selectable timer
 - Performance statistics and log viewing
 - Option for managing Kodi artwork caching for Mezzmo
 - Modify video watched status in Mezzmo from the Kodi GUI
 - Automatically start on your favorite playlist  
-- Search for media in the server with prior search history
+- Full metadata library Search capability with adjustable prior search history
 - Default view modes for Movies, TV Shows and others
-- Play music
+- Play music with a resume playback capability
 - View Photos manually or with the built-in slideshow viewer
+- Comprehensive parental controls
+- Movie trailer previews with up to 20 trailers
 - Automatic software updates
 <br/>
 <br/>
