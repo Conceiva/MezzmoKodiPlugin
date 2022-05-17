@@ -17,7 +17,7 @@
     <menu id="kodi.core.main">
       <item library="resources/lib/context.py">
           <label>30435</label>
-          <visible>[String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow] + !String.IsEqual(Container.PluginName,plugin.video.mezzmo)</visible>
+          <visible>[String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow)] + !String.IsEqual(Container.PluginName,plugin.video.mezzmo)</visible>
       </item>
     </menu>
   </extension>
