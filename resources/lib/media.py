@@ -95,6 +95,12 @@ def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl): 
     else:
         shownumb = showtuple[0]
         #xbmc.log('TV Show found ' + seriesname + " " + str(shownumb), xbmc.LOGINFO)                 
+        curs = db.execute('SELECT c05 from episode where idShow =? order by c05 asc        \
+        limit 1',(shownumb,))
+        showtuple = curs.fetchone()
+        if showtuple:
+            db.execute('UPDATE tvshow SET c05=? WHERE idShow=?', (showtuple[0], shownumb,))
+        curs.close() 
 
     cure.close()
     return(shownumb)
