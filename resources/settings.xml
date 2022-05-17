@@ -154,6 +154,16 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="kbooksync" type="boolean" label="30438" help="30535">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="kodiskin" type="boolean" label="30439" help="30536">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="mdupelog" type="boolean" label="30374" help="30507">
 					<level>0</level>
 					<default>false</default>

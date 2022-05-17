@@ -9,7 +9,7 @@ import sync
 import media
 from server import checkSync, getContentURL
 
-pos = 0
+pos =  0
 file = ''
 count = 0 
 pacount = 0
@@ -24,11 +24,19 @@ class XBMCPlayer(xbmc.Player):
     
     def __init__(self, *args):
         self.paflag = 0
+        self.mtitle = ''
         pass
  
     def onPlayBackStarted(self):
         try:
             file = xbmc.Player().getPlayingFile()
+            xbmc.sleep(2000)
+            if xbmc.Player().isPlayingVideo():
+                finfo = xbmc.Player().getVideoInfoTag()
+                self.mtitle = media.displayTitles(finfo.getTitle())
+            if xbmc.Player().isPlayingAudio():
+                finfo = xbmc.Player().getMusicInfoTag()
+                self.mtitle = media.displayTitles(finfo.getTitle())
             xbmc.log("Playback started - " + file , xbmc.LOGDEBUG)
         except:
             file = 'File playing is not video or audio'
@@ -45,6 +53,7 @@ class XBMCPlayer(xbmc.Player):
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
                 self.paflag = 1
+                bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
  
     def onPlayBackResumed(self):
         try:
@@ -64,6 +73,7 @@ class XBMCPlayer(xbmc.Player):
         self.paflag = 0
         if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
+            bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
  
     def onPlayBackStopped(self):
         contenturl = media.settings('contenturl')
@@ -74,7 +84,7 @@ class XBMCPlayer(xbmc.Player):
         self.paflag = 0
         if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
-
+            bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
              
 player = XBMCPlayer()
  
@@ -84,15 +94,28 @@ media.checkNosyncDB()                       # Check nosync database
  
 while True:
     if xbmc.Player().isPlaying():
-        file = xbmc.Player().getPlayingFile()
-        pos = int(xbmc.Player().getTime())
-        if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
-            contenturl = media.settings('contenturl')
-            manufacturer = getContentURL(contenturl)
-            objectID = getObjectID(file)
-            bmdelay = 15 - int(media.settings('bmdelay'))
-            if contenturl != 'none' and 'Conceiva' in manufacturer:   # Ensure Mezzmo server has been selected            
-                bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))    
+        try:
+            file = xbmc.Player().getPlayingFile()
+            pos = int(xbmc.Player().getTime())
+            if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
+                contenturl = media.settings('contenturl')
+                manufacturer = getContentURL(contenturl)
+                objectID = getObjectID(file)
+                bmdelay = 15 - int(media.settings('bmdelay'))
+                if contenturl != 'none' and 'Conceiva' in manufacturer:   # Ensure Mezzmo server has been selected            
+                    bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))   
+                    if xbmc.Player().isPlayingVideo():
+                        finfo = xbmc.Player().getVideoInfoTag()
+                        mtitle = media.displayTitles(finfo.getTitle()) 
+                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle)
+                    if xbmc.Player().isPlayingAudio():
+                        finfo = xbmc.Player().getMusicInfoTag()
+                        mtitle = media.displayTitles(finfo.getTitle()) 
+                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle)
+        except:
+            mgenlog ='Mezzmo problem saving bookmark.'
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)
         
     count += 1
     if count == 2:                          # Check for autostarting the Mezzmo GUI

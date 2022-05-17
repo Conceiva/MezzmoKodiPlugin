@@ -767,16 +767,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
-                            production_company_text)
+                            production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false')  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false')
+                            sort_title_text, 'false', itemurl)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
@@ -1191,11 +1191,11 @@ def handleSearch(content, contenturl, objectID, term):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     if int(trcount) > 0 and trailerurl != None:        
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),    \
-                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s)' \
-                        % ("plugin.video.mezzmo", "trailer", pctitle, trcount)) ])  
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
+                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
+                        % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])  
                     else:                              
-                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),    \
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                         (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])      
                     
                     info = {
@@ -1253,16 +1253,16 @@ def handleSearch(content, contenturl, objectID, term):
                         durationsecs = sync.getSeconds(duration_text)       #  convert duration to seconds before passing
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
-                            production_company_text)
+                            production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false')  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false')
+                            sort_title_text, 'false', itemurl)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
