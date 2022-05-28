@@ -73,7 +73,7 @@ class XBMCPlayer(xbmc.Player):
         self.paflag = 0
         if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
-            bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
+            bookmark.updateKodiBookmark(objectID, pos, self.mtitle)
  
     def onPlayBackStopped(self):
         contenturl = media.settings('contenturl')

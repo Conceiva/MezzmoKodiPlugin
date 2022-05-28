@@ -488,6 +488,14 @@ msgctxt "#30440"
 msgid "Mezzmo Clear Bookmark"
 msgstr ""
 
+msgctxt "#30441"
+msgid "Native Mode"
+msgstr ""
+
+msgctxt "#30442"
+msgid "Kodi Native Mode Sync"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -630,4 +638,8 @@ msgstr ""
 
 msgctxt "#30536"
 msgid "Enable to for native Kodi skin updates when Mezzmo finishes a sync process.  This is optional when running in Kodi native mode and playing files directly from the Kodi skin.  It willl cause extra log messages.  Default is disabled."
+msgstr ""
+
+msgctxt "#30537"
+msgid "Enable for native Kodi Mezzmo data sync.  This is needed to display cast metadata and similar in native mode operation.  Default is disabled."
 msgstr ""
