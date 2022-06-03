@@ -673,7 +673,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(mserver,))   # Check if server path exists in Kodi DB
     ppathtuple = curpth.fetchone()
     if not ppathtuple:                # add parent server path to Kodi DB if it doesn't exist
-        db.execute('INSERT into path (strpath, strContent) values (?, ?)', (mserver, 'movies',))
+        db.execute('INSERT into path (strpath, strContent, noUpdate, exclude) values (?, ?, ?, ?)',   \
+        (mserver, 'movies', '1', '0'))
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mserver,)) 
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]
@@ -727,7 +728,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
                     db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',   \
                     (mpath, 'movies', ppathnumb))
                 else:
-                    scraper = 'metadata.themoviedb.org.python'
+                    scraper = 'metadata.local'
                     db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,     \
                     idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',        \
                     ppathnumb))
@@ -743,7 +744,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
                     db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',  \
                     (mpath, 'tvshows', ppathnumb))
                 else:
-                    scraper = 'metadata.tvshows.themoviedb.org.python'
+                    scraper = 'metadata.local'
                     db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,    \
                     idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',      \
                     ppathnumb))
@@ -1053,7 +1054,8 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                             db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
                             (mpath, 'movies', int(fileId[2])))
                         else:
-                            scraper = 'metadata.themoviedb.org.python'
+                            #scraper = 'metadata.themoviedb.org.python'
+                            scraper = 'metadata.local'
                             db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
                             idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',          \
                             int(fileId[2])))
@@ -1062,7 +1064,8 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                             db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
                             (mpath, 'tvshows', int(fileId[2])))
                         else:
-                            scraper = 'metadata.tvshows.themoviedb.org.python'
+                            #scraper = 'metadata.tvshows.themoviedb.org.python'
+                            scraper = 'metadata.local'
                             db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
                             idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',         \
                             int(fileId[2])))
@@ -1173,10 +1176,16 @@ def playCount(title, vurl, vseason, vepisode, mplaycount, series, dbfile, conten
         playcount.setPlaycount(contenturl, mobjectID, newcount, title)
         bookmark.SetBookmark(contenturl, mobjectID, '0')          #  Clear bookmark
         bookmark.updateKodiBookmark(mobjectID, '0', title)
-        if settings('kodiskin') == 'true':                        # Kodi native notification
-            xbmc.executebuiltin('ReloadSkin()')  
+        nativeNotify()                                            #  Kodi native notification  
         xbmc.sleep(1000)  
         xbmc.executebuiltin('Container.Refresh()')
+
+
+def nativeNotify():
+
+    if settings('kodiskin') == 'true':                            #  Kodi native notification
+        #xbmc.executebuiltin('ReloadSkin()')
+        xbmc.executebuiltin('UpdateLibrary(video)') 
 
 
 def printexception():

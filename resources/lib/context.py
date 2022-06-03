@@ -97,8 +97,7 @@ def contextMenu():                                       # Display contxt menu f
         #xbmc.log('Mezzmo bookmark info is: ' + str(mobjectID) + ' ' + str(contenturl), xbmc.LOGINFO)
         bookmark.SetBookmark(contenturl, mobjectID, '0')
         bookmark.updateKodiBookmark(kobjectID, '0', mtitle)
-        if media.settings('kodiskin') == 'true':         # Kodi native notification
-            xbmc.executebuiltin('ReloadSkin()')
+        media.nativeNotify()                             # Kodi native notification
         mgenlog ='Mezzmo Kodi bookmark cleared for: ' + title
         xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlog = '###' + mtitle

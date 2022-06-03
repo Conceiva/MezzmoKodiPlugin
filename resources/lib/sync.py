@@ -283,8 +283,8 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         msynclog = 'Mezzmo performance logging is enabled.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog) 
-    if media.settings('kodiskin') == 'true':         # Kodi native notification
-        xbmc.executebuiltin('ReloadSkin()') 
+    media.nativeNotify()                              # Kodi native notification
+
 
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
