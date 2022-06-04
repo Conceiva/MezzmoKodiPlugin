@@ -14,7 +14,7 @@ import contentrestriction
 import media
 import time
 import datetime
-import socket
+import bookmark
 
 syncoffset = 400
 mezzmorecs = 0
@@ -279,16 +279,19 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         msynclog = 'Mezzmo sync setting is: ' + media.settings('kodisyncvar') 
         xbmc.log(msynclog, xbmc.LOGNOTICE)
         media.mezlogUpdate(msynclog)    
-    if media.settings('perflog') == 'true':          #  Check if performance logging is enabled
+    if media.settings('perflog') == 'true':           #  Check if performance logging is enabled
         msynclog = 'Mezzmo performance logging is enabled.'
         xbmc.log(msynclog, xbmc.LOGNOTICE)
-        media.mezlogUpdate(msynclog) 
+        media.mezlogUpdate(msynclog)
+    media.nativeNotify()                              # Kodi native notification
+
 
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
     contentType = 'movies'
     itemsleft = -1
     global mezzmorecs, dupelog
     koditv = media.settings('koditv')
+    knative = media.settings('knative')
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -510,7 +513,16 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
-                
+
+                moviedb_text = ''
+                moviedb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}the_moviedb_id')
+                if moviedb != None:
+                    moviedb_text = moviedb.text
+
+                tvdb_text = ''
+                tvdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tvdb_id')
+                if tvdb != None:
+                    tvdb_text = tvdb.text
                 
                 dcmInfo_text = ''
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
@@ -592,29 +604,32 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,          \
                     season_text, episode_text, album_text, last_played_text, date_added_text, dupelog, koditv,    \
-                    categories_text)
+                    categories_text, knative)
                     #xbmc.log('Checking movie: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)                    
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
                     if filekey[4] == 1:
                         showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
-                        production_company_text)
+                        production_company_text, icon, backdropurl)
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
-                        sort_title_text, season_text, episode_text, showId, dupelog)  
+                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text)  
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text,          \
                         writer_text, creator_text, release_date_text, rating_val, durationsecs, genre_text,      \
                         trailerurl, content_rating_text, icon, kodichange, backdropurl, dbfile,                  \
-                        production_company_text, sort_title_text, dupelog)
+                        production_company_text, sort_title_text, dupelog, itemurl, imdb_text)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
-                    icon, backdropurl, dbfile, pathcheck, dupelog)      # Update movie stream info
-                    media.addTrailers(dbsync, mtitle, trailerurls)      # Update movie trailers info
+                    icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info
+                    media.addTrailers(dbsync, mtitle, trailerurls)               # Update movie trailers info
+                    rtrimpos = itemurl.rfind('/')
+                    mobjectID = itemurl[rtrimpos+1:]                             # Get Mezzmo objectID
+                    bookmark.updateKodiBookmark(mobjectID, dcmInfo_text, mtitle, dbfile) 
                     xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                                       
             itemsleft = itemsleft - int(NumberReturned)

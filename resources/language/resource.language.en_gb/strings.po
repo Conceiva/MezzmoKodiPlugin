@@ -463,3 +463,35 @@ msgstr ""
 msgctxt "#30434"
 msgid "Mezzmo Play Trailers"
 msgstr ""
+
+msgctxt "#30435"
+msgid "Mezzmo"
+msgstr ""
+
+msgctxt "#30436"
+msgid "Mezzmo Addon GUI"
+msgstr ""
+
+msgctxt "#30437"
+msgid "Mezzmo Search"
+msgstr ""
+
+msgctxt "#30438"
+msgid "Kodi Bookmark Sync"
+msgstr ""
+
+msgctxt "#30439"
+msgid "Kodi Native Skin Updates"
+msgstr ""
+
+msgctxt "#30440"
+msgid "Mezzmo Clear Bookmark"
+msgstr ""
+
+msgctxt "#30441"
+msgid "Native Mode"
+msgstr ""
+
+msgctxt "#30442"
+msgid "Kodi Native Mode Sync"
+msgstr ""

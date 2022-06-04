@@ -358,6 +358,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     srtime = 0  
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
+    knative = media.settings('knative')
     perflog = media.settings('perflog')
     duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
     synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled
@@ -630,7 +631,16 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
-                
+
+                moviedb_text = ''
+                moviedb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}the_moviedb_id')
+                if moviedb != None:
+                    moviedb_text = moviedb.text
+
+                tvdb_text = ''
+                tvdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tvdb_id')
+                if tvdb != None:
+                    tvdb_text = tvdb.text
                 
                 dcmInfo_text = '0'
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
@@ -771,26 +781,26 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text)
+                        categories_text, knative)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,   \
-                            production_company_text)
+                            production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false')  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false')
+                            sort_title_text, 'false', itemurl, imdb_text)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false', knative)      # Update movie stream info 
                         xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGDEBUG)
                                        
                 elif mediaClass_text == 'music':
@@ -927,6 +937,7 @@ def handleSearch(content, contenturl, objectID, term):
     pitemsleft = -1
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
+    knative = media.settings('knative')
     trcount = media.settings('trcount')              # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
@@ -1165,7 +1176,16 @@ def handleSearch(content, contenturl, objectID, term):
                 imdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imdb_id')
                 if imdb != None:
                     imdb_text = imdb.text
-                
+
+                moviedb_text = ''
+                moviedb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}the_moviedb_id')
+                if moviedb != None:
+                    moviedb_text = moviedb.text
+
+                tvdb_text = ''
+                tvdb = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tvdb_id')
+                if tvdb != None:
+                    tvdb_text = tvdb.text
                 
                 dcmInfo_text = '0'
                 dcmInfo = item.find('.//{http://www.sec.co.kr/}dcmInfo')
@@ -1294,26 +1314,26 @@ def handleSearch(content, contenturl, objectID, term):
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text)
+                        categories_text, knative)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         durationsecs = sync.getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
-                            production_company_text)
+                            production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false')  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false')
+                            sort_title_text, 'false', itemurl, imdb_text)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
-                        icon, backdropurl, dbfile, pathcheck, 'false')      # Update movie stream info 
+                        icon, backdropurl, dbfile, pathcheck, 'false', knative)      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE) 
                         dbfile.commit()
                         dbfile.close()  

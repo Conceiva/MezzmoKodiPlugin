@@ -18,9 +18,9 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
     lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')      
     newcount = '0'
 
-    xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle.encode('utf-8', 'ignore') + ' ' + murl, xbmc.LOGDEBUG)
-    xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
-    ' ' + str(mseries), xbmc.LOGDEBUG)    
+    #xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle.encode('utf-8', 'ignore') + ' ' + murl, xbmc.LOGDEBUG)
+    #xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
+    #' ' + str(mseries), xbmc.LOGDEBUG)    
 
     if mseason == 0 and mepisode == 0:                     #  Find movie file number
         curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
@@ -102,8 +102,7 @@ def setPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
     media.mgenlogUpdate(mgenlog)   
     mgenlog ='Mezzmo server playcount set to ' + count + ' for: '
-    media.mgenlogUpdate(mgenlog)     
-          
+    media.mgenlogUpdate(mgenlog)         
     return response
 
 
