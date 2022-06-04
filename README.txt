@@ -1,3 +1,8 @@
+v2.1.5.5
+
+-  New native Kodi mode options and additional metadata synchronization 
+   including genre, year, actor/actress, IMDB number and bookmarks. 
+
 v2.1.5.4
 
 -  Added option for supporting Season 0 episodes 0.  Episodes are determined

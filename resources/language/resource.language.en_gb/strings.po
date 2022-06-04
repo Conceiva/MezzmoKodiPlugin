@@ -464,6 +464,38 @@ msgctxt "#30434"
 msgid "Mezzmo Play Trailers"
 msgstr ""
 
+msgctxt "#30435"
+msgid "Mezzmo"
+msgstr ""
+
+msgctxt "#30436"
+msgid "Mezzmo Addon GUI"
+msgstr ""
+
+msgctxt "#30437"
+msgid "Mezzmo Search"
+msgstr ""
+
+msgctxt "#30438"
+msgid "Kodi Bookmark Sync"
+msgstr ""
+
+msgctxt "#30439"
+msgid "Kodi Native Skin Updates"
+msgstr ""
+
+msgctxt "#30440"
+msgid "Mezzmo Clear Bookmark"
+msgstr ""
+
+msgctxt "#30441"
+msgid "Native Mode"
+msgstr ""
+
+msgctxt "#30442"
+msgid "Kodi Native Mode Sync"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -598,4 +630,16 @@ msgstr ""
 
 msgctxt "#30534"
 msgid "Select number of trailers to display on Mezzmo Play Trailers context menu option.  Default is 10.  0 disables multiple trailers."
+msgstr ""
+
+msgctxt "#30535"
+msgid "Enable to sync Mezzmo bookmarks to the Kodi DB.  This is only needed when running in Kodi native mode and playing files directly from the Kodi skin.  Default is disabled."
+msgstr ""
+
+msgctxt "#30536"
+msgid "Enable to for native Kodi skin updates when Mezzmo finishes a sync process.  This is optional when running in Kodi native mode and playing files directly from the Kodi skin.  It willl cause extra log messages.  Default is disabled."
+msgstr ""
+
+msgctxt "#30537"
+msgid "Enable for native Kodi Mezzmo data sync.  This is needed to display cast metadata and similar in native mode operation.  Default is disabled."
 msgstr ""

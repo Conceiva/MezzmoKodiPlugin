@@ -7,6 +7,7 @@ import os, sys, linecache
 import json
 import urllib.request, urllib.error, urllib.parse
 from datetime import datetime
+import playcount, bookmark
 
 
 def settings(setting, value = None):
@@ -75,7 +76,7 @@ def addSearch(stext):                                  # Add new searches
         pass
 
 
-def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV show exists in database
+def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl): # Check if TV show exists in database
 
     cure = db.execute('SELECT idShow FROM tvshow WHERE c00=? and c17=?',(seriesname,     \
     int(fileId[3]),))
@@ -89,16 +90,23 @@ def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio): # Check if TV
         showtuple = curs.fetchone()       	 # Get new TV Show id
         shownumb = showtuple[0]
         curs.close()
+        insertArt(shownumb, db, 'tvshow', murl, micon)
         #xbmc.log('TV Show added ' + seriesname + " " + str(shownumb), xbmc.LOGINFO)
     else:
         shownumb = showtuple[0]
         #xbmc.log('TV Show found ' + seriesname + " " + str(shownumb), xbmc.LOGINFO)                 
+        curs = db.execute('SELECT c05 from episode where idShow =? order by c05 asc        \
+        limit 1',(shownumb,))
+        showtuple = curs.fetchone()
+        if showtuple:
+            db.execute('UPDATE tvshow SET c05=? WHERE idShow=?', (showtuple[0], shownumb,))
+        curs.close() 
 
     cure.close()
     return(shownumb)
 
 
-def checkSeason(db, shownumb, season):           # Check if Episode season exists in seasons table
+def checkSeason(db, shownumb, season, murl, micon):   # Check if Episode season exists in seasons table
 
     curse = db.execute('SELECT idSeason FROM seasons WHERE idShow=? and season=?',(shownumb, season,))
     seasontuple = curse.fetchone()
@@ -108,6 +116,7 @@ def checkSeason(db, shownumb, season):           # Check if Episode season exist
         curss = db.execute('SELECT idSeason FROM seasons WHERE idShow=? and season=?',(shownumb, season,))
         seasontuple = curss.fetchone()
         seasonnumb = seasontuple[0]
+        insertArt(seasonnumb, db, 'season', murl, micon)
         curss.close()
     else:
         seasonnumb = seasontuple[0]
@@ -568,6 +577,13 @@ def kodiCleanDB(force):
 
         serverport = '%' + getServerport(syncurl) + '%'     #  Get Mezzmo server port info
 
+        db.execute('CREATE TRIGGER IF NOT EXISTS delete_episode_mezzmo AFTER DELETE ON episode FOR   \
+        EACH ROW BEGIN DELETE FROM genre_link WHERE media_id=old.idEpisode AND media_type="tvshow";  \
+        DELETE FROM actor_link WHERE media_id=old.idEpisode AND media_type="tvshow"; DELETE FROM     \
+        genre_link WHERE media_id=old.idEpisode AND media_type="episode";END',)
+        db.execute('CREATE INDEX IF NOT EXISTS ix_movie_file_mezzmo ON movie (c00)')
+        db.execute('CREATE INDEX IF NOT EXISTS ix_episode_file_mezzmo ON episode (c00)')
+        db.commit()
         db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
         db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
         db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
@@ -636,7 +652,7 @@ def getSyncUrl():                                                # Get current s
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed, mdateadded, mdupelog, mkoditv, mcategory): #  Check if path exists
+    mlplayed, mdateadded, mdupelog, mkoditv, mcategory, knative): #  Check if path exists
 
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
@@ -645,10 +661,20 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if mlplayed == '0':                        #  Set Mezzmo last played to null if 0
         mlplayed = ''
 
+    if knative == 'true' and mcategory == 'movie':
+        rtrimpos = mpath.rfind('content/')       
+        pathtrim = mpath[:rtrimpos+8]
+        mpath = pathtrim + 'movies/'
+    elif knative == 'true' and mcategory:
+        rtrimpos = mpath.rfind('content/')       
+        pathtrim = mpath[:rtrimpos+8]
+        mpath = pathtrim + 'tvshows/'
+
     curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(mserver,))   # Check if server path exists in Kodi DB
     ppathtuple = curpth.fetchone()
     if not ppathtuple:                # add parent server path to Kodi DB if it doesn't exist
-        db.execute('INSERT into path (strpath, strContent) values (?, ?)', (mserver, 'movies',))
+        db.execute('INSERT into path (strpath, strContent, noUpdate, exclude) values (?, ?, ?, ?)',   \
+        (mserver, 'movies', '1', '0'))
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mserver,)) 
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]
@@ -662,6 +688,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     
     if ((int(mepisode) > 0 or int(mseason) > 0) and mkoditv == 'Season') or (mcategory == 'episode' and mkoditv == 'Category'):
         media = 'episode'
+        contenttype = 'tvshows'
         episodes = 1
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
             mgenlog ='Mezzmo episode missing TV series name: ' + mtitle
@@ -670,32 +697,60 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             mgenlogUpdate(mgenlog)
             mgenlog ='Mezzmo episode missing TV series name: '
             mgenlogUpdate(mgenlog)   
-        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN episode \
-        USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)                \
-        WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? COLLATE NOCASE',    \
-        (mseries, ppathnumb, mseason, mepisode))     # Check if episode exists in Kodi DB under parent path 
+        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN episode   \
+        USING (idFile) INNER JOIN path USING (idPath) INNER JOIN tvshow USING (idshow)                  \
+        WHERE tvshow.c00=? and idParentPath=? and episode.c12=? and episode.c13=? and path.strContent=? \
+        COLLATE NOCASE', (mseries, ppathnumb, mseason, mepisode, contenttype))    # Check if episode  
+                                                                # exists in Kodi DB under parent path 
         filetuple = curf.fetchone()
         curf.close()
         xbmc.log('Checking path for : ' + mtitle, xbmc.LOGDEBUG)     # Path check debugging
     else:
         media = 'movie'
+        contenttype = 'movies'
         episodes = 0
         curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN movie   \
-        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? COLLATE          \
-        NOCASE', (mtitle, ppathnumb))   # Check if movie exists in Kodi DB under parent path  
+        USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? and              \
+        path.strContent=? COLLATE NOCASE', (mtitle, ppathnumb, contenttype))      # Check if movie    
+                                                             # exists in Kodi DB under parent path  
         filetuple = curf.fetchone()
         curf.close()
         #xbmc.log('Checking path for : ' + mtitle, xbmc.LOGINFO)     # Path check debugging
 
     if not filetuple:                 # if not exist insert into Kodi DB and return file key value
-        curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
-        pathtuple = curp.fetchone()
-        xbmc.log('File not found : ' + mtitle, xbmc.LOGDEBUG)
-        if not pathtuple:             # if path doesn't exist insert into Kodi DB
-            db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
-            (mpath, 'movies', ppathnumb))
-            curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
+        if mcategory == 'movie':
+            curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
+            (mpath, 'movies',))          #  Check path table
             pathtuple = curp.fetchone()
+            #xbmc.log('File not found movie: ' + mtitle), xbmc.LOGINFO)
+            if not pathtuple:              # if path doesn't exist insert into Kodi DB
+                if knative == 'false':  
+                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',   \
+                    (mpath, 'movies', ppathnumb))
+                else:
+                    scraper = 'metadata.local'
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,     \
+                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',        \
+                    ppathnumb))
+                curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',            \
+                (mpath, 'movies',)) 
+                pathtuple = curp.fetchone()
+        else:
+            curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
+            (mpath, 'tvshows',))          #  Check path table
+            pathtuple = curp.fetchone()
+            if not pathtuple:             # if path doesn't exist insert into Kodi DB
+                if knative == 'false':  
+                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',  \
+                    (mpath, 'tvshows', ppathnumb))
+                else:
+                    scraper = 'metadata.local'
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,    \
+                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',      \
+                    ppathnumb))
+                curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',            \
+                (mpath, 'tvshows',)) 
+                pathtuple = curp.fetchone()
         pathnumb = pathtuple[0]
         curp.close()
 
@@ -724,7 +779,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
@@ -733,12 +788,14 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         dupmtuple = dupm.fetchone() 
         if dupmtuple == None:                                        # Ensure movie doesn't exist
             db.execute('INSERT into MOVIE (idFile, c00, c01, c03, c06, c11, c15, premiered, c14, c19, c12, c18, c10,     \
-            C23, userrating) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, \
-            mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate)) #  Add movie 
+            C23, userrating, C22) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, mplot, mtagline, \
+            mwriter, mduration, mdirector, myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate, mitemurl)) #  Add movie
             cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
             movietuple = cur.fetchone()
             movienumb = movietuple[0]                                # get new movie id 
             insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie  
+            insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie 
+            insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
@@ -775,11 +832,14 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
         or kstudio != mstudio or kstitle != mstitle:                  # Update movie info if changed
             mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
             db.execute('UPDATE MOVIE SET c01=?, c03=?, c06=?, c11=?, c15=?, premiered=?, c14=?, c19=?, c12=?,     \
-            c18=?, c10=?, c23=?, userrating=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, \
-            myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate, movienumb)) #  Update movie information
+            c18=?, c10=?, c23=?, userrating=?, c22=? WHERE idMovie=?', (mplot,  mtagline, mwriter, mduration, mdirector, \
+            myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate, mitemurl, movienumb)) #  Update movie information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
+            db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
+            insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
+            insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -798,7 +858,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
 
 
 def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog, mitemurl, mimdb_text):  
 
     #xbmc.log('Mezzmo fileId is: ' + str(fileId), xbmc.LOGINFO)
     if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
@@ -807,20 +867,23 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         dupe = db.execute('SELECT idEpisode FROM episode WHERE idFile=? and c00=?', (fileId[0], mtitle))
         dupetuple = dupe.fetchone() 
         if dupetuple == None:                                        # Ensure episode doesn't exist
-            db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19, userrating) \
-            values (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter,   \
-            mseason, mepisode, maired[:10], shownumb, fileId[5], murate))  #  Add episode information
+            db.execute('INSERT into EPISODE (idFile, c00, c01, c09, c10, c04, c12, c13, c05, idshow, c19, userrating, c18) \
+            values (?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?, ?, ?)', (fileId[0], mtitle, mplot, mduration, mdirector, mwriter,   \
+            mseason, mepisode, maired[:10], shownumb, fileId[5], murate, mitemurl))  #  Add episode information
             cur = db.execute('SELECT idEpisode FROM episode WHERE idFile=?',(str(fileId[0]),))  
             episodetuple = cur.fetchone()
             movienumb = episodetuple[0]                              # get new movie id  
-            insertArt(movienumb, db, 'episode', murl, micon)         # Insert artwork for episode    
+            insertArt(movienumb, db, 'episode', murl, micon)         # Insert artwork for episode
+            insertGenre(movienumb, db, 'episode', mgenre)            # Insert genre for episode 
+            insertGenre(shownumb, db, 'tvshow', mgenre)              # Insert genre for episode   
+            insertIMDB(movienumb, db, 'episode', mimdb_text)         # Insert IMDB for episode       
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'episode', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
             (movienumb, 'episode',))
             ratetuple = curr.fetchone() 
             ratenumb = ratetuple[0]
-            seasonId = checkSeason(db, shownumb, mseason)
+            seasonId = checkSeason(db, shownumb, mseason, murl, micon)
             db.execute('UPDATE episode SET c03=?, idSeason=? WHERE idEpisode=?', (ratenumb, seasonId, movienumb,))
             cur.close()
             curr.close()
@@ -846,13 +909,18 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
         if kplot != mplot or int(kduration) != mduration or kdirector != mdirector or kwriter != mwriter    \
         or kseason != mseason or kepisode != mepisode or kaired != maired[:10] or kshow != shownumb: 
             db.execute('UPDATE EPISODE SET c01=?, c09=?, c10=?, c04=?, c12=?, c13=?, c05=?, idShow=?, C19=?,\
-            userrating=? WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,      \
-            maired[:10], shownumb, fileId[5], murate, movienumb))     #  Update Episode information
+            userrating=?, c18=? WHERE idEpisode=?', (mplot, mduration, mdirector, mwriter, mseason, mepisode,      \
+            maired[:10], shownumb, fileId[5], murate, mitemurl, movienumb))     #  Update Episode information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
-            seasonId = checkSeason(db, shownumb, mseason)
+            seasonId = checkSeason(db, shownumb, mseason, murl, micon)
             db.execute('UPDATE episode SET idSeason=? WHERE idEpisode=?', (seasonId, movienumb,))
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'episode'))
             insertArt(movienumb, db, 'episode', murl, micon)          # Insert artwork for episode
+            db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'episode'))
+            insertGenre(movienumb, db, 'episode', mgenre)              # Insert genre for episode
+            db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'tvshow'))
+            insertGenre(shownumb, db, 'tvshow', mgenre)                # Insert genre for episode
+            insertIMDB(movienumb, db, 'episode', mimdb_text)           # Insert IMDB for episode 
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -910,15 +978,26 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
 
 
 def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mlang, mduration, mtitle,  \
-    kchange, itemurl, micon, murl, db, mpath, mdupelog):
+    kchange, itemurl, micon, murl, db, mpath, mdupelog, knative):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
     filecheck = itemurl[rtrimpos+1:]
 
     if fileId[4] == 0:
-       media_type = 'movie'
+        media_type = 'movie'
+        mcategory = 'movies'
     elif fileId[4] == 1:
-       media_type = 'episode'
+        media_type = 'episode'
+        mcategory = 'tvshows'
+
+    if knative == 'true' and media_type == 'movie':
+        rtrimpos = mpath.rfind('content/')       
+        pathtrim = mpath[:rtrimpos+8]
+        mpath = pathtrim + 'movies/'
+    elif knative == 'true' and media_type:
+        rtrimpos = mpath.rfind('content/')       
+        pathtrim = mpath[:rtrimpos+8]
+        mpath = pathtrim + 'tvshows/'
 
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
         insertStreams(fileId[0], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
@@ -967,11 +1046,29 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 delete_query = 'DELETE FROM streamdetails WHERE idFile = ' + str(filenumb)
                 db.execute(delete_query)          #  Delete old stream info
                 insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
-                curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,))  #  Check path table
+                curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',(mpath, mcategory,))  #  Check path table
                 pathtuple = curp.fetchone()
                 if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
-                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)', \
-                    (mpath, 'movies', int(fileId[2])))
+                    if media_type == 'movie':
+                        if knative == 'false':  
+                            db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
+                            (mpath, 'movies', int(fileId[2])))
+                        else:
+                            #scraper = 'metadata.themoviedb.org.python'
+                            scraper = 'metadata.local'
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
+                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',          \
+                            int(fileId[2])))
+                    elif media_type == 'episode':
+                        if knative == 'false':  
+                            db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
+                            (mpath, 'tvshows', int(fileId[2])))
+                        else:
+                            #scraper = 'metadata.tvshows.themoviedb.org.python'
+                            scraper = 'metadata.local'
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
+                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',         \
+                            int(fileId[2])))
                     curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
                     pathtuple = curp.fetchone()
                 pathnumb = pathtuple[0]
@@ -1011,6 +1108,84 @@ def insertArt(movienumb, db, media_type, murl, micon):
     (movienumb, media_type, 'thumb', micon))
     db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
     (movienumb, media_type, 'icon', micon))
+
+
+def insertIMDB(movienumb, db, media_type, mimdb_text):   
+
+    db.execute('DELETE FROM uniqueid WHERE media_id=? and media_type=?',(str(movienumb), media_type))  
+    if mimdb_text == None or len(mimdb_text) < 6:                                   # Ensure valid IMDB data
+        return  
+    if media_type == 'movie':
+        db.execute('INSERT into UNIQUEID (media_id, media_type, value, type) values (?, ?, ? ,?)', \
+        (movienumb, media_type, mimdb_text, 'imdb'))
+        curi = db.execute('SELECT uniqueid_id FROM uniqueid WHERE media_id=? and media_type=?',    \
+        (movienumb, media_type,))   
+        imdbtuple = curi.fetchone()                                                 # Get IMDB uniqueid
+        curi.close()
+        if imdbtuple:
+            db.execute('UPDATE movie SET c09=? WHERE idMovie=?', (imdbtuple[0], movienumb,))            
+    if media_type == 'episode':
+        db.execute('INSERT into UNIQUEID (media_id, media_type, value, type) values (?, ?, ? ,?)', \
+        (movienumb, media_type, mimdb_text, 'imdb'))
+        curi = db.execute('SELECT uniqueid_id FROM uniqueid WHERE media_id=? and media_type=?',    \
+        (movienumb, media_type,))   
+        imdbtuple = curi.fetchone()                                                 # Get IMDB uniqueid
+        curi.close()
+        if imdbtuple:
+            db.execute('UPDATE episode SET c20=? WHERE idEpisode=?', (imdbtuple[0], movienumb,)) 
+
+
+def insertGenre(movienumb, db, media_type, genres):
+
+    genrelist = genres.split(',')                                                    # Convert genres to list
+    xbmc.log('Mezzmo genrelist is: ' + str(genrelist), xbmc.LOGDEBUG)
+    for genre in genrelist:     
+        xbmc.log('Mezzmo current genre is: ' + str(genre), xbmc.LOGDEBUG)            # genre insertion debugging
+        mgenre = genre.strip()
+        curg = db.execute('SELECT genre_id FROM genre WHERE name=?',(mgenre,))   
+        genretuple = curg.fetchone()                                                 # Get genre id from genre table
+        curg.close()
+
+        if not genretuple:                   #  If genre not in genre table insert and fetch new genre ID
+            db.execute('INSERT into GENRE (name) values (?)', (mgenre,))
+            cur = db.execute('SELECT genre_id FROM genre WHERE name=?',(mgenre,))   
+            genretuple = cur.fetchone()      #  Get genre id from genre table
+            cur.close()
+        if genretuple:                       #  Insert genre to movie link in genre link table
+            genrenumb = genretuple[0] 
+            db.execute('INSERT OR REPLACE into GENRE_LINK (genre_id, media_id, media_type) values \
+            (?, ?, ?)', (genrenumb, movienumb, media_type,))
+            #xbmc.log('The current genre number is: ' + str(genrenumb) + "  " + str(movieId), xbmc.LOGINFO)
+
+
+def playCount(title, vurl, vseason, vepisode, mplaycount, series, dbfile, contenturl):
+
+    if dbfile != 'audiom':                                        #  Don't update Kodi for music
+        playcount.updateKodiPlaycount(int(mplaycount), title, vurl, int(vseason),     \
+        int(vepisode), series)                                    #  Update Kodi DB playcount
+
+    rtrimpos = vurl.rfind('/')
+    mobjectID = vurl[rtrimpos+1:]                                 #  Get Mezzmo objectID
+
+    if int(mplaycount) == 0:                                      #  Calcule new play count
+        newcount = '1'
+    elif int(mplaycount) > 0:
+        newcount = '0'
+
+    if mobjectID != None:                                         #  Update Mezzmo playcount if objectID exists
+        playcount.setPlaycount(contenturl, mobjectID, newcount, title)
+        bookmark.SetBookmark(contenturl, mobjectID, '0')          #  Clear bookmark
+        bookmark.updateKodiBookmark(mobjectID, '0', title)
+        nativeNotify()                                            #  Kodi native notification  
+        xbmc.sleep(1000)  
+        xbmc.executebuiltin('Container.Refresh()')
+
+
+def nativeNotify():
+
+    if settings('kodiskin') == 'true':                            #  Kodi native notification
+        #xbmc.executebuiltin('ReloadSkin()')
+        xbmc.executebuiltin('UpdateLibrary(video)') 
 
 
 def printexception():
