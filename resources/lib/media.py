@@ -560,46 +560,63 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
         genre_link WHERE media_id=old.idEpisode AND media_type="episode";END',)
         db.execute('CREATE INDEX IF NOT EXISTS ix_movie_file_mezzmo ON movie (c00)')
         db.execute('CREATE INDEX IF NOT EXISTS ix_episode_file_mezzmo ON episode (c00)')
-  
         db.commit()
-        db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
-        db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
-        db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
-        xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
-        curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE          \
-        strpath LIKE ?', (serverport,))             #  Get file and movie list
-        idlist = curf.fetchall()
-        for a in range(len(idlist)):                #  Delete Mezzmo file and Movie data
-            xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGDEBUG)
-            db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
-            db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
-            db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
-        db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
 
-        mgenlog ='Kodi database Mezzmo data cleared.'
-        xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        mgenlogUpdate(mgenlog)
-        curf.close()
-        db.commit()
-        db.close()
- 
-        dbsync = openNosyncDB()                     #  clears nosync DB
-        dbsync.execute('DELETE FROM nosyncVideo')
-        dbsync.execute('DELETE FROM mTrailers')
-        dblimit = 10000
-        dblimit2 = 10000
-        dbsync.execute('delete from mperfStats where psDate not in (select psDate from      \
-        mperfStats order by psDate desc limit ?)', (dblimit2,))
-        dbsync.execute('delete from dupeTrack where dtDate not in (select dtDate from       \
-        dupeTrack order by dtDate desc limit ?)', (dblimit2,))      
-        dbsync.execute('delete from msyncLog where msDate not in (select msDate from        \
-        msyncLog order by msDate desc limit ?)', (dblimit,))      
-        dbsync.execute('delete from mgenLog where mgDate not in (select mgDate from         \
-        mgenLog order by mgDate desc limit ?)', (dblimit,))
+        try:  
+            db.execute('DELETE FROM art WHERE url LIKE ?', (serverport,))
+            db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
+            db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
+            xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
+            curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE          \
+            strpath LIKE ?', (serverport,))             #  Get file and movie list
+            idlist = curf.fetchall()
+            for a in range(len(idlist)):                #  Delete Mezzmo file and Movie data
+                xbmc.log('Clean rows found: ' + str(idlist[a][0]), xbmc.LOGDEBUG)
+                db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
+                db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
+                db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
+            db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
+            mgenlog ='Kodi database Mezzmo data cleared.'
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            mgenlogUpdate(mgenlog)
+            curf.close()
+            db.commit()
+            db.close()
+        except db.OperationalError:        
+            mgenlog = xbmcaddon.Addon().getLocalizedString(30444)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            mgenlogUpdate(mgenlog)
+            name = xbmcaddon.Addon().getAddonInfo('name')
+            icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+            xbmcgui.Dialog().notification(name, mgenlog, icon)
+            db.close()
+            return    
+
+        try: 
+            dbsync = openNosyncDB()                     #  clears nosync DB
+            dbsync.execute('DELETE FROM nosyncVideo')
+            dbsync.execute('DELETE FROM mTrailers')
+            dblimit = 10000
+            dblimit2 = 10000
+            dbsync.execute('delete from mperfStats where psDate not in (select psDate from  \
+            mperfStats order by psDate desc limit ?)', (dblimit2,))
+            dbsync.execute('delete from dupeTrack where dtDate not in (select dtDate from   \
+            dupeTrack order by dtDate desc limit ?)', (dblimit2,))      
+            dbsync.execute('delete from msyncLog where msDate not in (select msDate from    \
+            msyncLog order by msDate desc limit ?)', (dblimit,))      
+            dbsync.execute('delete from mgenLog where mgDate not in (select mgDate from     \
+            mgenLog order by mgDate desc limit ?)', (dblimit,))
   
+            dbsync.commit()
+            dbsync.close()
 
-        dbsync.commit()
-        dbsync.close()
+        except db.OperationalError:       
+            dbsync.close() 
+            mgenlog = xbmcaddon.Addon().getLocalizedString(30445)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            name = xbmcaddon.Addon().getAddonInfo('name')
+            icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+            xbmcgui.Dialog().notification(name, mgenlog, icon)
 
         if settings('kodiclean') == 'true':
             settings('kodiclean', 'false')    # reset back to false after clearing
@@ -760,7 +777,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords):  
 
     if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -776,6 +793,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             movienumb = movietuple[0]                                # get new movie id 
             insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie
             insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie
+            insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
@@ -820,6 +838,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
+            insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
@@ -838,8 +857,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
     return(movienumb)
 
 
-def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog, mitemurl, mimdb_text):  
+def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, \
+    mtrailer, mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog,    \
+    mitemurl, mimdb_text, mkeywords):  
 
     #xbmc.log('Mezzmo fileId is: ' + str(fileId), xbmc.LOGNOTICE)
     if fileId[0] > 0:                                                #  Insert episode if does not exist in Kodi DB
@@ -857,6 +877,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertArt(movienumb, db, 'episode', murl, micon)         # Insert artwork for episode
             insertGenre(movienumb, db, 'episode', mgenre)            # Insert genre for episode 
             insertGenre(shownumb, db, 'tvshow', mgenre)              # Insert genre for episode
+            insertTags(shownumb, db, 'tvshow', mkeywords)            # Insert tags for episode
             insertIMDB(movienumb, db, 'episode', mimdb_text)         # Insert IMDB for episode      
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'episode', 'imdb', murate,))
@@ -901,6 +922,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertGenre(movienumb, db, 'episode', mgenre)              # Insert genre for episode
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'tvshow'))
             insertGenre(shownumb, db, 'tvshow', mgenre)                # Insert genre for episode
+            insertTags(shownumb, db, 'tvshow', mkeywords)              # Insert tags for episode
             insertIMDB(movienumb, db, 'episode', mimdb_text)           # Insert IMDB for episode 
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
@@ -918,7 +940,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
     return(movienumb)
 
 
-def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
+def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnativeact, mshowId):
     actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
   
     if fileId[4] == 0:
@@ -933,6 +955,8 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
         movietuple = curm.fetchone()
         movieId = movietuple[0]                                   # Get real movieId
         db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(movieId), media_type))
+        if media_type == 'episode' and mnativeact == 'true':
+            db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(mshowId), 'tvshow'))
         curm.close() 
     if movieId != 0:
         ordernum = 0
@@ -954,6 +978,9 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId):
                 ordernum += 1                #  Increment cast order
                 db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values \
                 (?, ?, ?, ?)', (actornumb, movieId, media_type, ordernum,))
+                if media_type == 'episode' and mnativeact == 'true':
+                    db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values \
+                    (?, ?, ?, ?)', (actornumb, mshowId, 'tvshow', ordernum,)) 
                 #xbmc.log('The current actor number is: ' + str(actornumb) + "  " + str(movieId), xbmc.LOGNOTICE)
 
 
@@ -1114,6 +1141,34 @@ def insertIMDB(movienumb, db, media_type, mimdb_text):
         curi.close()
         if imdbtuple:
             db.execute('UPDATE episode SET c20=? WHERE idEpisode=?', (imdbtuple[0], movienumb,))  
+
+
+def insertTags(movienumb, db, media_type, keywords):
+
+    db.execute('DELETE FROM tag_link WHERE media_id=? and media_type=?',(str(movienumb), media_type))
+    if keywords == None or len(keywords) == 0:
+        return
+    if settings('nativetag') == 'false':                                             # Tag syncing not enabled
+        return    
+    taglist = keywords.split(',')                                                    # Convert keywords to list
+    xbmc.log('Mezzmo taglist is: ' + str(taglist).encode('utf-8'), xbmc.LOGDEBUG)    # tags insertion debugging
+    for tag in taglist:     
+        xbmc.log('Mezzmo current tag is: ' + str(tag.encode('utf-8')), xbmc.LOGDEBUG)
+        mtag = tag.strip()
+        curt = db.execute('SELECT tag_id FROM tag WHERE name=?',(mtag,))   
+        tagtuple = curt.fetchone()                                                   # Get tag id from tag table
+        curt.close()
+
+        if not tagtuple:                     #  If tag not in tag table insert and fetch new tag ID
+            db.execute('INSERT into TAG (name) values (?)', (mtag,))
+            cur = db.execute('SELECT tag_id FROM tag WHERE name=?',(mtag,))   
+            tagtuple = cur.fetchone()        #  Get tag id from tag table
+            cur.close()
+        if tagtuple:                         #  Insert tag to media link in tag link table
+            tagnumb = tagtuple[0] 
+            db.execute('INSERT OR REPLACE into TAG_LINK (tag_id, media_id, media_type) values \
+            (?, ?, ?)', (tagnumb, movienumb, media_type,))
+            #xbmc.log('The current tag number is: ' + str(tagnumb) + "  " + str(movieId), xbmc.LOGNOTICE)
 
 
 def insertGenre(movienumb, db, media_type, genres):

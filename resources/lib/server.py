@@ -338,7 +338,9 @@ def clearPictures():                                             # Clear picture
         printexception()
         mgenlog = 'Mezzmo clearing picture error.'
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        mgenlogUpdate(mgenlog)   
+        mgenlogUpdate(mgenlog)
+
+    
 
 
 def updatePictures(piclist):                                     # Update picture DB with list

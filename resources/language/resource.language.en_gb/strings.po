@@ -495,3 +495,19 @@ msgstr ""
 msgctxt "#30442"
 msgid "Kodi Native Mode Sync"
 msgstr ""
+
+msgctxt "#30443"
+msgid "Native Mode TV Show Actors"
+msgstr ""
+
+msgctxt "#30444"
+msgid "Mezzmo data in the Kodi DB could not be cleared."
+msgstr ""
+
+msgctxt "#30445"
+msgid "Mezzmo data in the Mezzmo10 DB could not be cleared."
+msgstr ""
+
+msgctxt "#30446"
+msgid "Sync Kodi Tags From Mezzmo"
+msgstr ""
