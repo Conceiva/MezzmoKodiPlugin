@@ -496,6 +496,22 @@ msgctxt "#30442"
 msgid "Kodi Native Mode Sync"
 msgstr ""
 
+msgctxt "#30443"
+msgid "Native Mode TV Show Actors"
+msgstr ""
+
+msgctxt "#30444"
+msgid "Mezzmo data in the Kodi DB could not be cleared."
+msgstr ""
+
+msgctxt "#30445"
+msgid "Mezzmo data in the Mezzmo10 DB could not be cleared."
+msgstr ""
+
+msgctxt "#30446"
+msgid "Sync Kodi Tags From Mezzmo"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -642,4 +658,12 @@ msgstr ""
 
 msgctxt "#30537"
 msgid "Enable for native Kodi Mezzmo data sync.  This is needed to display cast metadata and similar in native mode operation.  Default is disabled."
+msgstr ""
+
+msgctxt "#30538"
+msgid "Enable for native Kodi mode to display TV Shows by actor.  Default is disabled."
+msgstr ""
+
+msgctxt "#30539"
+msgid "Enable for native Kodi mode to sync Mezmo keywords to Kodi tags.  Default is disabled."
 msgstr ""
