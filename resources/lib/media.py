@@ -799,7 +799,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
-    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords):  
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative, movieset):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
@@ -817,6 +817,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie 
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
@@ -862,6 +863,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -1163,6 +1165,40 @@ def insertIMDB(movienumb, db, media_type, mimdb_text):
         curi.close()
         if imdbtuple:
             db.execute('UPDATE episode SET c20=? WHERE idEpisode=?', (imdbtuple[0], movienumb,)) 
+
+
+def insertSets(movienumb, db, setname, knative, murl, micon):
+
+    db.execute('UPDATE movie SET idSet=? WHERE idMovie=?', (None, movienumb,))
+    if settings('knative') == 'false':                                              # Native mode disabled
+        return  
+    if setname == None or len(setname) == 0 or 'Unknown' in setname:
+        return    
+
+    msetname = setname.strip()
+
+    curs = db.execute('SELECT idSet FROM sets WHERE strSet=?',(msetname,))   
+    sagtuple = curs.fetchone()                                                      # Get set id from set table
+    curs.close()    
+
+    if not sagtuple:                     #  If set not in set table insert and fetch new set ID
+        db.execute('INSERT into SETS (strSet) values (?)', (msetname,))
+        cur = db.execute('SELECT idSet FROM sets WHERE strSet=?',(msetname,))   
+        sagtuple = cur.fetchone()        #  Get set id from set table
+        cur.close()
+
+    if sagtuple:                         #  Insert set to movie table
+        setnumb = sagtuple[0] 
+        db.execute('UPDATE movie SET idSet=? WHERE idMovie=?', (setnumb, movienumb,))
+        #xbmc.log('The current set number is: ' + str(setnumb) + "  " + str(msetname), xbmc.LOGINFO)
+        cura = db.execute('SELECT art_id FROM art WHERE media_id=? and media_type=?',(setnumb, 'set',))
+        artuple = cura.fetchone()
+        cura.close()        
+        if not artuple:
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+            (setnumb, 'set', 'poster', micon))
+            db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+            (setnumb, 'set', 'fanart', murl)) 
 
 
 def insertTags(movienumb, db, media_type, keywords):

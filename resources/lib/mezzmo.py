@@ -581,6 +581,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        movieset = album_text
                         album_text = ''
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
@@ -793,7 +794,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text, tags_text)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)
@@ -1094,6 +1095,7 @@ def handleSearch(content, contenturl, objectID, term):
                     elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        movieset = album_text
                         album_text = ''
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
@@ -1297,7 +1299,7 @@ def handleSearch(content, contenturl, objectID, term):
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text, tags_text)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)

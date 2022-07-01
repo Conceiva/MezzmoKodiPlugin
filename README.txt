@@ -1,3 +1,8 @@
+v2.1.5.8  7/1/2022
+
+-  Added syncing of Mezzmo movie series information to Kodi movie sets
+   when native mode operation is enabled.
+
 v2.1.5.7  6/26/2022
 
 -  Added option for synchronizing Mezzmo Keywords to Kodi Tags in native
