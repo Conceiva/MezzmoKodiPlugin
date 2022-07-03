@@ -1,3 +1,8 @@
+v1.1.5.9  7/2/2022
+
+-  Added the ability to manually add your Mezzmo server IP address when
+   the autodiscovery does not work properly on your network.
+
 v1.1.5.8  7/1/2022
 
 -  Added syncing of Mezzmo movie series information to Kodi movie sets
