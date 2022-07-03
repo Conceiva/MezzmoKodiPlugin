@@ -512,6 +512,18 @@ msgctxt "#30446"
 msgid "Sync Kodi Tags From Mezzmo"
 msgstr ""
 
+msgctxt "#30447"
+msgid "Add Mezzmo Server"
+msgstr ""
+
+msgctxt "#30448"
+msgid "Enter Your Mezzmo Server IP address"
+msgstr ""
+
+msgctxt "#30449"
+msgid "Enter Your Mezzmo Server port #"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

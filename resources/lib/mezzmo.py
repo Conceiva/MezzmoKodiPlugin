@@ -95,9 +95,15 @@ def listServers(force):
     onlyShowMezzmo = media.settings('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
-    li = xbmcgui.ListItem('Refresh')
+    li = xbmcgui.ListItem(addon.getLocalizedString(30347))
     li.setArt({'icon': addon_path + '/resources/media/refresh.png'})
-    
+   
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+
+    itemurl = build_url({'mode': 'manual'})        
+    li = xbmcgui.ListItem(addon.getLocalizedString(30447))
+    li.setArt({'icon': addon_icon})
+
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     srvcount = len(servers)
@@ -112,7 +118,10 @@ def listServers(force):
     xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
-        url = server.location                
+        try:
+            url = server.location
+        except:
+            url = server.get('serverurl')               
         try:
             response = urllib.request.urlopen(url)
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
@@ -1491,6 +1500,22 @@ refresh = args.get('refresh', 'False')
 
 if refresh[0] == 'True':
     listServers(True)
+
+if mode[0] == 'manual':                          #  Manually add Mezzmo server IP
+    ipdialog = xbmcgui.Dialog()
+    serverip = ipdialog.input(addon.getLocalizedString(30448), type=xbmcgui.INPUT_IPADDRESS)
+    if len(serverip) > 0:
+        serverurl = 'http://' + str(serverip) + ':53168/desc' 
+        saved_servers = media.settings('saved_servers')
+        saved_servers = saved_servers.encode('utf-8')
+        servers = pickle.loads(saved_servers, fix_imports=True)
+        add_server = {'serverurl': serverurl}
+        servers.append(add_server) 
+        media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
+        mgenlog = 'Mezzmo server manually added: ' + serverurl
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+    listServers(False)
     
 if mode[0] == 'serverlist':
     listServers(False)
