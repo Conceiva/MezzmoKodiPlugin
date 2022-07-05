@@ -19,7 +19,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle
-from server import clearPictures, updatePictures
+from server import clearPictures, updatePictures, addServers
 from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
@@ -95,9 +95,15 @@ def listServers(force):
     onlyShowMezzmo = media.settings('only_mezzmo_servers') == 'true'
 
     itemurl = build_url({'mode': 'serverList', 'refresh': True})        
-    li = xbmcgui.ListItem('Refresh')
+    li = xbmcgui.ListItem(addon.getLocalizedString(30347))
     li.setArt({'icon': addon_path + '/resources/media/refresh.png'})
-    
+   
+    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+
+    itemurl = build_url({'mode': 'manual'})        
+    li = xbmcgui.ListItem(addon.getLocalizedString(30447))
+    li.setArt({'icon': addon_icon})
+
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     srvcount = len(servers)
@@ -112,7 +118,10 @@ def listServers(force):
     xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
-        url = server.location                
+        try:
+            url = server.location
+        except:
+            url = server.get('serverurl')               
         try:
             response = urllib.request.urlopen(url)
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
@@ -350,6 +359,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    nativeact = media.settings('nativeact')
     perflog = media.settings('perflog')
     duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
     synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled    
@@ -564,6 +574,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
                 if tagline != None:
                     tagline_text = tagline.text
+
+                tags_text = ''
+                tags = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}keywords')
+                if tags != None:
+                    tags_text = tags.text
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
@@ -575,6 +590,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        movieset = album_text
                         album_text = ''
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
@@ -775,20 +791,22 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         categories_text, knative)
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
+                        showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
                             production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
-                            media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
+                            media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
+                            nativeact, showId)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false', knative)         # Update movie stream info 
@@ -926,6 +944,7 @@ def handleSearch(content, contenturl, objectID, term):
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    nativeact = media.settings('nativeact')
     trcount = media.settings('trcount')              # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
@@ -1069,6 +1088,11 @@ def handleSearch(content, contenturl, objectID, term):
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
                 if tagline != None:
                     tagline_text = tagline.text
+
+                tags_text = ''
+                tags = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}keywords')
+                if tags != None:
+                    tags_text = tags.text
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
@@ -1080,6 +1104,7 @@ def handleSearch(content, contenturl, objectID, term):
                     elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        movieset = album_text
                         album_text = ''
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
@@ -1271,20 +1296,22 @@ def handleSearch(content, contenturl, objectID, term):
                         categories_text, knative)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                         durationsecs = sync.getSeconds(duration_text)       #  convert duration to seconds before passing
+                        showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                             production_company_text, icon, backdropurl)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
-                            media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
+                            media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
+                            nativeact, showId)
                         media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,        \
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false', knative)      # Update movie stream info 
@@ -1473,6 +1500,21 @@ refresh = args.get('refresh', 'False')
 
 if refresh[0] == 'True':
     listServers(True)
+
+if mode[0] == 'manual':                          #  Manually add Mezzmo server IP
+    serverurl = addServers()
+    if serverurl != 'None':
+        saved_servers = media.settings('saved_servers')
+        saved_servers = saved_servers.encode('utf-8')
+        servers = pickle.loads(saved_servers, fix_imports=True)
+        add_server = {'serverurl': serverurl}
+        servers.append(add_server) 
+        media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
+        mgenlog = media.translate(30451) + serverurl
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+        notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
+    listServers(False)
     
 if mode[0] == 'serverlist':
     listServers(False)

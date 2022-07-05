@@ -70,6 +70,42 @@ def displayServers():
     return
 
 
+def addServers():                                                #  Manually add uPNP servers
+
+    serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
+                   {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
+                   {'name': 'Kodi', 'port': '2042', 'uri': '/DeviceDescription.xml'},
+                   {'name': 'PlayOn', 'port': '52478', 'uri': '/'},
+                   {'name': 'Plex', 'port': '32469', 'uri': '/DeviceDescription.xml'},
+                   {'name': 'Tversity', 'port': '41952', 'uri': '/description/fetch'},
+                   {'name': 'Twonky', 'port': '9000', 'uri': '/dev0/desc.xml'}  ]
+
+    ipdialog = xbmcgui.Dialog()
+    serverip = ipdialog.input(addon.getLocalizedString(30448), '0.0.0.0', type=xbmcgui.INPUT_IPADDRESS)   
+    if len(serverip) == 0 or serverip == '0.0.0.0':             # Return if cancel or bad IP
+        return 'None'
+
+    serverlist = []
+    for s in range(len(serverdict)):
+        serverlist.append(serverdict[s]['name'])                 # Convert dict list to list for dialog box
+    #xbmc.log('Mezzmo uPNP server list: ' + str(serverlist), xbmc.LOGINFO)
+    sdialog = xbmcgui.Dialog()  
+    server = sdialog.select(translate(30450), serverlist)
+    #xbmc.log('Mezzmo uPNP server selection: ' + str(server), xbmc.LOGINFO)
+
+    if server < 0:
+        return 'None'
+    else:
+        sport = sdialog.input(translate(30449), serverdict[server]['port'], type=xbmcgui.INPUT_NUMERIC)
+
+    if len(sport) == 0:
+        return 'None'
+    else:
+        serverurl = 'http://' + str(serverip) + ':' + str(sport) + serverdict[server]['uri']
+        xbmc.log('Mezzmo uPNP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
+        return serverurl
+
+
 def updateSync(controlurl):                                      # Set sync for Mezzmo server
 
     try:

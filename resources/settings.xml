@@ -237,6 +237,16 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="nativeact" type="boolean" label="30443" help="30538">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="nativetag" type="boolean" label="30446" help="30539">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiskin" type="boolean" label="30439" help="30536">
 					<level>0</level>
 					<default>false</default>

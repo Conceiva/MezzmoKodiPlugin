@@ -292,6 +292,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     global mezzmorecs, dupelog
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    nativeact = media.settings('nativeact')
     
     try:
         while True:
@@ -455,6 +456,11 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 tagline = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}tag_line')
                 if tagline != None:
                     tagline_text = tagline.text
+
+                tags_text = ''
+                tags = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}keywords')
+                if tags != None:
+                    tags_text = tags.text
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
@@ -466,6 +472,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     elif categories_text[:5].lower() == 'movie':
                         categories_text = 'movie'
                         contentType = 'movies'
+                        movieset = album_text
                         album_text = ''
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
@@ -607,20 +614,22 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
+                    showId = 0                                          #  Set default 
                     if filekey[4] == 1:
                         showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
                         production_company_text, icon, backdropurl)
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
-                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text)  
+                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text, tags_text)  
                     else:  
-                        mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text,          \
-                        writer_text, creator_text, release_date_text, rating_val, durationsecs, genre_text,      \
-                        trailerurl, content_rating_text, icon, kodichange, backdropurl, dbfile,                  \
-                        production_company_text, sort_title_text, dupelog, itemurl, imdb_text)
+                        mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                        creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
+                        content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
+                        sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
-                        media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey)
+                        media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
+                        nativeact, showId)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info 

@@ -1,9 +1,32 @@
-v2.1.5.5
+v2.1.5.9  7/3/2022
+
+-  Added the ability to manually add your Mezzmo server IP address when
+   the autodiscovery does not work properly on your network.
+
+v2.1.5.8  7/1/2022
+
+-  Added syncing of Mezzmo movie series information to Kodi movie sets
+   when native mode operation is enabled.
+
+v2.1.5.7  6/26/2022
+
+-  Added option for synchronizing Mezzmo Keywords to Kodi Tags in native
+   mode operation.
+
+v2.1.5.6  6/20/2022
+
+-  Added native mode support for viewing all actors from skin option for
+   TV Shows.  This had been available for movies but not TV Shows. The 
+   default is disabled for this setting.  
+-  Added database locking detection for the Kodi and Mezzmo10 databases
+   during maintenance activities.
+
+v2.1.5.5  6/3/2022
 
 -  New native Kodi mode options and additional metadata synchronization 
    including genre, year, actor/actress, IMDB number and bookmarks. 
 
-v2.1.5.4
+v2.1.5.4  5/6/2022
 
 -  Added option for supporting Season 0 episodes 0.  Episodes are determined
    by season and episode numbers if option is by episode/season and by category
@@ -12,19 +35,19 @@ v2.1.5.4
 -  Fixed missing label in addon View Settings.
 -  Simplified Sync process logging
 
-v2.1.5.3
+v2.1.5.3  4/2/2022
 
 -  Removed command introduced in version 2.1.4.3 which would cause the uPNP
    server discovery message status window to be displayed anytime a uPNP
    server stopped responding.  This added extra unnecessary clicks to recover
    from a Mezzmo or UPNP server restart.
 
-v2.1.5.2
+v2.1.5.2  3/8/2022
 
 -  Fixed bug introduced in v2.1.4.8 which was causing invalid handle errors
    in the Kodi logs and improper displaying of uPNP servers after a Refresh.
 
-v2.1.5.1
+v2.1.5.1  3/2/2022
 
 -  Added CSV export capability for Kodi and Mezzmo addon databases.
 -  Modified Logs & Stats GUI reporting limit to the 2,000 most recent records.
@@ -38,35 +61,35 @@ v2.1.5.1
 -  Fixed displaying some audio tracks from Tversity uPNP server.
   
 
-v2.1.5.0
+v2.1.5.0  2/27/2022
 
 -  Fixed another bug introduced in v2.1.4.8 which caused metadata updates to 
    changed episodes in Kodi DB to fail due to userrating added to database.
 
-v2.1.4.9
+v2.1.4.9  2/26/2022
 
 -  Fixed bug introduced in v2.1.4.8 which caused metadata updates to changed
    movies / episodes in Kodi DB to fail due to userrating added to database.
 
-v2.1.4.8
+v2.1.4.8  2/23/2022
 
 -  Additional metadata for uPNP servers including MPAA rating, playcount,
    user rating, tagline and artwork.
 -  Fixed bug where Kodi database manual clearing would fail if uPNP servers
    were displayed. 
 
-v2.1.4.7
+v2.1.4.7  2/22/2022
 
 -  Added initial support for Kodi v20 Nexus
 -  Additional code cleanup and optimization for the Logs & Stats reporting.
 -  Improved metadata for uPNP servers including actors, directors and genre.
 
-v2.1.4.6
+v2.1.4.6  2/18/2022
 
 - Added context menu item for all pictures to be able to launch Mezzmo addon
   slideshow viewer.
 
-v2.1.4.4
+v2.1.4.4  2/15/2022
 
 -  Added a GUI notification when browsing a playlist and the server returns
    no results due to it being empty on the server.
