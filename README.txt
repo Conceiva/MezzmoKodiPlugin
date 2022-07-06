@@ -1,3 +1,13 @@
+v1.1.6.0  7/6/2022
+
+-  Fixed bug introduced in v1.1.5.8 that would cause videos not to be
+   displayed if Kodi was not in sync with Mezzmo and the category type
+   was not set to movie or TV Show.
+-  Added check for improperly formatted or missing duration in Mezzmo
+   that could cause an exception error and videos not to display
+-  Improved manual IP server additions to include the ability to use 
+   nonstandard ports and certain non-Mezzmo servers.
+
 v1.1.5.9  7/2/2022
 
 -  Added the ability to manually add your Mezzmo server IP address when
