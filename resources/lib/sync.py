@@ -481,11 +481,15 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        movieset = album_text
                         album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        movieset = album_text
                         album_text = ''
+                else:
+                    movieset = album_text = '' 
 
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
