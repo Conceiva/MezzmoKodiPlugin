@@ -19,7 +19,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle
-from server import clearPictures, updatePictures
+from server import clearPictures, updatePictures, addServers
 from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
@@ -595,10 +595,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        movieset = album_text
                         album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        movieset = album_text
                         album_text = ''
                         
                 episode_text = ''
@@ -1109,10 +1111,12 @@ def handleSearch(content, contenturl, objectID, term):
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        movieset = album_text
                         album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        movieset = album_text
                         album_text = ''
                         
                 episode_text = ''
@@ -1502,19 +1506,18 @@ if refresh[0] == 'True':
     listServers(True)
 
 if mode[0] == 'manual':                          #  Manually add Mezzmo server IP
-    ipdialog = xbmcgui.Dialog()
-    serverip = ipdialog.input(addon.getLocalizedString(30448), type=xbmcgui.INPUT_IPADDRESS)
-    if len(serverip) > 0:
-        serverurl = 'http://' + str(serverip) + ':53168/desc' 
+    serverurl = addServers()
+    if serverurl != 'None':
         saved_servers = media.settings('saved_servers')
         saved_servers = saved_servers.encode('utf-8')
         servers = pickle.loads(saved_servers, fix_imports=True)
         add_server = {'serverurl': serverurl}
         servers.append(add_server) 
         media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
-        mgenlog = 'Mezzmo server manually added: ' + serverurl
+        mgenlog = media.translate(30451) + serverurl
         xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
+        notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
     listServers(False)
     
 if mode[0] == 'serverlist':

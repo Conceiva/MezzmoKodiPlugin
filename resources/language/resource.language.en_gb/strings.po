@@ -513,15 +513,23 @@ msgid "Sync Kodi Tags From Mezzmo"
 msgstr ""
 
 msgctxt "#30447"
-msgid "Add Mezzmo Server"
+msgid "Add Server Manually"
 msgstr ""
 
 msgctxt "#30448"
-msgid "Enter Your Mezzmo Server IP address"
+msgid "Enter New Server IP address"
 msgstr ""
 
 msgctxt "#30449"
-msgid "Enter Your Mezzmo Server port #"
+msgid "Enter New Server port #"
+msgstr ""
+
+msgctxt "#30450"
+msgid "Select New Server Type"
+msgstr ""
+
+msgctxt "#30451"
+msgid "Mezzmo new uPNP server manually added: "
 msgstr ""
 
 msgctxt "#30501"

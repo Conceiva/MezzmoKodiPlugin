@@ -81,12 +81,16 @@ def dbClose():		 # Close database and commit any pending writes on abort
 
 
 def getSeconds(t):
-    x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
-    td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
-    seconds = int((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
-    if seconds == None:
-        seconds = 0
-    return seconds
+    try:
+        x = time.strptime(t.split(',')[0],'%H:%M:%S.000')
+        td = datetime.timedelta(hours=x.tm_hour,minutes=x.tm_min,seconds=x.tm_sec)
+        seconds = int((td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6)
+        if seconds == None:
+            seconds = 0
+        return seconds
+    except:
+        return 0
+        pass
 
 
 def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real time updates when 90% sync achieved
@@ -477,10 +481,12 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     elif categories_text[:11].lower() == 'music video':
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        movieset = album_text
                         album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        movieset = album_text
                         album_text = ''
 
                 episode_text = ''
