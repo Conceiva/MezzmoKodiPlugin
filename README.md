@@ -21,6 +21,7 @@ A tool to help manage Mezzmo actor artwork across the Poster and UserPoster fold
 - Automatically start on your favorite playlist  
 - Full metadata library Search capability with adjustable prior search history
 - Default view modes for Movies, TV Shows and others
+- Native Kodi and addon GUI viewing modes 
 - Play music with a resume playback capability
 - View Photos manually or with the built-in slideshow viewer
 - Comprehensive parental controls
