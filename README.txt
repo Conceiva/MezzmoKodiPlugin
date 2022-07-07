@@ -1,3 +1,9 @@
+v1.1.6.1  7/7/2022
+
+-  Further improvement of the category type code to simplify the logic,
+   better handle multiple categories for a video and fix issue that would
+   cause items not to displayed if the category was blank for a video.
+
 v1.1.6.0  7/6/2022
 
 -  Fixed bug introduced in v1.1.5.8 that would cause videos not to be

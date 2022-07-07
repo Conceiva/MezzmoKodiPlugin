@@ -591,25 +591,29 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type  
-                    if categories_text[:7].lower() == 'tv show':
+                    categories_text = categories.text 
+                    xbmc.log('Mezzmo categories_text: ' + str(categories_text), xbmc.LOGDEBUG)
+                    if album_text:
+                        movieset = album_text
+                    else:
+                        movieset = album_text = ''                        
+
+                    if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text[:5].lower() == 'movie':
+                    elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
-                        movieset = album_text
-                        album_text = ''
-                    elif categories_text[:11].lower() == 'music video':
+                    elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
-                        movieset = album_text
-                        album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
-                        movieset = album_text
-                        album_text = ''
+                else:
+                    movieset = album_text = ''
+                    categories_text = 'video'
+                    contentType = 'videos'
 
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
@@ -1147,23 +1151,29 @@ def handleSearch(content, contenturl, objectID, term):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text[:7].lower() == 'tv show':
+                    categories_text = categories.text 
+                    xbmc.log('Mezzmo categories_text: ' + str(categories_text), xbmc.LOGDEBUG)
+                    if album_text:
+                        movieset = album_text
+                    else:
+                        movieset = album_text = ''                        
+
+                    if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text[:5].lower() == 'movie':
+                    elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
-                        movieset = album_text
-                        album_text = ''
-                    elif categories_text[:11].lower() == 'music video':
+                    elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
-                        album_text = ''
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
-                        album_text = ''
+                else:
+                    movieset = album_text = ''
+                    categories_text = 'video'
+                    contentType = 'videos'
                         
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
