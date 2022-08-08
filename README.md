@@ -5,9 +5,9 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 <a href="http://www.mezzmo.com/wiki/doku.php?id=mezzmo_for_kodi_user_guide">Kodi Addon User Guide</a> 
 
-<a href="https://github.com/jbinkley60/MezzmoArtworkChecker">Mezzmo Artwork Checker</a>  
-A tool to help manage Mezzmo actor artwork across the Poster and UserPoster folders.
+<a href="https://github.com/jbinkley60/MezzmoArtworkChecker">Mezzmo Artwork Checker</a>  A tool to help manage Mezzmo actor artwork across the Poster and UserPoster folders.
 
+See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki">Wiki</a> for complete details on realizing the ultimate Kodi experience.
 
 <b>Features: </b>
 - Play and resume videos with 0-30 sec rewind / lookback option
