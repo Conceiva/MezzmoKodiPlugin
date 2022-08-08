@@ -531,3 +531,15 @@ msgstr ""
 msgctxt "#30451"
 msgid "Mezzmo new uPNP server manually added: "
 msgstr ""
+
+msgctxt "#30452"
+msgid "Diagnostics"
+msgstr ""
+
+msgctxt "#30453"
+msgid "Mezzmo Server Response Logging"
+msgstr ""
+
+msgctxt "#30454"
+msgid "uPNP Server Response Logging"
+msgstr ""

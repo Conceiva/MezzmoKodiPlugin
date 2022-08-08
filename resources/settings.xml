@@ -92,4 +92,12 @@
 	<setting id="search_keywords" type="bool" label="30359" default="true"/>
 	<setting id="search_creator" type="bool" label="30364" default="true"/>
     </category>
+
+    <!-- Diagnostics -->
+    <category label="30452">
+        <setting id="mezzmo_response" type="slider" label="30453" default="0" range="0,1,25" option="int"/>
+        <setting id="mrespcount" type="text" label="none" default="0" visible="false"/> 
+        <setting id="generic_response" type="slider" label="30454" default="0" range="0,1,25" option="int"/>
+        <setting id="genrespcount" type="text" label="none" default="0" visible="false"/>    
+    </category>
 </settings>

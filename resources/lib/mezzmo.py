@@ -121,7 +121,7 @@ def listServers(force):
         except:
             url = server.get('serverurl')           
         try:
-            response = urllib2.urlopen(url)
+            response = urllib2.urlopen(url, timeout=int(timeoutval))
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
           
             e = xml.etree.ElementTree.fromstring(xmlstring)
@@ -731,7 +731,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'pictures'
-                     
+
+                durationsecs = sync.getSeconds(duration_text)                           #  convert movie duration to seconds                     
                 if mediaClass_text == 'video' and validf == 1:    
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
@@ -758,7 +759,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])       
 
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -784,7 +785,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
+                    li.setProperty('TotalTime', str(durationsecs))
                     video_info = {
                         'codec': video_codec_text,
                         'aspect': aspect,
@@ -804,7 +805,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
                         categories_text, knative)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
-                        durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
@@ -853,7 +853,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                          pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])   
               
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1026,7 +1026,7 @@ def handleSearch(content, contenturl, objectID, term):
                 else:
                     contentType = 'folders'
                 
-   
+            dbfile = media.openKodiDB()   
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
@@ -1292,6 +1292,7 @@ def handleSearch(content, contenturl, objectID, term):
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
 
+                durationsecs = sync.getSeconds(duration_text)                           #  convert movie duration to seconds  
                 if mediaClass_text == 'video' and validf == 1:
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
@@ -1304,7 +1305,7 @@ def handleSearch(content, contenturl, objectID, term):
                         (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])    
        
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1330,7 +1331,7 @@ def handleSearch(content, contenturl, objectID, term):
                     }
                     li.setInfo(mediaClass_text, info)
                     li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
+                    li.setProperty('TotalTime', str(durationsecs))
                     video_info = {
                         'codec': video_codec_text,
                         'aspect': aspect,
@@ -1345,14 +1346,12 @@ def handleSearch(content, contenturl, objectID, term):
                     mtitle = media.displayTitles(title) 
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
                     if installed_version >= '17' and kodiactor == 'true' and tvcheckval[0] == 1:  
-                        dbfile = media.openKodiDB()
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
                         categories_text, knative)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
-                        durationsecs = sync.getSeconds(duration_text)  #  convert movie duration to seconds before passing
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
@@ -1386,7 +1385,7 @@ def handleSearch(content, contenturl, objectID, term):
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])    
 
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1613,7 +1612,11 @@ elif mode[0] == 'server':
         xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
                  
 elif mode[0] == 'search':
+    source = args.get('source', 'browse')
     promptSearch()
+    if source[0] == 'native':
+        xbmc.sleep(1)
+        sys.exit()
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')

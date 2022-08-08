@@ -49,7 +49,7 @@ class XBMCPlayer(xbmc.Player):
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:           #  Check for paused Mezzmo files
                 self.paflag = 1
@@ -71,7 +71,7 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         pos = 0
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
             bookmark.updateKodiBookmark(objectID, pos, self.mtitle)
  
@@ -83,7 +83,7 @@ class XBMCPlayer(xbmc.Player):
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         #xbmc.log("Mezzmo Playback stopped class " + str(mtitle) , xbmc.LOGNOTICE)
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
              
@@ -103,7 +103,7 @@ while True:
                 manufacturer = getContentURL(contenturl)
                 objectID = getObjectID(file)
                 bmdelay = 15 - int(media.settings('bmdelay'))
-                if contenturl != 'none' and 'Conceiva' in manufacturer:   # Ensure Mezzmo server has been selected            
+                if contenturl != 'none' and 'Conceiva' in manufacturer and 'cva_extract' not in file:   # Ensure Mezzmo server has been selected            
                     bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))   
                     if xbmc.Player().isPlayingVideo():
                         finfo = xbmc.Player().getVideoInfoTag()

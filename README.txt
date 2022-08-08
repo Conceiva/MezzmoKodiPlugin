@@ -1,3 +1,17 @@
+v1.1.6.2  8/8/2022
+
+-  Removed Kodi from manual IP server additions due to random port usage.
+   Kodi uPNP servers will still be discovered via the automatic process.
+-  Fixed bug where bookmarks were being set / cleared for the underlying 
+   movies when their trailers were being played.
+-  Improved usability where addon GUI would restart after native mode 
+   search was completed.  Native mode search completion now goes back to
+   native mode menu.
+-  Added new Diagnostics settings section with options for temporary server
+   response logging to aid in troubleshooting Mezzmo and uPNP XML metadata
+   responses.  The settings will disable after an optional number of server
+   responses to avoid overly expanding the Kodi.log file size.
+
 v1.1.6.1  7/7/2022
 
 -  Further improvement of the category type code to simplify the logic,
