@@ -28,10 +28,13 @@ addon_path = addon.getAddonInfo("path")
 addon_icon = addon_path + '/resources/icon.png'
 addon_fanart = addon_path + '/resources/fanart.jpg'
 
+logcount = 0
 gsrvrtime = int(media.settings('gsrvrtime'))
 if not gsrvrtime:
     gsrvrtime = 60
-
+generic_response = int(media.settings('generic_response'))
+if generic_response > 0:
+    logcount = int(media.settings('genrespcount'))
     
 def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
@@ -698,8 +701,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
 
 
 def gBrowse(url, objectID, flag, startingIndex, requestedCount, pin):
-
-    
+    global logcount      
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -727,10 +729,19 @@ def gBrowse(url, objectID, flag, startingIndex, requestedCount, pin):
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=gsrvrtime).read().decode('utf-8')
-        #response = urllib.request.urlopen(req, timeout=60).read()
-        #xbmc.log('The current response is: ' + str(response), xbmc.LOGINFO)
+        if logcount < generic_response and generic_response > 0:
+            xbmc.log(response, xbmc.LOGINFO)
+            logcount += 1
+            media.settings('genrespcount', str(logcount))
+        elif logcount >= generic_response and generic_response > 0:
+            media.settings('generic_response', '0')            
+            media.settings('genrespcount', '0')
+            mgenlog = 'Mezzmo generic server response logging limit.'   
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog)
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass
     #xbmc.log('The current response is: ' + str(response), xbmc.LOGINFO)    
     return response
+

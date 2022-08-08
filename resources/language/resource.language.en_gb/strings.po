@@ -532,6 +532,18 @@ msgctxt "#30451"
 msgid "Mezzmo new uPNP server manually added: "
 msgstr ""
 
+msgctxt "#30452"
+msgid "Diagnostics"
+msgstr ""
+
+msgctxt "#30453"
+msgid "Mezzmo Server Response Logging"
+msgstr ""
+
+msgctxt "#30454"
+msgid "uPNP Server Response Logging"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -686,4 +698,12 @@ msgstr ""
 
 msgctxt "#30539"
 msgid "Enable for native Kodi mode to sync Mezmo keywords to Kodi tags.  Default is disabled."
+msgstr ""
+
+msgctxt "#30540"
+msgid "Enables logging a specific number of Mezzmo server responses before automatically disabling.  Default is disabled."
+msgstr ""
+
+msgctxt "#30541"
+msgid "Enables logging a specific number of uPNP server responses before automatically disabling.  Default is disabled."
 msgstr ""

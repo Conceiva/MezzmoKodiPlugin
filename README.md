@@ -9,12 +9,14 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki">Wiki</a> for complete details on realizing the ultimate Kodi experience.
 
+
 <b>Features: </b>
 - Play and resume videos with 0-30 sec rewind / lookback option
 - Share resume points between other devices through the Mezzmo server
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most uPNP servers
 - Automatic Mezzmo and Kodi database synchronization using a background process
+- Automatic discovery of new library content
 - Automatically stop paused playback user selectable timer
 - Performance statistics and log viewing
 - Option for managing Kodi artwork caching for Mezzmo

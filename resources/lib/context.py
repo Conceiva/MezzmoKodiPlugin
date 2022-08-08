@@ -111,7 +111,7 @@ def contextMenu():                                       # Display contxt menu f
         else:
             xbmc.executebuiltin('RunAddon(%s)' % ("plugin.video.mezzmo"))
     elif (cselect[vcontext]) == menuitem6:               # Mezzmo Search
-        mezzmostart = 'plugin://plugin.video.mezzmo/?contentdirectory=' + contenturl + ';mode=search'
+        mezzmostart = 'plugin://plugin.video.mezzmo/?contentdirectory=' + contenturl + ';mode=search;source=native'
         xbmc.executebuiltin('ActivateWindow(%s, %s)' % ('10025', mezzmostart))
 
 
