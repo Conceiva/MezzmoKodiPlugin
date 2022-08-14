@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.1.6.2" provider-name="Conceiva">
+<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.1.6.3" provider-name="Conceiva">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>    
@@ -17,17 +17,18 @@
     <menu id="kodi.core.main">
       <item library="resources/lib/context.py">
           <label>30435</label>
-          <visible>[String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow)] + !String.IsEqual(Container.PluginName,plugin.video.mezzmo)</visible>
+          <visible>[String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,movie) | String.IsEqual(ListItem.dbtype,tvshow)] + !String.IsEqual(Container.PluginName,plugin.video.mezzmo) + [[Addon.SettingBool(plugin.video.mezzmo, knative) | String.StartsWith(System.BuildVersionShort, 19)]]</visible>
       </item>
     </menu>
   </extension>
 
-  <extension point="xbmc.addon.repository">
+  <extension point="xbmc.addon.repository" name="Mezzmo Repository">
+    <dir minversion="19.0.0">
       <info>https://raw.githubusercontent.com/Conceiva/MezzmoKodiPlugin/manifests/kodi-19.xml.gz</info>
-      <checksum verify="sha256">https://raw.githubusercontent.com/Conceiva/MezzmoKodiPlugin/manifests/kodi-19.xml.gz.sha256</checksum>
+      <checksum>https://raw.githubusercontent.com/Conceiva/MezzmoKodiPlugin/manifests/kodi-19.xml.gz.sha256</checksum>
       <datadir>https://github.com/Conceiva/MezzmoKodiPlugin/releases/download</datadir>
-      <artdir>https://github.com/Conceiva/MezzmoKodiPlugin/releases/download</artdir>
       <hashes>sha256</hashes>
+    </dir>
   </extension>
   
   <extension point="xbmc.addon.metadata">

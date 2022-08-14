@@ -1,3 +1,13 @@
+v2.1.6.3  8/14/2022
+
+-  Improved the reliability of the SSDP automatic server discovery process
+   and standardized the code between Kodi 18 and 19 versions.
+-  Initial fixes for Kodi Nexus 20 Alpha 2 release.  Fixed video database
+   numbering and Mezzmo addon automatic update repository format. 
+-  Added support for new Kodi 20 feature which disables native mode Mezzmo 
+   context menu when native mode sync setting is disabled.  With Kodi 19
+   the Mezzmo context menu is always presented in native mode operation.
+
 v2.1.6.2  8/8/2022
 
 -  Removed Kodi from manual uPNP server additions due to random port usage.
