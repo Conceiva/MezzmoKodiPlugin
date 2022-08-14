@@ -1,3 +1,8 @@
+v1.1.6.3  8/14/2022
+
+-  Improved the reliability of the SSDP automatic server discovery process
+   and standardized the code between Kodi 18 and 19 versions.
+
 v1.1.6.2  8/8/2022
 
 -  Removed Kodi from manual IP server additions due to random port usage.
