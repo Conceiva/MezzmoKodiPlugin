@@ -1,3 +1,11 @@
+v2.1.6.4  8/23/2022
+
+-  Fixed issue where movie title may not always appear in the video information
+   panel when using the Estuary skin.
+-  Improved artwork detection and metadata for certain uPNP servers.
+-  Added support for new Nexus 20 metadata rendering method for Mezzmo and Generic
+   uPNP servers.  
+
 v2.1.6.3  8/14/2022
 
 -  Improved the reliability of the SSDP automatic server discovery process
