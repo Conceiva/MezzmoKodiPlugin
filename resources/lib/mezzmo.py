@@ -596,24 +596,29 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if album_text:
                         movieset = album_text
                     else:
-                        movieset = album_text = ''                        
+                        movieset =  album_text = ''                      
 
                     if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
+                        showtitle = album_text
                     elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
+                        showtitle = title
                     elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        showtitle = title
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        showtitle = title
                 else:
                     movieset = album_text = ''
                     categories_text = 'video'
                     contentType = 'videos'
+                    showtitle = title
 
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
@@ -674,8 +679,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
                 if rating != None:
                     rating_val = rating.text
-                    rating_val = float(rating_val) * 2
-                    rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+                    rating_valf = float(rating_val) * 2
+                    rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
                 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
@@ -780,7 +785,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
-                        'tvshowtitle':album_text,
+                        'tvshowtitle':showtitle,
                         'dateadded':date_added_text,
                     }
                     li.setInfo(mediaClass_text, info)
@@ -1156,24 +1161,29 @@ def handleSearch(content, contenturl, objectID, term):
                     if album_text:
                         movieset = album_text
                     else:
-                        movieset = album_text = ''                        
+                        movieset =  album_text = ''                      
 
                     if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
+                        showtitle = album_text
                     elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
+                        showtitle = title
                     elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
+                        showtitle = title
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
+                        showtitle = title
                 else:
                     movieset = album_text = ''
                     categories_text = 'video'
                     contentType = 'videos'
+                    showtitle = title
                         
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
@@ -1234,8 +1244,8 @@ def handleSearch(content, contenturl, objectID, term):
                 rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
                 if rating != None:
                     rating_val = rating.text
-                    rating_val = float(rating_val) * 2
-                    rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+                    rating_valf = float(rating_val) * 2
+                    rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
@@ -1326,7 +1336,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'studio':production_company_text,
                         'playcount':playcount,
                         'trailer':trailerurl,
-                        'tvshowtitle':album_text,
+                        'tvshowtitle':showtitle,
                         'dateadded':date_added_text,
                     }
                     li.setInfo(mediaClass_text, info)

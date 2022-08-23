@@ -213,9 +213,9 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
-                    if (icon[-4:]) !=  '.jpg': 
+                    if 'jpg' not in icon: 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)    
+                    xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)     
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,      \
                 'contentdirectory': contenturl})        
@@ -251,9 +251,9 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
                     icon = albumartUri.text
-                    if (icon[-4:]) !=  '.jpg': 
+                    if 'jpg' not in icon: 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+                    xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
@@ -272,9 +272,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     if duration_text == None:
                         duration_text = '00:00:00.000'
                     elif len(duration_text) < 9:          #  Check for proper duration Twonky
-                        duration_text = duration_text + '.000'                  
-                    elif int(duration_text[len(duration_text)-3:len(duration_text)]) <> 0:  
-                        duration_text = duration_text[:6] + '.000'    
+                        duration_text = duration_text + '.000'  
+                    elif  len(duration_text) > 12:        #  Check for proper duration Jellyfin
+                        duration_text = duration_text[:9] + '000'         
+                    elif int(duration_text[len(duration_text)-3:len(duration_text)]) != 0:  
+                        duration_text = duration_text[:6] + '.000'
                     #xbmc.log('The duration is: ' + str(duration_text), xbmc.LOGNOTICE)                    
                     resolution_text = res.get('resolution')
                     if resolution_text != None:
@@ -301,7 +303,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
-                    if (backdropurl [-4:]) !=  '.jpg': 
+                    if 'jpg' not in backdrop: 
                         backdropurl  = backdropurl  + '.jpg'
 
                 poster = ''
@@ -366,6 +368,10 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 description = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
                 if description != None and description.text != None:
                     description_text = description.text
+                else:                                             #  Bubble uPNP description
+                    description = item.find('.//{http://purl.org/dc/elements/1.1/}longDescription')
+                    if description != None and description.text != None:
+                        description_text = description.text
                       
                 imageSearchUrl = ''
                 imageSearchUrl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}imageSearchUrl')
@@ -533,11 +539,14 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
                 if production_company != None:
                     production_company_text = production_company.text
-
-                production_company_text = ''
-                production_company = item.find('.//{http://purl.org/dc/elements/1.1/}publisher')
-                if production_company != None:
-                    production_company_text = production_company.text
+                elif  production_company == None:                     # Bubble uPNP publisher
+                    production_company = item.find('.//{http://purl.org/dc/elements/1.1/}publisher')
+                    if production_company != None:
+                        production_company_text = production_company.text
+                    else:                                             # Jellyfin publisher
+                        production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}publisher')
+                        if production_company != None:
+                            production_company_text = production_company.text
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')

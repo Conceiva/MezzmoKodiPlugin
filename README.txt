@@ -1,3 +1,9 @@
+v1.1.6.4  8/23/2022
+
+-  Fixed issue where movie title may not always appear in the video information
+   panel when using the Estuary skin.
+-  Improved artwork detection and metadata for certain uPNP servers.
+
 v1.1.6.3  8/14/2022
 
 -  Improved the reliability of the SSDP automatic server discovery process
