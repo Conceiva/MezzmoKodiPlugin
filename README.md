@@ -38,4 +38,11 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Automatic Kodi database rebuild / restore
 <br/>
 <br/>
+
+<b>GUI Mode</b>
+
 <img src="http://www.conceiva.com/images/moviedetails.png" width="100%">
+
+<b>Native Mode</b>
+
+<img src="https://user-images.githubusercontent.com/63779136/168551275-aebf5064-d2d5-4f07-b5de-5c36f1076f16.jpg" width="100%">
