@@ -45,4 +45,4 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 
 <b>Native Mode</b>
 
-<img src="https://user-images.githubusercontent.com/63779136/168551275-aebf5064-d2d5-4f07-b5de-5c36f1076f16.jpg" width="90%">
+<img src="https://user-images.githubusercontent.com/63779136/168551275-aebf5064-d2d5-4f07-b5de-5c36f1076f16.jpg" width="100%">
