@@ -18,10 +18,10 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/uPNP-Server-Support">uPNP servers</a>
 - Automatic Mezzmo and Kodi database synchronization using a background process
-- <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-LIbrary#automatic-discovery">Automatic discovery</a> of new library content
-- Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-LIbrary#deleting-content">deletion</a> of Kodi library content
-- Automatic detection of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-LIbrary#duplicate-library-content">duplicate library content</a>
-- Automatic support for <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-LIbrary#movie-sets">Movie Sets</a>
+- <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
+- Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content
+- Automatic detection of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#duplicate-library-content">duplicate library content</a>
+- Automatic support for <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movie-sets">Movie Sets</a>
 - Automatically stop paused playback <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">user selectable</a> timer
 - Performance <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Logs-&-Statistics">statistics</a> and log viewing
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#content-control">Option</a> for managing Kodi artwork caching for Mezzmo
