@@ -196,9 +196,15 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             media.settings('sync_offset', str(syncoffset))
 
         clean = checkDailySync()                          #  Check sync flag
+        kodiclean = media.settings('kodiclean')           #  Get Kodi clean setting
         if clean == 1 and count > 12:
             force = 1
             media.kodiCleanDB(force)                      #  Clear Kodi database daily
+        elif kodiclean == 'resync':                       #  User forced resync
+            clean = 1
+            msynclog = 'Mezzmo user requested full resync.'
+            xbmc.log(msynclog, xbmc.LOGINFO)
+            media.mezlogUpdate(msynclog) 
         if count < 12:   
             content = browse.Browse(syncurl, 'recent', 'BrowseDirectChildren', 0, 400, syncpin)
             rows = syncContent(content, syncurl, 'recent', syncpin, 0, 400)
@@ -297,7 +303,17 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     koditv = media.settings('koditv')
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
-    
+    kodiclean = media.settings('kodiclean')
+
+    if kodiclean == 'resync':
+        msgdialogprogress = xbmcgui.DialogProgress()
+        dialogmsg = media.translate(30455)
+        dialoghead = media.translate(30456)
+        dialogmsgs = media.translate(30389) 
+        msgdialogprogress.create(dialoghead, dialogmsgs)
+        xbmc.sleep(3000)
+        msgdialogprogress.update(0, media.translate(30457))   
+
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -657,7 +673,10 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 dbsync.commit()
-                dbsync.close()      
+                dbsync.close()   
+                if kodiclean == 'resync':
+                    msgdialogprogress.close()
+                    xbmcgui.Dialog().ok(media.translate(30458), dialogmsg + str(TotalMatches))  
                 return(TotalMatches)
                 break
           
@@ -666,6 +685,21 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             requestedCount = 1000
             if itemsleft < 1000:
                 requestedCount = itemsleft
+            if kodiclean == 'resync':
+                rprocessed = str(offset)
+                if offset == 0:
+                    percent = 0
+                else:
+                    percent = int(float(offset/TotalMatches) * 100)
+                if (msgdialogprogress.iscanceled()):   # User cancaled full resync
+                    dbfile.commit()
+                    dbfile.close()                     #  Final commit writes and close Kodi database
+                    msynclog = 'Mezzmo user canceled full resync.'
+                    xbmc.log(msynclog, xbmc.LOGINFO)
+                    media.mezlogUpdate(msynclog)
+                    return(TotalMatches)
+                    break                 
+                msgdialogprogress.update(percent, dialogmsg + rprocessed)
 
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = media.settings('content_pin') 

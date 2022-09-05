@@ -429,7 +429,7 @@ msgid "Automatic Slideshow Viewer"
 msgstr ""
 
 msgctxt "#30426"
-msgid "Mezzmo data not cleared from Kodi DB.  No sync server selected."
+msgid "No Mezzmo sync server selected"
 msgstr ""
 
 msgctxt "#30427"
@@ -544,6 +544,22 @@ msgctxt "#30454"
 msgid "uPNP Server Response Logging"
 msgstr ""
 
+msgctxt "#30455"
+msgid "Mezzmo Records Processed: "
+msgstr ""
+
+msgctxt "#30456"
+msgid "Mezzmo Full Sync Status"
+msgstr ""
+
+msgctxt "#30457"
+msgid "Mezzmo Sync Beginning"
+msgstr ""
+
+msgctxt "#30458"
+msgid "Mezzmo Full Sync Completed"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -573,7 +589,7 @@ msgid "Logs duplicate entries in the Mezzmo database to the Kodi logfile during 
 msgstr ""
 
 msgctxt "#30508"
-msgid "Clears the Mezzmo entries in your Kodi database upon Mezzmo addon startup.  It will be set to disabled when the data is removed.  A regular database clear is part of the daily sync process.  This option is for one time clearing."
+msgid "Clears and/or resync the Mezzmo entries in your Kodi database upon Mezzmo addon startup.  Clear: Just clears Mezzmo data in the Kodi DB.  Full sync: Clears and rebuilds all Mezzmo data in the Kodi DB.  Option will be set to Off when complete. A regular database clear is part of the daily sync process.  This option is for one time clearing."
 msgstr ""
 
 msgctxt "#30509"
@@ -621,7 +637,7 @@ msgid "Music view display format."
 msgstr ""
 
 msgctxt "#30520"
-msgid "Logs performance stastics to the Kodi logfile.  Enable to see performance stats."
+msgid "Logs performance stastics to the Kodi logfile.   Default is enabled."
 msgstr ""
 
 msgctxt "#30521"
@@ -637,7 +653,7 @@ msgid "Automatically stop paused video in minutes.  0 = never automatically stop
 msgstr ""
 
 msgctxt "#30524"
-msgid "Automatically adjust sync setting based upon Kodi sync with Mezzmo."
+msgid "Kodi automatically manages the Mezzmo Background Sync setting based upon the sync state with Mezzmo. Default is enabled. Disable for more manual control. "
 msgstr ""
 
 msgctxt "#30525"

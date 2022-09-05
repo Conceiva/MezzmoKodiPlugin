@@ -151,7 +151,7 @@
 				</setting>
 				<setting id="kodisync" type="boolean" label="30386" help="30524">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="mdupelog" type="boolean" label="30374" help="30507">
@@ -161,7 +161,7 @@
 				</setting>
 				<setting id="perflog" type="boolean" label="30378" help="30520">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
                                <setting id="exportdata" type="action" label="30427" help="30533">
@@ -170,10 +170,17 @@
 	                                 <control type="button" format="action">
 	                                 </control>
                                 </setting>
-                               <setting id="kodiclean" type="boolean" label="30368" help="30508">
+                               <setting id="kodiclean" type="string" label="30368" help="30508">
 	                                 <level>0</level>
 					<default>false</default>
-					<control type="toggle"/>
+					<constraints>
+						<options>
+							<option label="Off">false</option>
+							<option label="Clean">true</option>
+							<option label="Full Sync">resync</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
                                 </setting>
 				<setting id="autostart" type="string" label="30388" help="">
 					<level>0</level>

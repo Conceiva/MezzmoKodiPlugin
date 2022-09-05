@@ -190,7 +190,7 @@ def getServers():                                                # Find uPNP ser
                 e = xml.etree.ElementTree.fromstring(xmlstring)    
                 device = e.find('device')
                 friendlyname = device.find('friendlyName').text
-                manufacturer = device.find('manufacturer').text
+                manufacturer = device.find('manufacturer')
                 if manufacturer != None:
                     manufacturer = manufacturer.text
                 else:
