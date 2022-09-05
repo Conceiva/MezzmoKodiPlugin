@@ -1,3 +1,14 @@
+v1.1.6.5  9/5/2022
+
+-  Improved clarity for the notification message when no Mezzmo sync server has 
+   been selected.
+-  Extended functionality of the clear Mezzmo from Kodi database setting option
+   to now allow a full immediate resync of all Mezzmo data into the Kodi database.
+-  Modified default setting for the Auto Background Sync and Performance Logging
+   from disabled to enabled. 
+-  Fixed obscure bug that could prevent setting the Mezzmo sync server if any UPnP
+   server responded without proper manufacturer information.
+
 v1.1.6.4  8/23/2022
 
 -  Fixed issue where movie title may not always appear in the video information

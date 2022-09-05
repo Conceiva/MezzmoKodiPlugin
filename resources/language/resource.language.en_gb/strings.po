@@ -429,7 +429,7 @@ msgid "Automatic Slideshow Viewer"
 msgstr ""
 
 msgctxt "#30426"
-msgid "Mezzmo data not cleared from Kodi DB.  No sync server selected."
+msgid "No Mezzmo sync server selected"
 msgstr ""
 
 msgctxt "#30427"
@@ -542,4 +542,20 @@ msgstr ""
 
 msgctxt "#30454"
 msgid "uPNP Server Response Logging"
+msgstr ""
+
+msgctxt "#30455"
+msgid "Mezzmo Records Processed: "
+msgstr ""
+
+msgctxt "#30456"
+msgid "Mezzmo Full Sync Status"
+msgstr ""
+
+msgctxt "#30457"
+msgid "Mezzmo Sync Beginning"
+msgstr ""
+
+msgctxt "#30458"
+msgid "Mezzmo Full Sync Completed"
 msgstr ""

@@ -20,7 +20,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle
-from server import clearPictures, updatePictures, addServers
+from server import clearPictures, updatePictures, addServers, checkSync
 from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
@@ -225,6 +225,12 @@ def listServers(force):
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
     if contenturl != None:
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
+        if media.settings('kodiclean') == 'Full Sync':
+            syncpin = media.settings('content_pin')
+            syncurl = checkSync()                         # Get server control URL
+            if syncpin and syncurl != 'None':            
+                sync.syncMezzmo(syncurl, syncpin, 15)     # Trigger resync process
+            media.settings('kodiclean', 'Off')            # reset back to false after resync
 
     
 def build_url(query):

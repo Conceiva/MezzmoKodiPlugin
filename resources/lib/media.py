@@ -526,29 +526,49 @@ def mgenlogUpdate(mgenlog):                              #  Add Mezzmo general l
         pass
 
 
+def getSyncURL():                                      # Get Sync srver URL
+
+    svrfile = openNosyncDB()                           # Open server database    
+    curps = svrfile.execute('SELECT controlUrl FROM mServers WHERE mSync=?', ('Yes',))
+    srvrtuple = curps.fetchone()                       # Get server from database
+    if srvrtuple:
+        syncurl = srvrtuple[0]
+    else:                                              # Sync srver not set yet
+        syncurl = 'None'
+    svrfile.close()
+    return syncurl    
+
+
 def kodiCleanDB(force):                                #  Clear Mezzmo data from Kodi database
 
     ContentDeleteURL = getSyncUrl()                    #  Get current sync contenturl
     if ContentDeleteURL == 'None':
-        mgenlog = xbmcaddon.Addon().getLocalizedString(30426)
+        mgenlog = translate(30426)
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         mgenlogUpdate(mgenlog)
-        settings('kodiclean', 'false')
+        settings('kodiclean', 'Off')
         name = xbmcaddon.Addon().getAddonInfo('name')
-        cleanmsg = xbmcaddon.Addon().getLocalizedString(30426)
+        cleanmsg = translate(30426)
         icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
         xbmcgui.Dialog().notification(name, cleanmsg, icon)
         return    
-    if settings('kodiclean') == 'true':             #  clears Kodi DB Mezzmo data if enabled in setings
+    if settings('kodiclean') != 'Off':                #  clears Kodi DB Mezzmo data if enabled in setings
         autdialog = xbmcgui.Dialog()
         kcmsg = "Confirm clearing the Mezzmo data in the Kodi database.  "
         kcmsg = kcmsg + "\nIt will be rebuilt with the sync process." 
         cselect = autdialog.yesno('Mezzmo Kodi Database Clear', kcmsg)
         if cselect == 0 :
-            settings('kodiclean', 'false')             #  reset back to false
+            settings('kodiclean', 'Off')               #  reset back to false
             return
         force = 1                                      #  Ok to clear database
     if force == 1:                                     #  clears Kodi DB Mezzmo data check for sync process           
+
+        syncurl = getSyncURL()                         #  Get Mezzmo sync server URL
+        if syncurl == 'None':
+            mgenlog ='Kodi database Mezzmo not cleared.  Missing valid Mezzmo sync server'
+            xbmc.log(mgenlog, xbmc.LOGINOTICE)
+            mgenlogUpdate(mgenlog)            
+            return
         db = openKodiDB()
         xbmc.log('Content delete URL: ' + ContentDeleteURL, xbmc.LOGDEBUG)
          
@@ -583,7 +603,7 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
             db.commit()
             db.close()
         except db.OperationalError:        
-            mgenlog = xbmcaddon.Addon().getLocalizedString(30444)
+            mgenlog = translate(30444)
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             mgenlogUpdate(mgenlog)
             name = xbmcaddon.Addon().getAddonInfo('name')
@@ -612,16 +632,16 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
 
         except db.OperationalError:       
             dbsync.close() 
-            mgenlog = xbmcaddon.Addon().getLocalizedString(30445)
+            mgenlog = translate(30445)
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             name = xbmcaddon.Addon().getAddonInfo('name')
             icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
             xbmcgui.Dialog().notification(name, mgenlog, icon)
 
-        if settings('kodiclean') == 'true':
-            settings('kodiclean', 'false')    # reset back to false after clearing
+        if settings('kodiclean') == 'Clean':
+            settings('kodiclean', 'Off')    # reset back to false after clearing
             name = xbmcaddon.Addon().getAddonInfo('name')
-            cleanmsg = xbmcaddon.Addon().getLocalizedString(30389)
+            cleanmsg = translate(30389)
             icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
             xbmcgui.Dialog().notification(name, cleanmsg, icon)
 
