@@ -17,7 +17,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Full data <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Data-Export">exporting</a> of Kodi video database tables and Mezzmo addon data
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/uPNP-Server-Support">uPNP servers</a>
-- Automatic Mezzmo and Kodi database synchronization using a background process
+- Automatic Mezzmo / Kodi database background synchronization with up to <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Native-Kodi-Access#mezzmo-selective-sync">5 custom views</a> 
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
 - Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content
 - Automatic detection of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#duplicate-library-content">duplicate library content</a>

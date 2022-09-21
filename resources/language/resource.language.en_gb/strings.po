@@ -559,3 +559,15 @@ msgstr ""
 msgctxt "#30458"
 msgid "Mezzmo Full Sync Completed"
 msgstr ""
+
+msgctxt "#30459"
+msgid "Kodi Clear Mezzmo Status"
+msgstr ""
+
+msgctxt "#30460"
+msgid "Percent Complete: "
+msgstr ""
+
+msgctxt "#30461"
+msgid "Mezzmo Selective Sync Tag"
+msgstr ""

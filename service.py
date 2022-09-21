@@ -93,7 +93,7 @@ monitor = xbmc.Monitor()
 
 media.checkNosyncDB()                       # Check nosync database            
  
-while True:
+while not monitor.abortRequested():
     if xbmc.Player().isPlaying():
         try:
             file = xbmc.Player().getPlayingFile()
@@ -136,7 +136,7 @@ while True:
                 pacount = 0
                 mgenlog ='Mezzmo stopped paused playback: ' + ptitle +     \
                 ' at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 mgenlog ='###' + ptitle
                 media.mgenlogUpdate(mgenlog)
                 mgenlog ='Mezzmo stopped paused playback at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
@@ -153,7 +153,7 @@ while True:
             ptitle = media.displayTitles(ptag.getTitle())
             mgenlog ='A video file is playing: ' + ptitle + ' at: ' +        \
             time.strftime("%H:%M:%S", time.gmtime(pos))
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
             mgenlog ='###' + ptitle
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A video file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
@@ -163,14 +163,14 @@ while True:
             ptitle = media.displayTitles(ptag.getTitle())
             mgenlog ='A music file is playing: ' + ptitle + ' at: ' +        \
             time.strftime("%H:%M:%S", time.gmtime(pos))
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
             mgenlog ='###' + ptitle
             media.mgenlogUpdate(mgenlog)
             mgenlog ='A music file is playing at: ' + time.strftime("%H:%M:%S", time.gmtime(pos))
             media.mgenlogUpdate(mgenlog)                
         elif contenturl == 'none':
             mgenlog ='Mezzmo no servers selected yet.  Cache update process skipped.'
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)
         else:
             sync.updateTexturesCache(contenturl)
@@ -178,7 +178,7 @@ while True:
     if count % 3600 == 0 or count == 11:    # Mezzmo sync process
         if xbmc.Player().isPlaying():
             msynclog = 'Mezzmo sync skipped. A video is playing.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
             media.mezlogUpdate(msynclog)
         else:
             syncpin = media.settings('content_pin')
@@ -190,12 +190,12 @@ while True:
                     sync.syncMezzmo(syncurl, syncpin, count)
                 except:
                     msynclog ='Mezzmo sync process failed with an exception error.'
-                    xbmc.log(msynclog, xbmc.LOGINFO)
+                    xbmc.log(msynclog, xbmc.LOGNOTICE)
                     media.mezlogUpdate(msynclog)    
                     pass            
             elif syncset != 'Off' and syncurl == 'None':  # Ensure Mezzmo server has been selected 
                 msynclog ='Mezzmo no servers selected yet.  Mezzmo sync skipped.'
-                xbmc.log(msynclog, xbmc.LOGINFO)
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)
 
     if count > 86419:                      # Reset counter daily
@@ -215,16 +215,13 @@ while True:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         try:
-            xbmc.log("SetContentRestriction Off: " + url)
             contentrestriction.SetContentRestriction(url, ip, 'false', pin)
-            sync.dbClose()
-            del pin, url, player, monitor, ptag, ptitle, pastoptime, GLOBAL_SETUP
-            del contenturl, pos, file, pacount, player.paflag, bmdelay
+            del pin, url, player, monitor, GLOBAL_SETUP
             mgenlog = 'Mezzmo addon service shutdown.'
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            media.mgenlogUpdate(mgenlog)
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
         except:
-            pass
+            xbmc.log('Mezzmo service shutdown exception error.', xbmc.LOGNOTICE)
+            pass 
             
         break # Abort was requested while waiting. Exit the while loop.
 
