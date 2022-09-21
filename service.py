@@ -213,16 +213,13 @@ while True:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         try:
-            xbmc.log("SetContentRestriction Off: " + url)
             contentrestriction.SetContentRestriction(url, ip, 'false', pin)
-            sync.dbClose()
-            del pin, url, player, monitor, ptag, ptitle, pastoptime, GLOBAL_SETUP
-            del contenturl, pos, file, pacount, player.paflag, bmdelay
+            del pin, url, player, monitor, GLOBAL_SETUP
             mgenlog = 'Mezzmo addon service shutdown.'
             xbmc.log(mgenlog, xbmc.LOGINFO)
-            media.mgenlogUpdate(mgenlog)
         except:
-            pass
+            xbmc.log('Mezzmo service shutdown exception error.', xbmc.LOGINFO)
+            pass 
             
         break # Abort was requested while waiting. Exit the while loop.
 

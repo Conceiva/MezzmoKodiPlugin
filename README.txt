@@ -1,3 +1,17 @@
+v2.1.6.6  9/21/2022
+
+-  Fixed issue where manual Full Sync completion notification message would not
+   appear and sync logs improperly indicated 0 records processed if the Mezzmo
+   database contained less than 1000 records.
+-  Added progress indicator dialog box when manually clearing the Mezzmo data
+   in the Kodi database.
+-  Fixed issue where Kodi might hang when running multiple profiles and logging
+   out of a profile.
+-  Added new Mezzmo Selective Sync feature where you can select up to 5 options
+   to do full or partial synchronization of your Mezzmo library to Kodi.  This
+   will allow up to 5 profiles on a Kodi instance each with its own specific 
+   user definable view of your Mezzmo library.   
+
 v2.1.6.5  9/5/2022
 
 -  Improved clarity for the notification message when no Mezzmo sync server has 

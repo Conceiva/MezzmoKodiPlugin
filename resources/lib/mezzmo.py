@@ -456,8 +456,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'),               \
                     (menuitem7, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "performance")), (menuitem6,          \
                     'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
-                
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                if '###' not in title:                 
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
                 picnotify += 1
                 if parentID == '0':

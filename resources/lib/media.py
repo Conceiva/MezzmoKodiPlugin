@@ -575,7 +575,13 @@ def kodiCleanDB(force):
             return
         db = openKodiDB()
         xbmc.log('Content delete URL: ' + syncurl, xbmc.LOGDEBUG)
+        cleartype = settings('kodiclean')
 
+        if cleartype != 'Off':
+            msgdialogprogress = ''
+            msgdialogprogress = xbmcgui.DialogProgress()
+            msgdialogprogress.create(translate(30459), translate(30460) + '0%')
+            xbmc.sleep(500)
         serverport = '%' + getServerport(syncurl) + '%'     #  Get Mezzmo server port info
 
         db.execute('CREATE TRIGGER IF NOT EXISTS delete_episode_mezzmo AFTER DELETE ON episode FOR   \
@@ -591,6 +597,9 @@ def kodiCleanDB(force):
             db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
             db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
             xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
+            if cleartype != 'Off': 
+                msgdialogprogress.update(25, translate(30460) + '25%')
+                xbmc.sleep(1000) 
             curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE          \
             strpath LIKE ?', (serverport,))             #  Get file and movie list
             idlist = curf.fetchall()
@@ -606,6 +615,9 @@ def kodiCleanDB(force):
             curf.close()
             db.commit()
             db.close()
+            if cleartype != 'Off': 
+                msgdialogprogress.update(70, translate(30460) + '70%')
+                xbmc.sleep(1000) 
         except db.OperationalError:        
             mgenlog = translate(30444)
             xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -633,9 +645,14 @@ def kodiCleanDB(force):
   
             dbsync.commit()
             dbsync.close()
+            if cleartype != 'Off': 
+                msgdialogprogress.update(100, translate(30460) + '100%')
+                xbmc.sleep(1000) 
+                msgdialogprogress.close()
 
         except db.OperationalError:       
-            dbsync.close() 
+            dbsync.close()
+            if msgdialogprogress: msgdialogprogress.close()  
             mgenlog = translate(30445)
             xbmc.log(mgenlog, xbmc.LOGINFO)
             name = xbmcaddon.Addon().getAddonInfo('name')

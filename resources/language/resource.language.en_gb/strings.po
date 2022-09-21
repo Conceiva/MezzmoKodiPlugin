@@ -560,6 +560,18 @@ msgctxt "#30458"
 msgid "Mezzmo Full Sync Completed"
 msgstr ""
 
+msgctxt "#30459"
+msgid "Kodi Clear Mezzmo Status"
+msgstr ""
+
+msgctxt "#30460"
+msgid "Percent Complete: "
+msgstr ""
+
+msgctxt "#30461"
+msgid "Mezzmo Selective Sync Tag"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -723,3 +735,8 @@ msgstr ""
 msgctxt "#30541"
 msgid "Enables logging a specific number of uPNP server responses before automatically disabling.  Default is disabled."
 msgstr ""
+
+msgctxt "#30542"
+msgid "Enables selectively syncing portins of the Mezzmo library with Kodi with Msart Playists that contain the selected tag name. Default is All."
+msgstr ""
+
