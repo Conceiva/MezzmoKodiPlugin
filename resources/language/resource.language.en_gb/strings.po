@@ -571,3 +571,7 @@ msgstr ""
 msgctxt "#30461"
 msgid "Mezzmo Selective Sync Tag"
 msgstr ""
+
+msgctxt "#30462"
+msgid "Prefer Local Trailers"
+msgstr ""

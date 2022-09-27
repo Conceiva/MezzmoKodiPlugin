@@ -3,7 +3,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import os, sys, linecache
-import json
+import json, base64
 import urllib
 from datetime import datetime
 import playcount, bookmark
@@ -265,28 +265,73 @@ def syncCount(dbsync, mtitle, mtype):
     dupes.close()
 
 
-def addTrailers(dbsync, mtitle, trailers):      #  Add movie trailers to Syncdb
+def addTrailers(dbsync, mtitle, trailers, prflocaltr):  #  Add movie trailers to Syncdb
 
     try:
+        localcount = 0
+        ytbase64 = 'aHR0cHM6Ly93d3cueW91dHViZS5jb20vd2F0Y2g'
+        ytmatch = '%' + ytbase64 + '%'       
         trlength = len(trailers)
         #xbmc.log('Mezzmo trailers: ' + str(trlength) , xbmc.LOGNOTICE) 
         if trlength > 0:
-            dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
-            dupetuple = dupes.fetchone()
-            #xbmc.log('Mezzmo trailers: ' + str(trlength) + ' ' + str(trailers) , xbmc.LOGNOTICE)
-            if dupetuple[0] != trlength and dupetuple[0] != 0:
-                dbsync.execute('DELETE from mTrailers WHERE trTitle=?', (mtitle,))  
-            if dupetuple[0] != trlength or dupetuple[0] == 0:
-                a = 1
-                for trailer in trailers:
-                    dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay) values (?, ?, ?, ?)', \
-                    (mtitle, trailer, str(a), "0"))
-                    a += 1             
-            dbsync.commit()
-            dupes.close()
+            for trailer in trailers:                    #  Get count of local trailers
+                if ytbase64 not in trailer:
+                    localcount += 1
+                    xbmc.log('Mezzmo local trailer found: ' + mtitle.encode('utf-8','ignore') , xbmc.LOGDEBUG)
 
-    except:
-        xbmc.log('Mezzmo problem adding trailers to db: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)  
+            if prflocaltr == 'true' and localcount > 0: 
+                dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=? and trUrl    \
+                NOT LIKE ?', (mtitle, ytmatch,))
+            else:
+                dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
+            dupetuple = dupes.fetchone()
+            xbmc.log('Mezzmo trailers: ' + str(trlength) + ' ' + str(dupetuple[0]) + ' ' +               \
+            str(localcount) + ' ' + mtitle.encode('utf-8','ignore'), xbmc.LOGDEBUG)  
+
+            if (prflocaltr == 'false' and dupetuple[0] <> trlength) or (prflocaltr == 'true' and          \
+            localcount > 0 and dupetuple[0] <> localcount) or (prflocaltr == 'true' and localcount == 0   \
+            and dupetuple[0] <> trlength): 
+                xbmc.log('Mezzmo trailer updated needed: ' + mtitle.encode('utf-8','ignore') , xbmc.LOGDEBUG)                 
+                dbsync.execute('DELETE from mTrailers WHERE trTitle=?', (mtitle,))     
+                a = 1
+                match = 0
+                for trailer in trailers:
+                    if ytbase64 in trailer:
+                        match = 1
+                    else:
+                        match = 0
+                    if (match == 0) or (prflocaltr == 'false') or (prflocaltr == 'true' and match == 1     \
+                    and localcount == 0):
+                        if match == 1:
+                            try:
+                                slice = trailer[trailer.find('Y2g_') + 4:trailer.find('&cva')]  # Decode You Tube Trailer
+                                sliceb = base64.b64decode(slice)
+                                orgtrailer = 'https://www.youtube.com/watch?' + sliceb.decode()
+                            except Exception as e:
+                                orgtrailer = 'You Tube'
+                                xbmc.log('Mezzmo error decoding You Tube trailer: ' + mtitle.encode('utf-8') \
+                                + ' ' + str(e), xbmc.LOGDEBUG)
+                        else:
+                            try:
+                                slice = trailer[trailer.find('url=') + 4:trailer.find('&cva')]  # Decode Local Trailer
+                                sliceb = base64.b64decode(slice)
+                                orgtrailer = sliceb
+                            except Exception as e:  
+                                orgtrailer = 'Local'
+                                xbmc.log('Mezzmo error decoding local trailer: ' + mtitle.encode('utf-8') \
+                                + ' ' + str(e), xbmc.LOGDEBUG)
+                        try:
+                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1)      \
+                            values (?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", orgtrailer))
+                        except:
+                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1)      \
+                            values (?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", "Unable to decode local trailer"))
+                        a += 1            
+            dbsync.commit()
+
+    except Exception as e:
+        xbmc.log('Mezzmo problem adding trailers to db: ' + mtitle.encode('utf-8') + ' ' + str(e), xbmc.LOGNOTICE)  
+        pass
 
 
 def countsyncCount():                            # returns count records in noSync DB 

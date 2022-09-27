@@ -81,7 +81,7 @@ def selectExport():                                            # Select table to
             tables = ["Kodi DB - Actors","Kodi DB - Episodes","Kodi DB - Movies","Kodi DB - TV Shows",  \
             "Kodi DB - Artwork","Kodi DB - Path","Kodi DB - Files","Kodi DB - Streamdetails",           \
             "Addon DB - uPNP Servers","Addon DB - Duplicates", "Addon DB - Performance Stats",          \
-            "Addon DB - General Logs","Addon DB - Sync Logs","Addon DB - No Sync Videos"]
+            "Addon DB - General Logs","Addon DB - Sync Logs","Addon DB - No Sync Videos","Addon DB - Trailers"]
             ddialog = xbmcgui.Dialog()    
             stable = ddialog.multiselect(translate(30432), tables)
             if stable == None:                                 # User cancel
@@ -114,6 +114,8 @@ def selectExport():                                            # Select table to
                 selectbl.append('12msyncLog')
             if 13 in stable:
                 selectbl.append('13nosyncVideo')
+            if 14 in stable:
+                selectbl.append('14mTrailers')
             exportData(selectbl)        
 
     except Exception as e:

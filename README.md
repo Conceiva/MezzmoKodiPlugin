@@ -10,7 +10,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 
 <b>Features: </b>
 - Kodi 18 and 19 versions with 100% feature parity
-- Kodi version 20 Nexus Alpha 2 tested and supported
+- Kodi version 20 Nexus Alpha 3 tested and supported
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
 - Automatic backup of resume points every 30 seconds while media is playing
@@ -33,7 +33,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Play music with a <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Context-Menu-Additions#music-item-context-menu-additions">resume playback</a> capability
 - View Photos manually or with the built-in <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-picture-view">slideshow viewer</a>
 - Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#parental-controls">parental controls</a>
-- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers
+- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers including <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#local-movie-trailers">local trailers</a>
 - Automatic software updates
 - Automatic Kodi database rebuild / restore
 <br/>

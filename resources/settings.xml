@@ -41,6 +41,7 @@
     <setting id="viewmap" type="bool" label="30387" default="true"/>
     <setting id="slideshow" type="bool" label="30425" default="true"/>
     <setting id="trcount" type="labelenum" label="30433" values="0|10|20" default="10"/>
+    <setting id="prflocaltr" type="bool" label="30462" default="true"/>
     <setting id="skinname" type="enum" label="30361" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
 	
     <!--Confluence Skin-->
