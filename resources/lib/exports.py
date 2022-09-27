@@ -49,9 +49,17 @@ def exportData(selectbl):                                        # CSV Output se
                 # xbmc.log("Mezzmo output string length is: " +  str(len(row)), xbmc.LOGINFO)
                 for item in range(len(row)):
                     if isinstance(row[item], int) or isinstance(row[item], float):  # Convert to strings
-                        recitem = str(row[item])
+                        rectemp = str(row[item])
+                        try:
+                            recitem = rectemp.decode('utf-8')
+                        except:
+                            recitem = rectemp
                     else:
-                        recitem = row[item]
+                        rectemp = row[item]
+                        try:
+                            recitem = rectemp.decode('utf-8')
+                        except:
+                            recitem = rectemp
                     recsencode.append(recitem) 
                 csvFile.writerow(recsencode)                
             dbexport.close()
@@ -78,7 +86,7 @@ def selectExport():                                            # Select table to
             tables = ["Kodi DB - Actors","Kodi DB - Episodes","Kodi DB - Movies","Kodi DB - TV Shows",  \
             "Kodi DB - Artwork","Kodi DB - Path","Kodi DB - Files","Kodi DB - Streamdetails",           \
             "Addon DB - uPNP Servers","Addon DB - Duplicates", "Addon DB - Performance Stats",          \
-            "Addon DB - General Logs","Addon DB - Sync Logs","Addon DB - No Sync Videos"]
+            "Addon DB - General Logs","Addon DB - Sync Logs","Addon DB - No Sync Videos","Addon DB - Trailers"]
             ddialog = xbmcgui.Dialog()    
             stable = ddialog.multiselect(translate(30432), tables)
             if stable == None:                                 # User cancel
@@ -111,6 +119,8 @@ def selectExport():                                            # Select table to
                 selectbl.append('12msyncLog')
             if 13 in stable:
                 selectbl.append('13nosyncVideo')
+            if 14 in stable:
+                selectbl.append('14mTrailers')
             exportData(selectbl)         
 
     except Exception as e:

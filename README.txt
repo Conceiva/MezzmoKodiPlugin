@@ -1,3 +1,19 @@
+v2.1.6.7  9/27/2022
+
+-  New feature, Prefer Local Trailers, added which allows only syncing local 
+   trailers to the Kodi DB when found or otherwise it will sync You Tube 
+   trailers if no local trailers are found.  This allows You Tube trailers 
+   for the Mezzmo web interface and local trailers for all other clients 
+   with Kodi getting the higher quality local trailers.
+-  Added the ability to export the Addon movie trailers table including all
+   trailers, associated movies, trailer order and whether local or You Tube.
+-  Changed Full Sync completion message from OK dialog box to Kodi notification
+   to eliminate manual intervention being required for process to complete.
+-  Corrected log message showing the wrong number of Mezzmo records synchronized
+   to Kodi if user aborts a Full Sync request prior to completion.
+-  Fixed issue where a few fields in a couple of tables of the CSV database
+   export utility would be UTF-8 encoded vs. plain text.
+
 v2.1.6.6  9/21/2022
 
 -  Fixed issue where manual Full Sync completion notification message would not
@@ -10,7 +26,8 @@ v2.1.6.6  9/21/2022
 -  Added new Mezzmo Selective Sync feature where you can select up to 5 options
    to do full or partial synchronization of your Mezzmo library to Kodi.  This
    will allow up to 5 profiles on a Kodi instance each with its own specific 
-   user definable view of your Mezzmo library.   
+   user definable view of your Mezzmo library. 
+-  Kodi version 20 Nexus Alpha 3 tested and supported  
 
 v2.1.6.5  9/5/2022
 

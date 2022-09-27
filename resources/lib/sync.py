@@ -306,6 +306,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
     kodiclean = media.settings('kodiclean')
+    prflocaltr = media.settings('prflocaltr')
 
     if kodiclean == 'resync':
         msgdialogprogress = xbmcgui.DialogProgress()
@@ -661,7 +662,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info 
-                    media.addTrailers(dbsync, mtitle, trailerurls)               # Update movie trailers info
+                    media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr)   # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')
                     mobjectID = itemurl[rtrimpos+1:]                             # Get Mezzmo objectID
                     bookmark.updateKodiBookmark(mobjectID, dcmInfo_text, mtitle, dbfile)  
@@ -678,7 +679,9 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 dbsync.close()   
                 if kodiclean == 'resync':
                     msgdialogprogress.close()
-                    xbmcgui.Dialog().ok(media.translate(30458), dialogmsg + str(TotalMatches))  
+                    name = xbmcaddon.Addon().getAddonInfo('name')
+                    icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+                    xbmcgui.Dialog().notification(name, dialogmsg + str(TotalMatches), icon, 4000) 
                 return(TotalMatches)
                 break
           
@@ -699,7 +702,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     msynclog = 'Mezzmo user canceled full resync.'
                     xbmc.log(msynclog, xbmc.LOGINFO)
                     media.mezlogUpdate(msynclog)
-                    return(TotalMatches)
+                    return(offset)
                     break                 
                 msgdialogprogress.update(percent, dialogmsg + rprocessed)
 

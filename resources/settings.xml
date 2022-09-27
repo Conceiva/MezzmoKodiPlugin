@@ -309,6 +309,11 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="prflocaltr" type="boolean" label="30462" help="30543">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="skinname" type="integer" label="30361" help="30510">
 					<level>0</level>
 					<default>Estuary</default>

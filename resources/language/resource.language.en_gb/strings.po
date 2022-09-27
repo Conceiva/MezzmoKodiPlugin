@@ -572,6 +572,10 @@ msgctxt "#30461"
 msgid "Mezzmo Selective Sync Tag"
 msgstr ""
 
+msgctxt "#30462"
+msgid "Prefer Local Trailers"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -737,6 +741,9 @@ msgid "Enables logging a specific number of uPNP server responses before automat
 msgstr ""
 
 msgctxt "#30542"
-msgid "Enables selectively syncing portins of the Mezzmo library with Kodi with Msart Playists that contain the selected tag name. Default is All."
+msgid "Enables selectively syncing portins of the Mezzmo library with Kodi with Smart Playists that contain the selected tag name. Default is All."
 msgstr ""
 
+msgctxt "#30543"
+msgid "When enabled will only sync local trailers to Kodi when found otherwise You Tube trailers will sync.  Default is enabled."
+msgstr ""

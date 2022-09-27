@@ -33,7 +33,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Play music with a <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Context-Menu-Additions#music-item-context-menu-additions">resume playback</a> capability
 - View Photos manually or with the built-in <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-picture-view">slideshow viewer</a>
 - Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#parental-controls">parental controls</a>
-- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers
+- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers including <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#local-movie-trailers">local trailers</a>
 - Automatic software updates
 - Automatic Kodi database rebuild / restore
 <br/>
