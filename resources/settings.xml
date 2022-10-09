@@ -69,15 +69,15 @@
     
     <!--Estuary Skin-->
     <setting id="estuarycontentmap" type="labelenum" label="30375" values="Default|Movies|Episodes" default="Default" subsetting="true"  visible="eq(-20,0)" enable="eq(-20,0)"/>
-    <setting id="top_view_mode_estuary" type="labelenum" label="30349" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-21,0)" enable="eq(-21,0)"/>
-    <setting id="folders_view_mode_estuary" type="labelenum" label="30342" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-22,0)" enable="eq(-22,0)"/>
-    <setting id="files_view_mode_estuary" type="labelenum" label="30343" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-23,0)" enable="eq(-23,0)"/>
-    <setting id="servers_view_mode_estuary" type="labelenum" label="30344" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-24,0)" enable="eq(-24,0)"/>
-    <setting id="movies_view_mode_estuary" type="labelenum" label="30330" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-25,0)" enable="eq(-25,0)"/>
-    <setting id="episodes_view_mode_estuary" type="labelenum" label="30341" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="List" subsetting="true"  visible="eq(-26,0)" enable="eq(-26,0)"/>
-    <setting id="songs_view_mode_estuary" type="labelenum" label="30365" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="List" subsetting="true"  visible="eq(-27,0)" enable="eq(-27,0)"/>
-    <setting id="musicvideos_view_mode_estuary" type="labelenum" label="30382" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="List" subsetting="true"  visible="eq(-28,0)" enable="eq(-28,0)"/>
-    <setting id="videos_view_mode_estuary" type="labelenum" label="30381" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="List" subsetting="true"  visible="eq(-29,0)" enable="eq(-29,0)"/>
+    <setting id="top_view_mode_estuary" type="labelenum" label="30349" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-21,0)" enable="eq(-21,0)"/>
+    <setting id="folders_view_mode_estuary" type="labelenum" label="30342" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-22,0)" enable="eq(-22,0)"/>
+    <setting id="files_view_mode_estuary" type="labelenum" label="30343" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-23,0)" enable="eq(-23,0)"/>
+    <setting id="servers_view_mode_estuary" type="labelenum" label="30344" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-24,0)" enable="eq(-24,0)"/>
+    <setting id="movies_view_mode_estuary" type="labelenum" label="30330" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-25,0)" enable="eq(-25,0)"/>
+    <setting id="episodes_view_mode_estuary" type="labelenum" label="30341" values="Default|List|Posters|IconWall|Shift|InfoWall|WideList|Wall|Banner|FanArt" default="WideList" subsetting="true"  visible="eq(-26,0)" enable="eq(-26,0)"/>
+    <setting id="songs_view_mode_estuary" type="labelenum" label="30365" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="WideList" subsetting="true"  visible="eq(-27,0)" enable="eq(-27,0)"/>
+    <setting id="musicvideos_view_mode_estuary" type="labelenum" label="30382" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="WideList" subsetting="true"  visible="eq(-28,0)" enable="eq(-28,0)"/>
+    <setting id="videos_view_mode_estuary" type="labelenum" label="30381" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="WideList" subsetting="true"  visible="eq(-29,0)" enable="eq(-29,0)"/>
     
     </category>
     <!-- Search -->
