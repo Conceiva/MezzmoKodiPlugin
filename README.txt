@@ -1,3 +1,13 @@
+v2.1.6.8  10/9/2022
+
+-  Eliminated duplicate code for Kodi skin view settings and mapping.
+-  Fixed an issue which could cause the Mezzmo Kodi addon to exit after
+   multiple repetitive Mezzmo searches. 
+-  Added additional tables and views to the CSV export utility, including
+   the Kodi music database. 
+-  Changed view mode default settings for the Estuary skin from List to
+   WideList since List isn't valid for all views. 
+
 v2.1.6.7  9/27/2022
 
 -  New feature, Prefer Local Trailers, added which allows only syncing local 

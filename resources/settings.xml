@@ -956,7 +956,7 @@
 				</setting>
 				<setting id="top_view_mode_estuary" type="string" label="30349" help="30511" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -983,7 +983,7 @@
 				</setting>
 				<setting id="folders_view_mode_estuary" type="string" label="30342" help="30512" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1010,7 +1010,7 @@
 				</setting>
 				<setting id="files_view_mode_estuary" type="string" label="30343" help="30515" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1037,7 +1037,7 @@
 				</setting>
 				<setting id="servers_view_mode_estuary" type="string" label="30344" help="30516" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1064,7 +1064,7 @@
 				</setting>
 				<setting id="movies_view_mode_estuary" type="string" label="30330" help="30517" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1091,7 +1091,7 @@
 				</setting>
 				<setting id="episodes_view_mode_estuary" type="string" label="30341" help="30518" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1118,7 +1118,7 @@
 				</setting>
 				<setting id="songs_view_mode_estuary" type="string" label="30365" help="30519" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1142,7 +1142,7 @@
 				</setting>
 				<setting id="musicvideos_view_mode_estuary" type="string" label="30382" help="30522" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
@@ -1169,7 +1169,7 @@
 				</setting>
 				<setting id="videos_view_mode_estuary" type="string" label="30381" help="30521" parent="skinname">
 					<level>0</level>
-					<default>List</default>
+					<default>WideList</default>
 					<constraints>
 						<options>
 							<option label="Default">Default</option>
