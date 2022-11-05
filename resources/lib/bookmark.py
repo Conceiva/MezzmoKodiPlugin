@@ -46,13 +46,14 @@ def updateKodiBookmark(file, pos, title, dbfile=1):    # Update Kodi bookmark
         db = dbfile
         dbflag = 0
 
-    mtitle = '%' + title + '%'
+    #mtitle = '%' + title + '%'
+    mtitle = title
 
     xbmc.log('Mezzmo bookmark info: ' + str(file) + ' ' + str(pos) + ' ' + str(mtitle) + ' '  \
     + str(title.encode('utf-8')), xbmc.LOGDEBUG)
 
     curb = db.execute('select files.idFile, c11, c22 from files inner join movie on           \
-    files.idFile=movie.idFile where c00 LIKE ?', (mtitle,))      
+    files.idFile=movie.idFile where c00=?', (mtitle,))      
     mtuple = curb.fetchone()                       # Check for existing movie    
     if mtuple:                                     # create bookmark
         #xbmc.log('Mezzmo movie found: ' + str(mtuple[0]) + ' ' + str(pos) + ' ' + str(len(mtitle)), xbmc.LOGINFO)
@@ -75,7 +76,7 @@ def updateKodiBookmark(file, pos, title, dbfile=1):    # Update Kodi bookmark
         return
 
     curb = db.execute('select files.idFile, c09, c18 from files inner join episode on           \
-    files.idFile=episode.idFile where c00 LIKE ?', (mtitle,))      
+    files.idFile=episode.idFile where c00=?', (mtitle,))      
     mtuple = curb.fetchone()                       # Check for existing episode    
     if mtuple:                                     # create bookmark
         #xbmc.log('Mezzmo episode found: ' + str(mtuple[0]) + ' ' + str(pos) + ' ' + str(len(mtitle)), xbmc.LOGINFO)
@@ -97,4 +98,25 @@ def updateKodiBookmark(file, pos, title, dbfile=1):    # Update Kodi bookmark
         if dbflag == 1: db.commit(); db.close() 
         return
 
-
+    curb = db.execute('select files.idFile, c04, c13 from files inner join musicvideo on           \
+    files.idFile=musicvideo.idFile where c00=?', (mtitle,))      
+    mtuple = curb.fetchone()                       # Check for existing movie    
+    if mtuple:                                     # create bookmark
+        #xbmc.log('Mezzmo movie found: ' + str(mtuple[0]) + ' ' + str(pos) + ' ' + str(len(mtitle)), xbmc.LOGINFO)
+        curm = db.execute('select idBookmark from bookmark where idFile=?', (mtuple[0],))
+        mbtuple = curm.fetchone()
+        if not mbtuple and len(mtitle) > 2 and int(pos) > 0:  # Not found.  Create new bookmark.
+            xbmc.log('Mezzmo musicvideo not bookmark found: ' + str(mtuple[0]), xbmc.LOGDEBUG)
+            db.execute('INSERT into bookmark (idFile, timeInSeconds, totalTimeInSeconds, player, type) \
+            values (?, ?, ?, ?, ?)',  (mtuple[0], pos, mtuple[1], "VideoPlayer", "1", ))   
+        elif len(mtitle) < 3:
+            if dbflag == 1: db.commit(); db.close()           
+            return
+        elif int(pos) > 0 and len(mtitle) > 2:     # Musicvideo bookmark found
+            xbmc.log('Mezzmo musicvideo bookmark found: ' + str(mbtuple[0]) + ' ' + str(pos), xbmc.LOGDEBUG)
+            db.execute('UPDATE bookmark SET timeInSeconds=? WHERE idBookmark=?', (pos, mbtuple[0],))  
+        elif int(pos) == 0 and len(mtitle) > 2:    # Musicvideo bookmark found to delete
+            #xbmc.log('Mezzmo musicvideo bookmark found2: ' + str(mbtuple[0]) + ' ' + str(pos), xbmc.LOGINFO)
+            db.execute('DELETE from bookmark WHERE idFile=?', (mtuple[0],))
+        if dbflag == 1: db.commit(); db.close() 
+        return

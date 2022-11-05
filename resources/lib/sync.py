@@ -307,6 +307,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     nativeact = media.settings('nativeact')
     kodiclean = media.settings('kodiclean')
     prflocaltr = media.settings('prflocaltr')
+    musicvid = media.settings('musicvid')
 
     if kodiclean == 'resync':
         msgdialogprogress = xbmcgui.DialogProgress()
@@ -639,7 +640,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
                     season_text, episode_text, album_text, last_played_text, date_added_text, dupelog, koditv,  \
-                    categories_text, knative)
+                    categories_text, knative, musicvid)
                     #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
@@ -650,7 +651,13 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
-                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text, tags_text)  
+                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text, tags_text)
+                    elif filekey[4] == 2:
+                        mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                        creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
+                        content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
+                        sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
+                        artist_text)
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \

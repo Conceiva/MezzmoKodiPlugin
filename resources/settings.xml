@@ -273,6 +273,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="musicvid" type="boolean" label="30463" help="30544">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiskin" type="boolean" label="30439" help="30536">
 					<level>0</level>
 					<default>false</default>

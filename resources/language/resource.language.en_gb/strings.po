@@ -576,6 +576,10 @@ msgctxt "#30462"
 msgid "Prefer Local Trailers"
 msgstr ""
 
+msgctxt "#30463"
+msgid "Kodi Music Video Sync"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -747,3 +751,8 @@ msgstr ""
 msgctxt "#30543"
 msgid "When enabled will only sync local trailers to Kodi when found otherwise You Tube trailers will sync.  Default is enabled."
 msgstr ""
+
+msgctxt "#30544"
+msgid "Enable to sync Mezzmo category musicvideo as Kodi musicvideos otherwise they will sync as movies.  Default is disabled."
+msgstr ""
+
