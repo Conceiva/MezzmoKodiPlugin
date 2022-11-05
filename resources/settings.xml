@@ -33,6 +33,7 @@
     <setting id="kbooksync" type="bool" label="30438" default="false"/>
     <setting id="nativeact" type="bool" label="30443" default="false"/>
     <setting id="nativetag" type="bool" label="30446" default="false"/>
+    <setting id="musicvid" type="bool" label="30463" default="false"/>
     <setting id="kodiskin" type="bool" label="30439" default="false"/>
     </category>
     <!-- View -->

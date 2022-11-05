@@ -46,11 +46,15 @@ def contextMenu():                                       # Display contxt menu f
 
     pdfile = media.openKodiDB()                          # Open Kodi DB
     curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
-    (idFile) WHERE episode_view.c00=?', (ttitle,))
+    (idFile) WHERE episode_view.c00=?', (mtitle,))
     bcontext = curpt.fetchone()                          # Get bookmark from database
     if not bcontext:
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING  \
-        (idFile) WHERE movie_view.c00=?', (ttitle,))
+        (idFile) WHERE movie_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    if not bcontext:
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN musicvideo_view USING  \
+        (idFile) WHERE musicvideo_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
     pdfile.close()
 
@@ -125,7 +129,13 @@ def getPlayCount(mtitle):                                # Get playcount for sel
     pcursor = curpc.fetchone()                                      # Is title a movie ?   
     if pcursor:
         pcount =  pcursor[0]
-        murl = pcursor[1]       
+        murl = pcursor[1]
+    if pcount == -1:
+        curpc = dbfile.execute('select playCount, c13 from musicvideo_view where C00=?', (mtitle,)) 
+        pcursor = curpc.fetchone()                                  # Is title a musicvideo ?   
+        if pcursor:
+            pcount =  pcursor[0]
+            murl = pcursor[1]                
     if pcount == -1:
         curpc = dbfile.execute('select playCount, c18, c12, c13, strTitle from episode_view   \
         where C00=?', (mtitle,))                                    # Is title an episode ?
@@ -135,7 +145,7 @@ def getPlayCount(mtitle):                                # Get playcount for sel
             murl = pcursor[1]
             mseason = pcursor[2]
             mepisode = pcursor[3]
-            mseries = pcursor[4]       
+            mseries = pcursor[4]   
 
     pcursor = curpc.fetchone()   
     dbfile.close()

@@ -575,3 +575,7 @@ msgstr ""
 msgctxt "#30462"
 msgid "Prefer Local Trailers"
 msgstr ""
+
+msgctxt "#30463"
+msgid "Kodi Music Video Sync"
+msgstr ""

@@ -1,3 +1,14 @@
+v1.1.6.9  11/4/2022
+
+-  Added option to treat music videos as either movies or music videos in
+   Kodi native mode operation.  The default is movies which is consistent 
+   with earlier versions.
+-  Fixed bookmark issue in native mode where Kodi bookmarks may not get
+   updated properly if multiple movies had names which were almost identical
+-  Improved detection of codec changes during hourly sync process.  It was
+   possible for certain codec changes to occur and not get detected until 
+   the daily sync process.
+
 v1.1.6.8  10/9/2022
 
 -  Eliminated duplicate code for Kodi skin view settings and mapping.

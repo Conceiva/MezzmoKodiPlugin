@@ -249,6 +249,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
     perflog = media.settings('perflog')
+    musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
     duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
     synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled
     slideshow = media.settings('slideshow')             # Check if slideshow is enabled        
@@ -689,7 +690,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text, knative)
+                        categories_text, knative, musicvid)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
@@ -698,7 +699,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)
+                        elif filekey[4] == 2:
+                            mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
+                            artist_text)   
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
@@ -848,13 +855,14 @@ def handleSearch(content, contenturl, objectID, term):
     koditv = media.settings('koditv')
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
-    trcount = media.settings('trcount')              # Checks multiple trailer setting
+    musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
+    trcount = media.settings('trcount')                 # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem9 = addon.getLocalizedString(30434)
-    kodichange = media.settings('kodichange')        # Checks for change detection user setting
-    kodiactor = media.settings('kodiactor')          # Checks for actor info setting    
-    sync.deleteTexturesCache(contenturl)             # Call function to delete textures cache if user enabled. 
+    kodichange = media.settings('kodichange')           # Checks for change detection user setting
+    kodiactor = media.settings('kodiactor')             # Checks for actor info setting    
+    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
     
     try:
         while True:
@@ -1241,7 +1249,7 @@ def handleSearch(content, contenturl, objectID, term):
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text, knative)
+                        categories_text, knative, musicvid)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGNOTICE) 
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
@@ -1250,7 +1258,13 @@ def handleSearch(content, contenturl, objectID, term):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)
+                        elif filekey[4] == 2:
+                            mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
+                            artist_text)   
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \

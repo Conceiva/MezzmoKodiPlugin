@@ -20,9 +20,15 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
 
     #xbmc.log('Mezzmo playcount mtitle and murl ' + mtitle.encode('utf-8', 'ignore') + ' ' + murl, xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
-    #' ' + str(mseries), xbmc.LOGDEBUG)    
+    #' ' + str(mseries), xbmc.LOGDEBUG)
 
-    if mseason == 0 and mepisode == 0:                     #  Find movie file number
+    filenumb = 0     
+    curf = db.execute('SELECT idFile FROM musicvideo_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
+    filetuple = curf.fetchone()
+    if filetuple != None:
+        filenumb = filetuple[0]     
+
+    if mseason == 0 and mepisode == 0 and filenumb == 0:    #  Find movie file number
         curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
         filetuple = curf.fetchone()
         if filetuple != None:
@@ -30,7 +36,7 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
         else:
             filenumb = 0
         curf.close()
-    elif mseason > 0 or mseason > 0:                       #  Find TV Episode file number
+    elif mseason > 0 or mseason > 0 and filenumb == 0:      #  Find TV Episode file number
         curf = db.execute('SELECT idFile FROM episode_view WHERE strPATH LIKE ? and strTitle=? and c12=? \
         and c13=? ',(serverport, mseries, mseason, mepisode,))  
         filetuple = curf.fetchone()

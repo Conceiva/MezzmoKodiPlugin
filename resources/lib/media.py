@@ -649,6 +649,7 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
                 db.execute('DELETE FROM files WHERE idFile=?',(idlist[a][0],))
                 db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
                 db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
+                db.execute('DELETE FROM musicvideo WHERE idFile=?',(idlist[a][0],))
             db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
             mgenlog ='Kodi database Mezzmo data cleared.'
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
@@ -731,7 +732,7 @@ def getSyncUrl():                                                # Get current s
 
 
 def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepisode, mseries, \
-    mlplayed, mdateadded, mdupelog, mkoditv, mcategory, knative): #  Check if path exists
+    mlplayed, mdateadded, mdupelog, mkoditv, mcategory, knative, musicvid): #  Check if path exists
 
     rtrimpos = itemurl.rfind('/')
     filecheck = itemurl[rtrimpos+1:]
@@ -741,14 +742,15 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
     if mlplayed == '0':                        #  Set Mezzmo last played to null if 0
         mlplayed = ''
 
-    if knative == 'true' and mcategory == 'movie':
+    if knative == 'true':                      #  Adjust paths for native mode
         rtrimpos = mpath.rfind('content/')       
         pathtrim = mpath[:rtrimpos+8]
-        mpath = pathtrim + 'movies/'
-    elif knative == 'true' and mcategory:
-        rtrimpos = mpath.rfind('content/')       
-        pathtrim = mpath[:rtrimpos+8]
-        mpath = pathtrim + 'tvshows/'
+        if mcategory == 'episode':
+            mpath = pathtrim + 'tvshows/'
+        elif mcategory == 'musicvideo' and musicvid == 'true':
+            mpath = pathtrim + 'musicvideos/'
+        else:
+            mpath = pathtrim + 'movies/'     
 
     curpth = db.execute('SELECT idPath FROM path WHERE strpath=?',(mserver,))   # Check if server path exists in Kodi DB
     ppathtuple = curpth.fetchone()
@@ -785,6 +787,19 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         filetuple = curf.fetchone()
         curf.close()
         xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGDEBUG)     # Path check debugging
+
+    elif mcategory == 'musicvideo' and musicvid == 'true':
+        media = 'musicvideo'
+        contenttype = 'musicvideos'
+        episodes = 2
+        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN musicvideo   \
+        USING (idFile) INNER JOIN path USING (idPath) WHERE idParentPath=? and musicvideo.c00 = ?          \
+        and musicvideo.c12=? and path.strContent=? COLLATE NOCASE', (ppathnumb, mtitle, mepisode,          \
+        contenttype))    # Check if musicvideo exists in Kodi DB under parent path 
+        filetuple = curf.fetchone()
+        curf.close()
+        xbmc.log('Checking path for : ' + mtitle.encode('utf-8','ignore'), xbmc.LOGDEBUG)     # Path check debugging
+
     else:
         media = 'movie'
         contenttype = 'movies'
@@ -797,41 +812,29 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curf.close()
 
     if not filetuple:                   # if not exist insert into Kodi DB and return file key value
-        if mcategory == 'movie':
-            curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
-            (mpath, 'movies',))          #  Check path table
-            pathtuple = curp.fetchone()
-            #xbmc.log('File not found movie: ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
-            if not pathtuple:              # if path doesn't exist insert into Kodi DB
-                if knative == 'false':  
-                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
-                    (mpath, 'movies', ppathnumb))
-                else:
-                    #scraper = 'metadata.themoviedb.org'
-                    scraper = 'metadata.local'
-                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
-                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',          \
-                    ppathnumb))
-                curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',              \
-                (mpath, 'movies',)) 
-                pathtuple = curp.fetchone()
+        if mcategory == 'movie' or mcategory == 'video':
+            catype = 'movies'
+        elif mcategory == 'musicvieo':
+            catype = 'musicvideos'
         else:
-            curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
-            (mpath, 'tvshows',))          #  Check path table
+            catype = 'tvshows'
+
+        curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
+        (mpath, catype,))          #  Check path table
+        pathtuple = curp.fetchone()
+        #xbmc.log('File not found movie: ' + mtitle.encode('utf-8','ignore'), xbmc.LOGNOTICE)
+        if not pathtuple:              # if path doesn't exist insert into Kodi DB
+            if knative == 'false':  
+                db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',   \
+                (mpath, catype, ppathnumb))
+            else:
+                scraper = 'metadata.local'
+                db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,     \
+                idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, catype, scraper, '1', '0',          \
+                ppathnumb))
+            curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',            \
+            (mpath, catype,)) 
             pathtuple = curp.fetchone()
-            if not pathtuple:             # if path doesn't exist insert into Kodi DB
-                if knative == 'false':  
-                    db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',  \
-                    (mpath, 'tvshows', ppathnumb))
-                else:
-                    #scraper = 'metadata.tvdb.com'
-                    scraper = 'metadata.local'
-                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,    \
-                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',      \
-                    ppathnumb))
-                curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',           \
-                (mpath, 'tvshows',)) 
-                pathtuple = curp.fetchone()
         pathnumb = pathtuple[0]
         curp.close()
 
@@ -942,6 +945,74 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
     return(movienumb)
 
 
+def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer,   \
+    mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative, movieset, \
+    mepisode, martist):  
+
+    if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
+        #xbmc.log('The current musicvideo is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
+        mgenres = mgenre.replace(',' , ' /')      # Format genre for proper Kodi display
+        dupm = db.execute('SELECT idMVideo FROM musicvideo WHERE idFile=? and c00=?', (fileId[0], mtitle))
+        dupmtuple = dupm.fetchone() 
+        if dupmtuple == None:                                        # Ensure movie doesn't exist
+            db.execute('INSERT into MUSICVIDEO (idFile, c00, c01, c04, c05, c06, premiered, c08, c09, c10, c11, c12, \
+            C13, userrating, C14) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (fileId[0], mtitle, murl,   \
+            mduration, mdirector, mstudio, myear, mplot, movieset, martist, mgenres, mepisode, mitemurl, murate,     \
+            fileId[5]))             #  Add musicvideo
+            cur = db.execute('SELECT idMVideo FROM musicvideo WHERE idFile=?',(str(fileId[0]),))  
+            movietuple = cur.fetchone()
+            movienumb = movietuple[0]                                # get new movie id 
+            insertArt(movienumb, db, 'musicvideo', murl, micon)      # Insert artwork for musicvideo 
+            insertGenre(movienumb, db, 'musicvideo', mgenre)         # Insert genre for musicvideo 
+            insertTags(movienumb, db, 'musicvideo', mkeywords)       # Insert tags for musicvideo  
+            cur.close()
+        else:
+            movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
+        dupm.close()
+    elif kchange == 'true':                        #  Update metadata if changes
+        curm = db.execute('SELECT idMVideo, c08, c04, c05, c11, premiered, c06, c10    \
+        FROM musicvideo INNER JOIN files USING (idfile) INNER JOIN path USING (idpath) \
+        WHERE idFile=? COLLATE NOCASE', (int(fileId[1]),))  
+        movietuple = curm.fetchone()
+        movienumb = movietuple[0]
+        kplot = movietuple[1]
+        kduration = movietuple[2]
+        kdirector = movietuple[3]
+        kgenre = movietuple[4]
+        kyear = movietuple[5]
+        kstudio = movietuple[6]
+        kartist = movietuple[7]
+        kgenres = kgenre.replace(' /' , ',')                          #  Format genre for proper Kodi display
+        #xbmc.log('Checking musicvideo for changes : ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)        
+        if kplot != mplot or kdirector != mdirector or kyear != myear or  kgenres != mgenre or int(kduration)  \
+        != mduration or kstudio != mstudio or kartist != martist:     #  Update movie info if changed
+            mgenres = mgenre.replace(',' , ' /')                      #  Format genre for proper Kodi display
+            db.execute('UPDATE MUSICVIDEO SET c01=?, c04=?, c05=?, c06=?, premiered=?, c08=?, c09=?, c10=?, c11=?,    \
+            c12=?, c13=?, userrating=?, c14=? WHERE idMVideo=?', (murl, mduration, mdirector, mstudio, myear, mplot,  \
+            movieset, martist, mgenres, mepisode, mitemurl, murate, fileId[5], movienumb)) #  Update musicvideo information
+            #db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
+            db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'musicvideo'))
+            insertArt(movienumb, db, 'musicvideo', murl, micon)       # Update artwork for musicvideo
+            db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'musicvideo'))
+            insertGenre(movienumb, db, 'musicvideo', mgenre)          # Insert genre for musicvideo 
+            insertTags(movienumb, db, 'musicvideo', mkeywords)        # Insert tags for musicvideo 
+            if mdupelog == 'false':
+                mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
+                mgenlogUpdate(mgenlog)
+                mgenlog ='There was a Mezzmo metadata change detected: '
+                mgenlogUpdate(mgenlog)
+            else:
+                checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
+            movienumb = 999999                                        # Trigger actor update
+        curm.close()
+    else:
+        movienumb = 0                                                 # disable change checking
+
+    return(movienumb)
+
+
 def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, \
     mtrailer, mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog,    \
     mitemurl, mimdb_text, mkeywords):  
@@ -1032,17 +1103,16 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnative
        media_type = 'movie'
     elif fileId[4] == 1:
        media_type = 'episode'
-    
-    if movieId == 999999:                                         # Actor info needs updated
-        curm = db.execute('SELECT idMovie FROM movie INNER JOIN files USING (idfile) \
-        INNER JOIN path USING (idpath) WHERE idFile=? COLLATE NOCASE',    \
-        (str(fileId[1]),))                                        # Query for real movieID
-        movietuple = curm.fetchone()
-        movieId = movietuple[0]                                   # Get real movieId
+    elif fileId[4] == 2:
+       media_type = 'musicvideo'
+    #xbmc.log('Mezzmo writeActorsToDb: ' + str(fileId) + ' ' + str(movieId), xbmc.LOGNOTICE)
+    #xbmc.log('Mezzmo writeActorsToDb movie and movieID are: ' + str(movieId) + ' ' + mtitle, xbmc.LOGDEBUG)
+
+    if movieId == 999999:                           # Actor info needs updated
+        movieId = fileId[1]
         db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(movieId), media_type))
         if media_type == 'episode' and mnativeact == 'true':
             db.execute('DELETE FROM actor_link WHERE media_id=? and media_type=?',(str(mshowId), 'tvshow'))
-        curm.close() 
     if movieId != 0:
         ordernum = 0
         for actor in actorlist:     
@@ -1081,15 +1151,22 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
     elif fileId[4] == 1:
         media_type = 'episode'
         mcategory = 'tvshows'
+    elif fileId[4] == 2:
+        media_type = 'musicvideo'
+        mcategory = 'musicvideos'
 
     if knative == 'true' and media_type == 'movie':
         rtrimpos = mpath.rfind('content/')       
         pathtrim = mpath[:rtrimpos+8]
         mpath = pathtrim + 'movies/'
-    elif knative == 'true' and media_type:
+    elif knative == 'true' and media_type == 'episode':
         rtrimpos = mpath.rfind('content/')       
         pathtrim = mpath[:rtrimpos+8]
         mpath = pathtrim + 'tvshows/'
+    elif knative == 'true' and media_type == 'musicvideo':
+        rtrimpos = mpath.rfind('content/')       
+        pathtrim = mpath[:rtrimpos+8]
+        mpath = pathtrim + 'musicvideos/'
 
     if fileId[0] > 0:                   #  Insert stream details if file does not exist in Kodi DB
         insertStreams(fileId[0], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
@@ -1103,6 +1180,11 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
             idEpisode, url FROM STREAMDETAILS INNER JOIN episode USING (idFile) INNER JOIN files USING (idfile)   \
             INNER JOIN path USING (idpath) INNER JOIN art ON episode.idEpisode=art.media_id WHERE idFile=? and    \
+            media_type=? ORDER BY strAudioCodec', (int(fileId[1]), media_type))
+        elif  fileId[4] == 2:
+            scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
+            idMVideo, url FROM STREAMDETAILS INNER JOIN musicvideo USING (idFile) INNER JOIN files USING (idfile) \
+            INNER JOIN path USING (idpath) INNER JOIN art ON musicvideo.idMVideo=art.media_id WHERE idFile=? and  \
             media_type=? ORDER BY strAudioCodec', (int(fileId[1]), media_type))
         idflist = scur.fetchall()
         rows = len(idflist)
@@ -1141,26 +1223,15 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',(mpath, mcategory,))  #  Check path table
                 pathtuple = curp.fetchone()
                 if not pathtuple:                # if path doesn't exist insert into Kodi DB and return path key value
-                    if media_type == 'movie':
-                        if knative == 'false':  
-                            db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
-                            (mpath, 'movies', int(fileId[2])))
-                        else:
-                            #scraper = 'metadata.themoviedb.org'
-                            scraper = 'metadata.local'
-                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
-                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'movies', scraper, '1', '0',          \
-                            int(fileId[2])))
-                    elif media_type == 'episode':
-                        if knative == 'false':  
-                            db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
-                            (mpath, 'tvshows', int(fileId[2])))
-                        else:
-                            #scraper = 'metadata.tvdb.com'
-                            scraper = 'metadata.local'
-                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
-                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, 'tvshows', scraper, '1', '0',         \
-                            int(fileId[2])))
+                    if knative == 'false':  
+                        db.execute('INSERT into PATH (strpath, strContent, idParentPath) values (?, ?, ?)',     \
+                        (mpath, mcategory, int(fileId[2])))
+                    else:
+                        #scraper = 'metadata.themoviedb.org.python'
+                        scraper = 'metadata.local'
+                        db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
+                        idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, mcategory, scraper, '1', '0',         \
+                        int(fileId[2])))
                     curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
                     pathtuple = curp.fetchone()
                 pathnumb = pathtuple[0]
