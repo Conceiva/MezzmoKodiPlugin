@@ -1,3 +1,14 @@
+v1.1.7.0  11/13/2022
+
+-  Fixed minor bug introduced in 1.1.6.9 where extra file Kodi table entries 
+   could be created if the new music video option was default but some videos
+   were categorized as music videos.
+-  Fixed very obscure old bug where all search results might not display if 
+   real time updates were enabled and the Kodi database was not fully in sync
+   with Mezzmo.
+-  Added resetting of Kodi DB clean flag upon addon restart
+-  Removed minor 3 second delay on manual Kodi DB cleaning
+
 v1.1.6.9  11/4/2022
 
 -  Added option to treat music videos as either movies or music videos in
