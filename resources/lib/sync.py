@@ -315,7 +315,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
         dialoghead = media.translate(30456)
         dialogmsgs = media.translate(30389) 
         msgdialogprogress.create(dialoghead, dialogmsgs)
-        xbmc.sleep(3000)
         msgdialogprogress.update(0, media.translate(30457))   
 
     try:

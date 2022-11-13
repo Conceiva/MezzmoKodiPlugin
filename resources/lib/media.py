@@ -814,10 +814,10 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         #xbmc.log('Checking path for : ' + mtitle, xbmc.LOGINFO)     # Path check debugging
 
     if not filetuple:                 # if not exist insert into Kodi DB and return file key value
-        if mcategory == 'movie' or mcategory == 'video':
+        if mcategory == 'musicvideo' and musicvid == 'true':
+            catype = 'musicvideos'            
+        elif mcategory == 'movie' or mcategory == 'video' or mcategory == 'musicvideo':
             catype = 'movies'
-        elif mcategory == 'musicvideo':
-            catype = 'musicvideos'
         else:
             catype = 'tvshows'
 

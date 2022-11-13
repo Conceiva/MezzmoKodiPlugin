@@ -1233,11 +1233,11 @@ def handleSearch(content, contenturl, objectID, term):
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     if int(trcount) > 0 and trailerurl != None:        
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
+                        (addon.getLocalizedString(30348), 'Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
                         % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])  
                     else:                              
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])      
+                        (addon.getLocalizedString(30348), 'Action(Info)') ])      
                     
                     if installed_version == '19':   
                         info = {
@@ -1350,8 +1350,8 @@ def handleSearch(content, contenturl, objectID, term):
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false', knative)      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
-                        dbfile.commit()
-                        dbfile.close() 
+                        #dbfile.commit()
+                        #dbfile.close() 
                       
                 elif mediaClass_text == 'music':
                     offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
@@ -1417,6 +1417,8 @@ def handleSearch(content, contenturl, objectID, term):
             
             itemsleft = itemsleft - int(NumberReturned) - 1
             if itemsleft == 0:
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
                 break
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 

@@ -118,8 +118,9 @@ while True:
             media.mgenlogUpdate(mgenlog)
         
     count += 1
-    if count == 2:                          # Check for autostarting the Mezzmo GUI
+    if count == 2:                            # Check for autostarting the Mezzmo GUI
         media.autostart()
+        media.settings('kodiclean', 'false')  # Clear manual resync flag on addon restart
 
     pacount += 1 
     if pacount % 30 == 0:                   # Check for paused video every 30 seconds
