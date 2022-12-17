@@ -671,7 +671,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr)   # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')
                     mobjectID = itemurl[rtrimpos+1:]                             # Get Mezzmo objectID
-                    bookmark.updateKodiBookmark(mobjectID, dcmInfo_text, mtitle, dbfile)  
+                    mtype = categories_text
+                    bookmark.updateKodiBookmark(mobjectID, dcmInfo_text, mtitle, mtype, dbfile)  
                     #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
                                                       
             itemsleft = itemsleft - int(NumberReturned)

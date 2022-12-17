@@ -2,6 +2,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import urllib.request, urllib.error, urllib.parse
+import pickle
 import xml.etree.ElementTree
 import re
 import xml.etree.ElementTree as ET
@@ -103,6 +104,37 @@ def addServers():                                                #  Manually add
         serverurl = 'http://' + str(serverip) + ':' + str(sport) + serverdict[server]['uri']
         xbmc.log('Mezzmo uPNP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
         return serverurl
+
+
+def delServer(srvurl):                                           # Delete server from server list
+
+    try:
+        newlist = []
+        saved_servers = settings('saved_servers')
+        saved_servers = saved_servers.encode('utf-8')
+        servers = pickle.loads(saved_servers, fix_imports=True)        
+
+        xbmc.log('Mezzmo UPnP servers: ' + str(servers), xbmc.LOGDEBUG)
+        
+        if len(saved_servers) > 5 and saved_servers != 'none': 
+            for server in servers:
+                try:
+                    url = server.location
+                except:
+                    url = server.get('serverurl')  
+                if srvurl != url:
+                    newlist.append(server)                       # Do not delete from newlist              
+            settings('saved_servers', pickle.dumps(newlist,0,fix_imports=True))
+            mgenlog = translate(30466) + srvurl
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlogUpdate(mgenlog) 
+            xbmcgui.Dialog().notification(translate(30404), mgenlog, addon_icon, 5000)
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo error deleting UPnP server.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)
 
 
 def updateSync(controlurl):                                      # Set sync for Mezzmo server

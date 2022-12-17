@@ -1,3 +1,23 @@
+v2.1.7.2 12/17/2022
+
+-  Fixed bug introduced in v2.1.7.1 causing playcounts and bookmarks to not
+   always update properly during playback or when reaching the end of the file.
+-  Added user option to allow removing a UPnP server from known server list 
+   if it is no longer responding.
+
+v2.1.7.1 12/6/2022
+
+-  Added Kodi home option to native mode Mezzmo searches
+-  Added option to perform additional search to native and GUI mode searches
+-  Fixed issue introduced in v2.1.7.0 where if a musicvideo and a movie both
+   had the exact same name and the new musicvideo category feature was being
+   used, the wrong bookmark and playcounts might be set.
+-  Simplified category matching code for Kodi playcounts and bookmarks to 
+   support additional category types in the future, should Kodi ever add any.
+-  Improved native mode Mezzmo search friendliness so that when no matches are
+   found the addon returns to the Kodi native mode home screen vs. the GUI mode
+   UPnP server listing screen. 
+
 v2.1.7.0  11/13/2022
 
 -  Fixed minor bug introduced in 2.1.6.9 where extra file Kodi table entries 

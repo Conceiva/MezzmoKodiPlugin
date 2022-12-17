@@ -8,10 +8,11 @@ import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
 from datetime import datetime, timedelta
 
-def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
+def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, mtype):
 
     db = media.openKodiDB()
 
+    musicvid = media.settings('musicvid')                  # Check if musicvideo sync is enabled
     serverport = '%' + media.getServerport(murl) + '%'     #  Get Mezzmo server port info      
 
     lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -22,33 +23,28 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
     xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
     ' ' + str(mseries), xbmc.LOGDEBUG)
 
-    filenumb = 0     
-    curf = db.execute('SELECT idFile FROM musicvideo_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
-    filetuple = curf.fetchone()
-    if filetuple != None:
-        filenumb = filetuple[0] 
-    
-    if mseason == 0 and mepisode == 0 and filenumb == 0:   #  Find movie file number
-        curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
+    filenumb = 0
+    if mtype == 'musicvideo' and musicvid == 'true':       #  Find musicvideo file number     
+        curf = db.execute('SELECT idFile FROM musicvideo_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]
         curf.close()
-    elif mseason > 0 or mseason > 0 and filenumb == 0:     #  Find TV Episode file number
+    elif mtype == 'episode':                               #  Find TV Episode file number
         curf = db.execute('SELECT idFile FROM episode_view WHERE strPATH LIKE ? and strTitle=? and c12=? \
         and c13=? ',(serverport, mseries, mseason, mepisode,))  
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]   
+        curf.close()   
+    else:                                                  #  Find movie file number
+        curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
+        filetuple = curf.fetchone()
+        if filetuple != None:
+            filenumb = filetuple[0]
         curf.close()
 
-    if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount
-        if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
-            newcount = '1'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
-        elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))
-    elif filenumb != 0 and (mseason > 0 or mepisode > 0):  #  Update episode playcount
+    if filenumb != 0:                                      #  Update playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))

@@ -10,7 +10,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 
 <b>Features: </b>
 - Kodi 18 and 19 versions with 100% feature parity
-- Kodi version 20 Nexus Alpha 3 tested and supported
+- Kodi version 20 Nexus Beta 1 tested and supported
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
 - Automatic backup of resume points every 30 seconds while media is playing
