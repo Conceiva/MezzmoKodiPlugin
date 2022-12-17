@@ -297,27 +297,27 @@ msgid "Select Mezzmo Sync Server"
 msgstr ""
 
 msgctxt "#30393"
-msgid "Missing information from uPNP server to support playback."
+msgid "Missing information from UPnP server to support playback."
 msgstr ""
 
 msgctxt "#30394"
-msgid "This uPNP server uses native uPNP support to play media.  Would you like to enable this in Kodi ?"
+msgid "This UPnP server uses native UPnP support to play media.  Would you like to enable this in Kodi ?"
 msgstr ""
 
 msgctxt "#30395"
-msgid "There was a problem enabling Kodi uPNP support.  Please check the Kodi logs and the uPNP settings in Services."
+msgid "There was a problem enabling Kodi UPnP support.  Please check the Kodi logs and the UPnP settings in Services."
 msgstr ""
 
 msgctxt "#30396"
-msgid "Mezzmo uPNP Kodi Setting"
+msgid "Mezzmo UPnP Kodi Setting"
 msgstr ""
 
 msgctxt "#30397"
-msgid "Kodi uPNP support enabled."
+msgid "Kodi UPnP support enabled."
 msgstr ""
 
 msgctxt "#30398"
-msgid "Mezzmo uPNP Server Discovery"
+msgid "Mezzmo UPnP Server Discovery"
 msgstr ""
 
 msgctxt "#30399"
@@ -333,23 +333,23 @@ msgid "Mezzmo Sync Server"
 msgstr ""
 
 msgctxt "#30402"
-msgid "Refreshing uPNP Server List.  Please wait."
+msgid "Refreshing UPnP Server List.  Please wait."
 msgstr ""
 
 msgctxt "#30403"
-msgid "Mezzmo sync server search. No uPNP servers found."
+msgid "Mezzmo sync server search. No UPnP servers found."
 msgstr ""
 
 msgctxt "#30404"
-msgid "uPNP Server Error"
+msgid "UPnP Server Error"
 msgstr ""
 
 msgctxt "#30405"
-msgid "uPNP server not responding: "
+msgid "UPnP server not responding.  Would you like to delete ? "
 msgstr ""
 
 msgctxt "#30406"
-msgid "Mezzmo uPNP Playback"
+msgid "Mezzmo UPnP Playback"
 msgstr ""
 
 msgctxt "#30407"
@@ -365,7 +365,7 @@ msgid "Select Mezzmo Sync Server"
 msgstr ""
 
 msgctxt "#30410"
-msgid "Other uPNP Server Timeout 10-60 (secs)"
+msgid "Other UPnP Server Timeout 10-60 (secs)"
 msgstr ""
 
 msgctxt "#30411"
@@ -377,7 +377,7 @@ msgid "Mezzmo Slideshow Viewer"
 msgstr ""
 
 msgctxt "#30413"
-msgid "Kodi is unable to display pictures via native uPNP.  Please choose a different uPNP server for viewing pictures."
+msgid "Kodi is unable to display pictures via native UPnP.  Please choose a different UPnP server for viewing pictures."
 msgstr ""
 
 msgctxt "#30414"
@@ -421,7 +421,7 @@ msgid "Mezzmo Server Response"
 msgstr ""
 
 msgctxt "#30424"
-msgid "uPNP Server Response"
+msgid "UPnP Server Response"
 msgstr ""
 
 msgctxt "#30425"
@@ -529,7 +529,7 @@ msgid "Select New Server Type"
 msgstr ""
 
 msgctxt "#30451"
-msgid "Mezzmo new uPNP server manually added: "
+msgid "Mezzmo new UPnP server manually added: "
 msgstr ""
 
 msgctxt "#30452"
@@ -541,7 +541,7 @@ msgid "Mezzmo Server Response Logging"
 msgstr ""
 
 msgctxt "#30454"
-msgid "uPNP Server Response Logging"
+msgid "UPnP Server Response Logging"
 msgstr ""
 
 msgctxt "#30455"
@@ -578,4 +578,16 @@ msgstr ""
 
 msgctxt "#30463"
 msgid "Kodi Music Video Sync"
+msgstr ""
+
+msgctxt "#30464"
+msgid "Kodi Home"
+msgstr ""
+
+msgctxt "#30465"
+msgid "New Search"
+msgstr ""
+
+msgctxt "#30466"
+msgid "Mezzmo UPnP server successfully deleted: "
 msgstr ""

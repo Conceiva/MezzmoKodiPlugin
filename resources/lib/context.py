@@ -24,12 +24,13 @@ def contextMenu():                                       # Display contxt menu f
     menuitem7 = addon.getLocalizedString(30440)  
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
+    mtype = minfo.getMediaType()
     ttitle = mtitle.decode('utf-8','ignore')
     trcount = media.settings('trcount')
     contenturl = media.settings('contenturl')
     icon = sys.listitem.getArt('poster')   
 
-    titleinfo = getPlayCount(ttitle)                     # Get info for title
+    titleinfo = getPlayCount(ttitle, mtype)               # Get info for title
     title = titleinfo[0]
     vurl = titleinfo[1]
     vseason = titleinfo[2]
@@ -37,6 +38,7 @@ def contextMenu():                                       # Display contxt menu f
     pcount = titleinfo[4]
     vseries = titleinfo[5] 
     xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
+    #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGNOTICE)
 
     pdfile = media.openNosyncDB()                        # Open Trailer database
     cselect = []
@@ -45,16 +47,18 @@ def contextMenu():                                       # Display contxt menu f
     pdfile.close()
 
     pdfile = media.openKodiDB()                          # Open Kodi DB
-    curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
-    (idFile) WHERE episode_view.c00=?', (mtitle,))
-    bcontext = curpt.fetchone()                          # Get bookmark from database
-    if not bcontext:
-        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING  \
-        (idFile) WHERE movie_view.c00=?', (mtitle,))
-        bcontext = curpt.fetchone()                      # Get bookmark from database
-    if not bcontext:
+    musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
+    if mtype == 'musicvideo' and musicvid == 'true':     # Find musicvideo bookmark
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN musicvideo_view USING  \
         (idFile) WHERE musicvideo_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    elif mtype == 'episode':                             # Find episode bookmark
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
+        (idFile) WHERE episode_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    else:
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
+        (idFile) WHERE movie_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
     pdfile.close()
 
@@ -79,6 +83,7 @@ def contextMenu():                                       # Display contxt menu f
     vcontext = ddialog.select('Select Mezzmo Feature', cselect)
 
     if vcontext < 0:                                     # User cancel
+        xbmc.executebuiltin('Dialog.Close(select)')
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
         xbmc.executebuiltin('RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer",  \
@@ -92,7 +97,7 @@ def contextMenu():                                       # Display contxt menu f
             pcdialog.ok("Mezzmo Addon Playcount Error", dialog_text)  
             return       
         media.playCount(mtitle, vurl, vseason, vepisode, \
-        pcount, vseries, 'video', contenturl)           # Mezzmo Playcount
+        pcount, vseries, mtype, contenturl)              # Mezzmo Playcount
     elif (cselect[vcontext]) == menuitem7:               # Mezzmo Clear Bookmark
         rtrimpos = contenturl.rfind('/')
         kobjectID = contenturl[rtrimpos+1:]              # Get Kodi objectID
@@ -100,7 +105,7 @@ def contextMenu():                                       # Display contxt menu f
         mobjectID = vurl[rtrimpos+1:]                    # Get Mezzmo objectID
         #xbmc.log('Mezzmo bookmark info is: ' + str(mobjectID) + ' ' + str(contenturl), xbmc.LOGNOTICE)
         bookmark.SetBookmark(contenturl, mobjectID, '0')
-        bookmark.updateKodiBookmark(kobjectID, '0', ttitle)
+        bookmark.updateKodiBookmark(kobjectID, '0', ttitle, mtype)
         media.nativeNotify()                              # Kodi native notification
         mgenlog ='Mezzmo Kodi bookmark cleared for: ' + title.encode('utf-8', 'ignore')
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
@@ -115,42 +120,48 @@ def contextMenu():                                       # Display contxt menu f
         else:
             xbmc.executebuiltin('RunAddon(%s)' % ("plugin.video.mezzmo"))
     elif (cselect[vcontext]) == menuitem6:               # Mezzmo Search
+        xbmc.executebuiltin('Dialog.Close(all)')
         mezzmostart = 'plugin://plugin.video.mezzmo/?contentdirectory=' + contenturl + ';mode=search;source=native'
-        xbmc.executebuiltin('ActivateWindow(%s, %s)' % ('10025', mezzmostart))
+        xbmc.executebuiltin('ReplaceWindow(%s, %s)' % ('10025', mezzmostart))
 
 
-def getPlayCount(mtitle):                                # Get playcount for selected listitem
+def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem
 
     pcount = -1
     mseason = mepisode = 0
     mseries = murl = ''
+
     dbfile = media.openKodiDB()
-    curpc = dbfile.execute('select playCount, c22 from movie_view where C00=?', (mtitle,)) 
-    pcursor = curpc.fetchone()                                      # Is title a movie ?   
-    if pcursor:
-        pcount =  pcursor[0]
-        murl = pcursor[1]
-    if pcount == -1:
+    musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
+    if mtype == 'musicvideo' and musicvid == 'true':     # Find musicvideo file number
         curpc = dbfile.execute('select playCount, c13 from musicvideo_view where C00=?', (mtitle,)) 
-        pcursor = curpc.fetchone()                                  # Is title a musicvideo ?   
+        pcursor = curpc.fetchone()                       # Is title a musicvideo ?   
         if pcursor:
             pcount =  pcursor[0]
-            murl = pcursor[1]                
-    if pcount == -1:
+            murl = pcursor[1]  
+        curpc.close()
+    elif mtype == 'episode':                             # Find TV Episode file number 
         curpc = dbfile.execute('select playCount, c18, c12, c13, strTitle from episode_view   \
-        where C00=?', (mtitle,))                                    # Is title an episode ?
+        where C00=?', (mtitle,))                         # Is title an episode ?
         pcursor = curpc.fetchone()
         if pcursor:
             pcount =  pcursor[0]
             murl = pcursor[1]
             mseason = pcursor[2]
             mepisode = pcursor[3]
-            mseries = pcursor[4]   
+            mseries = pcursor[4] 
+        curpc.close()  
+    else:
+        curpc = dbfile.execute('select playCount, c22 from movie_view where C00=?', (mtitle,)) 
+        pcursor = curpc.fetchone()                      # Is title a movie ?   
+        if pcursor:
+            pcount =  pcursor[0]
+            murl = pcursor[1]
+        curpc.close()
 
-    pcursor = curpc.fetchone()   
     dbfile.close()
-    del pcursor
-    return [mtitle, murl, mseason, mepisode, pcount, mseries]    
+
+    return [mtitle, murl, mseason, mepisode, pcount, mseries]   
 
 
 if __name__ == '__main__':

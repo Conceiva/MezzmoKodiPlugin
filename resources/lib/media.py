@@ -1384,14 +1384,14 @@ def insertGenre(movienumb, db, media_type, genres):
             #xbmc.log('The current genre number is: ' + str(genrenumb) + "  " + str(movieId), xbmc.LOGNOTICE)
 
 
-def playCount(title, vurl, vseason, vepisode, mplaycount, series, dbfile, contenturl):
+def playCount(title, vurl, vseason, vepisode, mplaycount, series, mtype, contenturl):
 
     title = title.decode('utf-8', 'ignore')   			  #  Handle commas
     series = series.decode('utf-8', 'ignore')    		  #  Handle commas
     #xbmc.log('Mezzmo playcount title is: ' + str(title.encode('utf-8')), xbmc.LOGNOTICE)
-    if dbfile != 'audiom':                                        #  Don't update Kodi for music
+    if mtype != 'audiom':                                         #  Don't update Kodi for music
         playcount.updateKodiPlaycount(int(mplaycount), title, vurl, int(vseason),     \
-        int(vepisode), series)                                    #  Update Kodi DB playcount
+        int(vepisode), series, mtype)                             #  Update Kodi DB playcount
 
     rtrimpos = vurl.rfind('/')
     mobjectID = vurl[rtrimpos+1:]                                 #  Get Mezzmo objectID
@@ -1404,7 +1404,7 @@ def playCount(title, vurl, vseason, vepisode, mplaycount, series, dbfile, conten
     if mobjectID != None:                                         #  Update Mezzmo playcount if objectID exists
         playcount.setPlaycount(contenturl, mobjectID, newcount, title)
         bookmark.SetBookmark(contenturl, mobjectID, '0')          #  Clear bookmark
-        bookmark.updateKodiBookmark(mobjectID, '0', title)
+        bookmark.updateKodiBookmark(mobjectID, '0', title, mtype)
         nativeNotify()                                            #  Kodi native notification 
         xbmc.sleep(1000)  
         xbmc.executebuiltin('Container.Refresh()')

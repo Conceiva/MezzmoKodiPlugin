@@ -19,7 +19,7 @@ import json
 import os
 import media
 import sync
-from server import updateServers, getContentURL, picDisplay, showSingle
+from server import updateServers, getContentURL, picDisplay, showSingle, delServer
 from server import clearPictures, updatePictures, addServers, checkSync
 from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
@@ -32,6 +32,7 @@ args = urlparse.parse_qs(sys.argv[2][1:])
 addon_path = xbmcaddon.Addon().getAddonInfo("path")
 addon_icon = addon_path + '/resources/icon.png'
 addon_fanart = addon_path + '/resources/fanart.jpg'
+searchcontrol = 'browse' 
 
 installed_version = media.get_installedversion()   
 
@@ -111,7 +112,7 @@ def listServers(force):
     msgdialogprogress.update(50, ddialogmsg)
     if force:
         xbmc.sleep(1000)
-    a = 0
+    a = sselect = 0
 
     mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' uPNP servers found.'
     xbmc.log(mgenlog, xbmc.LOGNOTICE)
@@ -208,11 +209,11 @@ def listServers(force):
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)  
             dialog_text = media.translate(30405) + url
-            xbmcgui.Dialog().ok(media.translate(30404), dialog_text) 
-            pass                  
+            sselect = xbmcgui.Dialog().yesno(media.translate(30404), dialog_text)
+            if sselect == 1:                                # Delete nonresponding UPnP server
+                delServer(url)                
         except Exception as e:
             media.printexception()
-            pass
         a += 1
         percent = int(a / float(srvcount) * 50) + 50
         dialogmsg = str(a) + ' / ' + str(srvcount) + ' server completed.' 
@@ -224,6 +225,8 @@ def listServers(force):
     msgdialogprogress.close() 
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
+    if sselect == 1:                            # Reset UPnP delete flag after listing
+        sselect = 0
     if contenturl != None:
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
         if media.settings('kodiclean') == 'Full Sync':
@@ -624,26 +627,27 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    mtype = categories_text
                     if int(trcount) > 0 and trailerurl != None:
                         if playcount == 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)), (menuitem9,  \
                             'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon ))])
                         elif playcount > 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)), (menuitem9,  \
                             'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])       
                     else:  
                         if playcount == 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)) ])
                         elif playcount > 0:
                             li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
                             (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])       
+                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)) ])       
 
                     info = {
                         'duration': durationsecs,
@@ -848,6 +852,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
 
 def handleSearch(content, contenturl, objectID, term):
+    global searchcontrol
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
@@ -860,6 +865,8 @@ def handleSearch(content, contenturl, objectID, term):
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem9 = addon.getLocalizedString(30434)
+    menuitem10 = addon.getLocalizedString(30464)
+    menuitem11 = addon.getLocalizedString(30465)
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting    
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
@@ -877,11 +884,30 @@ def handleSearch(content, contenturl, objectID, term):
             if int(NumberReturned) == 0:
                 dialog_text = media.translate(30414)
                 xbmcgui.Dialog().ok(media.translate(30420), dialog_text)
-                xbmc.executebuiltin('Action(ParentDir)')
+                if searchcontrol == 'native':
+                    xbmc.executebuiltin('Dialog.Close(all)')
+                    xbmc.executebuiltin('ReplaceWindow(%s)' % ('10000'))
+                else:
+                    xbmc.executebuiltin('Action(ParentDir)')
                 break; #sanity check
                 
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
+
+            if searchcontrol == 'native':
+                itemurl = build_url({'mode': 'home'})
+                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
+                'objectID': objectID})
+                li = xbmcgui.ListItem(menuitem10)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+            else:
+                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
+                'objectID': objectID})
+
+            li = xbmcgui.ListItem(menuitem11)
+            li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             
@@ -1517,13 +1543,30 @@ elif mode[0] == 'server':
         media.mgenlogUpdate(mgenlog)
         dialog_text = media.translate(30407)
         xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+
+elif mode[0] == 'home':
+    xbmc.executebuiltin('Dialog.Close(all)')
+    xbmc.executebuiltin('ReplaceWindow(%s)' % ('10000'))
                  
 elif mode[0] == 'search':
     source = args.get('source', 'browse')
+    searchcontrol = source[0]
     promptSearch()
-    if source[0] == 'native':
-        xbmc.sleep(1)
-        sys.exit()
+
+elif mode[0] == 'newsearch':
+    source = args.get('source', 'browse')
+    sobjectID = args.get('objectID', 'none')
+    contenturl = args.get('contentdirectory', '')
+    cobjectID = sobjectID[0]
+    scontenturl = contenturl[0]
+    searchcontrol = source[0]
+    if searchcontrol == 'browse':
+        itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'browse', \
+        'objectID': cobjectID})
+    elif searchcontrol == 'native':
+        itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'native', \
+        'objectID': cobjectID})
+    xbmc.executebuiltin('Container.Update(%s)' % (itemurl2))
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')

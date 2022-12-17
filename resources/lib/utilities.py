@@ -458,10 +458,10 @@ if sys.argv[1] == 'count':                                        # Playcount mo
     vepisode = sys.argv[5]
     mplaycount = sys.argv[6]
     series = sys.argv[7]
-    dbfile = sys.argv[8]
+    mtype = sys.argv[8]
     contenturl = sys.argv[9]
     playCount(title, vurl, vseason, vepisode, mplaycount,     \
-    series, dbfile, contenturl)
+    series, mtype, contenturl)
 elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
     autoStart()
 elif sys.argv[1] == 'playm':                                      # Play music with bookmark
