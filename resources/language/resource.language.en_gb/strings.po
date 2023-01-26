@@ -592,6 +592,10 @@ msgctxt "#30466"
 msgid "Mezzmo UPnP server successfully deleted: "
 msgstr ""
 
+msgctxt "#30467"
+msgid "Mezzmo Movie Set"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

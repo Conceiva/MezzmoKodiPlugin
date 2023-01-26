@@ -48,8 +48,10 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, mt
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
+        elif mtype == 'episode' and mplaycount > 0 and filenumb > 0:  #  Set playcount to NULL for episodes
+            db.execute('UPDATE files SET playCount=NULL, lastPlayed=NULL WHERE idFile=?', (filenumb,))  
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
+            db.execute('UPDATE files SET playCount=?, lastPlayed=NULL WHERE idFile=?', (newcount, filenumb,))   
     elif filenumb == 0:   
         mgenlog ='Mezzmo no watched action taken.  File not found in Kodi DB.  Please wait for sync. ' +  mtitle
         xbmc.log(mgenlog, xbmc.LOGINFO)

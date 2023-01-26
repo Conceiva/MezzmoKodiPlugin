@@ -6,6 +6,7 @@ import xbmcaddon
 import media
 import sys
 import bookmark
+import utilities
 
 #xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGINFO)
 #xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGINFO)
@@ -21,7 +22,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem4 = addon.getLocalizedString(30373) 
     menuitem5 = addon.getLocalizedString(30436) 
     menuitem6 = addon.getLocalizedString(30437) 
-    menuitem7 = addon.getLocalizedString(30440)    
+    menuitem7 = addon.getLocalizedString(30440)
+    menuitem8 = addon.getLocalizedString(30467)    
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
     mtype = minfo.getMediaType()
@@ -35,7 +37,8 @@ def contextMenu():                                       # Display contxt menu f
     vseason = titleinfo[2]
     vepisode = titleinfo[3]    
     pcount = titleinfo[4]
-    vseries = titleinfo[5] 
+    vseries = titleinfo[5]
+    movieset = titleinfo[6] 
     xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGINFO)
 
@@ -72,6 +75,9 @@ def contextMenu():                                       # Display contxt menu f
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
 
+    if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
+        cselect.append(menuitem8)
+
     if bcontext:                                         # If bookmark exists
         cselect.append(menuitem7)
 
@@ -82,13 +88,12 @@ def contextMenu():                                       # Display contxt menu f
     vcontext = ddialog.select('Select Mezzmo Feature', cselect)
 
     if vcontext < 0:                                     # User cancel
-        xbmc.executebuiltin('Dialog.Close(select)')
+        xbmc.executebuiltin('Dialog.Close(ddialog)')
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
-        xbmc.executebuiltin('RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer",  \
-        title, trcount, icon ))
+        utilities.trDisplay(title, trcount, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
-        xbmc.executebuiltin('RunScript(%s, %s)' % ("plugin.video.mezzmo", "performance"))
+        utilities.displayMenu()
     elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4: 
         if not vurl:
             pcdialog = xbmcgui.Dialog()
@@ -120,15 +125,17 @@ def contextMenu():                                       # Display contxt menu f
             xbmc.executebuiltin('RunAddon(%s)' % ("plugin.video.mezzmo"))
     elif (cselect[vcontext]) == menuitem6:               # Mezzmo Search
         xbmc.executebuiltin('Dialog.Close(all)')
-        mezzmostart = 'plugin://plugin.video.mezzmo/?contentdirectory=' + contenturl + ';mode=search;source=native'
-        xbmc.executebuiltin('ReplaceWindow(%s, %s)' % ('10025', mezzmostart))
-        
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=search;source=native'))
+    elif (cselect[vcontext]) == menuitem8:               # Mezzmo movie sets
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=movieset;source=native;searchset=' + movieset))        
 
 def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem
 
     pcount = -1
     mseason = mepisode = 0
-    mseries = murl = ''
+    mseries = murl = mset = ''
 
     dbfile = media.openKodiDB()
     musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
@@ -151,16 +158,20 @@ def getPlayCount(mtitle, mtype):                         # Get playcount for sel
             mseries = pcursor[4] 
         curpc.close()  
     else:
-        curpc = dbfile.execute('select playCount, c22 from movie_view where C00=?', (mtitle,)) 
+        curpc = dbfile.execute('select playCount, c22, strSet from movie_view where C00=?', (mtitle,)) 
         pcursor = curpc.fetchone()                      # Is title a movie ?   
         if pcursor:
             pcount =  pcursor[0]
             murl = pcursor[1]
+            if pcursor[2] != None:                      # Movie set information
+                mset = pcursor[2]
+            else:
+                mset = 'Unknown Album' 
         curpc.close()
 
     dbfile.close()
 
-    return [mtitle, murl, mseason, mepisode, pcount, mseries]    
+    return [mtitle, murl, mseason, mepisode, pcount, mseries, mset]    
 
 
 if __name__ == '__main__':
