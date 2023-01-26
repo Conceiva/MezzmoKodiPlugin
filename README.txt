@@ -1,3 +1,19 @@
+v1.1.7.3 1/25/2023
+
+-  Fixed longstanding issue where Kodi Native Mode InProgress functionality did 
+   not work for TV Shows due to Kodi and Mezzmo treating not watched episodes 
+   differently (playcount zero vs. NULl).
+-  Standardized video library context menus between Native and GUI modes in 
+   preparation to add functionality in upcoming releases without exceeding 
+   the Kodi context menu limits and improving usability. 
+-  Added Mezzmo clear bookmark context menu functionality in GUI mode.
+-  Changed native mode Mezzmo searches so that a return or GoUp click will 
+   return back to where the search was launched from vs. the GUI mode server 
+   listing.
+-  Added Movieset Quick Access context menu feature to allow quick access to 
+   all movies in a set.  This context menu addition works in both GUI and 
+   Native modes. 
+
 v1.1.7.2 12/17/2022
 
 -  Fixed bug introduced in v1.1.7.1 causing playcounts and bookmarks to not

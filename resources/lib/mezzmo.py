@@ -29,10 +29,15 @@ base_url = sys.argv[0]
 addon_handle = int(sys.argv[1])
 args = urlparse.parse_qs(sys.argv[2][1:])
 
+#xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
+#xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGNOTICE)
+#xbmc.log('The arguments are: ' + str(args), xbmc.LOGNOTICE)
+
 addon_path = xbmcaddon.Addon().getAddonInfo("path")
 addon_icon = addon_path + '/resources/icon.png'
 addon_fanart = addon_path + '/resources/fanart.jpg'
-searchcontrol = 'browse' 
+searchcontrol = 'browse'
+searchcontrol2 = ''  
 
 installed_version = media.get_installedversion()   
 
@@ -208,7 +213,7 @@ def listServers(force):
             mgenlog = 'Mezzmo uPNP server not responding: ' + url
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)  
-            dialog_text = media.translate(30405) + url
+            dialog_text = media.translate(30405) + '\n\n' + url
             sselect = xbmcgui.Dialog().yesno(media.translate(30404), dialog_text)
             if sselect == 1:                                # Delete nonresponding UPnP server
                 delServer(url)                
@@ -268,6 +273,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem7 = addon.getLocalizedString(30384)
     menuitem8 = addon.getLocalizedString(30412)
     menuitem9 = addon.getLocalizedString(30434)
+    menuitem10 = addon.getLocalizedString(30435) 
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
@@ -628,26 +634,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     mtype = categories_text
-                    if int(trcount) > 0 and trailerurl != None:
-                        if playcount == 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)), (menuitem9,  \
-                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon ))])
-                        elif playcount > 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)), (menuitem9,  \
-                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])       
-                    else:  
-                        if playcount == 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)) ])
-                        elif playcount > 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl)) ])       
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),            \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",  \
+                    "context", pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl,         \
+                    dcmInfo_text, icon, movieset))]) 
 
                     info = {
                         'duration': durationsecs,
@@ -852,7 +842,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
 
 def handleSearch(content, contenturl, objectID, term):
-    global searchcontrol
+    global searchcontrol, searchcontrol2
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
@@ -901,50 +891,14 @@ def handleSearch(content, contenturl, objectID, term):
                 li = xbmcgui.ListItem(menuitem10)
                 li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-            else:
+            elif searchcontrol2 != 'movieset':
                 itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
                 'objectID': objectID})
-
-            li = xbmcgui.ListItem(menuitem11)
-            li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
-            xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+                li = xbmcgui.ListItem(menuitem11)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
             
             elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
-            
-            for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
-                title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
-                containerid = container.get('id')
-                
-                description_text = ''
-                description = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}longDescription')
-                if description != None and description.text != None:
-                    description_text = description.text
-    
-                icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
-                if icon != None:
-                    icon = icon.text
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
-                        xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)  
-
-                itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid, 'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title, iconImage=icon)
-                li.setArt({'banner': icon, 'poster': icon, 'fanart': addon_fanart})
-                
-                mediaClass_text = 'video'
-                info = {
-                        'plot': description_text,
-                }
-                li.setInfo(mediaClass_text, info)
-                    
-                searchargs = urllib.urlencode({'mode': 'search', 'contentdirectory': contenturl, 'objectID': containerid})
-                li.addContextMenuItems([ ('Refresh', 'Container.Refresh'), ('Go up', 'Action(ParentDir)'), ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')') ])
-                
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
-                if parentID == '0':
-                    contentType = 'top'
-                else:
-                    contentType = 'folders'
                 
             dbfile = media.openKodiDB()   
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
@@ -1567,6 +1521,21 @@ elif mode[0] == 'newsearch':
         itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'native', \
         'objectID': cobjectID})
     xbmc.executebuiltin('Container.Update(%s)' % (itemurl2))
+
+elif mode[0] == 'movieset':
+    contenturl = args.get('contentdirectory', '')
+    movieset = args.get('searchset')
+    scontenturl = contenturl[0]
+    smovieset = movieset[0]
+    searchcontrol2 = mode[0]    
+    searchCriteria = "upnp:album=&quot;" + smovieset + "&quot;"
+    upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+
+    pin = media.settings('content_pin')
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    if len(content) > 0:                                  #  Check for server response
+        handleSearch(content, scontenturl, '0', searchCriteria) 
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')

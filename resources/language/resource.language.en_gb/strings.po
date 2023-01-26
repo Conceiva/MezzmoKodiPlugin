@@ -591,3 +591,7 @@ msgstr ""
 msgctxt "#30466"
 msgid "Mezzmo UPnP server successfully deleted: "
 msgstr ""
+
+msgctxt "#30467"
+msgid "Mezzmo Movie Set"
+msgstr ""

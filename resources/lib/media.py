@@ -838,8 +838,12 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         pathnumb = pathtuple[0]
         curp.close()
 
-        db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed, dateAdded) values       \
-        (?, ?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed, mdateadded))
+        if mcategory == 'episode' and mplaycount == 0:        # Adjust for Kodi expecting NULL vs. 0
+            db.execute('INSERT into FILES (idPath, strFilename, lastPlayed, dateAdded) values          \
+            (?, ?, ?, ? )', (str(pathnumb), filecheck, mlplayed, mdateadded,))
+        else: 
+            db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed, dateAdded) values  \
+            (?, ?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed, mdateadded))
         cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
         filetuple = cur.fetchone()
         filenumb = filetuple[0]
@@ -851,9 +855,9 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         fpcount = filetuple[1]
         flplayed = filetuple[3]       
         if fpcount != mplaycount or flplayed != mlplayed :    # If Mezzmo playcount or lastPlayed different
-            db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',   \
-            (mplaycount, mlplayed, mdateadded, filenumb,))
-            # xbmc.log('File Play mismatch: ' + str(fpcount) + ' ' + str(mplaycount), xbmc.LOGNOTICE)
+            if (mcategory != 'episode') or (mcategory == 'episode' and mplaycount > 0):
+                db.execute('UPDATE files SET playCount=?, lastPlayed=?, dateAdded=? WHERE idFile=?',     \
+                (mplaycount, mlplayed, mdateadded, filenumb,)) 
         realfilenumb = filenumb      #  Save real file number before resetting found flag
         pathnumb = filetuple[2]
         filenumb = 0                 
