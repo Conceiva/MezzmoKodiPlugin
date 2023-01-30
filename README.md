@@ -20,7 +20,8 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
 - Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content
 - Automatic detection of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#duplicate-library-content">duplicate library content</a>
-- Automatic support for <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movie-sets">Movie Sets</a>
+- Automatic support for <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movie-sets">Movie Sets</a> with <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movieset-quick-access">Quick Access</a> context menus
+- Flexible user definable < a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#mezzmo-movie-collection">movie collections</a> with quick context menu access
 - Automatically stop paused playback <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">user selectable</a> timer
 - Performance <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Logs-&-Statistics">statistics</a> and log viewing
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#content-control">Option</a> for managing Kodi artwork caching for Mezzmo
