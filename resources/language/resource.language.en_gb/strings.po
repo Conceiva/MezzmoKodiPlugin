@@ -596,6 +596,10 @@ msgctxt "#30467"
 msgid "Mezzmo Movie Set"
 msgstr ""
 
+msgctxt "#30468"
+msgid "Mezzmo Movie Collection"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

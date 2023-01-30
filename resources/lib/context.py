@@ -23,14 +23,17 @@ def contextMenu():                                       # Display contxt menu f
     menuitem5 = addon.getLocalizedString(30436) 
     menuitem6 = addon.getLocalizedString(30437) 
     menuitem7 = addon.getLocalizedString(30440)
-    menuitem8 = addon.getLocalizedString(30467)    
+    menuitem8 = addon.getLocalizedString(30467)
+    menuitem9 = addon.getLocalizedString(30468)      
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
     mtype = minfo.getMediaType()
+    dbid = minfo.getDbId()
     trcount = media.settings('trcount')
     contenturl = media.settings('contenturl')
     icon = sys.listitem.getArt('poster')   
 
+    xbmc.executebuiltin('Dialog.Close(all, true)')
     titleinfo = getPlayCount(mtitle, mtype)              # Get info for title
     title = titleinfo[0]
     vurl = titleinfo[1]
@@ -62,6 +65,13 @@ def contextMenu():                                       # Display contxt menu f
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
         (idFile) WHERE movie_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
+        curpc = pdfile.execute('SELECT name FROM tag INNER JOIN tag_link USING (tag_id) WHERE   \
+        media_id=? and media_type=?', (dbid, 'movie',))
+        tcollection = curpc.fetchall()                   # Get tags for collections
+        if tcollection:
+            collection = checkNativeTags(tcollection, mtitle)
+        else:
+            collection = 'none'      
     pdfile.close()
 
     if pcount == None:                                   # Kodi playcount is null
@@ -78,6 +88,9 @@ def contextMenu():                                       # Display contxt menu f
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
+    if collection != 'none':                             # If collection tag and type is movie
+        cselect.append(menuitem9)  
+
     if bcontext:                                         # If bookmark exists
         cselect.append(menuitem7)
 
@@ -88,7 +101,7 @@ def contextMenu():                                       # Display contxt menu f
     vcontext = ddialog.select('Select Mezzmo Feature', cselect)
 
     if vcontext < 0:                                     # User cancel
-        xbmc.executebuiltin('Dialog.Close(ddialog)')
+        xbmc.executebuiltin('Dialog.Close(all, true)')
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
         utilities.trDisplay(title, trcount, icon)
@@ -130,6 +143,29 @@ def contextMenu():                                       # Display contxt menu f
     elif (cselect[vcontext]) == menuitem8:               # Mezzmo movie sets
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=movieset;source=native;searchset=' + movieset))        
+    elif (cselect[vcontext]) == menuitem9:               # Mezzmo display movie collection          
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=collection;source=native;searchset=' + collection)) 
+
+
+def checkNativeTags(taglist, mtitle):                 #  Looks for collections in taglist
+
+    try:
+        if len(taglist) == 0:
+            return 'none'
+        else:
+            xbmc.log('Mezzmo taglist is: ' + str(taglist), xbmc.LOGDEBUG)
+            for tag in range(len(taglist)):
+                if '###' in taglist[tag][0]:
+                    return taglist[tag][0].strip()
+            return 'none'    
+
+    except:
+        mgenlog ='Mezzmo problem parsing native collection tags for: ' + mtitle
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+        return 'none'
+
 
 def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem
 

@@ -1,8 +1,14 @@
+v2.1.7.4 1/30/2023
+
+-  Added Mezzmo Movie Collection support which now allows for context menu quick
+   access to movie collections.  Movie collections can be different versions, 
+   releases, formats or any other movie collection grouping you wish to define.
+
 v2.1.7.3 1/25/2023
 
 -  Fixed longstanding issue where Kodi Native Mode InProgress functionality did 
    not work for TV Shows due to Kodi and Mezzmo treating not watched episodes 
-   differently (playcount zero vs. NULl).
+   differently (playcount zero vs. NULL).
 -  Standardized video library context menus between Native and GUI modes in 
    preparation to add functionality in upcoming releases without exceeding 
    the Kodi context menu limits and improving usability. 
