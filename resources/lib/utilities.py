@@ -448,8 +448,28 @@ def trDisplay(title, trcount, icon):                              # Play trailer
         trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
 
 
+def checkGuiTags(taglist, mtitle):                 #  Looks for collections in taglist
+
+    try:
+        if len(taglist) == 0:
+            return 'none'
+        else:
+            xbmc.log('Mezzmo taglist is: ' + str(taglist), xbmc.LOGDEBUG)
+            tagsplit = taglist.split('$')
+            for tag in tagsplit:
+                if '###' in tag:
+                    return tag.strip()
+            return 'none'    
+
+    except:
+        mgenlog ='Mezzmo problem parsing GUI collection tags for: ' + mtitle.encode('utf-8','ignore')
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)
+        return 'none'
+
+
 def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, contenturl, \
-    bmposition, icon, movieset) :
+    bmposition, icon, movieset, taglist) :
 
     addon = xbmcaddon.Addon()
     menuitem1 = addon.getLocalizedString(30434)
@@ -459,13 +479,20 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem5 = addon.getLocalizedString(30436) 
     menuitem6 = addon.getLocalizedString(30437) 
     menuitem7 = addon.getLocalizedString(30440)
-    menuitem8 = addon.getLocalizedString(30467)      
+    menuitem8 = addon.getLocalizedString(30467)
+    menuitem9 = addon.getLocalizedString(30468)        
     trcount = media.settings('trcount')
     mplaycount = int(playcount)
     currpos = int(bmposition)
-     
+    if mtype == 'movie':                                 # If movie check for collection tag
+        collection = checkGuiTags(taglist, mtitle)
+    else:
+        collection = 'none'
+
+    xbmc.executebuiltin('Dialog.Close(all, true)')      
     #xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGNOTICE)
+    #xbmc.log('Mezzmo collection is: ' + str(collection), xbmc.LOGNOTICE)
 
     pdfile = openNosyncDB()                              # Open Trailer database
     cselect = []
@@ -498,7 +525,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         cselect.append(menuitem1)
 
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
-        cselect.append(menuitem8)   
+        cselect.append(menuitem8)
+
+    if collection != 'none':                             # If collection tag and type is movie
+        cselect.append(menuitem9)      
 
     if currpos > 0:                                      # If bookmark exists
         cselect.append(menuitem7)
@@ -509,7 +539,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     vcontext = ddialog.select('Select Mezzmo Feature', cselect)
 
     if vcontext < 0:                                     # User cancel
-        xbmc.executebuiltin('Dialog.Close(select)')
+        xbmc.executebuiltin('Dialog.Close(all, true)') 
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
         trDisplay(title, trcount, icon)
@@ -541,7 +571,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     elif (cselect[vcontext]) == menuitem8:               # Mezzmo display movie sets          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=movieset;source=browse;searchset=' + movieset))      
-
+    elif (cselect[vcontext]) == menuitem9:               # Mezzmo display movie collection          
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=collection;source=browse;searchset=' + collection)) 
  
 if len(sys.argv) > 1:
     if sys.argv[1] == 'count':                                        # Playcount modification call
@@ -567,8 +599,9 @@ if len(sys.argv) > 1:
         currposs = sys.argv[10]
         icon = sys.argv[11]
         movieset = sys.argv[12]
-        guiContext(title, vurl, vseason, vepisode, mplaycount,  \
-        series, mtype, contenturl, currposs, icon, movieset)          # call GUI context menu
+        taglist = sys.argv[13] 
+        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  \
+        mtype, contenturl, currposs, icon, movieset, taglist)         # call GUI context menu
     elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
         autoStart()
     elif sys.argv[1] == 'playm':                                      # Play music with bookmark

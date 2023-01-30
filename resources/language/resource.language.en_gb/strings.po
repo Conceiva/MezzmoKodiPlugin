@@ -595,3 +595,7 @@ msgstr ""
 msgctxt "#30467"
 msgid "Mezzmo Movie Set"
 msgstr ""
+
+msgctxt "#30468"
+msgid "Mezzmo Movie Collection"
+msgstr ""

@@ -478,6 +478,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 tags = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}keywords')
                 if tags != None:
                     tags_text = tags.text
+                    taglist = str(tags_text).replace(',', '$')
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
@@ -634,10 +635,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
                     pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
                     mtype = categories_text
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),            \
-                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo",  \
-                    "context", pctitle, itemurl, season_text, episode_text, playcount, pcseries, mtype, contenturl,         \
-                    dcmInfo_text, icon, movieset))]) 
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %             \
+                    ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
+                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist))]) 
 
                     info = {
                         'duration': durationsecs,
@@ -884,14 +885,22 @@ def handleSearch(content, contenturl, objectID, term):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
 
-            if searchcontrol == 'native':
+            if searchcontrol == 'native' and searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
                 itemurl = build_url({'mode': 'home'})
                 itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
                 'objectID': objectID})
                 li = xbmcgui.ListItem(menuitem10)
                 li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-            elif searchcontrol2 != 'movieset':
+                li = xbmcgui.ListItem(menuitem11)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+            elif searchcontrol == 'native' and (searchcontrol2 == 'movieset' or searchcontrol2 == 'collection'):
+                itemurl = build_url({'mode': 'home'})
+                li = xbmcgui.ListItem(menuitem10)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+            elif searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
                 itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
                 'objectID': objectID})
                 li = xbmcgui.ListItem(menuitem11)
@@ -1505,6 +1514,7 @@ elif mode[0] == 'home':
 elif mode[0] == 'search':
     source = args.get('source', 'browse')
     searchcontrol = source[0]
+    searchcontrol2 = mode[0]
     promptSearch()
 
 elif mode[0] == 'newsearch':
@@ -1514,6 +1524,7 @@ elif mode[0] == 'newsearch':
     cobjectID = sobjectID[0]
     scontenturl = contenturl[0]
     searchcontrol = source[0]
+    searchcontrol2 = mode[0]
     if searchcontrol == 'browse':
         itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'browse', \
         'objectID': cobjectID})
@@ -1527,7 +1538,9 @@ elif mode[0] == 'movieset':
     movieset = args.get('searchset')
     scontenturl = contenturl[0]
     smovieset = movieset[0]
-    searchcontrol2 = mode[0]    
+    scontrol = args.get('source', 'browse')
+    searchcontrol = scontrol[0]
+    searchcontrol2 = mode[0]   
     searchCriteria = "upnp:album=&quot;" + smovieset + "&quot;"
     upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
     searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
@@ -1536,6 +1549,23 @@ elif mode[0] == 'movieset':
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria) 
+
+elif mode[0] == 'collection':
+    contenturl = args.get('contentdirectory', '')
+    collection = args.get('searchset')
+    scontenturl = contenturl[0]
+    scollection = collection[0]
+    scontrol = args.get('source', 'browse')
+    searchcontrol = scontrol[0]
+    searchcontrol2 = mode[0]  
+    searchCriteria = "keywords=&quot;" + scollection + "&quot;"
+    upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+    pin = media.settings('content_pin')
+    xbmc.executebuiltin('Dialog.Close(all, true)')
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    if len(content) > 0:                                  #  Check for server response
+        handleSearch(content, scontenturl, '0', searchCriteria)        
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')
