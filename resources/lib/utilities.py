@@ -478,11 +478,12 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem6 = addon.getLocalizedString(30437) 
     menuitem7 = addon.getLocalizedString(30440)
     menuitem8 = addon.getLocalizedString(30467)
-    menuitem9 = addon.getLocalizedString(30468)  
+    menuitem9 = addon.getLocalizedString(30468)
+    menuitem10 = addon.getLocalizedString(30469)  
     trcount = media.settings('trcount')
     mplaycount = int(playcount)
     currpos = int(bmposition)
-    if mtype == 'movie':                                 # If movie check for collection tag
+    if mtype == 'movie' or mtype == 'musicvideo':        # If movie check for collection tag
         collection = checkGuiTags(taglist, mtitle)
     else:
         collection = 'none'
@@ -525,8 +526,11 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
-    if collection != 'none':                             # If collection tag and type is movie
-        cselect.append(menuitem9)   
+    if collection != 'none' and mtype == 'movie':        # If collection tag and type is movie
+        cselect.append(menuitem9) 
+
+    if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
+        cselect.append(menuitem10)   
 
     if currpos > 0:                                      # If bookmark exists
         cselect.append(menuitem7)
@@ -569,7 +573,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     elif (cselect[vcontext]) == menuitem8:               # Mezzmo display movie sets          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=movieset;source=browse;searchset=' + movieset))
-    elif (cselect[vcontext]) == menuitem9:               # Mezzmo display movie collection          
+    elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=collection;source=browse;searchset=' + collection))          
 

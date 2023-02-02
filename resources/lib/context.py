@@ -24,7 +24,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem6 = addon.getLocalizedString(30437) 
     menuitem7 = addon.getLocalizedString(30440)
     menuitem8 = addon.getLocalizedString(30467)
-    menuitem9 = addon.getLocalizedString(30468)      
+    menuitem9 = addon.getLocalizedString(30468)    
+    menuitem10 = addon.getLocalizedString(30469)  
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
     mtype = minfo.getMediaType()
@@ -47,6 +48,7 @@ def contextMenu():                                       # Display contxt menu f
 
     pdfile = media.openNosyncDB()                        # Open Trailer database
     cselect = []
+    collection = 'none'
     curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
     pdfile.close()
@@ -57,6 +59,13 @@ def contextMenu():                                       # Display contxt menu f
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN musicvideo_view USING  \
         (idFile) WHERE musicvideo_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
+        curpc = pdfile.execute('SELECT name FROM tag INNER JOIN tag_link USING (tag_id) WHERE   \
+        media_id=? and media_type=?', (dbid, 'musicvideo',))
+        tcollection = curpc.fetchall()                   # Get tags for collections
+        if tcollection:
+            collection = checkNativeTags(tcollection, mtitle)
+        else:
+            collection = 'none' 
     elif mtype == 'episode':                             # Find episode bookmark
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
         (idFile) WHERE episode_view.c00=?', (mtitle,))
@@ -88,8 +97,11 @@ def contextMenu():                                       # Display contxt menu f
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
-    if collection != 'none':                             # If collection tag and type is movie
-        cselect.append(menuitem9)  
+    if collection != 'none' and mtype == 'movie':        # If collection tag and type is movie
+        cselect.append(menuitem9) 
+
+    if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
+        cselect.append(menuitem10)   
 
     if bcontext:                                         # If bookmark exists
         cselect.append(menuitem7)
@@ -143,7 +155,7 @@ def contextMenu():                                       # Display contxt menu f
     elif (cselect[vcontext]) == menuitem8:               # Mezzmo movie sets
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=movieset;source=native;searchset=' + movieset))        
-    elif (cselect[vcontext]) == menuitem9:               # Mezzmo display movie collection          
+    elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=collection;source=native;searchset=' + collection)) 
 

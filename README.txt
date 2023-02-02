@@ -1,3 +1,9 @@
+v2.1.7.5 2/2/2023
+
+-  Fixed obscure bug introduced in v2.1.7.4 which could cause exception error for
+   native mode music videos Mezzmo context menus
+-  Added support Mezzmo Movie Collection support for music videos 
+
 v2.1.7.4 1/30/2023
 
 -  Added Mezzmo Movie Collection support which now allows for context menu quick
