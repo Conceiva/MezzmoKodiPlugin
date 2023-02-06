@@ -25,7 +25,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem7 = addon.getLocalizedString(30440)
     menuitem8 = addon.getLocalizedString(30467)
     menuitem9 = addon.getLocalizedString(30468)    
-    menuitem10 = addon.getLocalizedString(30469)  
+    menuitem10 = addon.getLocalizedString(30469)
+    menuitem11 = addon.getLocalizedString(30470)     
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
     mtype = minfo.getMediaType()
@@ -51,6 +52,9 @@ def contextMenu():                                       # Display contxt menu f
     collection = 'none'
     curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
+    curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
+    not like ?', (mtype, '%###%',))
+    kcontext = curpk.fetchone()                          # Get keyword count from database   
     pdfile.close()
 
     pdfile = media.openKodiDB()                          # Open Kodi DB
@@ -103,6 +107,9 @@ def contextMenu():                                       # Display contxt menu f
     if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
         cselect.append(menuitem10)   
 
+    if kcontext[0] > 0 :                                 # If Keywords for media type
+        cselect.append(menuitem11)  
+
     if bcontext:                                         # If bookmark exists
         cselect.append(menuitem7)
 
@@ -110,7 +117,7 @@ def contextMenu():                                       # Display contxt menu f
     cselect.append(menuitem6)                            # Mezzmo Search
     cselect.append(menuitem5)                            # Mezzmo Addon Gui
     ddialog = xbmcgui.Dialog()    
-    vcontext = ddialog.select('Select Mezzmo Feature', cselect)
+    vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
 
     if vcontext < 0:                                     # User cancel
         xbmc.executebuiltin('Dialog.Close(all, true)')
@@ -119,15 +126,19 @@ def contextMenu():                                       # Display contxt menu f
         utilities.trDisplay(title, trcount, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
         utilities.displayMenu()
-    elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4: 
+    elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4:
+        if utilities.checkItemChange(cselect[vcontext], addon.getLocalizedString(30473)) < 1:
+            return  
         if not vurl:
             pcdialog = xbmcgui.Dialog()
             dialog_text = "Unable to modify the playcount.  Selected item URL is missing."        
-            pcdialog.ok("Mezzmo Addon Playcount Error", dialog_text)  
+            pcdialog.ok(addon.getLocalizedString(30474), dialog_text)  
             return       
         media.playCount(title, vurl, vseason, vepisode, \
         pcount, vseries, mtype, contenturl)              # Mezzmo Playcount
     elif (cselect[vcontext]) == menuitem7:               # Mezzmo Clear Bookmark
+        if utilities.checkItemChange(cselect[vcontext], addon.getLocalizedString(30472)) < 1:
+            return
         rtrimpos = contenturl.rfind('/')
         kobjectID = contenturl[rtrimpos+1:]              # Get Kodi objectID
         rtrimpos = vurl.rfind('/')
@@ -158,6 +169,8 @@ def contextMenu():                                       # Display contxt menu f
     elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=collection;source=native;searchset=' + collection)) 
+    elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
+        utilities.selectKeywords(mtype, menuitem11, 'native', contenturl)   
 
 
 def checkNativeTags(taglist, mtitle):                 #  Looks for collections in taglist

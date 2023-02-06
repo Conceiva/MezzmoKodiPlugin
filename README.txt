@@ -1,8 +1,15 @@
+v2.1.7.6 2/6/2023
+
+-  Added Mezzmo Keywords feature which allows quick access to movies and music 
+   videos with keywords via the Mezzmo context menu in both native and GUI modes. 
+-  Added confirmation dialogs for clearing bookmarks and setting / clearing 
+   watched status to avoid accidental changes.
+
 v2.1.7.5 2/2/2023
 
 -  Fixed obscure bug introduced in v2.1.7.4 which could cause exception error for
    native mode music videos Mezzmo context menus
--  Added support Mezzmo Movie Collection support for music videos 
+-  Added support Mezzmo Movie Collection for music videos 
 
 v2.1.7.4 1/30/2023
 
