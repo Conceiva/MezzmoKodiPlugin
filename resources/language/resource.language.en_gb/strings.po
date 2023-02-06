@@ -603,3 +603,23 @@ msgstr ""
 msgctxt "#30469"
 msgid "Mezzmo Music Video Collection"
 msgstr ""
+
+msgctxt "#30470"
+msgid "Mezzmo Keywords"
+msgstr ""
+
+msgctxt "#30471"
+msgid "Select Mezzmo Feature"
+msgstr ""
+
+msgctxt "#30472"
+msgid "Confirm clearing bookmark"
+msgstr ""
+
+msgctxt "#30473"
+msgid "Confirm clearing / setting watched status"
+msgstr ""
+
+msgctxt "#30474"
+msgid "Mezzmo Addon Playcount Error"
+msgstr ""

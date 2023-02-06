@@ -468,6 +468,44 @@ def checkGuiTags(taglist, mtitle):                 #  Looks for collections in t
         return 'none'
 
 
+def selectKeywords(mtype, header, callingm, contenturl):     #  Select Mezzmo keyword
+
+    try:
+        pdfile = openNosyncDB()                              # Open keyword database
+        curpk = pdfile.execute('SELECT kyTitle FROM mKeywords WHERE kyType=? and kyTitle \
+        not like ?', (mtype, '%###%',))
+        kcontext = curpk.fetchall()                          # Get keywords from database    
+        pdfile.close()
+
+        cselect = []
+        for kword in range(len(kcontext)):                   # Build selection list
+            cselect.append(kcontext[kword][0])
+
+        ddialog = xbmcgui.Dialog()    
+        vcontext = ddialog.select(header, cselect)
+
+        if vcontext < 0:                                     # User cancel
+            xbmc.executebuiltin('Dialog.Close(all, true)') 
+            return
+        else:
+            mkeyword = cselect[vcontext] 
+            xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" \
+            + contenturl + ';mode=collection;source=' + callingm + ';searchset=' + mkeyword))  
+
+    except:
+        mgenlog ='Mezzmo problem parsing Mezzmo keywords for: ' + mtype
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        media.mgenlogUpdate(mgenlog)
+        pass
+
+
+def checkItemChange(header, message):                        # Verify user wants to change item
+
+    checkdialog = xbmcgui.Dialog()
+    cselect = checkdialog.yesno(header, message)
+    return cselect    
+
+
 def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, contenturl, \
     bmposition, icon, movieset, taglist) :
 
@@ -481,7 +519,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem7 = addon.getLocalizedString(30440)
     menuitem8 = addon.getLocalizedString(30467)
     menuitem9 = addon.getLocalizedString(30468)
-    menuitem10 = addon.getLocalizedString(30469)          
+    menuitem10 = addon.getLocalizedString(30469)
+    menuitem11 = addon.getLocalizedString(30470)           
     trcount = media.settings('trcount')
     mplaycount = int(playcount)
     currpos = int(bmposition)
@@ -499,6 +538,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     cselect = []
     curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
+    curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
+    not like ?', (mtype, '%###%',))
+    kcontext = curpk.fetchone()                          # Get keyword count from database  
     pdfile.close()
 
     pdfile = openKodiDB()                                # Open Kodi DB
@@ -534,13 +576,16 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
         cselect.append(menuitem10)        
 
+    if kcontext[0] > 0 :                                 # If Keywords for media type
+        cselect.append(menuitem11)   
+
     if currpos > 0:                                      # If bookmark exists
         cselect.append(menuitem7)
 
     cselect.append(menuitem2)                            # Logs & Stats
     #cselect.append(menuitem6)                            # Mezzmo Search
     ddialog = xbmcgui.Dialog()    
-    vcontext = ddialog.select('Select Mezzmo Feature', cselect)
+    vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
 
     if vcontext < 0:                                     # User cancel
         xbmc.executebuiltin('Dialog.Close(all, true)') 
@@ -549,15 +594,19 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         trDisplay(title, trcount, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
         displayMenu()
-    elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4: 
+    elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4:
+        if checkItemChange(cselect[vcontext], addon.getLocalizedString(30473)) < 1:
+            return  
         if not vurl:
             pcdialog = xbmcgui.Dialog()
             dialog_text = "Unable to modify the playcount.  Selected item URL is missing."        
-            pcdialog.ok("Mezzmo Addon Playcount Error", dialog_text)
+            pcdialog.ok(addon.getLocalizedString(30474), dialog_text)
             return       
         media.playCount(title, vurl, vseason, vepisode, \
         mplaycount, mseries, mtype, contenturl)          # Mezzmo Playcount
     elif (cselect[vcontext]) == menuitem7:               # Mezzmo Clear Bookmark
+        if checkItemChange(cselect[vcontext], addon.getLocalizedString(30472)) < 1:
+            return
         rtrimpos = contenturl.rfind('/')
         kobjectID = contenturl[rtrimpos+1:]              # Get Kodi objectID
         rtrimpos = vurl.rfind('/')
@@ -577,7 +626,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         ';mode=movieset;source=browse;searchset=' + movieset))      
     elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
-        ';mode=collection;source=browse;searchset=' + collection)) 
+        ';mode=collection;source=browse;searchset=' + collection))
+    elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
+        selectKeywords(mtype, menuitem11, 'browse', contenturl) 
+ 
  
 if len(sys.argv) > 1:
     if sys.argv[1] == 'count':                                        # Playcount modification call

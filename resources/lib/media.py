@@ -234,6 +234,11 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_3 ON mTrailers (trUrl)')
     dbsync.commit()
 
+    dbsync.execute('CREATE table IF NOT EXISTS mKeywords (kyTitle TEXT, kyType TEXT,  \
+    kyVar1 TEXT, kyVar2 TEXT, kyVar3 TEXT, kyVar4 TEXT)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mKeyword_1 ON mKeywords (kyTitle, kyType)')
+    dbsync.commit()
+
     try:
         dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
     except:
@@ -675,6 +680,7 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
             dbsync = openNosyncDB()                     #  clears nosync DB
             dbsync.execute('DELETE FROM nosyncVideo')
             dbsync.execute('DELETE FROM mTrailers')
+            dbsync.execute('DELETE FROM mKeywords')
             dblimit = 10000
             dblimit2 = 10000
             dbsync.execute('delete from mperfStats where psDate not in (select psDate from  \
@@ -884,6 +890,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie
             insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
+            insertKwords(mkeywords, 'movie')                         # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
@@ -930,6 +937,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
+            insertKwords(mkeywords, 'movie')                          # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             if mdupelog == 'false':
@@ -969,6 +977,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertArt(movienumb, db, 'musicvideo', murl, micon)      # Insert artwork for musicvideo 
             insertGenre(movienumb, db, 'musicvideo', mgenre)         # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords)       # Insert tags for musicvideo  
+            insertKwords(mkeywords, 'musicvideo')                    # Insert keywords for musicvideo 
             cur.close()
         else:
             movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
@@ -1000,6 +1009,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'musicvideo'))
             insertGenre(movienumb, db, 'musicvideo', mgenre)          # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords)        # Insert tags for musicvideo 
+            insertKwords(mkeywords, 'musicvideo')                     # Insert keywords for musicvideo  
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
                 xbmc.log(mgenlog, xbmc.LOGNOTICE)
@@ -1412,6 +1422,30 @@ def playCount(title, vurl, vseason, vepisode, mplaycount, series, mtype, content
         nativeNotify()                                            #  Kodi native notification 
         xbmc.sleep(1000)  
         xbmc.executebuiltin('Container.Refresh()')
+
+def insertKwords(keywords, mtype):
+
+    try:
+        if keywords == None or len(keywords) == 0:
+            return
+
+        db = openNosyncDB()
+        kwordlist = keywords.split(',')                                      # Convert keywords to list
+        xbmc.log('Mezzmo keyword list is: ' + str(kwordlist), xbmc.LOGDEBUG) # keywords insertion debugging
+        for kword in kwordlist:     
+            xbmc.log('Mezzmo current keyword is: ' + str(kword), xbmc.LOGDEBUG)
+            mkword = kword.strip()
+            curk = db.execute('SELECT kyTitle FROM mKeywords WHERE kyTitle=? and kyType=?',(mkword, mtype,))     
+            kwordtuple = curk.fetchone()                                     # Get keyword from keywords
+
+        if not kwordtuple:                                                   # If keyword if not found
+            db.execute('INSERT into mKeywords (kyTitle, kyType) values (?, ?)', (mkword, mtype))
+            db.commit()
+        curk.close()
+
+    except Exception as e:
+        xbmc.log('Mezzmo problem adding keywords to db: ' + mkword + ' ' + str(e), xbmc.LOGNOTICE)  
+        pass
 
 
 def nativeNotify():
