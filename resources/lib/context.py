@@ -53,7 +53,7 @@ def contextMenu():                                       # Display contxt menu f
     curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
     curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
-    not like ?', (mtype, '%###%',))
+    not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
     kcontext = curpk.fetchone()                          # Get keyword count from database   
     pdfile.close()
 

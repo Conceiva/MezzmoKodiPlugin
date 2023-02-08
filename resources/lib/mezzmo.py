@@ -945,6 +945,7 @@ def handleSearch(content, contenturl, objectID, term):
                     xbmc.executebuiltin('ReplaceWindow(%s)' % ('10000'))
                 else:
                     xbmc.executebuiltin('Action(ParentDir)')
+                    xbmc.sleep(1000)
                 break; #sanity check
                 
             if itemsleft == -1:

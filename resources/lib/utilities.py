@@ -470,8 +470,8 @@ def selectKeywords(mtype, header, callingm, contenturl):     #  Select Mezzmo ke
 
     try:
         pdfile = openNosyncDB()                              # Open keyword database
-        curpk = pdfile.execute('SELECT kyTitle FROM mKeywords WHERE kyType=? and kyTitle \
-        not like ?', (mtype, '%###%',))
+        curpk = pdfile.execute('SELECT kyTitle FROM mKeywords WHERE kyType=? and kyTitle not like \
+        ? AND (kyVar1 <> ? OR kyVar1 IS NULL) ORDER BY kyTitle ASC', (mtype, '%###%', 'No',))
         kcontext = curpk.fetchall()                          # Get keywords from database    
         pdfile.close()
 
@@ -537,7 +537,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
     curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
-    not like ?', (mtype, '%###%',))
+    not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
     kcontext = curpk.fetchone()                          # Get keyword count from database    
     pdfile.close()
 

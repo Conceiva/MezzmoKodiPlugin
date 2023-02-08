@@ -1,3 +1,8 @@
+v2.1.7.7 2/8/2023
+ 
+-  Updated Mezzmo Keywords feature to allow keyword-by-keyword control of syncing
+   to Kodi tags (nosync) and visibility in the Mezzmo Keywords context menu (noview).
+
 v2.1.7.6 2/6/2023
 
 -  Added Mezzmo Keywords feature which allows quick access to movies and music 
