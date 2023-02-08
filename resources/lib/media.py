@@ -237,6 +237,7 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE table IF NOT EXISTS mKeywords (kyTitle TEXT, kyType TEXT,  \
     kyVar1 TEXT, kyVar2 TEXT, kyVar3 TEXT, kyVar4 TEXT)')
     dbsync.execute('CREATE INDEX IF NOT EXISTS mKeyword_1 ON mKeywords (kyTitle, kyType)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mKeyword_2 ON mKeywords (kyTitle, kyType, kyVar1)')
     dbsync.commit()
 
     try:
@@ -1363,16 +1364,17 @@ def insertTags(movienumb, db, media_type, keywords):
         tagtuple = curt.fetchone()                                                   # Get tag id from tag table
         curt.close()
 
-        if not tagtuple:                     #  If tag not in tag table insert and fetch new tag ID
-            db.execute('INSERT into TAG (name) values (?)', (mtag,))
-            cur = db.execute('SELECT tag_id FROM tag WHERE name=?',(mtag,))   
-            tagtuple = cur.fetchone()        #  Get tag id from tag table
-            cur.close()
-        if tagtuple:                         #  Insert tag to media link in tag link table
-            tagnumb = tagtuple[0] 
-            db.execute('INSERT OR REPLACE into TAG_LINK (tag_id, media_id, media_type) values \
-            (?, ?, ?)', (tagnumb, movienumb, media_type,))
-            #xbmc.log('The current tag number is: ' + str(tagnumb) + "  " + str(movieId), xbmc.LOGNOTICE)
+        if "nosync" not in mtag.lower():                                             # Skip nosync tags 
+            if not tagtuple:                     #  If tag not in tag table insert and fetch new tag ID
+                db.execute('INSERT into TAG (name) values (?)', (mtag,))
+                cur = db.execute('SELECT tag_id FROM tag WHERE name=?',(mtag,))   
+                tagtuple = cur.fetchone()        #  Get tag id from tag table
+                cur.close()
+            if tagtuple:                         #  Insert tag to media link in tag link table
+                tagnumb = tagtuple[0] 
+                db.execute('INSERT OR REPLACE into TAG_LINK (tag_id, media_id, media_type) values \
+                (?, ?, ?)', (tagnumb, movienumb, media_type,))
+                #xbmc.log('The current tag number is: ' + str(tagnumb) + "  " + str(movieId), xbmc.LOGNOTICE)
 
 
 def insertGenre(movienumb, db, media_type, genres):
@@ -1438,9 +1440,14 @@ def insertKwords(keywords, mtype):
             curk = db.execute('SELECT kyTitle FROM mKeywords WHERE kyTitle=? and kyType=?',(mkword, mtype,))     
             kwordtuple = curk.fetchone()                                     # Get keyword from keywords
 
-        if not kwordtuple:                                                   # If keyword if not found
-            db.execute('INSERT into mKeywords (kyTitle, kyType) values (?, ?)', (mkword, mtype))
-            db.commit()
+            if not kwordtuple:                                               # If keyword if not found
+                if "noview" in mkword.lower():                               # Skip noviews
+                    db.execute('INSERT into mKeywords (kyTitle, kyType, kyVar1) \
+                    values (?, ?, ?)', (mkword, mtype, "No",))
+                else:
+                    db.execute('INSERT into mKeywords (kyTitle, kyType, kyVar1) \
+                    values (?, ?, ?)', (mkword, mtype, "Yes",))
+        db.commit()
         curk.close()
 
     except Exception as e:
