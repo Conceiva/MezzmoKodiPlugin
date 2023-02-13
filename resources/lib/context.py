@@ -48,15 +48,14 @@ def contextMenu():                                       # Display contxt menu f
     xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGNOTICE)
 
-    pdfile = media.openNosyncDB()                        # Open Trailer database
+    psfile = media.openNosyncDB()                        # Open Trailer database
     cselect = []
     collection = 'none'
-    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (ttitle,))
+    curpt = psfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (ttitle,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
-    curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
+    curpk = psfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
     not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
     kcontext = curpk.fetchone()                          # Get keyword count from database 
-    pdfile.close()
 
     pdfile = media.openKodiDB()                          # Open Kodi DB
     musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
@@ -64,29 +63,38 @@ def contextMenu():                                       # Display contxt menu f
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN musicvideo_view USING  \
         (idFile) WHERE musicvideo_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
-        curpc = pdfile.execute('SELECT name FROM tag INNER JOIN tag_link USING (tag_id) WHERE   \
-        media_id=? and media_type=?', (dbid, 'musicvideo',))
+        curpc = psfile.execute('SELECT name FROM mCollection INNER JOIN mCollection_link USING    \
+        (coll_id) WHERE media_id=? and media_type=?', (dbid, 'musicvideo',))
         tcollection = curpc.fetchall()                   # Get tags for collections
         if tcollection:
-            collection = checkNativeTags(tcollection, mtitle)
+            collection = tcollection[0][0].strip()
         else:
             collection = 'none' 
     elif mtype == 'episode':                             # Find episode bookmark
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
         (idFile) WHERE episode_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
+        curpc = psfile.execute('SELECT name FROM mCollection INNER JOIN mCollection_link USING    \
+        (coll_id) WHERE media_id=? and media_type=?', (dbid, 'episode',))
+        tcollection = curpc.fetchall()                   # Get tags for collections
+        if tcollection:
+            collection = tcollection[0][0].strip()
+        else:
+            collection = 'none' 
     else:
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
         (idFile) WHERE movie_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
-        curpc = pdfile.execute('SELECT name FROM tag INNER JOIN tag_link USING (tag_id) WHERE   \
-        media_id=? and media_type=?', (dbid, 'movie',))
+        curpc = psfile.execute('SELECT name FROM mCollection INNER JOIN mCollection_link USING    \
+        (coll_id) WHERE media_id=? and media_type=?', (dbid, 'movie',))
         tcollection = curpc.fetchall()                   # Get tags for collections
         if tcollection:
-            collection = checkNativeTags(tcollection, mtitle)
+            collection = tcollection[0][0].strip()
         else:
             collection = 'none' 
     pdfile.close()
+    psfile.close()
+
 
     if pcount == None:                                   # Kodi playcount is null
         cselect.append(menuitem3)
@@ -102,7 +110,7 @@ def contextMenu():                                       # Display contxt menu f
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
-    if collection != 'none' and mtype == 'movie':        # If collection tag and type is movie
+    if collection != 'none' and (mtype == 'movie' or mtype == 'episode'):  # If collection tag and type
         cselect.append(menuitem9) 
 
     if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
@@ -172,25 +180,6 @@ def contextMenu():                                       # Display contxt menu f
         ';mode=collection;source=native;searchset=' + collection)) 
     elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
         utilities.selectKeywords(mtype, menuitem11, 'native', contenturl)  
-
-
-def checkNativeTags(taglist, mtitle):                 #  Looks for collections in taglist
-
-    try:
-        if len(taglist) == 0:
-            return 'none'
-        else:
-            xbmc.log('Mezzmo taglist is: ' + str(taglist), xbmc.LOGDEBUG)
-            for tag in range(len(taglist)):
-                if '###' in taglist[tag][0]:
-                    return taglist[tag][0].strip()
-            return 'none'    
-
-    except:
-        mgenlog ='Mezzmo problem parsing native collection tags for: ' + mtitle.encode('utf-8', 'ignore')
-        xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        media.mgenlogUpdate(mgenlog)
-        return 'none'
 
 
 def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem

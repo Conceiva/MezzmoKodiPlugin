@@ -524,7 +524,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     trcount = media.settings('trcount')
     mplaycount = int(playcount)
     currpos = int(bmposition)
-    if mtype == 'movie' or mtype == 'musicvideo':        # If movie check for collection tag
+    if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode':  # Check for collection tag
         collection = checkGuiTags(taglist, mtitle)
     else:
         collection = 'none'
@@ -570,7 +570,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
-    if collection != 'none' and mtype == 'movie':        # If collection tag and type is movie
+    if collection != 'none' and (mtype == 'movie' or mtype == 'episode'):  # If collection tag and type
         cselect.append(menuitem9) 
 
     if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv

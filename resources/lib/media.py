@@ -240,6 +240,17 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     dbsync.execute('CREATE INDEX IF NOT EXISTS mKeyword_2 ON mKeywords (kyTitle, kyType, kyVar1)')
     dbsync.commit()
 
+    dbsync.execute('CREATE TABLE IF NOT EXISTS mCollection (coll_id integer primary key,    \
+    name TEXT)')
+    dbsync.execute('CREATE TABLE  IF NOT EXISTS mCollection_link (coll_id integer,          \
+    media_id integer, media_type TEXT)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mCollection_1 ON mCollection (name)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mCollection_link_1 ON mCollection_link \
+    (coll_id, media_type, media_id)')
+    dbsync.execute('CREATE UNIQUE INDEX IF NOT EXISTS mCollection_link_2 ON mCollection_link \
+    (media_id, media_type, coll_id)')
+    dbsync.execute('CREATE INDEX IF NOT EXISTS mCollection_link_3 ON mCollection_link (media_type)')
+
     try:
         dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
     except:
@@ -682,6 +693,8 @@ def kodiCleanDB(force):                                #  Clear Mezzmo data from
             dbsync.execute('DELETE FROM nosyncVideo')
             dbsync.execute('DELETE FROM mTrailers')
             dbsync.execute('DELETE FROM mKeywords')
+            dbsync.execute('DELETE FROM mCollection')
+            dbsync.execute('DELETE FROM mCollection_link')
             dblimit = 10000
             dblimit2 = 10000
             dbsync.execute('delete from mperfStats where psDate not in (select psDate from  \
@@ -891,7 +904,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie
             insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
-            insertKwords(mkeywords, 'movie')                         # Insert keywords for movie
+            insertKwords(mkeywords, 'movie', movienumb)              # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
@@ -938,7 +951,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
-            insertKwords(mkeywords, 'movie')                          # Insert keywords for movie
+            insertKwords(mkeywords, 'movie', movienumb)               # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             if mdupelog == 'false':
@@ -978,7 +991,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertArt(movienumb, db, 'musicvideo', murl, micon)      # Insert artwork for musicvideo 
             insertGenre(movienumb, db, 'musicvideo', mgenre)         # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords)       # Insert tags for musicvideo  
-            insertKwords(mkeywords, 'musicvideo')                    # Insert keywords for musicvideo 
+            insertKwords(mkeywords, 'musicvideo', movienumb)         # Insert keywords for musicvideo 
             cur.close()
         else:
             movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
@@ -1010,7 +1023,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'musicvideo'))
             insertGenre(movienumb, db, 'musicvideo', mgenre)          # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords)        # Insert tags for musicvideo 
-            insertKwords(mkeywords, 'musicvideo')                     # Insert keywords for musicvideo  
+            insertKwords(mkeywords, 'musicvideo', movienumb)          # Insert keywords for musicvideo  
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
                 xbmc.log(mgenlog, xbmc.LOGNOTICE)
@@ -1049,6 +1062,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertGenre(movienumb, db, 'episode', mgenre)            # Insert genre for episode 
             insertGenre(shownumb, db, 'tvshow', mgenre)              # Insert genre for episode
             insertTags(shownumb, db, 'tvshow', mkeywords)            # Insert tags for episode
+            insertKwords(mkeywords, 'episode', movienumb)            # Insert keywords for episode   
             insertIMDB(movienumb, db, 'episode', mimdb_text)         # Insert IMDB for episode      
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'episode', 'imdb', murate,))
@@ -1094,6 +1108,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'tvshow'))
             insertGenre(shownumb, db, 'tvshow', mgenre)                # Insert genre for episode
             insertTags(shownumb, db, 'tvshow', mkeywords)              # Insert tags for episode
+            insertKwords(mkeywords, 'episode', movienumb)              # Insert keywords for episode   
             insertIMDB(movienumb, db, 'episode', mimdb_text)           # Insert IMDB for episode 
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
@@ -1350,7 +1365,8 @@ def insertSets(movienumb, db, setname, knative, murl, micon):
     
 def insertTags(movienumb, db, media_type, keywords):
 
-    db.execute('DELETE FROM tag_link WHERE media_id=? and media_type=?',(str(movienumb), media_type))
+    if media_type != 'tvshow':
+        db.execute('DELETE FROM tag_link WHERE media_id=? and media_type=?',(str(movienumb), media_type))
     if keywords == None or len(keywords) == 0:
         return
     if settings('nativetag') == 'false':                                             # Tag syncing not enabled
@@ -1364,7 +1380,7 @@ def insertTags(movienumb, db, media_type, keywords):
         tagtuple = curt.fetchone()                                                   # Get tag id from tag table
         curt.close()
 
-        if "nosync" not in mtag.lower():                                             # Skip nosync tags 
+        if "nosync" not in mtag.lower() and '###' not in mtag.lower():        # Skip nosync tags and collections
             if not tagtuple:                     #  If tag not in tag table insert and fetch new tag ID
                 db.execute('INSERT into TAG (name) values (?)', (mtag,))
                 cur = db.execute('SELECT tag_id FROM tag WHERE name=?',(mtag,))   
@@ -1425,7 +1441,7 @@ def playCount(title, vurl, vseason, vepisode, mplaycount, series, mtype, content
         xbmc.sleep(1000)  
         xbmc.executebuiltin('Container.Refresh()')
 
-def insertKwords(keywords, mtype):
+def insertKwords(keywords, mtype, movienumb):
 
     try:
         if keywords == None or len(keywords) == 0:
@@ -1447,12 +1463,48 @@ def insertKwords(keywords, mtype):
                 else:
                     db.execute('INSERT into mKeywords (kyTitle, kyType, kyVar1) \
                     values (?, ?, ?)', (mkword, mtype, "Yes",))
+        if '###' in keywords:
+            insertCollection(movienumb, db, mtype, keywords)
         db.commit()
         curk.close()
 
     except Exception as e:
-        xbmc.log('Mezzmo problem adding keywords to db: ' + mkword + ' ' + str(e), xbmc.LOGNOTICE)  
-        pass
+        printexception()
+        msynclog ='Mezzmo problem inserting keywords for: ' + mtype + ' ' + str(movienumb)
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+
+
+def insertCollection(movienumb, db, mtype, keywords):
+
+    try:
+        if '###' not in keywords:                                #  Only save collections
+            return
+        collectionlist = keywords.split(',')                     #  Convert keywords to list
+        xbmc.log('Mezzmo collectionlist is: ' + str(collectionlist), xbmc.LOGDEBUG)      # collection debugging
+        for collection in collectionlist:     
+            xbmc.log('Mezzmo current collection is: ' + str(collection), xbmc.LOGDEBUG)
+            mcoll = collection.strip()
+            curt = db.execute('SELECT coll_id FROM mCollection WHERE name=?',(mcoll,))   
+            colltuple = curt.fetchone()                           #  Get coll id from collection table
+            curt.close()
+
+            if "###" in mcoll.lower():                            #  Skip noncollection keywords 
+                if not colltuple:                                 #  If collection insert and fetch new ID
+                    db.execute('INSERT into mCollection (name) values (?)', (mcoll,))
+                    cur = db.execute('SELECT coll_id FROM mCollection WHERE name=?',(mcoll,))   
+                    colltuple = cur.fetchone()                    #  Get collection id from mCollection table
+                    cur.close()
+                if colltuple:                                     #  Insert collection into link table
+                    collnumb = colltuple[0] 
+                    db.execute('INSERT OR REPLACE into mCollection_link (coll_id, media_id, media_type) \
+                    values (?, ?, ?)', (collnumb, movienumb, mtype,))
+                    #xbmc.log('The current collection number is: ' + str(collnumb) + "  " +             \
+                    #str(movienumb), xbmc.LOGNOTICE)
+
+    except Exception as e:
+        printexception()
+        msynclog ='Mezzmo problem inserting collection tags for: ' + mtype + ' ' + str(movienumb)
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
 
 
 def nativeNotify():
