@@ -1,3 +1,13 @@
+2.1.7.8 2/13/2023
+
+- Fixed minor bug which caused Mezzmo keywords not to sync to Kodi for TV Shows
+- Changed Mezzmo Movie Collection tracking to add support for TV Episodes.  Now
+  you can have collections with a mix of movies, TV episodes and music videos.
+- Mezzmo keyword syncing to Kodi tags no longer required for native mode Mezzmo
+  Movie Collection operation.
+- Eliminated syncing of Mezzmo Movie collection keywords to Kodi tags.
+- Added Keywords and Collection tables to addon data export option 
+
 v2.1.7.7 2/8/2023
  
 -  Updated Mezzmo Keywords feature to allow keyword-by-keyword control of syncing
