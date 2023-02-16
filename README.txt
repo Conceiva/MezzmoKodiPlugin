@@ -1,3 +1,194 @@
+2.1.7.9 2/17/2023
+
+- Fixed minor bug where Kodi container not updating automatically in GUI mode 
+  when clearing bookmarks requiring manual Refresh to see new bookmark status.
+- Added option setting to disable context confirmation dialog feature added 
+  in v2.1.7.6.
+
+2.1.7.8 2/13/2023
+
+- Fixed minor bug which caused Mezzmo keywords not to sync to Kodi for TV Shows
+- Changed Mezzmo Movie Collection tracking to add support for TV Episodes.  Now
+  you can have collections with a mix of movies, TV episodes and music videos.
+- Mezzmo keyword syncing to Kodi tags no longer required for native mode Mezzmo
+  Movie Collection operation.
+- Eliminated syncing of Mezzmo Movie collection keywords to Kodi tags.
+- Added Keywords and Collection tables to addon data export option 
+
+v2.1.7.7 2/8/2023
+ 
+-  Updated Mezzmo Keywords feature to allow keyword-by-keyword control of syncing
+   to Kodi tags (nosync) and visibility in the Mezzmo Keywords context menu (noview).
+
+v2.1.7.6 2/6/2023
+
+-  Added Mezzmo Keywords feature which allows quick access to movies and music 
+   videos with keywords via the Mezzmo context menu in both native and GUI modes. 
+-  Added confirmation dialogs for clearing bookmarks and setting / clearing 
+   watched status to avoid accidental changes.
+
+v2.1.7.5 2/2/2023
+
+-  Fixed obscure bug introduced in v2.1.7.4 which could cause exception error for
+   native mode music videos Mezzmo context menus
+-  Added support Mezzmo Movie Collection for music videos 
+
+v2.1.7.4 1/30/2023
+
+-  Added Mezzmo Movie Collection support which now allows for context menu quick
+   access to movie collections.  Movie collections can be different versions, 
+   releases, formats or any other movie collection grouping you wish to define.
+
+v2.1.7.3 1/25/2023
+
+-  Fixed longstanding issue where Kodi Native Mode InProgress functionality did 
+   not work for TV Shows due to Kodi and Mezzmo treating not watched episodes 
+   differently (playcount zero vs. NULL).
+-  Standardized video library context menus between Native and GUI modes in 
+   preparation to add functionality in upcoming releases without exceeding 
+   the Kodi context menu limits and improving usability. 
+-  Added Mezzmo clear bookmark context menu functionality in GUI mode.
+-  Changed native mode Mezzmo searches so that a return or GoUp click will 
+   return back to where the search was launched from vs. the GUI mode server 
+   listing.
+-  Added Movieset Quick Access context menu feature to allow quick access to 
+   all movies in a set.  This context menu addition works in both GUI and 
+   Native modes. 
+
+v2.1.7.2 12/17/2022
+
+-  Fixed bug introduced in v2.1.7.1 causing playcounts and bookmarks to not
+   always update properly during playback or when reaching the end of the file.
+-  Added user option to allow removing a UPnP server from known server list 
+   if it is no longer responding.
+
+v2.1.7.1 12/6/2022
+
+-  Added Kodi home option to native mode Mezzmo searches
+-  Added option to perform additional search to native and GUI mode searches
+-  Fixed issue introduced in v2.1.7.0 where if a musicvideo and a movie both
+   had the exact same name and the new musicvideo category feature was being
+   used, the wrong bookmark and playcounts might be set.
+-  Simplified category matching code for Kodi playcounts and bookmarks to 
+   support additional category types in the future, should Kodi ever add any.
+-  Improved native mode Mezzmo search friendliness so that when no matches are
+   found the addon returns to the Kodi native mode home screen vs. the GUI mode
+   UPnP server listing screen. 
+
+v2.1.7.0  11/13/2022
+
+-  Fixed minor bug introduced in 2.1.6.9 where extra file Kodi table entries 
+   could be created if the new music video option was default but some videos
+   were categorized as music videos.
+-  Fixed very obscure old bug where all search results might not display if 
+   real time updates were enabled and the Kodi database was not fully in sync
+   with Mezzmo.
+-  Added resetting of Kodi DB clean flag upon addon restart
+-  Removed minor 3 second delay on manual Kodi DB cleaning
+-  Fixed issue where the Details context menu item didn't always work properly
+   when doing a Mezzmo Search in GUI mode.
+
+v2.1.6.9  11/4/2022
+
+-  Added option to treat music videos as either movies or music videos in
+   Kodi native mode operation.  The default is movies which is consistent 
+   with earlier versions.
+-  Fixed bookmark issue in native mode where Kodi bookmarks may not get
+   updated properly if multiple movies had names which were almost identical
+-  Improved detection of codec changes during hourly sync process.  It was
+   possible for certain codec changes to occur and not get detected until 
+   the daily sync process. 
+
+v2.1.6.8  10/9/2022
+
+-  Eliminated duplicate code for Kodi skin view settings and mapping.
+-  Fixed an issue which could cause the Mezzmo Kodi addon to exit after
+   multiple repetitive Mezzmo searches. 
+-  Added additional tables and views to the CSV export utility, including
+   the Kodi music database. 
+-  Changed view mode default settings for the Estuary skin from List to
+   WideList since List isn't valid for all views. 
+
+v2.1.6.7  9/27/2022
+
+-  New feature, Prefer Local Trailers, added which allows only syncing local 
+   trailers to the Kodi DB when found or otherwise it will sync You Tube 
+   trailers if no local trailers are found.  This allows You Tube trailers 
+   for the Mezzmo web interface and local trailers for all other clients 
+   with Kodi getting the higher quality local trailers.
+-  Added the ability to export the Addon movie trailers table including all
+   trailers, associated movies, trailer order and whether local or You Tube.
+-  Changed Full Sync completion message from OK dialog box to Kodi notification
+   to eliminate manual intervention being required for process to complete.
+-  Corrected log message showing the wrong number of Mezzmo records synchronized
+   to Kodi if user aborts a Full Sync request prior to completion.
+-  Fixed issue where a few fields in a couple of tables of the CSV database
+   export utility would be UTF-8 encoded vs. plain text.
+
+v2.1.6.6  9/21/2022
+
+-  Fixed issue where manual Full Sync completion notification message would not
+   appear and sync logs improperly indicated 0 records processed if the Mezzmo
+   database contained less than 1000 records.
+-  Added progress indicator dialog box when manually clearing the Mezzmo data
+   in the Kodi database.
+-  Fixed issue where Kodi might hang when running multiple profiles and logging
+   out of a profile.
+-  Added new Mezzmo Selective Sync feature where you can select up to 5 options
+   to do full or partial synchronization of your Mezzmo library to Kodi.  This
+   will allow up to 5 profiles on a Kodi instance each with its own specific 
+   user definable view of your Mezzmo library. 
+-  Kodi version 20 Nexus Alpha 3 tested and supported  
+
+v2.1.6.5  9/5/2022
+
+-  Improved clarity for the notification message when no Mezzmo sync server has 
+   been selected.
+-  Extended functionality of the clear Mezzmo from Kodi database setting option
+   to now allow a full immediate resync of all Mezzmo data into the Kodi database.
+-  Modified default setting for the Auto Background Sync and Performance Logging
+   from disabled to enabled. 
+-  Fixed obscure bug that could prevent setting the Mezzmo sync server if any UPnP
+   server responded without proper manufacturer information.
+
+v2.1.6.4  8/23/2022
+
+-  Fixed issue where movie title may not always appear in the video information
+   panel when using the Estuary skin.
+-  Improved artwork detection and metadata for certain uPNP servers.
+-  Added support for new Nexus 20 metadata rendering method for Mezzmo and Generic
+   uPNP servers.  
+
+v2.1.6.3  8/14/2022
+
+-  Improved the reliability of the SSDP automatic server discovery process
+   and standardized the code between Kodi 18 and 19 versions.
+-  Initial fixes for Kodi Nexus 20 Alpha 2 release.  Fixed video database
+   numbering and Mezzmo addon automatic update repository format. 
+-  Added support for new Kodi 20 feature which disables native mode Mezzmo 
+   context menu when native mode sync setting is disabled.  With Kodi 19
+   the Mezzmo context menu is always presented in native mode operation.
+
+v2.1.6.2  8/8/2022
+
+-  Removed Kodi from manual uPNP server additions due to random port usage.
+   Kodi uPNP servers will still be discovered via the automatic process.
+-  Fixed bug where bookmarks were being set / cleared for the underlying 
+   movies when their trailers were being played.
+-  Improved usability where addon GUI would restart after native mode 
+   search was completed.  Native mode search completion now goes back to
+   native mode menu.
+-  Added new Diagnostics settings section with options for temporary server
+   response logging to aid in troubleshooting Mezzmo and uPNP XML metadata
+   responses.  The settings will disable after an optional number of server
+   responses to avoid overly expanding the Kodi.log file size. 
+
+v2.1.6.1  7/7/2022
+
+-  Further improvement of the category type code to simplify the logic,
+   better handle multiple categories for a video and fix issue that would
+   cause items not to displayed if the category was blank for a video.
+
 v2.1.6.0  7/6/2022
 
 -  Fixed bug introduced in v2.1.5.8 that would cause videos not to be

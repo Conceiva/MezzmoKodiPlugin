@@ -18,8 +18,9 @@ import json
 import os
 import media
 import sync
-from server import updateServers, getContentURL, picDisplay, showSingle
-from server import clearPictures, updatePictures, addServers
+from server import updateServers, getContentURL, picDisplay, showSingle, delServer
+from server import clearPictures, updatePictures, addServers, checkSync
+from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
 
 addon = xbmcaddon.Addon()
@@ -28,9 +29,15 @@ addon_handle = int(sys.argv[1])
 argmod = sys.argv[2][1:].replace(';','&')    #  Handle change in urllib parsing to default to &
 args = urllib.parse.parse_qs(argmod)
 
+#xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGINFO)
+#xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGINFO)
+#xbmc.log('The arguments are: ' + str(args), xbmc.LOGINFO)
+
 addon_path = addon.getAddonInfo("path")
 addon_icon = addon_path + '/resources/icon.png'
 addon_fanart = addon_path + '/resources/fanart.jpg'
+searchcontrol = 'browse'
+searchcontrol2 = '' 
 
 installed_version = media.get_installedversion()
 
@@ -112,7 +119,7 @@ def listServers(force):
     msgdialogprogress.update(50, ddialogmsg)
     if force:
         xbmc.sleep(1000)
-    a = 0
+    a = sselect = 0
 
     mgenlog ='Mezzmo server search: ' + str(srvcount) + ' uPNP servers found.'
     xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -123,7 +130,7 @@ def listServers(force):
         except:
             url = server.get('serverurl')               
         try:
-            response = urllib.request.urlopen(url)
+            response = urllib.request.urlopen(url, timeout=int(timeoutval))
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
@@ -208,12 +215,12 @@ def listServers(force):
             mgenlog = 'Mezzmo uPNP server not responding: ' + url
             xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)  
-            dialog_text = media.translate(30405) + url
-            xbmcgui.Dialog().ok(media.translate(30404), dialog_text)
-            pass
+            dialog_text = media.translate(30405) + '\n\n' + url
+            sselect = xbmcgui.Dialog().yesno(media.translate(30404), dialog_text)
+            if sselect == 1:                                # Delete nonresponding UPnP server
+                delServer(url)
         except Exception as e:
             media.printexception()
-            pass
         a += 1
         percent = int(a / float(srvcount) * 50) + 50
         dialogmsg = str(a) + ' / ' + str(srvcount) + ' server completed.' 
@@ -225,130 +232,19 @@ def listServers(force):
     msgdialogprogress.close()  
     setViewMode('servers')
     xbmcplugin.endOfDirectory(addon_handle, updateListing=force )
+    if sselect == 1:                            # Reset UPnP delete flag after listing
+        sselect = 0
     if contenturl != None:
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
+        if media.settings('kodiclean') == 'resync':
+            syncpin = media.settings('content_pin')
+            syncurl = checkSync()                         # Get server control URL
+            if syncpin and syncurl != 'None':            
+                sync.syncMezzmo(syncurl, syncpin, 15)     # Trigger resync process
+            media.settings('kodiclean', 'false')          # reset back to false after resync
     
 def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
-
-
-def content_mapping(contentType):               # Remap for skins which have limited Top / Folder views
-    current_skin_name = xbmc.getSkinDir()
-    if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
-        aeonfoldermap = media.settings('aeoncontentmap')
-        if aeonfoldermap != 'Default':
-            contentType = aeonfoldermap.lower()
-
-    if current_skin_name == 'skin.estuary':
-        estuaryfoldermap = media.settings('estuarycontentmap')
-        if estuaryfoldermap != 'Default':
-            contentType = estuaryfoldermap.lower()
-
-    return(contentType)     
-
-
-def setViewMode(contentType):
-
-    if media.settings('viewmap')  == 'false':	#  Mezzmo view mapping is disabled
-        return
-    current_skin_name = xbmc.getSkinDir()
-    #xbmc.log('The content type is ' + contentType, xbmc.LOGINFO)
-    #xbmc.log('The current skin name is ' + current_skin_name, xbmc.LOGINFO)    
-    if current_skin_name == 'skin.aeon.nox.5' or current_skin_name == 'skin.aeon.nox.silvo':
-        aeon_nox_views = { 'List'   : 50  ,
-                       'InfoWall'   : 51  ,
-                       'Landscape'  : 52  ,
-                       'ShowCase1'  : 53  ,
-                       'ShowCase2'  : 54  ,
-                       'TriPanel'   : 55  ,
-                       'Posters'    : 56  ,
-                       'Shift'      : 57  ,
-                       'BannerWall' : 58  ,
-                       'Logo'       : 59  ,
-                       'Icons'      : 500 ,
-                       'LowList'    : 501 ,
-                       'Episode'    : 502 ,
-                       'Wall'       : 503 ,
-                       'Gallery'    : 504 ,
-                       'Panel'      : 505 ,
-                       'RightList'  : 506 ,
-                       'BigList'    : 507 ,
-                       'SongList'   : 508 ,
-                       'MyFlix'     : 509 ,
-                       'BigFan'     : 591 ,
-                       'BannerPlex' : 601 ,
-                       'FanartList' : 602 ,
-                       'Music_JukeBox'   : 603,
-                       'Fullscreen_Wall' : 609, }
-        
-        view_mode = media.settings(contentType + '_view_mode' + '_aeon')
-        if view_mode != 'Default':
-            selected_mode = aeon_nox_views[view_mode]
-            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
-            
-    elif current_skin_name == 'skin.aeon.madnox':
-        aeon_nox_views = { 'List'   : 50  ,
-                       'InfoWall'   : 51  ,
-                       'Landscape'  : 503 ,
-                       'ShowCase1'  : 501 ,
-                       'ShowCase2'  : 501 ,
-                       'TriPanel'   : 52  ,
-                       'Posters'    : 510 ,
-                       'Shift'      : 57  ,
-                       'BannerWall' : 508 ,
-                       'Logo'       : 59  ,
-                       'Wall'       : 500 ,
-                       'LowList'    : 501 ,
-                       'Episode'    : 514 ,
-                       'Wall'       : 500 ,
-                       'BigList'    : 510 }
-        
-        view_mode = media.settings(contentType + '_view_mode' + '_aeon')
-        if view_mode != 'Default':
-            selected_mode = aeon_nox_views[view_mode]
-            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
-        
-    elif current_skin_name == 'skin.estuary':
-        estuary_views = { 'List'    : 50  ,
-                       'Posters'    : 51  ,
-                       'IconWall'   : 52  ,
-                       'Shift'      : 53  ,
-                       'InfoWall'   : 54  ,
-                       'WideList'   : 55  ,
-                       'Wall'       : 500 ,
-                       'Banner'     : 501 ,
-                       'FanArt'     : 502 }
-        
-        view_mode = media.settings(contentType + '_view_mode' + '_estuary')
-        if view_mode != 'Default':
-        
-            selected_mode = estuary_views[view_mode]
-            xbmc.executebuiltin('Container.SetViewMode(' + str(selected_mode) + ')')
-
-    elif media.settings(contentType + '_view_mode') != "0":
-       try:
-           if media.settings(contentType + '_view_mode') == "1": # List
-               xbmc.executebuiltin('Container.SetViewMode(502)')
-           elif media.settings(contentType + '_view_mode') == "2": # Big List
-               xbmc.executebuiltin('Container.SetViewMode(51)')
-           elif media.settings(contentType + '_view_mode') == "3": # Thumbnails
-               xbmc.executebuiltin('Container.SetViewMode(500)')
-           elif media.settings(contentType + '_view_mode') == "4": # Poster Wrap
-               xbmc.executebuiltin('Container.SetViewMode(501)')
-           elif media.settings(contentType + '_view_mode') == "5": # Fanart
-               xbmc.executebuiltin('Container.SetViewMode(508)')
-           elif media.settings(contentType + '_view_mode') == "6":  # Media info
-               xbmc.executebuiltin('Container.SetViewMode(504)')
-           elif media.settings(contentType + '_view_mode') == "7": # Media info 2
-               xbmc.executebuiltin('Container.SetViewMode(503)')
-           elif media.settings(contentType + '_view_mode') == "8": # Media info 3
-               xbmc.executebuiltin('Container.SetViewMode(515)')
-           elif media.settings(contentType + '_view_mode') == "9": # Music info
-               xbmc.executebuiltin('Container.SetViewMode(506)')    
-       except:
-           xbmc.log("SetViewMode Failed: "+media.settings('_view_mode'))
-           xbmc.log("Skin: "+xbmc.getSkinDir())
-
 
 def handleBrowse(content, contenturl, objectID, parentID):
     contentType = 'movies'
@@ -361,6 +257,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
     perflog = media.settings('perflog')
+    musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
     duplogs = media.settings('mdupelog')                # Check if Mezzmo duplicate logging is enabled
     synlogs = media.settings('kodisync')                # Check if Mezzmo background sync is enabled    
     slideshow = media.settings('slideshow')             # Check if slideshow is enabled  
@@ -376,6 +273,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem7 = addon.getLocalizedString(30384)
     menuitem8 = addon.getLocalizedString(30412)
     menuitem9 = addon.getLocalizedString(30434)
+    menuitem10 = addon.getLocalizedString(30435)    
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
@@ -418,15 +316,22 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)    
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,           \
-                'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title)
-                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})
+                'contentdirectory': contenturl})
 
+                li = xbmcgui.ListItem(title)
                 mediaClass_text = 'video'
-                info = {
-                        'plot': description_text,
-                }
-                li.setInfo(mediaClass_text, info)
+                if installed_version == '19':                         #  Kodi 19 format
+                    info = {
+                            'plot': description_text,
+                    }
+                    li.setInfo(mediaClass_text, info)
+                else:                                                 # Kodi 20 format   
+                    finfo = li.getVideoInfoTag()
+                    finfo.setTitle(title)
+                    finfo.setPlot(description_text)
+                    finfo.setMediaType(mediaClass_text)  
+
+                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})             
                     
                 searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl,            \
                 'objectID': containerid})
@@ -443,8 +348,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     ('Search', 'Container.Update( plugin://plugin.video.mezzmo?' + searchargs + ')'),               \
                     (menuitem7, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "performance")), (menuitem6,          \
                     'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "auto", "clear", autitle)) ])
-                
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
+                if '###' not in title:                 
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
                 picnotify += 1
                 if parentID == '0':
@@ -554,11 +459,18 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None and imageSearchUrl != None:
                     actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                  
-                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
-                        new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                    if installed_version == '19':                     
+                        for a in actor_list:                  
+                            actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
+                            #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                            new_record = [ a.strip() , actorSearchUrl]
+                            cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                    else:
+                        for a in range(len(actor_list)):                  
+                            actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
+                            #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                            actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
+                            cast_dict.append(actor)
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -575,36 +487,44 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if tagline != None:
                     tagline_text = tagline.text
 
-                tags_text = ''
+                tags_text = taglist = ''
                 tags = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}keywords')
                 if tags != None:
                     tags_text = tags.text
+                    taglist = str(tags_text).replace(',', '$')
                     
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text[:7].lower() == 'tv show':
+                    categories_text = categories.text 
+                    xbmc.log('Mezzmo categories_text: ' + str(categories_text), xbmc.LOGDEBUG)
+                    if album_text:
+                        movieset = album_text
+                    else:
+                        movieset =  album_text = ''                      
+
+                    if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text[:5].lower() == 'movie':
+                        showtitle = album_text
+                    elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
-                        movieset = album_text
-                        album_text = ''
-                    elif categories_text[:11].lower() == 'music video':
+                        showtitle = title
+                    elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
-                        movieset = album_text
-                        album_text = ''
+                        showtitle = title
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
-                        movieset = album_text
-                        album_text = ''
+                        showtitle = title
                 else:
-                    movieset = album_text = '' 
-                        
+                    movieset = album_text = ''
+                    categories_text = 'video'
+                    contentType = 'videos'
+                    showtitle = title
+                       
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
@@ -664,8 +584,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
                 if rating != None:
                     rating_val = rating.text
-                    rating_val = float(rating_val) * 2
-                    rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+                    rating_valf = float(rating_val) * 2
+                    rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
                 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
@@ -710,7 +630,6 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             subtitle_lang = stream.get('language')
                             break
                                    
-                #mediaClass 
                 mediaClass_text = 'video'
                 mediaClass = item.find('.//{urn:schemas-sony-com:av}mediaClass')
                 if mediaClass != None:
@@ -721,80 +640,101 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'pictures'
-                        
+
+                durationsecs = sync.getSeconds(duration_text)                           #  convert movie duration to seconds                        
                 if mediaClass_text == 'video' and validf == 1:    
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
-                    if int(trcount) > 0 and trailerurl != None:
-                        if playcount == 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
-                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon))])
-                        elif playcount > 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)), (menuitem9,\
-                            'RunScript(%s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])       
-                    else:  
-                        if playcount == 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem3, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])
-                        elif playcount > 0:
-                            li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                            (menuitem4, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % ("plugin.video.mezzmo", "count",  \
-                            pctitle, itemurl, season_text, episode_text, playcount, pcseries, "video", contenturl)) ])       
-               
-                    info = {
-                        'duration': sync.getSeconds(duration_text),
-                        'genre': genre_text,
-                        'year': release_year_text,
-                        'title': title,
-                        'plot': description_text,
-                        'director': creator_text,
-                        'tagline': tagline_text,
-                        'writer': writer_text,
-                        'cast': artist_text.split(','),
-                        'artist': artist_text.split(','),
-                        'rating': rating_val,
-                        'imdbnumber': imdb_text,
-                        'mediatype': categories_text,
-                        'season': season_text,
-                        'episode': episode_text,
-                        'lastplayed': last_played_text,
-                        'aired': aired_text,
-                        'mpaa':content_rating_text,
-                        'studio':production_company_text,
-                        'playcount':playcount,
-                        'trailer':trailerurl,
-                        'tvshowtitle':album_text,
-                        'dateadded':date_added_text,
-                    }
-                    li.setInfo(mediaClass_text, info)
-                    li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
-                    video_info = {
-                        'codec': video_codec_text,
-                        'aspect': aspect,
-                        'width': video_width,
-                        'height': video_height,
-                    }
-                    li.addStreamInfo('video', video_info)
-                    li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
-                    li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    if installed_version >= '19':       #  Update cast with thumbnail support in Kodi v19 and higher
-                        li.setCast(cast_dict)                
+                    mtype = categories_text                 
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %             \
+                    ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
+                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist))])    
+              
+                    if installed_version == '19':   
+                        info = {
+                            'duration': durationsecs,
+                            'genre': genre_text,
+                            'year': release_year_text,
+                            'title': title,
+                            'plot': description_text,
+                            'director': creator_text,
+                            'tagline': tagline_text,
+                            'writer': writer_text,
+                            'cast': artist_text.split(','),
+                            'artist': artist_text.split(','),
+                            'rating': rating_val,
+                            'imdbnumber': imdb_text,
+                            'mediatype': categories_text,
+                            'season': season_text,
+                            'episode': episode_text,
+                            'lastplayed': last_played_text,
+                            'aired': aired_text,
+                            'mpaa':content_rating_text,
+                            'studio':production_company_text,
+                            'playcount':playcount,
+                            'trailer':trailerurl,
+                            'tvshowtitle':showtitle,
+                            'dateadded':date_added_text,
+                        }
+                        li.setInfo(mediaClass_text, info)
+                        li.setProperty('ResumeTime', dcmInfo_text)
+                        li.setProperty('TotalTime', str(durationsecs))
+                        video_info = {
+                            'codec': video_codec_text,
+                            'aspect': aspect,
+                            'width': video_width,
+                            'height': video_height,
+                        }
+                        li.addStreamInfo('video', video_info)
+                        li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang,     \
+                        'channels': int(audio_channels_text)})
+                        li.addStreamInfo('subtitle', {'language': subtitle_lang})
+                        li.setCast(cast_dict)
+                    else:
+                        vinfo = li.getVideoInfoTag()
+                        vinfo.setDuration(durationsecs)
+                        if genre_text is not None: vinfo.setGenres(genre_text.split(','))
+                        if len(release_year_text) > 0: vinfo.setYear(int(release_year_text))
+                        vinfo.setTitle(title)
+                        vinfo.setPlot(description_text)
+                        if creator_text is not None: vinfo.setDirectors(creator_text.split(','))
+                        vinfo.setTagLine(tagline_text)
+                        if writer_text is not None: vinfo.setWriters(writer_text.split(','))
+                        if artist_text is not None: vinfo.setArtists(artist_text.split(','))
+                        vinfo.setRating(rating_valf)
+                        vinfo.setIMDBNumber(imdb_text)
+                        vinfo.setMediaType(categories_text)
+                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if episode_text is not None: vinfo.setEpisode(int(episode_text))
+                        vinfo.setLastPlayed(last_played_text)
+                        vinfo.setFirstAired(aired_text)
+                        vinfo.setMpaa(content_rating_text)
+                        if production_company_text is not None: vinfo.setStudios(production_company_text.split(','))
+                        if playcount is not None: vinfo.setPlaycount(int(playcount))
+                        vinfo.setSortTitle(sort_title_text)
+                        vinfo.setTvShowTitle(showtitle)
+                        vinfo.setTrailer(trailerurl)
+                        vinfo.setDateAdded(date_added_text)
+
+                        vinfo.setResumePoint(float(dcmInfo_text), durationsecs)
+                        vstrinfo = xbmc.VideoStreamDetail(video_width, video_height, aspect, codec=video_codec_text)
+                        vinfo.addVideoStream(vstrinfo)
+                        astrinfo = xbmc.AudioStreamDetail(int(audio_channels_text), audio_codec_text, audio_lang)
+                        vinfo.addAudioStream(astrinfo)
+                        sstrinfo = xbmc.SubtitleStreamDetail(subtitle_lang)
+                        vinfo.addSubtitleStream(sstrinfo)
+                        if 'Unknown Artist' not in actor_list: vinfo.setCast(cast_dict)
+            
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
-                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
+                    if int(installed_version) >= 19 and kodiactor == 'true' and tvcheckval[0] == 1:  
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text, knative)
+                        categories_text, knative, musicvid)
                         xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGDEBUG) 
-                        durationsecs = sync.getSeconds(duration_text)       #  convert movie duration to seconds
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
@@ -802,7 +742,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text) 
+                        elif filekey[4] == 2:
+                            mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
+                            artist_text) 
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
@@ -843,7 +789,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                          pctitle, itemurl, season_text, episode_text, playcount, pcseries, 'audiom', contenturl)) ])   
 
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -857,18 +803,38 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'lastplayed': last_played_text,
                     }
                     mcomment = media.mComment(info, duration_text, offsetmenu[11:])
-                    info.update(comment = mcomment)
-                    li.setInfo(mediaClass_text, info)
+                    if installed_version == '19':  
+                        info.update(comment = mcomment)
+                        li.setInfo(mediaClass_text, info)
+                    else:
+                        minfo = li.getMusicInfoTag()
+                        minfo.setDuration(durationsecs)
+                        if genre_text is not None: minfo.setGenres(genre_text.split(','))
+                        if len(release_year_text) > 0: minfo.setYear(int(release_year_text))
+                        minfo.setTitle(title)
+                        minfo.setComment(mcomment)
+                        if artist_text is not None: minfo.setArtist(artist_text)
+                        minfo.setRating(rating_valf)
+                        if season_text is not None: minfo.setDisc(int(season_text))
+                        minfo.setMediaType('song')
+                        if episode_text is not None: minfo.setTrack(int(episode_text))
+                        minfo.setAlbum(album_text)
+                        if playcount is not None: minfo.setPlayCount(int(playcount))
+                        minfo.setLastPlayed(last_played_text)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
 
                 elif mediaClass_text == 'pictures':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'), \
-                    (menuitem8, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "pictures")) ]) 
-                    info = {
-                        'title': title,
-                    }
-                    li.setInfo(mediaClass_text, info)
+                    (menuitem8, 'RunScript(%s, %s)' % ("plugin.video.mezzmo", "pictures")) ])
+                    if installed_version == '19':                         #  Kodi 19 format 
+                        info = {
+                            'title': title,
+                        }
+                        li.setInfo(mediaClass_text, info)
+                    else:                                                 #  Kodi 20 format
+                        pinfo = li.getPictureInfoTag()
+
                     validf = 1	     #  Set valid file info flag
                     contentType = 'files'                   
                     picnotify += 1
@@ -942,6 +908,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
 
 def handleSearch(content, contenturl, objectID, term):
+    global searchcontrol, searchcontrol2
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
@@ -949,10 +916,13 @@ def handleSearch(content, contenturl, objectID, term):
     koditv = media.settings('koditv')
     knative = media.settings('knative')
     nativeact = media.settings('nativeact')
-    trcount = media.settings('trcount')              # Checks multiple trailer setting
+    musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
+    trcount = media.settings('trcount')                 # Checks multiple trailer setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem9 = addon.getLocalizedString(30434)
+    menuitem10 = addon.getLocalizedString(30464)
+    menuitem11 = addon.getLocalizedString(30465)
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
@@ -970,15 +940,43 @@ def handleSearch(content, contenturl, objectID, term):
             if int(NumberReturned) == 0:
                 dialog_text = media.translate(30414)
                 xbmcgui.Dialog().ok(media.translate(30420), dialog_text)
-                xbmc.executebuiltin('Action(ParentDir)')
+                if searchcontrol == 'native':
+                    xbmc.executebuiltin('Dialog.Close(all)')
+                    xbmc.executebuiltin('ReplaceWindow(%s)' % ('10000'))
+                else:
+                    xbmc.executebuiltin('Action(ParentDir)')
+                    xbmc.sleep(1000)
                 break; #sanity check
                 
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
+
+            if searchcontrol == 'native' and searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
+                itemurl = build_url({'mode': 'home'})
+                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
+                'objectID': objectID})
+                li = xbmcgui.ListItem(menuitem10)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                li = xbmcgui.ListItem(menuitem11)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+            elif searchcontrol == 'native' and (searchcontrol2 == 'movieset' or searchcontrol2 == 'collection'):
+                itemurl = build_url({'mode': 'home'})
+                li = xbmcgui.ListItem(menuitem10)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+            elif searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
+                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
+                'objectID': objectID})
+                li = xbmcgui.ListItem(menuitem11)
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
             
             #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             elems = xml.etree.ElementTree.fromstring(result.text)
-               
+
+            dbfile = media.openKodiDB()               
             for item in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}item'):
                 title = item.find('.//{http://purl.org/dc/elements/1.1/}title').text
                 itemid = item.get('id')
@@ -1072,11 +1070,18 @@ def handleSearch(content, contenturl, objectID, term):
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
                 if actors != None and imageSearchUrl != None:
                     actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
-                    for a in actor_list:                 
-                        actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
-                        #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  
-                        new_record = [ a.strip() , actorSearchUrl]
-                        cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))                  
+                    if installed_version == '19':                     
+                        for a in actor_list:                  
+                            actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
+                            #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                            new_record = [ a.strip() , actorSearchUrl]
+                            cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                    else:
+                        for a in range(len(actor_list)):                  
+                            actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
+                            #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                            actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
+                            cast_dict.append(actor)                  
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -1101,27 +1106,34 @@ def handleSearch(content, contenturl, objectID, term):
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
-                    categories_text = categories.text.split(',')[0]   #  Kodi can only handle 1 media type
-                    if categories_text[:7].lower() == 'tv show':
+                    categories_text = categories.text 
+                    xbmc.log('Mezzmo categories_text: ' + str(categories_text), xbmc.LOGDEBUG)
+                    if album_text:
+                        movieset = album_text
+                    else:
+                        movieset =  album_text = ''                      
+
+                    if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
-                    elif categories_text[:5].lower() == 'movie':
+                        showtitle = album_text
+                    elif 'movie' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
-                        movieset = album_text
-                        album_text = ''
-                    elif categories_text[:11].lower() == 'music video':
+                        showtitle = title
+                    elif 'music video' in categories_text.lower():
                         categories_text = 'musicvideo'
                         contentType = 'musicvideos'
-                        movieset = album_text
-                        album_text = ''
+                        showtitle = title
                     else:
                         categories_text = 'video'
                         contentType = 'videos'
-                        movieset = album_text
-                        album_text = ''
+                        showtitle = title
                 else:
-                    movieset = album_text = '' 
+                    movieset = album_text = ''
+                    categories_text = 'video'
+                    contentType = 'videos'
+                    showtitle = title
                         
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
@@ -1182,8 +1194,8 @@ def handleSearch(content, contenturl, objectID, term):
                 rating = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}rating')
                 if rating != None:
                     rating_val = rating.text
-                    rating_val = float(rating_val) * 2
-                    rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
+                    rating_valf = float(rating_val) * 2
+                    rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
 
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
@@ -1239,71 +1251,104 @@ def handleSearch(content, contenturl, objectID, term):
                         mediaClass_text = 'music'
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
-                        
+
+                durationsecs = sync.getSeconds(duration_text)                           #  convert duration to seconds before passing                        
                 if mediaClass_text == 'video' and validf == 1:  
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     if int(trcount) > 0 and trailerurl != None:        
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
+                        (addon.getLocalizedString(30348), 'Action(Info)'), (menuitem9, 'RunScript(%s, %s, %s, %s, %s)' \
                         % ("plugin.video.mezzmo", "trailer", pctitle, trcount, icon)) ])  
                     else:                              
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),        \
-                        (addon.getLocalizedString(30348), 'XBMC.Action(Info)') ])      
+                        (addon.getLocalizedString(30348), 'Action(Info)') ])      
                     
-                    info = {
-                        'duration': sync.getSeconds(duration_text),
-                        'genre': genre_text,
-                        'year': release_year_text,
-                        'title': title,
-                        'plot': description_text,
-                        'director': creator_text,
-                        'tagline': tagline_text,
-                        'writer': writer_text,
-                        'cast': artist_text.split(','),
-                        'artist': artist_text.split(','),
-                        'rating': rating_val,
-                        'imdbnumber': imdb_text,
-                        'mediatype': categories_text,
-                        'season': season_text,
-                        'episode': episode_text,
-                        'lastplayed': last_played_text,
-                        'aired': aired_text,
-                        'mpaa':content_rating_text,
-                        'studio':production_company_text,
-                        'playcount':playcount,
-                        'lastplayed': last_played_text,
-                        'trailer':trailerurl,
-                        'tvshowtitle':album_text,
-                        'dateadded':date_added_text,
-                    }
-                    li.setInfo(mediaClass_text, info)
-                    li.setProperty('ResumeTime', dcmInfo_text)
-                    li.setProperty('TotalTime', str(sync.getSeconds(duration_text)))
-                    video_info = {
-                        'codec': video_codec_text,
-                        'aspect': aspect,
-                        'width': video_width,
-                        'height': video_height,
-                    }
-                    li.addStreamInfo('video', video_info)
-                    li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang, 'channels': int(audio_channels_text)})
-                    li.addStreamInfo('subtitle', {'language': subtitle_lang})
-                    if installed_version >= '19':         #  Update cast with thumbnail support in Kodi v19 and higher
-                        li.setCast(cast_dict)  
+                    if installed_version == '19':   
+                        info = {
+                            'duration': durationsecs,
+                            'genre': genre_text,
+                            'year': release_year_text,
+                            'title': title,
+                            'plot': description_text,
+                            'director': creator_text,
+                            'tagline': tagline_text,
+                            'writer': writer_text,
+                            'cast': artist_text.split(','),
+                            'artist': artist_text.split(','),
+                            'rating': rating_val,
+                            'imdbnumber': imdb_text,
+                            'mediatype': categories_text,
+                            'season': season_text,
+                            'episode': episode_text,
+                            'lastplayed': last_played_text,
+                            'aired': aired_text,
+                            'mpaa':content_rating_text,
+                            'studio':production_company_text,
+                            'playcount':playcount,
+                            'trailer':trailerurl,
+                            'tvshowtitle':showtitle,
+                            'dateadded':date_added_text,
+                        }
+                        li.setInfo(mediaClass_text, info)
+                        li.setProperty('ResumeTime', dcmInfo_text)
+                        li.setProperty('TotalTime', str(durationsecs))
+                        video_info = {
+                            'codec': video_codec_text,
+                            'aspect': aspect,
+                            'width': video_width,
+                            'height': video_height,
+                        }
+                        li.addStreamInfo('video', video_info)
+                        li.addStreamInfo('audio', {'codec': audio_codec_text, 'language': audio_lang,     \
+                        'channels': int(audio_channels_text)})
+                        li.addStreamInfo('subtitle', {'language': subtitle_lang})
+                        li.setCast(cast_dict)
+                    else:
+                        vinfo = li.getVideoInfoTag()
+                        vinfo.setDuration(durationsecs)
+                        if genre_text is not None: vinfo.setGenres(genre_text.split(','))
+                        if len(release_year_text) > 0: vinfo.setYear(int(release_year_text))
+                        vinfo.setTitle(title)
+                        vinfo.setPlot(description_text)
+                        if creator_text is not None: vinfo.setDirectors(creator_text.split(','))
+                        vinfo.setTagLine(tagline_text)
+                        if writer_text is not None: vinfo.setWriters(writer_text.split(','))
+                        if artist_text is not None: vinfo.setArtists(artist_text.split(','))
+                        vinfo.setRating(rating_valf)
+                        vinfo.setIMDBNumber(imdb_text)
+                        vinfo.setMediaType(categories_text)
+                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if episode_text is not None: vinfo.setEpisode(int(episode_text))
+                        vinfo.setLastPlayed(last_played_text)
+                        vinfo.setFirstAired(aired_text)
+                        vinfo.setMpaa(content_rating_text)
+                        if production_company_text is not None: vinfo.setStudios(production_company_text.split(','))
+                        if playcount is not None: vinfo.setPlaycount(int(playcount))
+                        vinfo.setSortTitle(sort_title_text)
+                        vinfo.setTvShowTitle(showtitle)
+                        vinfo.setTrailer(trailerurl)
+                        vinfo.setDateAdded(date_added_text)
 
+                        vinfo.setResumePoint(float(dcmInfo_text), durationsecs)
+                        vstrinfo = xbmc.VideoStreamDetail(video_width, video_height, aspect, codec=video_codec_text)
+                        vinfo.addVideoStream(vstrinfo)
+                        astrinfo = xbmc.AudioStreamDetail(int(audio_channels_text), audio_codec_text, audio_lang)
+                        vinfo.addAudioStream(astrinfo)
+                        sstrinfo = xbmc.SubtitleStreamDetail(subtitle_lang)
+                        vinfo.addSubtitleStream(sstrinfo)
+                        if 'Unknown Artist' not in actor_list: vinfo.setCast(cast_dict)
+ 
                     mtitle = media.displayTitles(title) 
                     tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories)  # Check if Ok to add
-                    if installed_version >= '19' and kodiactor == 'true' and tvcheckval[0] == 1:  
-                        dbfile = media.openKodiDB()
+                    if int(installed_version) >= 19 and kodiactor == 'true' and tvcheckval[0] == 1:  
                         mtitle = media.displayTitles(title)
                         pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                         serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                         filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,           \
                         season_text, episode_text, album_text, last_played_text, date_added_text, 'false', koditv,     \
-                        categories_text, knative)
+                        categories_text, knative, musicvid)
                         #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
-                        durationsecs = sync.getSeconds(duration_text)       #  convert duration to seconds before passing
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
@@ -1311,7 +1356,13 @@ def handleSearch(content, contenturl, objectID, term):
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)  
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)
+                        elif filekey[4] == 2:
+                            mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
+                            creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
+                            content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
+                            artist_text) 
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
@@ -1324,8 +1375,8 @@ def handleSearch(content, contenturl, objectID, term):
                         audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl,\
                         icon, backdropurl, dbfile, pathcheck, 'false', knative)      # Update movie stream info 
                         #xbmc.log('The movie name is: ' + mtitle, xbmc.LOGINFO)
-                        dbfile.commit()
-                        dbfile.close() 
+                        #dbfile.commit()
+                        #dbfile.close() 
                       
                 elif mediaClass_text == 'music':
                     offsetmenu = 'Play from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
@@ -1337,7 +1388,7 @@ def handleSearch(content, contenturl, objectID, term):
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
 
                     info = {
-                        'duration': sync.getSeconds(duration_text),
+                        'duration': durationsecs,
                         'genre': genre_text,
                         'year': release_year_text,
                         'title': title,
@@ -1351,17 +1402,37 @@ def handleSearch(content, contenturl, objectID, term):
                         'lastplayed': last_played_text,
                     }
                     mcomment = media.mComment(info, duration_text, offsetmenu[11:])
-                    info.update(comment = mcomment)
-                    li.setInfo(mediaClass_text, info)
+                    if installed_version == '19':  
+                        info.update(comment = mcomment)
+                        li.setInfo(mediaClass_text, info)
+                    else:
+                        minfo = li.getMusicInfoTag()
+                        minfo.setDuration(durationsecs)
+                        if genre_text is not None: minfo.setGenres(genre_text.split(','))
+                        if len(release_year_text) > 0: minfo.setYear(int(release_year_text))
+                        minfo.setTitle(title)
+                        minfo.setComment(mcomment)
+                        if artist_text is not None: minfo.setArtist(artist_text)
+                        minfo.setRating(rating_valf)
+                        if season_text is not None: minfo.setDisc(int(season_text))
+                        minfo.setMediaType('song')
+                        if episode_text is not None: minfo.setTrack(int(episode_text))
+                        minfo.setAlbum(album_text)
+                        if playcount is not None: minfo.setPlayCount(int(playcount))
+                        minfo.setLastPlayed(last_played_text)
                     validf = 1	     #  Set valid file info flag
                     contentType = 'songs'
 
                 elif mediaClass_text == 'picture':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])                   
-                    info = {
-                        'title': title,
-                    }
-                    li.setInfo(mediaClass_text, info)
+                    if installed_version == '19':                         #  Kodi 19 format 
+                        info = {
+                            'title': title,
+                        }
+                        li.setInfo(mediaClass_text, info)
+                    else:                                                 #  Kodi 20 format
+                        pinfo = li.getPictureInfoTag()
+
                     validf = 1	           #  Set valid file info flag
                     contentType = 'files'
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
@@ -1371,14 +1442,17 @@ def handleSearch(content, contenturl, objectID, term):
             
             itemsleft = itemsleft - int(NumberReturned) - 1
             if itemsleft == 0:
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
                 break
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
-                mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGNOTICE)
-                media.mgenlogUpdate(mgenlog)   
+                if pitemsleft >= 0:
+                    mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
+                    xbmc.log(mgenlog, xbmc.LOGINFO)
+                    media.mgenlogUpdate(mgenlog)   
                 break
             else:
                 pitemsleft = itemsleft            
@@ -1404,7 +1478,7 @@ def handleSearch(content, contenturl, objectID, term):
     setViewMode(contentType)
     xbmcplugin.endOfDirectory(addon_handle)
     
-    xbmc.executebuiltin("Dialog.Close(busydialog)")
+    #xbmc.executebuiltin("Dialog.Close(busydialog)")
 
 def getUPnPClass():
 
@@ -1506,6 +1580,8 @@ mode = args.get('mode', 'none')
 
 refresh = args.get('refresh', 'False')
 
+#xbmc.log('Mezzmo mode is: ' + str(mode[0]), xbmc.LOGINFO)
+
 if refresh[0] == 'True':
     listServers(True)
 
@@ -1563,15 +1639,75 @@ elif mode[0] == 'server':
         dialog_text = media.translate(30407)
         xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
 
+elif mode[0] == 'home':
+    xbmc.executebuiltin('Dialog.Close(all)')
+    xbmc.executebuiltin('ReplaceWindow(%s)' % ('10000'))
+    #xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"GUI.ActivateWindow",   \
+    #"params":{"window":"home"},"id":1}') 
+
 elif mode[0] == 'search':
+    source = args.get('source', 'browse')
+    searchcontrol = source[0]
+    searchcontrol2 = mode[0]
     promptSearch()
+
+elif mode[0] == 'newsearch':
+    source = args.get('source', 'browse')
+    sobjectID = args.get('objectID', 'none')
+    contenturl = args.get('contentdirectory', '')
+    cobjectID = sobjectID[0]
+    scontenturl = contenturl[0]
+    searchcontrol = source[0]
+    searchcontrol2 = mode[0]
+    if searchcontrol == 'browse':
+        itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'browse', \
+        'objectID': cobjectID})
+    elif searchcontrol == 'native':
+        itemurl2 = build_url({'mode': 'search', 'contentdirectory': scontenturl, 'source': 'native', \
+        'objectID': cobjectID})
+    xbmc.executebuiltin('Container.Update(%s)' % (itemurl2))
+
+elif mode[0] == 'movieset':
+    contenturl = args.get('contentdirectory', '')
+    movieset = args.get('searchset')
+    scontenturl = contenturl[0]
+    smovieset = movieset[0]
+    scontrol = args.get('source', 'browse')
+    searchcontrol = scontrol[0]
+    searchcontrol2 = mode[0]   
+    searchCriteria = "upnp:album=&quot;" + smovieset + "&quot;"
+    upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+    pin = media.settings('content_pin')
+    xbmc.executebuiltin('Dialog.Close(all, true)')
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    if len(content) > 0:                                  #  Check for server response
+        handleSearch(content, scontenturl, '0', searchCriteria)
+
+elif mode[0] == 'collection':
+    contenturl = args.get('contentdirectory', '')
+    collection = args.get('searchset')
+    scontenturl = contenturl[0]
+    scollection = collection[0]
+    scontrol = args.get('source', 'browse')
+    searchcontrol = scontrol[0]
+    searchcontrol2 = mode[0]    
+    searchCriteria = "keywords=&quot;" + scollection + "&quot;"
+    upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+    pin = media.settings('content_pin')
+    xbmc.executebuiltin('Dialog.Close(all, true)')
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    if len(content) > 0:                                  #  Check for server response
+        handleSearch(content, scontenturl, '0', searchCriteria)        
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')
     showSingle(url)
-    
+   
 def start():
     if mode == 'none':
         listServers(False)
+
 
 

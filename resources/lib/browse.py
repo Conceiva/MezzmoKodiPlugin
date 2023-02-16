@@ -3,13 +3,17 @@ import urllib.request, urllib.parse, urllib.error
 import xbmc
 import media
 
+logcount = 0
 srvrtime = int(media.settings('srvrtime'))
 if not srvrtime:
     srvrtime = 60
+mezzmo_response = int(media.settings('mezzmo_response'))
+if mezzmo_response > 0:
+    logcount = int(media.settings('mrespcount'))
+
 
 def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
-
-    
+    global logcount
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -37,7 +41,16 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     response = ''
     try:
         response = urllib.request.urlopen(req, timeout=srvrtime).read().decode('utf-8')
-        #response = urllib.request.urlopen(req, timeout=60).read()
+        if logcount < mezzmo_response and mezzmo_response > 0:
+            xbmc.log(response, xbmc.LOGINFO)
+            logcount += 1
+            media.settings('mrespcount', str(logcount))
+        elif logcount >= mezzmo_response and mezzmo_response > 0:
+            media.settings('mezzmo_response', '0')            
+            media.settings('mrespcount', '0')
+            mgenlog = 'Mezzmo server response logging limit.'   
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            media.mgenlogUpdate(mgenlog) 
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
         pass

@@ -29,13 +29,16 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackStarted(self):
         try:
+            global mtype
             file = xbmc.Player().getPlayingFile()
             xbmc.sleep(2000)
             if xbmc.Player().isPlayingVideo():
                 finfo = xbmc.Player().getVideoInfoTag()
+                mtype = finfo.getMediaType()
                 self.mtitle = media.displayTitles(finfo.getTitle())
             if xbmc.Player().isPlayingAudio():
                 finfo = xbmc.Player().getMusicInfoTag()
+                mtype = 'audiom'      # For future music sync
                 self.mtitle = media.displayTitles(finfo.getTitle())
             xbmc.log("Playback started - " + file , xbmc.LOGDEBUG)
         except:
@@ -44,16 +47,17 @@ class XBMCPlayer(xbmc.Player):
         self.paflag = 0
  
     def onPlayBackPaused(self):
+        global mtype
         xbmc.log("Mezzmo Playback paused - LED OFF" , xbmc.LOGDEBUG)
         contenturl = media.settings('contenturl')
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
                 self.paflag = 1
-                bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
+                bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle, mtype)
  
     def onPlayBackResumed(self):
         try:
@@ -66,25 +70,27 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackEnded(self):
         xbmc.log("Mezzmo Playback ended - LED OFF" , xbmc.LOGDEBUG)
+        global mtype
         contenturl = media.settings('contenturl')
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         pos = 0
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
-            bookmark.updateKodiBookmark(objectID, pos, self.mtitle)
+            bookmark.updateKodiBookmark(objectID, pos, self.mtitle, mtype)
  
     def onPlayBackStopped(self):
+        global mtype
         contenturl = media.settings('contenturl')
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer: # Ensure Mezzmo server has been selected
+        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
-            bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle)
+            bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle, mtype)
              
 player = XBMCPlayer()
  
@@ -95,6 +101,7 @@ media.checkNosyncDB()                       # Check nosync database
 while True:
     if xbmc.Player().isPlaying():
         try:
+            global mtype
             file = xbmc.Player().getPlayingFile()
             pos = int(xbmc.Player().getTime())
             if count % 30 == 0:                 # Update bookmark once every 30 seconds during playback
@@ -102,24 +109,25 @@ while True:
                 manufacturer = getContentURL(contenturl)
                 objectID = getObjectID(file)
                 bmdelay = 15 - int(media.settings('bmdelay'))
-                if contenturl != 'none' and 'Conceiva' in manufacturer:   # Ensure Mezzmo server has been selected            
+                if contenturl != 'none' and 'Conceiva' in manufacturer and 'cva_extract' not in file:   # Ensure Mezzmo server has been selected            
                     bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))   
                     if xbmc.Player().isPlayingVideo():
                         finfo = xbmc.Player().getVideoInfoTag()
                         mtitle = media.displayTitles(finfo.getTitle()) 
-                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle)
+                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle, mtype)
                     if xbmc.Player().isPlayingAudio():
                         finfo = xbmc.Player().getMusicInfoTag()
                         mtitle = media.displayTitles(finfo.getTitle()) 
-                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle)
+                        bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, mtitle, mtype)
         except:
             mgenlog ='Mezzmo problem saving bookmark.'
             xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)
         
     count += 1
-    if count == 2:                          # Check for autostarting the Mezzmo GUI
+    if count == 2:                            # Check for autostarting the Mezzmo GUI
         media.autostart()
+        media.settings('kodiclean', 'false')  # Clear manual resync flag on addon restart
 
     pacount += 1 
     if pacount % 30 == 0:                   # Check for paused video every 30 seconds
@@ -213,16 +221,13 @@ while True:
             xbmc.log("gethostbyname exception: " + str(e))
             pass
         try:
-            xbmc.log("SetContentRestriction Off: " + url)
             contentrestriction.SetContentRestriction(url, ip, 'false', pin)
-            sync.dbClose()
-            del pin, url, player, monitor, ptag, ptitle, pastoptime, GLOBAL_SETUP
-            del contenturl, pos, file, pacount, player.paflag, bmdelay
+            del pin, url, player, monitor, GLOBAL_SETUP
             mgenlog = 'Mezzmo addon service shutdown.'
             xbmc.log(mgenlog, xbmc.LOGINFO)
-            media.mgenlogUpdate(mgenlog)
         except:
-            pass
+            xbmc.log('Mezzmo service shutdown exception error.', xbmc.LOGINFO)
+            pass 
             
         break # Abort was requested while waiting. Exit the while loop.
 

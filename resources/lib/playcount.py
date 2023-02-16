@@ -8,10 +8,11 @@ import urllib.request, urllib.error, urllib.parse
 import urllib.request, urllib.parse, urllib.error
 from datetime import datetime, timedelta
 
-def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
+def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, mtype):
 
     db = media.openKodiDB()
 
+    musicvid = media.settings('musicvid')                  # Check if musicvideo sync is enabled
     serverport = '%' + media.getServerport(murl) + '%'     #  Get Mezzmo server port info      
 
     lastplayed = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -20,38 +21,37 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries):
     xbmc.log('Mezzmo playcount mtitle, murl and serverport ' + mtitle + ' ' + murl + ' ' + serverport,  \
     xbmc.LOGDEBUG)
     xbmc.log('Mezzmo playcount mseason, mepisode and mseries ' + str(mseason) + ' ' + str(mepisode) +   \
-    ' ' + str(mseries), xbmc.LOGDEBUG)     
+    ' ' + str(mseries), xbmc.LOGDEBUG)
 
-    if mseason == 0 and mepisode == 0:                     #  Find movie file number
-        curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
+    filenumb = 0
+    if mtype == 'musicvideo' and musicvid == 'true':       #  Find musicvideo file number     
+        curf = db.execute('SELECT idFile FROM musicvideo_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
         filetuple = curf.fetchone()
         if filetuple != None:
             filenumb = filetuple[0]
-        else:
-            filenumb = 0
         curf.close()
-    elif mseason > 0 or mseason > 0:                       #  Find TV Episode file number
+    elif mtype == 'episode':                               #  Find TV Episode file number
         curf = db.execute('SELECT idFile FROM episode_view WHERE strPATH LIKE ? and strTitle=? and c12=? \
         and c13=? ',(serverport, mseries, mseason, mepisode,))  
         filetuple = curf.fetchone()
         if filetuple != None:
+            filenumb = filetuple[0]   
+        curf.close()   
+    else:                                                  #  Find movie file number
+        curf = db.execute('SELECT idFile FROM movie_view WHERE strPATH LIKE ? and c00=?', (serverport, mtitle,))
+        filetuple = curf.fetchone()
+        if filetuple != None:
             filenumb = filetuple[0]
-        else:
-            filenumb = 0      
         curf.close()
 
-    if filenumb != 0 and mseason == 0 and mepisode == 0:   #  Update movie playcount
+    if filenumb != 0:                                      #  Update playcount
         if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
             newcount = '1'
             db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
+        elif mtype == 'episode' and mplaycount > 0 and filenumb > 0:  #  Set playcount to NULL for episodes
+            db.execute('UPDATE files SET playCount=NULL, lastPlayed=NULL WHERE idFile=?', (filenumb,))  
         elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))
-    elif filenumb != 0 and (mseason > 0 or mepisode > 0):  #  Update episode playcount
-        if mplaycount == 0 and filenumb > 0:               #  Set playcount to 1
-            newcount = '1'
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, lastplayed, filenumb))
-        elif mplaycount > 0 and filenumb > 0:              #  Set playcount to 0
-            db.execute('UPDATE files SET playCount=?, lastPlayed=? WHERE idFile=?', (newcount, '', filenumb))   
+            db.execute('UPDATE files SET playCount=?, lastPlayed=NULL WHERE idFile=?', (newcount, filenumb,))   
     elif filenumb == 0:   
         mgenlog ='Mezzmo no watched action taken.  File not found in Kodi DB.  Please wait for sync. ' +  mtitle
         xbmc.log(mgenlog, xbmc.LOGINFO)

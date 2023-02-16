@@ -2,10 +2,12 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import os
+import sys
 import bookmark
 import playcount
 import xbmcaddon
-from media import openNosyncDB, get_installedversion, playCount
+import browse
+from media import openNosyncDB, get_installedversion, playCount,openKodiDB
 import media
 from server import displayServers, picDisplay, displayTrailers
 from datetime import datetime, timedelta
@@ -394,12 +396,9 @@ def clearPerf():                                                  # Clear perfor
     return
 
 
-def trDisplay():                                                  # Play trailers
+def trDisplay(title, trcount, icon):                              # Play trailers
 
     try:
-        title = sys.argv[2]                                       # Extract passed variables
-        trcount = int(sys.argv[3])
-        icon = sys.argv[4]
         #xbmc.log("Mezzmo trailer title request: " + title, xbmc.LOGINFO)
         mtitle = title
         dsfile = openNosyncDB()                                   # Open Sync logs database
@@ -447,28 +446,236 @@ def trDisplay():                                                  # Play trailer
         trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
 
 
-if sys.argv[1] == 'count':                                        # Playcount modification call
-    title = sys.argv[2]                                           # Extract passed variables
-    vurl = sys.argv[3]
-    vseason = sys.argv[4]
-    vepisode = sys.argv[5]
-    mplaycount = sys.argv[6]
-    series = sys.argv[7]
-    dbfile = sys.argv[8]
-    contenturl = sys.argv[9]
-    playCount(title, vurl, vseason, vepisode, mplaycount,     \
-    series, dbfile, contenturl)
-elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
-    autoStart()
-elif sys.argv[1] == 'playm':                                      # Play music with bookmark
-    playMusic()
-elif sys.argv[1] == 'performance':                                # Display Performance stats
-    displayMenu()
-elif sys.argv[1] == 'servers':                                    # Display Sync servers
-    displayServers()
-elif sys.argv[1] == 'pictures':                                   # Display Pictures
-    picDisplay()
-elif sys.argv[1] == 'export':                                     # Export data
-    selectExport()
-elif sys.argv[1] == 'trailer':                                    # Display trailers
-    trDisplay()
+def checkGuiTags(taglist, mtitle):                 #  Looks for collections in taglist
+
+    try:
+        if len(taglist) == 0:
+            return 'none'
+        else:
+            xbmc.log('Mezzmo taglist is: ' + str(taglist), xbmc.LOGDEBUG)
+            tagsplit = taglist.split('$')
+            for tag in tagsplit:
+                if '###' in tag:
+                    return tag.strip()
+            return 'none'    
+
+    except:
+        mgenlog ='Mezzmo problem parsing GUI collection tags for: ' + mtitle
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+        return 'none'
+
+
+def selectKeywords(mtype, header, callingm, contenturl):     #  Select Mezzmo keyword
+
+    try:
+        pdfile = openNosyncDB()                              # Open keyword database
+        curpk = pdfile.execute('SELECT kyTitle FROM mKeywords WHERE kyType=? and kyTitle not like \
+        ? AND (kyVar1 <> ? OR kyVar1 IS NULL) ORDER BY kyTitle ASC', (mtype, '%###%', 'No',))
+        kcontext = curpk.fetchall()                          # Get keywords from database    
+        pdfile.close()
+
+        cselect = []
+        for kword in range(len(kcontext)):                   # Build selection list
+            cselect.append(kcontext[kword][0])
+
+        ddialog = xbmcgui.Dialog()    
+        vcontext = ddialog.select(header, cselect)
+
+        if vcontext < 0:                                     # User cancel
+            xbmc.executebuiltin('Dialog.Close(all, true)') 
+            return
+        else:
+            mkeyword = cselect[vcontext] 
+            xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" \
+            + contenturl + ';mode=collection;source=' + callingm + ';searchset=' + mkeyword))  
+
+    except:
+        mgenlog ='Mezzmo problem parsing Mezzmo keywords for: ' + mtype
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
+        pass
+
+
+def checkItemChange(header, message):                        # Verify user wants to change item
+
+    if media.settings('cconfirm') == 'false':                # Check if confirmation is enabled
+        return 1
+
+    checkdialog = xbmcgui.Dialog()                           # Confirm context menu action
+    cselect = checkdialog.yesno(header, message)
+    return cselect    
+
+
+def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, contenturl, \
+    bmposition, icon, movieset, taglist) :
+
+    addon = xbmcaddon.Addon()
+    menuitem1 = addon.getLocalizedString(30434)
+    menuitem2 = addon.getLocalizedString(30384)
+    menuitem3 = addon.getLocalizedString(30372)
+    menuitem4 = addon.getLocalizedString(30373) 
+    menuitem5 = addon.getLocalizedString(30436) 
+    menuitem6 = addon.getLocalizedString(30437) 
+    menuitem7 = addon.getLocalizedString(30440)
+    menuitem8 = addon.getLocalizedString(30467)
+    menuitem9 = addon.getLocalizedString(30468)
+    menuitem10 = addon.getLocalizedString(30469)
+    menuitem11 = addon.getLocalizedString(30470)    
+    trcount = media.settings('trcount')
+    mplaycount = int(playcount)
+    currpos = int(bmposition)
+    if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode':  # Check for collection tag
+        collection = checkGuiTags(taglist, mtitle)
+    else:
+        collection = 'none'
+
+    xbmc.executebuiltin('Dialog.Close(all, true)')    
+    #xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
+    #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo collection is: ' + str(collection), xbmc.LOGINFO)
+
+    pdfile = openNosyncDB()                              # Open Trailer database
+    cselect = []
+    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
+    tcontext = curpt.fetchone()                          # Get trailer count from database
+    curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
+    not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
+    kcontext = curpk.fetchone()                          # Get keyword count from database    
+    pdfile.close()
+
+    pdfile = openKodiDB()                                # Open Kodi DB
+    musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
+    if mtype == 'musicvideo' and musicvid == 'true':     # Find musicvideo bookmark
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN musicvideo_view USING  \
+        (idFile) WHERE musicvideo_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    elif mtype == 'episode':                             # Find episode bookmark
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN episode_view USING     \
+        (idFile) WHERE episode_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    else:
+        curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
+        (idFile) WHERE movie_view.c00=?', (mtitle,))
+        bcontext = curpt.fetchone()                      # Get bookmark from database
+    pdfile.close()
+
+    if mplaycount == 0:                                  # Mezzmo playcount is 0
+        cselect.append(menuitem3)
+    elif mplaycount > 0:
+        cselect.append(menuitem4)          
+
+    if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
+        cselect.append(menuitem1)
+
+    if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
+        cselect.append(menuitem8)
+
+    if collection != 'none' and (mtype == 'movie' or mtype == 'episode'):  # If collection tag and type
+        cselect.append(menuitem9) 
+
+    if collection != 'none' and mtype == 'musicvideo':   # If collection tag and type is musicv
+        cselect.append(menuitem10)
+
+    if kcontext[0] > 0 :                                 # If Keywords for media type
+        cselect.append(menuitem11)   
+
+    if currpos > 0:                                      # If bookmark exists
+        cselect.append(menuitem7)
+
+    cselect.append(menuitem2)                            # Logs & Stats
+    #cselect.append(menuitem6)                            # Mezzmo Search
+    ddialog = xbmcgui.Dialog()    
+    vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
+
+    if vcontext < 0:                                     # User cancel
+        xbmc.executebuiltin('Dialog.Close(all, true)') 
+        return      
+    elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
+        trDisplay(title, trcount, icon)
+    elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
+        displayMenu()
+    elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4:
+        if checkItemChange(cselect[vcontext], addon.getLocalizedString(30473)) < 1:
+            return 
+        if not vurl:
+            pcdialog = xbmcgui.Dialog()
+            dialog_text = "Unable to modify the playcount.  Selected item URL is missing."        
+            pcdialog.ok(addon.getLocalizedString(30474), dialog_text)
+            return       
+        media.playCount(title, vurl, vseason, vepisode, \
+        mplaycount, mseries, mtype, contenturl)          # Mezzmo Playcount
+    elif (cselect[vcontext]) == menuitem7:               # Mezzmo Clear Bookmark
+        if checkItemChange(cselect[vcontext], addon.getLocalizedString(30472)) < 1:
+            return
+        rtrimpos = contenturl.rfind('/')
+        kobjectID = contenturl[rtrimpos+1:]              # Get Kodi objectID
+        rtrimpos = vurl.rfind('/')
+        mobjectID = vurl[rtrimpos+1:]                    # Get Mezzmo objectID
+        #xbmc.log('Mezzmo bookmark info is: ' + str(mobjectID) + ' ' + str(contenturl), xbmc.LOGINFO)
+        bookmark.SetBookmark(contenturl, mobjectID, '0')
+        bookmark.updateKodiBookmark(kobjectID, '0', mtitle, mtype)
+        media.nativeNotify()                             # Kodi native notification
+        xbmc.sleep(1000)  
+        xbmc.executebuiltin('Container.Refresh')
+        mgenlog ='Mezzmo Kodi bookmark cleared for: ' + title
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlog = '###' + mtitle
+        media.mgenlogUpdate(mgenlog)   
+        mgenlog ='Mezzmo Kodi bookmark cleared for: '
+        media.mgenlogUpdate(mgenlog) 
+    elif (cselect[vcontext]) == menuitem8:               # Mezzmo display movie sets          
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=movieset;source=browse;searchset=' + movieset))
+    elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=collection;source=browse;searchset=' + collection))
+    elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
+        selectKeywords(mtype, menuitem11, 'browse', contenturl)          
+
+
+if len(sys.argv) > 1:
+    if sys.argv[1] == 'count':                                        # Playcount modification call
+        title = sys.argv[2]                                           # Extract passed variables
+        vurl = sys.argv[3]
+        vseason = sys.argv[4]
+        vepisode = sys.argv[5]
+        mplaycount = sys.argv[6]
+        series = sys.argv[7]
+        mtype = sys.argv[8]
+        contenturl = sys.argv[9]
+        playCount(title, vurl, vseason, vepisode, mplaycount,     \
+        series, mtype, contenturl)
+    elif sys.argv[1] == 'context':                                    # GUI context menu
+        title = sys.argv[2]                                           # Extract passed variables
+        vurl = sys.argv[3]
+        vseason = sys.argv[4]
+        vepisode = sys.argv[5]
+        mplaycount = sys.argv[6]
+        series = sys.argv[7]
+        mtype = sys.argv[8]
+        contenturl = sys.argv[9]
+        currposs = sys.argv[10]
+        icon = sys.argv[11]
+        movieset = sys.argv[12]
+        taglist = sys.argv[13] 
+        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  \
+        mtype, contenturl, currposs, icon, movieset, taglist)         # call GUI context menu
+    elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
+        autoStart()
+    elif sys.argv[1] == 'playm':                                      # Play music with bookmark
+        playMusic()
+    elif sys.argv[1] == 'performance':                                # Display Performance stats
+        displayMenu()
+    elif sys.argv[1] == 'servers':                                    # Display Sync servers
+        displayServers()
+    elif sys.argv[1] == 'pictures':                                   # Display Pictures
+        picDisplay()
+    elif sys.argv[1] == 'export':                                     # Export data
+        selectExport()
+    elif sys.argv[1] == 'trailer':                                    # Display trailers
+        title = sys.argv[2]                                           # Extract passed variables
+        trcount = int(sys.argv[3])
+        icon = sys.argv[4]
+        trDisplay(title, trcount, icon)
+

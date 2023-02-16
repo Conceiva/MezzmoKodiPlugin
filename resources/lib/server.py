@@ -2,6 +2,7 @@ import xbmc
 import xbmcgui
 import xbmcplugin
 import urllib.request, urllib.error, urllib.parse
+import pickle
 import xml.etree.ElementTree
 import re
 import xml.etree.ElementTree as ET
@@ -74,14 +75,13 @@ def addServers():                                                #  Manually add
 
     serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
-                   {'name': 'Kodi', 'port': '2042', 'uri': '/DeviceDescription.xml'},
                    {'name': 'PlayOn', 'port': '52478', 'uri': '/'},
                    {'name': 'Plex', 'port': '32469', 'uri': '/DeviceDescription.xml'},
                    {'name': 'Tversity', 'port': '41952', 'uri': '/description/fetch'},
                    {'name': 'Twonky', 'port': '9000', 'uri': '/dev0/desc.xml'}  ]
 
     ipdialog = xbmcgui.Dialog()
-    serverip = ipdialog.input(addon.getLocalizedString(30448), '0.0.0.0', type=xbmcgui.INPUT_IPADDRESS)   
+    serverip = ipdialog.input(translate(30448), '0.0.0.0', type=xbmcgui.INPUT_IPADDRESS)   
     if len(serverip) == 0 or serverip == '0.0.0.0':             # Return if cancel or bad IP
         return 'None'
 
@@ -104,6 +104,37 @@ def addServers():                                                #  Manually add
         serverurl = 'http://' + str(serverip) + ':' + str(sport) + serverdict[server]['uri']
         xbmc.log('Mezzmo uPNP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
         return serverurl
+
+
+def delServer(srvurl):                                           # Delete server from server list
+
+    try:
+        newlist = []
+        saved_servers = settings('saved_servers')
+        saved_servers = saved_servers.encode('utf-8')
+        servers = pickle.loads(saved_servers, fix_imports=True)        
+
+        xbmc.log('Mezzmo UPnP servers: ' + str(servers), xbmc.LOGDEBUG)
+        
+        if len(saved_servers) > 5 and saved_servers != 'none': 
+            for server in servers:
+                try:
+                    url = server.location
+                except:
+                    url = server.get('serverurl')  
+                if srvurl != url:
+                    newlist.append(server)                       # Do not delete from newlist              
+            settings('saved_servers', pickle.dumps(newlist,0,fix_imports=True))
+            mgenlog = translate(30466) + srvurl
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlogUpdate(mgenlog) 
+            xbmcgui.Dialog().notification(translate(30404), mgenlog, addon_icon, 5000)
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo error deleting UPnP server.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)
 
 
 def updateSync(controlurl):                                      # Set sync for Mezzmo server
@@ -191,7 +222,7 @@ def getServers():                                                # Find uPNP ser
                 e = xml.etree.ElementTree.fromstring(xmlstring)    
                 device = e.find('device')
                 friendlyname = device.find('friendlyName').text
-                manufacturer = device.find('manufacturer').text
+                manufacturer = device.find('manufacturer')
                 if manufacturer != None:
                     manufacturer = manufacturer.text
                 else:
