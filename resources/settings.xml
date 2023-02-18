@@ -164,6 +164,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="cconfirm" type="boolean" label="30475" help="30545">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
                                <setting id="exportdata" type="action" label="30427" help="30533">
 	                                 <level>0</level>
 	                                 <data>RunScript(plugin.video.mezzmo,export)</data>

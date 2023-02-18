@@ -624,6 +624,10 @@ msgctxt "#30474"
 msgid "Mezzmo Addon Playcount Error"
 msgstr ""
 
+msgctxt "#30475"
+msgid "Context Menu Confirmations"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -800,3 +804,6 @@ msgctxt "#30544"
 msgid "Enable to sync Mezzmo category musicvideo as Kodi musicvideos otherwise they will sync as movies.  Default is disabled."
 msgstr ""
 
+msgctxt "#30545"
+msgid "Enable to provide context menu confirmation dialogs for bookmark clearing and watch status updates to protect against accidental changes.  Default is enabled."
+msgstr ""

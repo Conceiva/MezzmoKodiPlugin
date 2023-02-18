@@ -499,7 +499,10 @@ def selectKeywords(mtype, header, callingm, contenturl):     #  Select Mezzmo ke
 
 def checkItemChange(header, message):                        # Verify user wants to change item
 
-    checkdialog = xbmcgui.Dialog()
+    if media.settings('cconfirm') == 'false':                # Check if confirmation is enabled
+        return 1
+
+    checkdialog = xbmcgui.Dialog()                           # Confirm context menu action
     cselect = checkdialog.yesno(header, message)
     return cselect    
 
@@ -560,7 +563,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if mplaycount == 0:                                  # Mezzmo playcount is 0
         cselect.append(menuitem3)
     elif mplaycount > 0:
-        cselect.append(menuitem4)          
+        cselect.append(menuitem4)
+
+    if currpos > 0:                                      # If bookmark exists
+        cselect.append(menuitem7)          
 
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
@@ -576,9 +582,6 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
 
     if kcontext[0] > 0 :                                 # If Keywords for media type
         cselect.append(menuitem11)   
-
-    if currpos > 0:                                      # If bookmark exists
-        cselect.append(menuitem7)
 
     cselect.append(menuitem2)                            # Logs & Stats
     #cselect.append(menuitem6)                            # Mezzmo Search
@@ -613,6 +616,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         bookmark.SetBookmark(contenturl, mobjectID, '0')
         bookmark.updateKodiBookmark(kobjectID, '0', mtitle, mtype)
         media.nativeNotify()                             # Kodi native notification
+        xbmc.sleep(1000)  
+        xbmc.executebuiltin('Container.Refresh')
         mgenlog ='Mezzmo Kodi bookmark cleared for: ' + title
         xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlog = '###' + mtitle
