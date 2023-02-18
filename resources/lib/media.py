@@ -1439,7 +1439,7 @@ def playCount(title, vurl, vseason, vepisode, mplaycount, series, mtype, content
         bookmark.updateKodiBookmark(mobjectID, '0', title, mtype)
         nativeNotify()                                            #  Kodi native notification 
         xbmc.sleep(1000)  
-        xbmc.executebuiltin('Container.Refresh()')
+        xbmc.executebuiltin('Container.Refresh')
 
 def insertKwords(keywords, mtype, movienumb):
 

@@ -1,3 +1,10 @@
+1.1.7.9 2/17/2023
+
+- Fixed minor bug where Kodi container not updating automatically in GUI mode 
+  when clearing bookmarks requiring manual Refresh to see new bookmark status.
+- Added option setting to disable context confirmation dialog feature added 
+  in v1.1.7.6.
+
 1.1.7.8 2/13/2023
 
 - Fixed minor bug which caused Mezzmo keywords not to sync to Kodi for TV Shows

@@ -623,3 +623,7 @@ msgstr ""
 msgctxt "#30474"
 msgid "Mezzmo Addon Playcount Error"
 msgstr ""
+
+msgctxt "#30475"
+msgid "Context Menu Confirmations"
+msgstr ""

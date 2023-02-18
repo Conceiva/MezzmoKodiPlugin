@@ -102,7 +102,10 @@ def contextMenu():                                       # Display contxt menu f
     elif pcount == 0:                                    # Kodi playcount is 0
         cselect.append(menuitem3)
     elif pcount > 0:
-        cselect.append(menuitem4)           
+        cselect.append(menuitem4)
+
+    if bcontext:                                         # If bookmark exists
+        cselect.append(menuitem7)           
 
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
@@ -118,9 +121,6 @@ def contextMenu():                                       # Display contxt menu f
 
     if kcontext[0] > 0 :                                 # If Keywords for media type
         cselect.append(menuitem11)
-    
-    if bcontext:                                         # If bookmark exists
-        cselect.append(menuitem7)
 
     cselect.append(menuitem2)                            # Logs & Stats
     cselect.append(menuitem6)                            # Mezzmo Search

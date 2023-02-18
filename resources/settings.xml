@@ -20,6 +20,7 @@
     <setting id="kodisync" type="bool" label="30386" default="true"/>
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="true"/>
+    <setting id="cconfirm" type="bool" label="30475" default="true"/>
     <setting type="action" label="30427" action="RunScript(plugin.video.mezzmo,export)"/>
     <setting id="kodiclean" type="labelenum" label="30368" values="Off|Clean|Full Sync" default="Off"/>
     <setting id="autostart" type="text" label="30388" default="clear" visible="false"/>
