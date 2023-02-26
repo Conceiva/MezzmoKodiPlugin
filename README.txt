@@ -1,3 +1,12 @@
+2.1.8.0 2/26/2023
+
+- Fixed minor bug which caused the Kodi database progress dialog box to appear
+  for a couple of seconds during the daily sync process vs. only appearing during
+  a manual Mezzmo to Kodi full resync / clean.
+- Added menu option for an automatic continuous picture slideshow which will 
+  play in a loop until stopped.  This feature will support up to 1,000 images in
+  a slideshow.
+
 2.1.7.9 2/17/2023
 
 - Fixed minor bug where Kodi container not updating automatically in GUI mode 

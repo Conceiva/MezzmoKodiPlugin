@@ -638,7 +638,7 @@ def kodiCleanDB(force):
         xbmc.log('Content delete URL: ' + syncurl, xbmc.LOGDEBUG)
         cleartype = settings('kodiclean')
 
-        if cleartype != 'Off':
+        if cleartype != 'false':
             msgdialogprogress = ''
             msgdialogprogress = xbmcgui.DialogProgress()
             msgdialogprogress.create(translate(30459), translate(30460) + '0%')
@@ -658,7 +658,7 @@ def kodiCleanDB(force):
             db.execute('DELETE FROM actor WHERE art_urls LIKE ?', (serverport,))
             db.execute('DELETE FROM tvshow WHERE c17 LIKE ?', (serverport,))
             xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
-            if cleartype != 'Off': 
+            if cleartype != 'false': 
                 msgdialogprogress.update(25, translate(30460) + '25%')
                 xbmc.sleep(1000) 
             curf = db.execute('SELECT idFile FROM files INNER JOIN path USING (idPath) WHERE          \
@@ -677,7 +677,7 @@ def kodiCleanDB(force):
             curf.close()
             db.commit()
             db.close()
-            if cleartype != 'Off': 
+            if cleartype != 'false': 
                 msgdialogprogress.update(70, translate(30460) + '70%')
                 xbmc.sleep(1000) 
         except db.OperationalError:        
@@ -710,7 +710,7 @@ def kodiCleanDB(force):
   
             dbsync.commit()
             dbsync.close()
-            if cleartype != 'Off': 
+            if cleartype != 'false': 
                 msgdialogprogress.update(100, translate(30460) + '100%')
                 xbmc.sleep(1000) 
                 msgdialogprogress.close()

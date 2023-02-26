@@ -628,6 +628,10 @@ msgctxt "#30475"
 msgid "Context Menu Confirmations"
 msgstr ""
 
+msgctxt "#30476"
+msgid "Slideshow - Continuous"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -717,7 +721,7 @@ msgid "Music Videos view display format."
 msgstr ""
 
 msgctxt "#30523"
-msgid "Automatically stop paused video in minutes.  0 = never automatically stop paused video."
+msgid "Automatically stop paused video in minutes.  0 - never automatically stop paused video."
 msgstr ""
 
 msgctxt "#30524"
