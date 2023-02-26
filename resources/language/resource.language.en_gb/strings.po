@@ -627,3 +627,187 @@ msgstr ""
 msgctxt "#30475"
 msgid "Context Menu Confirmations"
 msgstr ""
+
+msgctxt "#30476"
+msgid "Slideshow - Continuous"
+msgstr ""
+
+msgctxt "#30501"
+msgid "Set bookmark delay 0-30 secs behind current playback position."
+msgstr ""
+
+msgctxt "#30502"
+msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance."
+msgstr ""
+
+msgctxt "#30503"
+msgid "Add Mezzmo actor information to Kodi database during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
+msgstr ""
+
+msgctxt "#30504"
+msgid "Add Mezzmo TV episodes to the Kodi database.  Options are to match by season & episode or by media category.  Default is season & episode.  Category is handy when you have both season and episode = 0 TV media files."
+msgstr ""
+
+msgctxt "#30505"
+msgid "Detect Mezzmo metadata changes during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
+msgstr ""
+
+msgctxt "#30506"
+msgid "Background sync process to keep Mezzmo and Kodi databases in sync.  Automatically disables real time updates when sync is achieved."
+msgstr ""
+
+msgctxt "#30507"
+msgid "Logs duplicate entries in the Mezzmo database to the Kodi logfile during daily sync process (Midnight to 6AM). A handy feature to keep your Mezzmo database clean."
+msgstr ""
+
+msgctxt "#30508"
+msgid "Clears and/or resync the Mezzmo entries in your Kodi database upon Mezzmo addon startup.  Clear: Just clears Mezzmo data in the Kodi DB.  Full sync: Clears and rebuilds all Mezzmo data in the Kodi DB.  Option will be set to Off when complete. A regular database clear is part of the daily sync process.  This option is for one time clearing."
+msgstr ""
+
+msgctxt "#30509"
+msgid "Enable to only see Mezzmo UPnP servers.  Disable to see all."
+msgstr ""
+
+msgctxt "#30510"
+msgid "Select skin to change Mezzmo addon view options."
+msgstr ""
+
+msgctxt "#30511"
+msgid "Top folder view display format."
+msgstr ""
+
+msgctxt "#30512"
+msgid "Folder view display format."
+msgstr ""
+
+msgctxt "#30513"
+msgid "Top folder view mapping to a specific view format."
+msgstr ""
+
+msgctxt "#30514"
+msgid "Folder view mapping to a specific view format."
+msgstr ""
+
+msgctxt "#30515"
+msgid "Photos view display format."
+msgstr ""
+
+msgctxt "#30516"
+msgid "Servers view display format."
+msgstr ""
+
+msgctxt "#30517"
+msgid "Movies view display format."
+msgstr ""
+
+msgctxt "#30518"
+msgid "TV Shows / Episodes view display format."
+msgstr ""
+
+msgctxt "#30519"
+msgid "Music view display format."
+msgstr ""
+
+msgctxt "#30520"
+msgid "Logs performance stastics to the Kodi logfile.   Default is enabled."
+msgstr ""
+
+msgctxt "#30521"
+msgid "All other content view display format."
+msgstr ""
+
+msgctxt "#30522"
+msgid "Music Videos view display format."
+msgstr ""
+
+msgctxt "#30523"
+msgid "Automatically stop paused video in minutes.  0 - never automatically stop paused video."
+msgstr ""
+
+msgctxt "#30524"
+msgid "Kodi automatically manages the Mezzmo Background Sync setting based upon the sync state with Mezzmo. Default is enabled. Disable for more manual control. "
+msgstr ""
+
+msgctxt "#30525"
+msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Default is enabled."
+msgstr ""
+
+msgctxt "#30526"
+msgid "Mezzmo addon Mezzmo server response timeout value.  Default is 60 seconds."
+msgstr ""
+
+msgctxt "#30527"
+msgid "Mezzmo addon new UPnP server discovery timeout value.  Default is 5 seconds."
+msgstr ""
+
+msgctxt "#30528"
+msgid "Number of previous searches to display 0-30.  Default is 10 searches"
+msgstr ""
+
+msgctxt "#30529"
+msgid "Select and view Mezzmo server to sync with Kodi. "
+msgstr ""
+
+msgctxt "#30530"
+msgid "Mezzmo addon non-Mezzmo server response timeout value.  Default is 60 seconds."
+msgstr ""
+
+msgctxt "#30531"
+msgid "Adjust slideshow pause between photos / images 2-20 secs.  Default is 3 seconds."
+msgstr ""
+
+msgctxt "#30532"
+msgid "Enable slideshow viewer when browsing pictures.  When enabled a prompt will be displayed asking if the pictures should be shown using a slidewshow viewer.  Default is enabled."
+msgstr ""
+
+msgctxt "#30533"
+msgid "Select Kodi DB or Mezzmo addon table(s) for export to CSV format for external use."
+msgstr ""
+
+msgctxt "#30534"
+msgid "Select number of trailers to display on Mezzmo Play Trailers context menu option.  Default is 10.  0 disables multiple trailers."
+msgstr ""
+
+msgctxt "#30535"
+msgid "Enable to sync Mezzmo bookmarks to the Kodi DB.  This is only needed when running in Kodi native mode and playing files directly from the Kodi skin.  Default is disabled."
+msgstr ""
+
+msgctxt "#30536"
+msgid "Enable to for native Kodi skin updates when Mezzmo finishes a sync process.  This is optional when running in Kodi native mode and playing files directly from the Kodi skin.  It willl cause extra log messages.  Default is disabled."
+msgstr ""
+
+msgctxt "#30537"
+msgid "Enable for native Kodi Mezzmo data sync.  This is needed to display cast metadata and similar in native mode operation.  Default is disabled."
+msgstr ""
+
+msgctxt "#30538"
+msgid "Enable for native Kodi mode to display TV Shows by actor.  Default is disabled."
+msgstr ""
+
+msgctxt "#30539"
+msgid "Enable for native Kodi mode to sync Mezmo keywords to Kodi tags.  Default is disabled."
+msgstr ""
+
+msgctxt "#30540"
+msgid "Enables logging a specific number of Mezzmo server responses before automatically disabling.  Default is disabled."
+msgstr ""
+
+msgctxt "#30541"
+msgid "Enables logging a specific number of UPnP server responses before automatically disabling.  Default is disabled."
+msgstr ""
+
+msgctxt "#30542"
+msgid "Enables selectively syncing portins of the Mezzmo library with Kodi with Smart Playists that contain the selected tag name. Default is All."
+msgstr ""
+
+msgctxt "#30543"
+msgid "When enabled will only sync local trailers to Kodi when found otherwise You Tube trailers will sync.  Default is enabled."
+msgstr ""
+
+msgctxt "#30544"
+msgid "Enable to sync Mezzmo category musicvideo as Kodi musicvideos otherwise they will sync as movies.  Default is disabled."
+msgstr ""
+
+msgctxt "#30545"
+msgid "Enable to provide context menu confirmation dialogs for bookmark clearing and watch status updates to protect against accidental changes.  Default is enabled."
+msgstr ""

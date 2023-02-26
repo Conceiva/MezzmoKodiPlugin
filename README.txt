@@ -1,3 +1,9 @@
+1.1.8.0 2/26/2023
+
+- Added menu option for an automatic continuous picture slideshow which will 
+  play in a loop until stopped.  This feature will support up to 1,000 images in
+  a slideshow.
+
 1.1.7.9 2/17/2023
 
 - Fixed minor bug where Kodi container not updating automatically in GUI mode 

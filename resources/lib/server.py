@@ -525,18 +525,19 @@ def picDisplay():                                                # Picture slide
         else:
             cselect = 3
             while cselect >= 0:
-                #pictures = ['Slideshow','Pictures Normal Delay']
-                pictures = [translate(30417), translate(30418), translate(30419)]
+                pictures = [translate(30417), translate(30476), translate(30418), translate(30419)]
                 ddialog = xbmcgui.Dialog() 
                 cselect = ddialog.select(translate(30415), pictures)
-                if cselect == 1:                                 # User selects pictures normal
+                if cselect == 2:                                 # User selects pictures normal
                     showPictureMenu(piclist, slidetime)
                     #xbmc.executebuiltin('Action(ParentDir)')
-                if cselect == 2:                                 # User selects pictures extended
+                elif cselect == 3:                               # User selects pictures extended
                     showPictureMenu(piclist, (slidetime * 3))
                     #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 0:                               # User selects slideshow
-                    ShowSlides(piclist, slidetime)
+                elif cselect == 0:                               # User selects normal slideshow
+                    ShowSlides(piclist, slidetime, 'no')
+                elif cselect == 1:                               # User selects continuous slideshow
+                    ShowSlides(piclist, slidetime, 'yes')
                 elif cselect < 0:
                     #xbmc.executebuiltin('Action(ParentDir)')
                     break
@@ -581,7 +582,7 @@ def showPictureMenu(piclist, slidetime):                         # Picture viewe
             mgenlogUpdate(mgenlog)   
 
 
-def ShowSlides(piclist, slidetime):                              # Slidehow viewier
+def ShowSlides(piclist, slidetime, ssmode):                      # Slidehow viewier
 
     try:    
         kbmonitor = KodiMonitor()                   
@@ -597,6 +598,8 @@ def ShowSlides(piclist, slidetime):                              # Slidehow view
             #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGNOTICE)
             xbmc.sleep(slidetime * 1000)
             slideIdx += 1
+            if slideIdx == len(piclist) and ssmode == 'yes':     # Continuous slideshow
+                slideIdx = 0
             #xbmc.log('Mezzmo monitor data is: ' + (kbmonitor.flag) , xbmc.LOGNOTICE)
             if kbmonitor.flag == 'stop':
                 del kbmonitor

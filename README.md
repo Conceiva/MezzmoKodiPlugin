@@ -31,7 +31,7 @@ See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki
 - Default <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#view">view modes</a> for Movies, TV Shows and others
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Native-Kodi-Access">Native</a> Kodi and addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views">GUI</a> viewing modes 
 - Play music with a <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Context-Menu-Additions#music-item-context-menu-additions">resume playback</a> capability
-- View Photos manually or with the built-in <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-picture-view">slideshow viewer</a>
+- View Photos manually or with the built-in <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-picture-view">slideshow viewer including continuous loop option</a>
 - Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#parental-controls">parental controls</a>
 - Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers including <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#local-movie-trailers">local trailers</a>
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#native--mode">User selection</a> for syncing music videos as Kodi movies or <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-music-video-view">music videos</a> 
