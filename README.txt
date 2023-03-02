@@ -1,3 +1,12 @@
+2.1.8.1 3/2/2023
+
+- Fixed very obscure bug where a movie would show season 0 in Kodi if it was part
+  of a Mezzmo library search or playlist / folder that contained both movies and 
+  TV shows and the last item in the list was a TV Show.  This is for Kodi 20 and
+  higher.  
+- Fixed a bug where the automatic picture slideshow would skip slides if paused
+  for too long.
+
 2.1.8.0 2/26/2023
 
 - Fixed minor bug which caused the Kodi database progress dialog box to appear

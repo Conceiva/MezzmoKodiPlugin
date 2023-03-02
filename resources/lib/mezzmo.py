@@ -530,10 +530,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -667,7 +671,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             'rating': rating_val,
                             'imdbnumber': imdb_text,
                             'mediatype': categories_text,
-                            'season': season_text,
+                            'season': season_kodi,
                             'episode': episode_text,
                             'lastplayed': last_played_text,
                             'aired': aired_text,
@@ -706,7 +710,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if season_kodi is not None: vinfo.setSeason(int(season_text))
                         if episode_text is not None: vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
@@ -1140,10 +1144,14 @@ def handleSearch(content, contenturl, objectID, term):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -1279,7 +1287,7 @@ def handleSearch(content, contenturl, objectID, term):
                             'rating': rating_val,
                             'imdbnumber': imdb_text,
                             'mediatype': categories_text,
-                            'season': season_text,
+                            'season': season_kodi,
                             'episode': episode_text,
                             'lastplayed': last_played_text,
                             'aired': aired_text,
@@ -1318,7 +1326,7 @@ def handleSearch(content, contenturl, objectID, term):
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if season_kodi is not None: vinfo.setSeason(int(season_text))
                         if episode_text is not None: vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
