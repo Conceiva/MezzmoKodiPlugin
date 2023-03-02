@@ -1,3 +1,8 @@
+1.1.8.1 3/1/2023
+
+- Fixed a bug where the automatic picture slideshow would skip slides if paused
+  for too long.
+
 1.1.8.0 2/26/2023
 
 - Added menu option for an automatic continuous picture slideshow which will 

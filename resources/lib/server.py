@@ -540,8 +540,8 @@ def picDisplay():                                                # Picture slide
                     ShowSlides(piclist, slidetime, 'yes')
                 elif cselect < 0:
                     #xbmc.executebuiltin('Action(ParentDir)')
+                    xbmc.executebuiltin('Dialog.Close(all, true)')
                     break
-                    #return
 
     except Exception as e:    
         printexception()
@@ -589,20 +589,22 @@ def ShowSlides(piclist, slidetime, ssmode):                      # Slidehow view
         slideIdx = 0   
         #xbmc.log('Mezzmo picture url is: ' + str(playitem) , xbmc.LOGNOTICE)
 
+        xbmc.executebuiltin('Dialog.Close(all, true)')
         while slideIdx < len(piclist):           
             if kbmonitor.flag == 'play':  
                 playitem = picURL(piclist[slideIdx]['url'])      # Verify proper file name
                 #xbmc.log('Mezzmo picture index is: ' + str(playitem) , xbmc.LOGNOTICE)
                 json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
                 "params":{"item":{"file":%s }},"id":1}' % (playitem))           
-            #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGNOTICE)
+                #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGNOTICE)
+                slideIdx += 1
             xbmc.sleep(slidetime * 1000)
-            slideIdx += 1
             if slideIdx == len(piclist) and ssmode == 'yes':     # Continuous slideshow
                 slideIdx = 0
             #xbmc.log('Mezzmo monitor data is: ' + (kbmonitor.flag) , xbmc.LOGNOTICE)
             if kbmonitor.flag == 'stop':
                 del kbmonitor
+                xbmc.executebuiltin('Dialog.Close(all, true)')
                 return
                 break
             if kbmonitor.flag == 'pause':

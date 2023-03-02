@@ -517,10 +517,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -654,7 +658,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         'rating': rating_val,
                         'imdbnumber': imdb_text,
                         'mediatype': categories_text,
-                        'season': season_text,
+                        'season': season_kodi,
                         'episode': episode_text,
                         'lastplayed': last_played_text,
                         'aired': release_date_text,
@@ -1069,10 +1073,14 @@ def handleSearch(content, contenturl, objectID, term):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -1207,7 +1215,7 @@ def handleSearch(content, contenturl, objectID, term):
                         'rating': rating_val,
                         'imdbnumber': imdb_text,
                         'mediatype': categories_text,
-                        'season': season_text,
+                        'season': season_kodi,
                         'episode': episode_text,
                         'lastplayed': last_played_text,
                         'aired': aired_text,
