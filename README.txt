@@ -1,3 +1,17 @@
+2.1.8.3 3/17/2023
+
+- Fixed Kodi deprecation message when playing trailers.
+- Fixed not updating TV show studio information in Kodi when the first 
+  episode of a TV show series was processed during the Kodi sync process
+  and was missing the production studio information.
+- Added option to sync Directors and Writers to Kodi database for native
+  mode operation.  Previously they were written to the movie, episode and
+  musicivdeo tables but not to the director_link and writer_link tables. 
+
+2.1.8.2 3/12/2023
+
+- Initial support for Kodi 21, Omega, development releases.
+
 2.1.8.1 3/2/2023
 
 - Fixed very obscure bug where a movie would show season 0 in Kodi if it was part

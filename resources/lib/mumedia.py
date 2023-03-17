@@ -36,7 +36,8 @@ def getmuDatabaseName():
         return "MyMusic82.db"
     elif installed_version == '20':
         return "MyMusic82.db"
-       
+    elif installed_version == '21':
+        return "MyMusic82.db"       
     return ""  
 
 

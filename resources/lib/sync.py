@@ -304,6 +304,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
     global mezzmorecs, dupelog
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    kdirector = media.settings('kdirector')
     nativeact = media.settings('nativeact')
     kodiclean = media.settings('kodiclean')
     prflocaltr = media.settings('prflocaltr')
@@ -650,18 +651,20 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
-                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text, tags_text)
+                        sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text,         \
+                        tags_text, imageSearchUrl, kdirector)
                     elif filekey[4] == 2:
                         mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
                         sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
-                        artist_text)
+                        artist_text, imageSearchUrl, kdirector)
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                        sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset)
+                        sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
+                        kdirector)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                         nativeact, showId)

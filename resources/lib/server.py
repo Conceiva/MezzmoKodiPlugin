@@ -9,7 +9,8 @@ import xml.etree.ElementTree as ET
 import xbmcaddon
 import ssdp
 import json
-from media import openNosyncDB, settings, mezlogUpdate, printexception, mgenlogUpdate, translate
+from media import openNosyncDB, settings, mezlogUpdate, printexception
+from media import mgenlogUpdate, translate, get_installedversion
 
 addon = xbmcaddon.Addon()
 addon_path = addon.getAddonInfo("path")
@@ -646,7 +647,11 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGINFO)
         lititle = "Trailer  #" + trselect + " - " + mtitle
         li = xbmcgui.ListItem(lititle)
-        li.setInfo('video', {'Title': lititle})
+        if int(get_installedversion()) == 19:
+            li.setInfo('video', {'Title': lititle})
+        else:
+            linfo = li.getVideoInfoTag()
+            linfo.setTitle(lititle)
         li.setArt({'thumb': icon, 'poster': icon}) 
         xbmc.Player().play(itemurl, li)
     except:

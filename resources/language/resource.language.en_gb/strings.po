@@ -632,6 +632,10 @@ msgctxt "#30476"
 msgid "Slideshow - Continuous"
 msgstr ""
 
+msgctxt "#30477"
+msgid "Kodi Director / Writer Sync"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -785,7 +789,7 @@ msgid "Enable for native Kodi mode to display TV Shows by actor.  Default is dis
 msgstr ""
 
 msgctxt "#30539"
-msgid "Enable for native Kodi mode to sync Mezmo keywords to Kodi tags.  Default is disabled."
+msgid "Enable for native Kodi mode to sync Mezzmo keywords to Kodi tags.  Default is disabled."
 msgstr ""
 
 msgctxt "#30540"
@@ -810,4 +814,8 @@ msgstr ""
 
 msgctxt "#30545"
 msgid "Enable to provide context menu confirmation dialogs for bookmark clearing and watch status updates to protect against accidental changes.  Default is enabled."
+msgstr ""
+
+msgctxt "#30546"
+msgid "Enable for native Kodi mode to sync Mezzmo directors / writers to Kodi.  Default is disabled."
 msgstr ""

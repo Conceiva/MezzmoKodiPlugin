@@ -283,6 +283,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="kdirector" type="boolean" label="30477" help="30546">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiskin" type="boolean" label="30439" help="30536">
 					<level>0</level>
 					<default>false</default>
