@@ -1,3 +1,18 @@
+1.1.8.3 3/17/20/23
+
+- Fixed not updating TV show studio information in Kodi when the first 
+  episode of a TV show series was processed during the Kodi sync process
+  and was missing the production studio information.
+- Added option to sync Directors and Writers to Kodi database for native
+  mode operation.  Previously they were written to the movie, episode and
+  musicivdeo tables but not to the director_link and writer_link tables.  
+
+1.1.8.2 3/12/2023
+
+- Mezzmo / Kodi database sync support dropped for Kodi version 17 and below. All
+  other functions, including browsing Mezzmo and UPnP servers will continue to
+  operate as they have with prior releases of the Mezzmo Kodi addon.    
+
 1.1.8.1 3/1/2023
 
 - Fixed a bug where the automatic picture slideshow would skip slides if paused
