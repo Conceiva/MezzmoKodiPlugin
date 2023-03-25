@@ -1,3 +1,19 @@
+1.1.8.4 3/25/2023
+
+- Set sort order to Year for moviesets so they will always appear in
+  chronological order.  They can still be changed by the side blade menu.
+  If there is interest an addon setting could be added to allow setting 
+  the preferred sort order for moviesets, searches and collections.
+- Added syncing of Mezzmo studio information to Kodi's studio and 
+  studio_link tables in native mode operation.  This completes adding
+  all Mezzmo video metadata to Kodi's video database.
+- Fixed a very obscure utf-8 decoding bug where all items in a folder or 
+  playlist might not be displayed in GUI mode if a movie set name 
+  contained certain non-ASCII characters.
+- Fixed other utf-8 encoding / decoding errors which could impact addon
+  logging and setting watched statuses on certain media with non-ASCII
+  characters in the title.
+
 1.1.8.3 3/17/20/23
 
 - Fixed not updating TV show studio information in Kodi when the first 

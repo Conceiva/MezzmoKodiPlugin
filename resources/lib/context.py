@@ -28,10 +28,13 @@ def contextMenu():                                       # Display contxt menu f
     menuitem10 = addon.getLocalizedString(30469)
     menuitem11 = addon.getLocalizedString(30470)       
     minfo = sys.listitem.getVideoInfoTag()
-    mtitle = minfo.getTitle()
+    mtitle = minfo.getTitle()    
     mtype = minfo.getMediaType()
     dbid = minfo.getDbId()
-    ttitle = mtitle.decode('utf-8','ignore')
+    try:
+        ttitle = mtitle.decode('utf-8','ignore')
+    except:    
+        ttitle = mtitle
     trcount = media.settings('trcount')
     contenturl = media.settings('contenturl')
     icon = sys.listitem.getArt('poster')   
@@ -44,7 +47,10 @@ def contextMenu():                                       # Display contxt menu f
     vepisode = titleinfo[3]    
     pcount = titleinfo[4]
     vseries = titleinfo[5]
-    movieset = titleinfo[6]  
+    try:
+        movieset = titleinfo[6].encode('utf-8','ignore')
+    except:
+        movieset = titleinfo[6]    
     xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGNOTICE)
 
@@ -83,7 +89,7 @@ def contextMenu():                                       # Display contxt menu f
             collection = 'none' 
     else:
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
-        (idFile) WHERE movie_view.c00=?', (mtitle,))
+        (idFile) WHERE movie_view.c00=?', (ttitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
         curpc = psfile.execute('SELECT name FROM mCollection INNER JOIN mCollection_link USING    \
         (coll_id) WHERE media_id=? and media_type=?', (dbid, 'movie',))

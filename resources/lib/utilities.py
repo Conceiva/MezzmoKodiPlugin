@@ -401,15 +401,22 @@ def clearPerf():                                                  # Clear perfor
 def trDisplay(title, trcount, icon):                              # Play trailers
 
     try:
-        #xbmc.log("Mezzmo trailer title request: " + title, xbmc.LOGNOTICE)
-        mtitle = title.decode('utf-8', 'ignore')   	          # Handle commas
+        #xbmc.log("Mezzmo trailer title request: " + title.encode('utf-8'), xbmc.LOGNOTICE)
+        try:
+            mtitle = title.decode('utf-8','ignore')   	          # Handle commas
+        except:
+            mtitle = title
+        try:
+            ltitle = title.encode('utf-8', 'ignore')
+        except:
+            ltitle = title         
         dsfile = openNosyncDB()                                   # Open Sync logs database
 
         traillist = []
         msdialog = xbmcgui.Dialog()   
 
         curtrail = dsfile.execute('SELECT trUrl, trPlay from mTrailers WHERE trTitle=? ORDER BY   \
-        trID ASC LIMIT ?', (mtitle, trcount,))
+        trID ASC LIMIT ?', (title, trcount,))
         mtrailers = curtrail.fetchall()                            # Get trailers from database
         dsfile.close()
         trselect = x = 1
@@ -425,22 +432,26 @@ def trDisplay(title, trcount, icon):                              # Play trailer
                 #dsfile.close()
                 return
             else:                                                  # Play trailer and update playcount
-              itemurl = mtrailers[trselect][0]
-              displayTrailers(title, itemurl, icon, str(trselect + 1))
-              dsfile = openNosyncDB()
-              dsfile.execute('UPDATE mTrailers SET trPlay=? WHERE trUrl=?', (1, itemurl))
-              dsfile.commit()
-              dsfile.close()  
+                itemurl = mtrailers[trselect][0]
+                try:
+                    displayTrailers(ltitle, itemurl, icon, str(trselect + 1))
+                except:
+                    displayTrailers(title.encode('utf-8'), itemurl, icon, str(trselect + 1))               
+                dsfile = openNosyncDB()
+                dsfile.execute('UPDATE mTrailers SET trPlay=? WHERE trUrl=?', (1, itemurl))
+                dsfile.commit()
+                dsfile.close()  
         else:
             #xbmc.log("Mezzmo no trailers found: " + title, xbmc.LOGNOTICE)
-            mgenlog ='Mezzmo no trailers found for: ' + title
+            mgenlog ='Mezzmo no trailers found for: ' + title.encode('utf-8')
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)         
             trdialog = xbmcgui.Dialog()
             dialog_text = "No trailers found. Please wait for the daily sync process."        
             trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
-    except:
-        mgenlog ='Mezzmo problem displaying trailers for: ' + title
+    except Exception as e:
+        media.printexception()
+        mgenlog ='Mezzmo problem displaying trailers for: ' + title.encode('utf-8')
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)
         trdialog = xbmcgui.Dialog()
@@ -527,6 +538,11 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     trcount = media.settings('trcount')
     mplaycount = int(playcount)
     currpos = int(bmposition)
+    ltitle = mtitle
+    try:
+        ltitle = mtitle.encode('utf-8', 'ignore')
+    except:
+        pass     
     if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode':  # Check for collection tag
         collection = checkGuiTags(taglist, mtitle)
     else:
@@ -539,7 +555,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
 
     pdfile = openNosyncDB()                              # Open Trailer database
     cselect = []
-    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
+    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
     curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
     not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
@@ -620,9 +636,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         media.nativeNotify()                             # Kodi native notification
         xbmc.sleep(1000)  
         xbmc.executebuiltin('Container.Refresh')
-        mgenlog ='Mezzmo Kodi bookmark cleared for: ' + title
+        mgenlog ='Mezzmo Kodi bookmark cleared for: ' + ltitle
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        mgenlog = '###' + mtitle
+        mgenlog = '###' + ltitle
         media.mgenlogUpdate(mgenlog)   
         mgenlog ='Mezzmo Kodi bookmark cleared for: '
         media.mgenlogUpdate(mgenlog)
@@ -643,18 +659,27 @@ if len(sys.argv) > 1:
         vseason = sys.argv[4]
         vepisode = sys.argv[5]
         mplaycount = sys.argv[6]
-        series = sys.argv[7]
+        try:
+            series = sys.argv[7].replace('#**#', ',').encode('utf-8', 'ignore')
+        except:
+            series = sys.argv[7].replace('#**#', ',')
         mtype = sys.argv[8]
         contenturl = sys.argv[9]
         playCount(title, vurl, vseason, vepisode, mplaycount,     \
         series, mtype, contenturl)
     elif sys.argv[1] == 'context':                                    # GUI context menu
-        title = sys.argv[2]                                           # Extract passed variables
+        try:
+            title = sys.argv[2].decode('utf-8', 'ignore')             # Extract passed variables
+        except:
+            title = sys.argv[2]
         vurl = sys.argv[3]
         vseason = sys.argv[4]
         vepisode = sys.argv[5]
         mplaycount = sys.argv[6]
-        series = sys.argv[7]
+        try:
+            series = sys.argv[7].replace('#**#', ',').encode('utf-8', 'ignore')
+        except:
+            series = sys.argv[7].replace('#**#', ',').decode('utf-8', 'ignore')        
         mtype = sys.argv[8]
         contenturl = sys.argv[9]
         currposs = sys.argv[10]

@@ -638,7 +638,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if mediaClass_text == 'video' and validf == 1:    
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
-                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    #pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    pcseries = album_text.replace(',', '#**#')
                     mtype = categories_text
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
                     (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %             \
@@ -695,7 +696,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
-                            production_company_text, icon, backdropurl)
+                            production_company_text, icon, backdropurl, knative)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
@@ -724,7 +725,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 elif mediaClass_text == 'music':
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle.encode('utf-8','ignore')  + '"'  		#  Handle commas
-                    pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    #pcseries = '"' + album_text.encode('utf-8','ignore') + '"'          #  Handle commas
+                    pcseries = album_text.replace(',', '#**#')
                     offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     if int(dcmInfo_text) > 0 and playcount == 0:
                         li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),       \
@@ -1256,7 +1258,7 @@ def handleSearch(content, contenturl, objectID, term):
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
-                            production_company_text, icon, backdropurl)
+                            production_company_text, icon, backdropurl, knative)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
@@ -1361,6 +1363,8 @@ def handleSearch(content, contenturl, objectID, term):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
     setViewMode(contentType)
+    if searchcontrol2 == 'movieset':
+        xbmc.executebuiltin('Container.SetSortMethod(16)')
     xbmcplugin.endOfDirectory(addon_handle)
     
     #xbmc.executebuiltin("Dialog.Close(busydialog)")

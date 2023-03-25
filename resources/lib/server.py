@@ -643,8 +643,11 @@ def showSingle(url):                                             # Display indiv
 def displayTrailers(title, itemurl, icon, trselect):              # Display trailers
 
     try:
-        mtitle = title.decode('utf-8', 'ignore')   	          # Handle commas
-        mgenlog ='Mezzmo trailer #' + trselect + ' selected for: '  + title
+        try:
+            mtitle = title.encode('utf-8', 'ignore')   	          # Handle commas
+        except:
+            mtitle = title
+        mgenlog ='Mezzmo trailer #' + trselect + ' selected for: '  + mtitle
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         mgenlogUpdate(mgenlog) 
         #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGNOTICE)
@@ -655,7 +658,7 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         li.setArt({'thumb': icon, 'poster': icon}) 
         xbmc.Player().play(itemurl, li)
     except:
-        mgenlog ='Mezzmo problem playing trailer #' + trselect + ' - ' + title
+        mgenlog ='Mezzmo problem playing trailer #' + trselect + ' - ' + mtitle
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         mgenlogUpdate(mgenlog)         
         trdialog = xbmcgui.Dialog()
