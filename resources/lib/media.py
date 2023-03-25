@@ -76,7 +76,8 @@ def addSearch(stext):                                  # Add new searches
         pass
 
 
-def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl): # Check if TV show exists in database
+def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl, knative): 
+                                                                     # Check if TV show exists in database
 
     cure = db.execute('SELECT idShow, c14 FROM tvshow WHERE c00=? and c17=?',(seriesname, \
     int(fileId[3]),))
@@ -92,6 +93,7 @@ def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl): 
         shownumb = showtuple[0]
         curs.close()
         insertArt(shownumb, db, 'tvshow', murl, micon)
+        insertStudios(shownumb, db, 'tvshow', mstudio, knative) 
         #xbmc.log('TV Show added ' + seriesname + " " + str(shownumb), xbmc.LOGINFO)
     else:
         shownumb = showtuple[0]
@@ -102,6 +104,7 @@ def checkTVShow(fileId, seriesname, mgenre, db, mrating, mstudio, micon, murl): 
         showtuple = curs.fetchone()
         if showtuple:
             db.execute('UPDATE tvshow SET c05=? WHERE idShow=?', (showtuple[0], shownumb,))
+            insertStudios(shownumb, db, 'tvshow', mstudio, knative) 
         if sstudio == None and mstudio != None:
             db.execute('UPDATE tvshow SET c14=? WHERE idShow=?', (mstudio, shownumb,)) 
         curs.close()        
@@ -675,7 +678,8 @@ def kodiCleanDB(force):
                 db.execute('DELETE FROM movie WHERE idFile=?',(idlist[a][0],))
                 db.execute('DELETE FROM episode WHERE idFile=?',(idlist[a][0],))
                 db.execute('DELETE FROM musicvideo WHERE idFile=?',(idlist[a][0],))
-            db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,)) 
+            db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,))
+            db.execute('DELETE FROM studio WHERE studio_id not in (SELECT studio_id FROM studio_link)') 
             mgenlog ='Kodi database Mezzmo data cleared.'
             xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog)
@@ -916,7 +920,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
-            insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector) 
+            insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
+            insertStudios(movienumb, db, 'movie', mstudio, knative) 
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
@@ -965,7 +970,8 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
-            insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector) 
+            insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
+            insertStudios(movienumb, db, 'movie', mstudio, knative)
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -1004,7 +1010,8 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertGenre(movienumb, db, 'musicvideo', mgenre)         # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords)       # Insert tags for musicvideo
             insertKwords(mkeywords, 'musicvideo', movienumb)         # Insert keywords for musicvideo
-            insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)   
+            insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)
+            insertStudios(movienumb, db, 'musicvideo', mstudio, knative)    
             cur.close()
         else:
             movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
@@ -1037,7 +1044,8 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertGenre(movienumb, db, 'musicvideo', mgenre)          # Insert genre for musicvideo 
             insertTags(movienumb, db, 'musicvideo', mkeywords, movienumb) # Insert tags for musicvideo
             insertKwords(mkeywords, 'musicvideo', movienumb)          # Insert keywords for musicvideo 
-            insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)   
+            insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)
+            insertStudios(movienumb, db, 'musicvideo', mstudio, kdirector)    
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -1483,6 +1491,39 @@ def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting writers for: ' + str(writers) + ' ' + str(movienumb)
+        xbmc.log(msynclog, xbmc.LOGINFO)
+
+
+def insertStudios(movienumb, db, media_type, studios, knative):
+
+    try:
+        if knative == 'false':                                                           # Native sync not enabled
+            return
+        if studios == None or len(studios) == 0:
+            return    
+        studiolist = studios.split(',')                                                  # Convert studios to list
+        xbmc.log('Mezzmo studiolist is: ' + str(studiolist), xbmc.LOGDEBUG)
+        for studio in studiolist:     
+            xbmc.log('Mezzmo current studio is: ' + str(studio), xbmc.LOGDEBUG)          # studio insertion debugging
+            mstudio = studio.strip()
+            curs = db.execute('SELECT studio_id FROM studio WHERE name=?',(mstudio,))   
+            studiotuple = curs.fetchone()                                                # Get studio id from studio table
+            curs.close()
+
+            if not studiotuple:                   #  If studio not in studio table insert and fetch new studio ID
+                db.execute('INSERT into STUDIO (name) values (?)', (mstudio,))
+                cur = db.execute('SELECT studio_id FROM studio WHERE name=?',(mstudio,))   
+                studiotuple = cur.fetchone()      #  Get studio id from studio table
+                cur.close()
+            if studiotuple:                       #  Insert studio to movie link in studio link table
+                studionumb = studiotuple[0] 
+                db.execute('INSERT OR REPLACE into STUDIO_LINK (studio_id, media_id, media_type) values \
+                (?, ?, ?)', (studionumb, movienumb, media_type,))
+                #xbmc.log('The current studio number is: ' + str(studionumb) + "  " + str(movienumb), xbmc.LOGINFO)
+
+    except Exception as e:
+        printexception()
+        msynclog ='Mezzmo problem inserting studios for: ' + str(studios) + ' ' + str(movienumb)
         xbmc.log(msynclog, xbmc.LOGINFO)
 
 

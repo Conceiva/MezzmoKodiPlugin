@@ -647,7 +647,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     showId = 0                                          #  Set default 
                     if filekey[4] == 1:
                         showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
-                        production_company_text, icon, backdropurl)
+                        production_company_text, icon, backdropurl, knative)
                         mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,        \
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \

@@ -1,6 +1,16 @@
+2.1.8.4 3/25/2023
+
+- Set sort order to Year for moviesets so they will always appear in
+  chronological order.  They can still be changed by the side blade menu.
+  If there is interest an addon setting could be added to allow setting 
+  the preferred sort order for moviesets, searches and collections.
+- Added syncing of Mezzmo studio information to Kodi's studio and 
+  studio_link tables in native mode operation.  This completes adding
+  all Mezzmo video metadata to Kodi's video database.
+ 
 2.1.8.3 3/17/2023
 
-- Fixed Kodi deprecation message when playing trailers.
+- Fixed Kodi 20 deprecation message when movie playing trailers.
 - Fixed not updating TV show studio information in Kodi when the first 
   episode of a TV show series was processed during the Kodi sync process
   and was missing the production studio information.
