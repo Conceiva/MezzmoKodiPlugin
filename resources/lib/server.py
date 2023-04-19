@@ -25,6 +25,9 @@ def updateServers(url, name, controlurl, manufacturer, model, icon, description,
         svrfile.execute('INSERT into mServers (srvUrl, srvName, controlUrl, mSync, sManuf, sModel,  \
         sIcon, sDescr, sUdn) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (url, name, controlurl, 'No',     \
         manufacturer, model, icon, description, udn[5:]))
+    else:
+        svrfile.execute('UPDATE mServers SET sManuf=?, sModel=?, sDescr=? WHERE controlUrl=?',       \
+        (manufacturer, model, description, controlurl,)) 
 
     svrfile.commit()
     svrfile.close()
@@ -156,13 +159,86 @@ def updateSync(controlurl):                                      # Set sync for 
         return 1      
 
 
-def checkSync():                                                 # Check for Sync server
+def checkMezzmo(srvurl):                                         # Check / Update sync sever info
+
+    try:
+        response = urllib2.urlopen(srvurl)
+        xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
+            
+        e = xml.etree.ElementTree.fromstring(xmlstring)    
+        device = e.find('device')
+        friendlyname = device.find('friendlyName').text
+        manufacturer = device.find('manufacturer')
+        if manufacturer != None:
+            manufacturer = manufacturer.text
+        else:
+            manufacturer = 'None'
+        modelnumber = device.find('modelNumber')
+        if modelnumber != None:
+            modelnumber = modelnumber.text
+        else:
+            modelnumber = 'None'
+        udn = device.find('UDN')
+        if udn != None:
+            udn = udn.text
+        else:
+            udn = 'None'
+        description = device.find('modelDescription')
+        if description != None:
+            description = description.text
+        else:
+            description = 'None'    
+        serviceList = device.find('serviceList')
+        iconurl = addon_icon
+
+        contenturl = ''
+        for service in serviceList.findall('service'):
+            serviceId = service.find('serviceId')
+                    
+            if serviceId.text == 'urn:upnp-org:serviceId:ContentDirectory':
+                contenturl = service.find('controlURL').text
+                if contenturl.startswith('/'):
+                    end = srvurl.find('/', 8)
+                    length = len(srvurl)                            
+                    contenturl = srvurl[:end-length] + contenturl
+                elif 'http' not in contenturl:
+                    end = srvurl.rfind('/')
+                    length = len(srvurl)                            
+                    contenturl = srvurl[:end-length] + '/' + contenturl
+        updateServers(srvurl, friendlyname, contenturl, manufacturer, modelnumber,            \
+        iconurl, description, udn)
+        return modelnumber.strip()
+
+    except Exception as e:
+        printexception()
+        msynclog = 'Mezzmo sync server check error.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        mezlogUpdate(msynclog)
+        return '0.0.0.0'
+
+
+def checkSync(count):                                            # Check for Sync server
 
     svrfile = openNosyncDB()                                     # Open server database    
-    curps = svrfile.execute('SELECT controlUrl FROM mServers WHERE mSync=?', ('Yes',))
+    curps = svrfile.execute('SELECT controlUrl, srvUrl, srvName FROM mServers WHERE mSync=?', ('Yes',))
     srvrtuple = curps.fetchone()                                 # Get server from database
     if srvrtuple:
         syncurl = srvrtuple[0]
+        if count < 12 or count % 3600 == 0:                      # Don't check Mezzmo server on fast sync
+            modelnumb = checkMezzmo(srvrtuple[1])
+            if modelnumb != '0.0.0.0':
+                sname = srvrtuple[2]
+                msynclog = 'Mezzmo sync server responded: ' + sname
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                mezlogUpdate(msynclog)
+                msynclog = 'Mezzmo sync server version: ' + modelnumb 
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                mezlogUpdate(msynclog)
+            else:
+                sname = srvrtuple[2]
+                msynclog = 'Mezzmo sync server did not respond: ' + sname
+                xbmc.log(msynclog, xbmc.LOGNOTICE)
+                mezlogUpdate(msynclog)  
     else:
         contenturl = settings('contenturl')                      # Check for content URL
         curpc = svrfile.execute('SELECT srvName, sIcon FROM mServers WHERE controlUrl=?',          \

@@ -236,7 +236,7 @@ def listServers(force):
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
         if media.settings('kodiclean') == 'Full Sync':
             syncpin = media.settings('content_pin')
-            syncurl = checkSync()                         # Get server control URL
+            syncurl = checkSync(0)                        # Get sync server control URL
             if syncpin and syncurl != 'None':            
                 sync.syncMezzmo(syncurl, syncpin, 15)     # Trigger resync process
             media.settings('kodiclean', 'Off')            # reset back to false after resync
