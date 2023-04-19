@@ -268,7 +268,16 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
     try:
         dbsync.execute('ALTER TABLE mServers ADD COLUMN sUdn TEXT')
     except:
-       xbmc.log('Mezzmo check nosync DB. No column sUdn: ' , xbmc.LOGDEBUG)     
+        xbmc.log('Mezzmo check nosync DB. No column sUdn: ' , xbmc.LOGDEBUG)     
+
+    try:
+        dbsync.execute('ALTER TABLE mTrailers ADD COLUMN trVar3 TEXT')
+        dbsync.execute('ALTER TABLE mTrailers ADD COLUMN trPremiered TEXT')
+        dbsync.execute('ALTER TABLE mTrailers ADD COLUMN trYear INTEGER')
+        dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_4 ON mTrailers (trYear)')
+        dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_5 ON mTrailers (trPremiered)')
+    except:
+        xbmc.log('Mezzmo check nosync DB. No column trVar3: ' , xbmc.LOGDEBUG)   
 
     dbsync.commit()
     dbsync.close()
@@ -316,7 +325,7 @@ def countsyncCount():                           # returns count records in noSyn
     return[nosynccount, liveccount, trailcount] 
 
 
-def addTrailers(dbsync, mtitle, trailers, prflocaltr):  #  Add movie trailers to Syncdb
+def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpremiered):  #  Add movie trailers to Syncdb
 
     try:
         localcount = 0
@@ -370,11 +379,12 @@ def addTrailers(dbsync, mtitle, trailers, prflocaltr):  #  Add movie trailers to
                                 orgtrailer = 'Local'
                                 xbmc.log('Mezzmo error decoding local trailer: ' + mtitle + ' ' + str(e), xbmc.LOGDEBUG)
                         try:
-                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1)      \
-                            values (?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", orgtrailer))
+                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1, trYear, trPremiered)  \
+                            values (?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", orgtrailer, int(myear), mpremiered,))
                         except:
-                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1)      \
-                            values (?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", "Unable to decode local trailer"))
+                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1, trYear, trPremiered) \
+                            values (?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0", "Unable to decode local trailer",   \
+                            int(myear), mpremiered,))
                         a += 1            
             dbsync.commit()
 

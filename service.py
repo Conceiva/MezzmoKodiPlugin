@@ -189,7 +189,7 @@ while True:
         else:
             syncpin = media.settings('content_pin')
             syncset = media.settings('kodisyncvar')
-            syncurl = checkSync()           # Get server control URL
+            syncurl = checkSync(count)      # Get server control URL
             xbmc.log('Mezzmo contenturl is: ' + str(syncurl), xbmc.LOGDEBUG)                       
             if syncpin and syncset != 'Off' and syncurl != 'None':
                 try:             

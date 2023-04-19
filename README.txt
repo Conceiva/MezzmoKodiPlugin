@@ -1,3 +1,12 @@
+2.1.8.5 4/19/2023
+
+- Added detecting Mezzmo server version.  This may be required for future
+  addon updates which may require specific versions of Mezzmo.  You can see
+  your Mezzmo server information in the kodi.log file and the addon sync logs.
+- Added underlying movie release year and release date to the addon movie
+  trailer database in order to support upcoming Mezzmo Movie Previews 
+  planned feature. 
+
 2.1.8.4 3/25/2023
 
 - Set sort order to Year for moviesets so they will always appear in
