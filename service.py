@@ -202,7 +202,7 @@ while not monitor.abortRequested():
                     media.mezlogUpdate(msynclog)    
                     pass            
             elif syncset != 'Off' and syncurl == 'None':  # Ensure Mezzmo server has been selected 
-                msynclog ='Mezzmo no servers selected yet.  Mezzmo sync skipped.'
+                msynclog ='Mezzmo no servers selected yet or sync server is down.  Mezzmo sync skipped.'
                 xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)
 
