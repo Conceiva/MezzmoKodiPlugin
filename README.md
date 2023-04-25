@@ -5,7 +5,7 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 <a href="https://github.com/jbinkley60/MezzmoArtworkChecker">Mezzmo Artwork Checker</a>  A tool to help manage Mezzmo actor artwork across the Poster and UserPoster folders.
 
-<a href="https://github.com/jbinkley60/MezzmoTrailerChecker</a>  A tool to help Mezzmo manage You Tube and local movie trailers.
+<a href="https://github.com/jbinkley60/MezzmoTrailerChecker">Mezzmo Trailer Checker</a>  A tool to help Mezzmo manage You Tube and local movie trailers.
 
 See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki">Wiki</a> for complete details for realizing the ultimate Kodi experience.
 
