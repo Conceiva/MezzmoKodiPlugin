@@ -1,3 +1,9 @@
+2.1.8.6 4/25/2023
+
+- Fixed minor bug introduced in v2.1.8.5 which would cause an exception error
+  if the Mezzmo sync server was down when the background sync process tried
+  to run.
+
 2.1.8.5 4/19/2023
 
 - Added detecting Mezzmo server version.  This may be required for future

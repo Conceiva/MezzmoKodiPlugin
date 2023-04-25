@@ -210,6 +210,12 @@ def checkMezzmo(srvurl):                                         # Check / Updat
         iconurl, description, udn)
         return modelnumber.strip()
 
+    except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
+        msynclog = 'Mezzmo sync server not responding: ' + srvurl
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)  
+        return '0.0.0.0'
+
     except Exception as e:
         printexception()
         msynclog = 'Mezzmo sync server check error.'
@@ -258,7 +264,8 @@ def checkSync(count):                                            # Check for Syn
                 sname = srvrtuple[2]
                 msynclog = 'Mezzmo sync server did not respond: ' + sname
                 xbmc.log(msynclog, xbmc.LOGINFO)
-                mezlogUpdate(msynclog)        
+                mezlogUpdate(msynclog)
+                syncurl = 'None'        
     else:
         contenturl = settings('contenturl')                      # Check for content URL
         curpc = svrfile.execute('SELECT srvName, sIcon FROM mServers WHERE controlUrl=?',  \
@@ -273,7 +280,7 @@ def checkSync(count):                                            # Check for Syn
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
                 notify = xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)
-        else:                                                    # Sync srver not set yet
+        else:                                                    # Sync server not set yet
             syncurl = 'None'
     svrfile.close()
     return syncurl    
