@@ -43,8 +43,6 @@
     <setting id="only_mezzmo_servers" type="bool" label="30350" default="true"/>
     <setting id="viewmap" type="bool" label="30387" default="true"/>
     <setting id="slideshow" type="bool" label="30425" default="true"/>
-    <setting id="trcount" type="labelenum" label="30433" values="0|10|20" default="10"/>
-    <setting id="prflocaltr" type="bool" label="30462" default="true"/>
     <setting id="skinname" type="enum" label="30361" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>
 	
     <!--Confluence Skin-->
@@ -83,6 +81,14 @@
     <setting id="videos_view_mode_estuary" type="labelenum" label="30381" values="Default|List|IconWall|Shift|InfoWall|WideList|Wall" default="WideList" subsetting="true"  visible="eq(-29,0)" enable="eq(-29,0)"/>
     
     </category>
+
+    <category label="30478">
+    <setting id="trcount" type="labelenum" label="30433" values="0|10|20" default="10"/>
+    <setting id="prviewct" type="labelenum" label="30479" values="0|1|2|3|4|5|6" default="3"/>
+    <setting id="prflocaltr" type="bool" label="30462" default="true"/>
+    <setting id="prviewyr" type="bool" label="30480" default="true"/>
+    </category>
+
     <!-- Search -->
     <category label="30351">
         <setting id="srchlimit" type="labelenum" label="30391" values="0|5|10|15|20|25|30" default="10"/>

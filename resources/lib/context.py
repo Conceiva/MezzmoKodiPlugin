@@ -26,7 +26,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem8 = addon.getLocalizedString(30467)
     menuitem9 = addon.getLocalizedString(30468)
     menuitem10 = addon.getLocalizedString(30469)
-    menuitem11 = addon.getLocalizedString(30470)       
+    menuitem11 = addon.getLocalizedString(30470)
+    menuitem12 = addon.getLocalizedString(30481)        
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()    
     mtype = minfo.getMediaType()
@@ -36,6 +37,7 @@ def contextMenu():                                       # Display contxt menu f
     except:    
         ttitle = mtitle
     trcount = media.settings('trcount')
+    prviewct = int(media.settings('prviewct')) 
     contenturl = media.settings('contenturl')
     icon = sys.listitem.getArt('poster')   
 
@@ -50,7 +52,8 @@ def contextMenu():                                       # Display contxt menu f
     try:
         movieset = titleinfo[6].encode('utf-8','ignore')
     except:
-        movieset = titleinfo[6]    
+        movieset = titleinfo[6]
+    mezyear = titleinfo[7]     
     xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGNOTICE)
 
@@ -116,6 +119,9 @@ def contextMenu():                                       # Display contxt menu f
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
 
+    if prviewct > 0 and mtype == 'movie':                # If Mezmo Movie Previews > 0
+        cselect.append(menuitem12)
+
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
@@ -139,6 +145,8 @@ def contextMenu():                                       # Display contxt menu f
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
         utilities.trDisplay(title, trcount, icon)
+    elif (cselect[vcontext]) == menuitem12:              # Mezzmo Movie Previews
+        utilities.moviePreviews(title, vurl, prviewct, mezyear, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
         utilities.displayMenu()
     elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4:
@@ -192,7 +200,7 @@ def getPlayCount(mtitle, mtype):                         # Get playcount for sel
 
     pcount = -1
     mseason = mepisode = 0
-    mseries = murl = mset = ''
+    mseries = murl = mset = myear = ''
 
     dbfile = media.openKodiDB()
     musicvid = media.settings('musicvid')                # Check if musicvideo sync is enabled
@@ -215,11 +223,13 @@ def getPlayCount(mtitle, mtype):                         # Get playcount for sel
             mseries = pcursor[4] 
         curpc.close()  
     else:
-        curpc = dbfile.execute('select playCount, c22, strSet from movie_view where C00=?', (mtitle,)) 
+        curpc = dbfile.execute('select playCount, c22, strSet, premiered from movie_view where \
+        C00=?', (mtitle,)) 
         pcursor = curpc.fetchone()                      # Is title a movie ?   
         if pcursor:
             pcount =  pcursor[0]
             murl = pcursor[1]
+            myear = pcursor[3][:4]
             if pcursor[2] != None:                      # Movie set information
                 mset = pcursor[2]
             else:
@@ -228,7 +238,7 @@ def getPlayCount(mtitle, mtype):                         # Get playcount for sel
 
     dbfile.close()
 
-    return [mtitle, murl, mseason, mepisode, pcount, mseries, mset]   
+    return [mtitle, murl, mseason, mepisode, pcount, mseries, mset, myear]   
 
 
 if __name__ == '__main__':

@@ -31,6 +31,8 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
 - Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content
 - Automatic detection of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#duplicate-library-content">duplicate library content</a>
+- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers including <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#local-movie-trailers">local trailers</a>
+- <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#mezzmo-movie-previews">Mezzmo Movie Previews</a> to create a movie theater like experience from your Mezzmo library
 - Automatic support for <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movie-sets">Movie Sets</a> with <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#movieset-quick-access">Quick Access</a> context menus
 - Flexible user definable <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#mezzmo-movie-collection">movie collections</a> with quick context menu access
 - Automatically stop paused playback <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">user selectable</a> timer
@@ -44,7 +46,6 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 - Play music with a <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Context-Menu-Additions#music-item-context-menu-additions">resume playback</a> capability
 - View Photos manually or with the built-in <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-picture-view">slideshow viewer including continuous loop option</a>
 - Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#parental-controls">parental controls</a>
-- Movie <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers">trailer previews</a> with up to 20 trailers including <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Movie-Trailers#local-movie-trailers">local trailers</a>
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#native--mode">User selection</a> for syncing music videos as Kodi movies or <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Library-Views#kodi-music-video-view">music videos</a> 
 - Automatic software updates
 - Automatic Kodi database rebuild / restore
