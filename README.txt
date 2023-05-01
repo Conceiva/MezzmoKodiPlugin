@@ -1,3 +1,9 @@
+2.1.8.7 5/1/2023
+
+- Added major feature, Mezzmo Movie Previews which will play a user defined 
+  number of movie previews and then the main feature in order to simulate a
+  theater like experience.
+
 2.1.8.6 4/25/2023
 
 - Fixed minor bug introduced in v2.1.8.5 which would cause an exception error

@@ -653,9 +653,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     mtype = categories_text                 
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
-                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %             \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %         \
                     ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
-                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist))])    
+                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist, release_year_text))])    
               
                     if installed_version == '19':   
                         info = {
