@@ -1,3 +1,71 @@
+2.1.8.8
+
+- Fixed a bug with the generic UPnP browser where a Serviio server would not
+  return any actor information causing an exception error.  
+
+2.1.8.7 5/1/2023
+
+- Added major feature, Mezzmo Movie Previews which will play a user defined 
+  number of movie previews and then the main feature in order to simulate a
+  theater like experience.
+
+2.1.8.6 4/25/2023
+
+- Fixed minor bug introduced in v2.1.8.5 which would cause an exception error
+  if the Mezzmo sync server was down when the background sync process tried
+  to run.
+
+2.1.8.5 4/19/2023
+
+- Added detecting Mezzmo server version.  This may be required for future
+  addon updates which may require specific versions of Mezzmo.  You can see
+  your Mezzmo server information in the kodi.log file and the addon sync logs.
+- Added underlying movie release year and release date to the addon movie
+  trailer database in order to support upcoming Mezzmo Movie Previews 
+  planned feature. 
+
+2.1.8.4 3/25/2023
+
+- Set sort order to Year for moviesets so they will always appear in
+  chronological order.  They can still be changed by the side blade menu.
+  If there is interest an addon setting could be added to allow setting 
+  the preferred sort order for moviesets, searches and collections.
+- Added syncing of Mezzmo studio information to Kodi's studio and 
+  studio_link tables in native mode operation.  This completes adding
+  all Mezzmo video metadata to Kodi's video database.
+ 
+2.1.8.3 3/17/2023
+
+- Fixed Kodi 20 deprecation message when movie playing trailers.
+- Fixed not updating TV show studio information in Kodi when the first 
+  episode of a TV show series was processed during the Kodi sync process
+  and was missing the production studio information.
+- Added option to sync Directors and Writers to Kodi database for native
+  mode operation.  Previously they were written to the movie, episode and
+  musicivdeo tables but not to the director_link and writer_link tables. 
+
+2.1.8.2 3/12/2023
+
+- Initial support for Kodi 21, Omega, development releases.
+
+2.1.8.1 3/2/2023
+
+- Fixed very obscure bug where a movie would show season 0 in Kodi if it was part
+  of a Mezzmo library search or playlist / folder that contained both movies and 
+  TV shows and the last item in the list was a TV Show.  This is for Kodi 20 and
+  higher.  
+- Fixed a bug where the automatic picture slideshow would skip slides if paused
+  for too long.
+
+2.1.8.0 2/26/2023
+
+- Fixed minor bug which caused the Kodi database progress dialog box to appear
+  for a couple of seconds during the daily sync process vs. only appearing during
+  a manual Mezzmo to Kodi full resync / clean.
+- Added menu option for an automatic continuous picture slideshow which will 
+  play in a loop until stopped.  This feature will support up to 1,000 images in
+  a slideshow.
+
 2.1.7.9 2/17/2023
 
 - Fixed minor bug where Kodi container not updating automatically in GUI mode 

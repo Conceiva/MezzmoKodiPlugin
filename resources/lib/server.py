@@ -9,7 +9,8 @@ import xml.etree.ElementTree as ET
 import xbmcaddon
 import ssdp
 import json
-from media import openNosyncDB, settings, mezlogUpdate, printexception, mgenlogUpdate, translate
+from media import openNosyncDB, settings, mezlogUpdate, printexception
+from media import mgenlogUpdate, translate, get_installedversion
 
 addon = xbmcaddon.Addon()
 addon_path = addon.getAddonInfo("path")
@@ -24,6 +25,9 @@ def updateServers(url, name, controlurl, manufacturer, model, icon, description,
         svrfile.execute('INSERT into mServers (srvUrl, srvName, controlUrl, mSync, sManuf, sModel,  \
         sIcon, sDescr, sUdn) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (url, name, controlurl, 'No',     \
         manufacturer, model, icon, description, udn[5:]))
+    else:
+        svrfile.execute('UPDATE mServers SET sManuf=?, sModel=?, sDescr=? WHERE controlUrl=?',       \
+        (manufacturer, model, description, controlurl,)) 
 
     svrfile.commit()
     svrfile.close()
@@ -77,6 +81,7 @@ def addServers():                                                #  Manually add
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
                    {'name': 'PlayOn', 'port': '52478', 'uri': '/'},
                    {'name': 'Plex', 'port': '32469', 'uri': '/DeviceDescription.xml'},
+                   {'name': 'Serviio', 'port': '8895', 'uri': '/deviceDescription/0f93c97d-befb-3f6e-8003-48116b8cbea6'},
                    {'name': 'Tversity', 'port': '41952', 'uri': '/description/fetch'},
                    {'name': 'Twonky', 'port': '9000', 'uri': '/dev0/desc.xml'}  ]
 
@@ -156,13 +161,112 @@ def updateSync(controlurl):                                      # Set sync for 
         return 1      
 
 
-def checkSync():                                                 # Check for Sync server
+def checkMezzmo(srvurl):                                         # Check / Update sync sever info
+
+    try:
+        response = urllib.request.urlopen(srvurl)
+        xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
+            
+        e = xml.etree.ElementTree.fromstring(xmlstring)    
+        device = e.find('device')
+        friendlyname = device.find('friendlyName').text
+        manufacturer = device.find('manufacturer')
+        if manufacturer != None:
+            manufacturer = manufacturer.text
+        else:
+            manufacturer = 'None'
+        modelnumber = device.find('modelNumber')
+        if modelnumber != None:
+            modelnumber = modelnumber.text
+        else:
+            modelnumber = 'None'
+        udn = device.find('UDN')
+        if udn != None:
+            udn = udn.text
+        else:
+            udn = 'None'
+        description = device.find('modelDescription')
+        if description != None:
+            description = description.text
+        else:
+            description = 'None'    
+        serviceList = device.find('serviceList')
+        iconurl = addon_icon
+
+        contenturl = ''
+        for service in serviceList.findall('service'):
+            serviceId = service.find('serviceId')
+                    
+            if serviceId.text == 'urn:upnp-org:serviceId:ContentDirectory':
+                contenturl = service.find('controlURL').text
+                if contenturl.startswith('/'):
+                    end = srvurl.find('/', 8)
+                    length = len(srvurl)                            
+                    contenturl = srvurl[:end-length] + contenturl
+                elif 'http' not in contenturl:
+                    end = srvurl.rfind('/')
+                    length = len(srvurl)                            
+                    contenturl = srvurl[:end-length] + '/' + contenturl
+        updateServers(srvurl, friendlyname, contenturl, manufacturer, modelnumber,            \
+        iconurl, description, udn)
+        return modelnumber.strip()
+
+    except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
+        msynclog = 'Mezzmo sync server not responding: ' + srvurl
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)  
+        return '0.0.0.0'
+
+    except Exception as e:
+        printexception()
+        msynclog = 'Mezzmo sync server check error.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
+        return '0.0.0.0'
+
+
+def checkMezzmoVersion():                                        # Returns Mezzmo server version in number form
+
+    try:
+        svrfile = openNosyncDB()                                 # Open server database
+        curps = svrfile.execute('SELECT sModel FROM mServers WHERE mSync=?', ('Yes',))
+        srvrtuple = curps.fetchone()                             # Get server from database
+        srvfile.close()
+        if svrvtuple:
+            model = svrvtuple[0].replace('.','')            
+            return model
+
+    except Exception as e:
+        printexception()
+        msynclog = 'Mezzmo Mezzmo erro checking sync server model number or no Mezzmo sync server selected.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
+        return 0      
+
+
+def checkSync(count):                                            # Check for Sync server
 
     svrfile = openNosyncDB()                                     # Open server database    
-    curps = svrfile.execute('SELECT controlUrl FROM mServers WHERE mSync=?', ('Yes',))
+    curps = svrfile.execute('SELECT controlUrl, srvUrl, srvName FROM mServers WHERE mSync=?', ('Yes',))
     srvrtuple = curps.fetchone()                                 # Get server from database
     if srvrtuple:
         syncurl = srvrtuple[0]
+        if count < 12 or count % 3600 == 0:                      # Don't check Mezzmo server on fast sync
+            modelnumb = checkMezzmo(srvrtuple[1])
+            if modelnumb != '0.0.0.0':
+                sname = srvrtuple[2]
+                msynclog = 'Mezzmo sync server responded: ' + sname
+                xbmc.log(msynclog, xbmc.LOGINFO)
+                mezlogUpdate(msynclog)
+                msynclog = 'Mezzmo sync server version: ' + modelnumb 
+                xbmc.log(msynclog, xbmc.LOGINFO)
+                mezlogUpdate(msynclog)
+            else:
+                sname = srvrtuple[2]
+                msynclog = 'Mezzmo sync server did not respond: ' + sname
+                xbmc.log(msynclog, xbmc.LOGINFO)
+                mezlogUpdate(msynclog)
+                syncurl = 'None'        
     else:
         contenturl = settings('contenturl')                      # Check for content URL
         curpc = svrfile.execute('SELECT srvName, sIcon FROM mServers WHERE controlUrl=?',  \
@@ -177,7 +281,7 @@ def checkSync():                                                 # Check for Syn
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
                 notify = xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)
-        else:                                                    # Sync srver not set yet
+        else:                                                    # Sync server not set yet
             syncurl = 'None'
     svrfile.close()
     return syncurl    
@@ -523,22 +627,23 @@ def picDisplay():                                                # Picture slide
         else:
             cselect = 3
             while cselect >= 0:
-                #pictures = ['Slideshow','Pictures Normal Delay']
-                pictures = [translate(30417), translate(30418), translate(30419)]
+                pictures = [translate(30417), translate(30476), translate(30418), translate(30419)]
                 ddialog = xbmcgui.Dialog() 
                 cselect = ddialog.select(translate(30415), pictures)
-                if cselect == 1:                                 # User selects pictures normal
+                if cselect == 2:                                 # User selects pictures normal
                     showPictureMenu(piclist, slidetime)
                     #xbmc.executebuiltin('Action(ParentDir)')
-                if cselect == 2:                                 # User selects pictures extended
+                elif cselect == 3:                               # User selects pictures extended
                     showPictureMenu(piclist, (slidetime * 3))
                     #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 0:                               # User selects slideshow
-                    ShowSlides(piclist, slidetime)
+                elif cselect == 0:                               # User selects normal slideshow
+                    ShowSlides(piclist, slidetime, 'no')
+                elif cselect == 1:                               # User selects continuous slideshow
+                    ShowSlides(piclist, slidetime, 'yes')
                 elif cselect < 0:
                     #xbmc.executebuiltin('Action(ParentDir)')
+                    xbmc.executebuiltin('Dialog.Close(all, true)')
                     break
-                    #return
 
     except Exception as e:    
         printexception()
@@ -576,25 +681,29 @@ def showPictureMenu(piclist, slidetime):                         # Picture viewe
             mgenlogUpdate(mgenlog)   
 
 
-def ShowSlides(piclist, slidetime):                              # Slidehow viewier
+def ShowSlides(piclist, slidetime, ssmode):                      # Slidehow viewier
 
     try:    
         kbmonitor = KodiMonitor()                   
         slideIdx = 0   
         #xbmc.log('Mezzmo picture url is: ' + str(playitem) , xbmc.LOGINFO)
 
+        xbmc.executebuiltin('Dialog.Close(all, true)')
         while slideIdx < len(piclist):           
             if kbmonitor.flag == 'play':  
                 playitem = picURL(piclist[slideIdx]['url'])      # Verify proper file name
                 #xbmc.log('Mezzmo picture index is: ' + str(playitem) , xbmc.LOGINFO)
                 json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
                 "params":{"item":{"file":%s }},"id":1}' % (playitem))           
-            #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGINFO)
+                #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGINFO)
+                slideIdx += 1
             xbmc.sleep(slidetime * 1000)
-            slideIdx += 1
+            if slideIdx == len(piclist) and ssmode == 'yes':     # Continuous slideshow
+                slideIdx = 0
             #xbmc.log('Mezzmo monitor data is: ' + (kbmonitor.flag) , xbmc.LOGINFO)
             if kbmonitor.flag == 'stop':
                 del kbmonitor
+                xbmc.executebuiltin('Dialog.Close(all, true)')
                 return
                 break
             if kbmonitor.flag == 'pause':
@@ -641,7 +750,11 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGINFO)
         lititle = "Trailer  #" + trselect + " - " + mtitle
         li = xbmcgui.ListItem(lititle)
-        li.setInfo('video', {'Title': lititle})
+        if int(get_installedversion()) == 19:
+            li.setInfo('video', {'Title': lititle})
+        else:
+            linfo = li.getVideoInfoTag()
+            linfo.setTitle(lititle)
         li.setArt({'thumb': icon, 'poster': icon}) 
         xbmc.Player().play(itemurl, li)
     except:

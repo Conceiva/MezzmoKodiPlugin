@@ -283,6 +283,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="kdirector" type="boolean" label="30477" help="30546">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiskin" type="boolean" label="30439" help="30536">
 					<level>0</level>
 					<default>false</default>
@@ -303,23 +308,6 @@
 					<control type="toggle"/>
 				</setting>
 				<setting id="slideshow" type="boolean" label="30425" help="30532">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
-				<setting id="trcount" type="string" label="30433" help="30534">
-					<level>0</level>
-					<default>10</default>
-					<constraints>
-						<options>
-							<option>0</option>
-							<option>10</option>
-                                        		<option>20</option>
-						</options>
-					</constraints>
-					<control type="spinner" format="string"/>
-				</setting>
-				<setting id="prflocaltr" type="boolean" label="30462" help="30543">
 					<level>0</level>
 					<default>true</default>
 					<control type="toggle"/>
@@ -1203,6 +1191,48 @@
 						</dependency>
 					</dependencies>
 					<control type="spinner" format="string"/>
+				</setting>
+			</group>
+		</category>
+		<category id="trailers" label="30478" help="">
+			<group id="1">
+				<setting id="trcount" type="string" label="30433" help="30534">
+					<level>0</level>
+					<default>10</default>
+					<constraints>
+						<options>
+							<option>0</option>
+							<option>10</option>
+                                        		<option>20</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="prviewct" type="string" label="30479" help="30547">
+					<level>0</level>
+					<default>3</default>
+					<constraints>
+						<options>
+							<option>0</option>
+							<option>1</option>
+                                        		<option>2</option>
+                                        		<option>3</option>
+                                        		<option>4</option>
+                                        		<option>5</option>
+                                        		<option>6</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="prflocaltr" type="boolean" label="30462" help="30543">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="prviewyr" type="boolean" label="30480" help="30548">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 		</category>

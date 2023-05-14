@@ -6,7 +6,6 @@ import sys
 import bookmark
 import playcount
 import xbmcaddon
-import browse
 from media import openNosyncDB, get_installedversion, playCount,openKodiDB
 import media
 from server import displayServers, picDisplay, displayTrailers
@@ -504,11 +503,77 @@ def checkItemChange(header, message):                        # Verify user wants
 
     checkdialog = xbmcgui.Dialog()                           # Confirm context menu action
     cselect = checkdialog.yesno(header, message)
-    return cselect    
+    return cselect
+
+
+def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie previews
+
+    try:
+        prflocaltr = media.settings('prflocaltr')   
+        prviewyr = media.settings('prviewyr')
+        curryear = datetime.now().strftime('%Y')
+
+        if prviewyr == 'true':                               # Preview year or current year
+            taryear = int(myear)
+        else:
+            taryear = curryear
+
+        if prflocaltr == 'true':                             # Prefer local or local and You Tube
+            tartrail = '%youtube%'
+        else:
+            tartrail = '% %'
+
+        mpfile = openNosyncDB()
+        mpcurr = mpfile.execute('SELECT trTitle, trUrl, trVar3 from mTrailers where trVar1  \
+        NOT LIKE ? AND mPcount=0 AND trYear=? AND trID=1 AND trPlay=0 AND NOT trTitle=?     \
+        ORDER BY RANDOM() LIMIT ?', (tartrail, taryear, mtitle, prviewct,))
+        mptuples = mpcurr.fetchall()        
+        mpfile.close()
+
+        xbmc.log('Mezzmo Movie Previews: ' + str(taryear) + ' ' + str(len(mptuples)) + ' '  \
+        + vurl, xbmc.LOGDEBUG)
+        mezzlist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)        # Create playlist
+        mezzlist.clear()
+        if len(mptuples) > 0:                                # Build playlist of trailers
+            for m in range(len(mptuples)):
+                lititle = str(taryear) + " Trailer - " + mptuples[m][0]
+                trurl = mptuples[m][1]
+                tricon = mptuples[m][2]
+                li = xbmcgui.ListItem(lititle, trurl)
+                if int(get_installedversion()) == 19:
+                    li.setInfo('video', {'Title': lititle})
+                else:
+                    linfo = li.getVideoInfoTag()
+                    linfo.setTitle(lititle)
+                li.setArt({'thumb': tricon, 'poster': tricon})
+                mezzlist.add(url=trurl, listitem=li)
+                dsfile = openNosyncDB()                      # Open trailer database
+                dsfile.execute('UPDATE mTrailers SET trPlay=? WHERE trUrl=?', (1, trurl))
+                dsfile.commit()
+                dsfile.close()  
+        else:                                                # No matching trailers found
+            xbmcgui.Dialog().notification(media.translate(30481), media.translate(30482), icon, 3000)
+
+        li = xbmcgui.ListItem(mtitle, vurl)                  # Add main feature to playlist
+        if int(get_installedversion()) == 19:
+            li.setInfo('video', {'Title': mtitle})
+        else:
+            linfo = li.getVideoInfoTag()
+            linfo.setTitle(mtitle)
+        li.setArt({'thumb': icon, 'poster': icon})
+        mezzlist.add(url=vurl, listitem=li)
+
+        xbmc.Player().play(mezzlist)   
+        del mezzlist
+
+    except:
+        mgenlog ='Mezzmo problem with Mezzmo Movie Previews for: ' + str(myear)
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)
 
 
 def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, contenturl, \
-    bmposition, icon, movieset, taglist) :
+    bmposition, icon, movieset, taglist, mezyear) :
 
     addon = xbmcaddon.Addon()
     menuitem1 = addon.getLocalizedString(30434)
@@ -521,8 +586,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem8 = addon.getLocalizedString(30467)
     menuitem9 = addon.getLocalizedString(30468)
     menuitem10 = addon.getLocalizedString(30469)
-    menuitem11 = addon.getLocalizedString(30470)    
+    menuitem11 = addon.getLocalizedString(30470)
+    menuitem12 = addon.getLocalizedString(30481)        
     trcount = media.settings('trcount')
+    prviewct = int(media.settings('prviewct'))    
     mplaycount = int(playcount)
     currpos = int(bmposition)
     if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode':  # Check for collection tag
@@ -571,6 +638,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
 
+    if prviewct > 0 and mtype == 'movie':                # If Mezmo Movie Previews > 0
+        cselect.append(menuitem12)
+
     if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
         cselect.append(menuitem8)
 
@@ -593,6 +663,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
         trDisplay(title, trcount, icon)
+    elif (cselect[vcontext]) == menuitem12:              # Mezzmo Movie Previews
+        moviePreviews(title, vurl, prviewct, mezyear, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
         displayMenu()
     elif (cselect[vcontext]) == menuitem3 or (cselect[vcontext]) == menuitem4:
@@ -658,9 +730,10 @@ if len(sys.argv) > 1:
         currposs = sys.argv[10]
         icon = sys.argv[11]
         movieset = sys.argv[12]
-        taglist = sys.argv[13] 
-        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  \
-        mtype, contenturl, currposs, icon, movieset, taglist)         # call GUI context menu
+        taglist = sys.argv[13]
+        mezyear = sys.argv[14] 
+        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  mtype, 
+        contenturl, currposs, icon, movieset, taglist, mezyear)       # call GUI context menu
     elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
         autoStart()
     elif sys.argv[1] == 'playm':                                      # Play music with bookmark

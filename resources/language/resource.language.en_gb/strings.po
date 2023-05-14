@@ -628,6 +628,34 @@ msgctxt "#30475"
 msgid "Context Menu Confirmations"
 msgstr ""
 
+msgctxt "#30476"
+msgid "Slideshow - Continuous"
+msgstr ""
+
+msgctxt "#30477"
+msgid "Kodi Director / Writer Sync"
+msgstr ""
+
+msgctxt "#30478"
+msgid "Trailers"
+msgstr ""
+
+msgctxt "#30479"
+msgid "Mezzmo Movie Preview Count"
+msgstr ""
+
+msgctxt "#30480"
+msgid "Release Year Trailers"
+msgstr ""
+
+msgctxt "#30481"
+msgid "Mezzmo Movie Previews"
+msgstr ""
+
+msgctxt "#30482"
+msgid "No trailers found.  Starting main movie."
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -717,7 +745,7 @@ msgid "Music Videos view display format."
 msgstr ""
 
 msgctxt "#30523"
-msgid "Automatically stop paused video in minutes.  0 = never automatically stop paused video."
+msgid "Automatically stop paused video in minutes.  0 - never automatically stop paused video."
 msgstr ""
 
 msgctxt "#30524"
@@ -781,7 +809,7 @@ msgid "Enable for native Kodi mode to display TV Shows by actor.  Default is dis
 msgstr ""
 
 msgctxt "#30539"
-msgid "Enable for native Kodi mode to sync Mezmo keywords to Kodi tags.  Default is disabled."
+msgid "Enable for native Kodi mode to sync Mezzmo keywords to Kodi tags.  Default is disabled."
 msgstr ""
 
 msgctxt "#30540"
@@ -806,4 +834,16 @@ msgstr ""
 
 msgctxt "#30545"
 msgid "Enable to provide context menu confirmation dialogs for bookmark clearing and watch status updates to protect against accidental changes.  Default is enabled."
+msgstr ""
+
+msgctxt "#30546"
+msgid "Enable for native Kodi mode to sync Mezzmo directors / writers to Kodi.  Default is disabled."
+msgstr ""
+
+msgctxt "#30547"
+msgid "Mezzmo Movie Previews feature number of trailers to play before the main movie 0-6. 0 disables Mezzmo Movie Previews. Default is 3."
+msgstr ""
+
+msgctxt "#30548"
+msgid "When enabled the Mezzmo Movie Preview trailers will be from the year the movie was released to recreate a theater like experience.  If disabled they will be from the current year.  Default is enabled."
 msgstr ""

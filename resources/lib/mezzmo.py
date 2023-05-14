@@ -238,7 +238,7 @@ def listServers(force):
         media.kodiCleanDB(0)                    # Call function to delete Kodi actor database if user enabled.
         if media.settings('kodiclean') == 'resync':
             syncpin = media.settings('content_pin')
-            syncurl = checkSync()                         # Get server control URL
+            syncurl = checkSync(0)                        # Get server control URL
             if syncpin and syncurl != 'None':            
                 sync.syncMezzmo(syncurl, syncpin, 15)     # Trigger resync process
             media.settings('kodiclean', 'false')          # reset back to false after resync
@@ -255,6 +255,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    kdirector = media.settings('kdirector')
     nativeact = media.settings('nativeact')
     perflog = media.settings('perflog')
     musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
@@ -530,10 +531,14 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -648,9 +653,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     mtype = categories_text                 
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
-                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %             \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %         \
                     ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
-                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist))])    
+                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist, release_year_text))])    
               
                     if installed_version == '19':   
                         info = {
@@ -667,7 +672,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             'rating': rating_val,
                             'imdbnumber': imdb_text,
                             'mediatype': categories_text,
-                            'season': season_text,
+                            'season': season_kodi,
                             'episode': episode_text,
                             'lastplayed': last_played_text,
                             'aired': aired_text,
@@ -706,7 +711,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if season_kodi is not None: vinfo.setSeason(int(season_text))
                         if episode_text is not None: vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
@@ -738,22 +743,24 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text,    \
-                            production_company_text, icon, backdropurl)
+                            production_company_text, icon, backdropurl, knative)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text) 
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text, \
+                            imageSearchUrl, kdirector) 
                         elif filekey[4] == 2:
                             mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
                             sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
-                            artist_text) 
+                            artist_text, imageSearchUrl, kdirector) 
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
+                            kdirector)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)
@@ -915,6 +922,7 @@ def handleSearch(content, contenturl, objectID, term):
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
+    kdirector = media.settings('kdirector')
     nativeact = media.settings('nativeact')
     musicvid = media.settings('musicvid')               # Check if musicvideo sync is enabled
     trcount = media.settings('trcount')                 # Checks multiple trailer setting
@@ -1140,10 +1148,14 @@ def handleSearch(content, contenturl, objectID, term):
                 if episode != None:
                     episode_text = episode.text
                  
-                season_text = ''
+                season_text = season_kodi = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+                    if season_text == '0' and 'episode' not in contentType:
+                        season_kodi = None
+                    else:
+                        season_kodi = season_text
                  
                 playcount = 0
                 playcount_text = ''
@@ -1279,7 +1291,7 @@ def handleSearch(content, contenturl, objectID, term):
                             'rating': rating_val,
                             'imdbnumber': imdb_text,
                             'mediatype': categories_text,
-                            'season': season_text,
+                            'season': season_kodi,
                             'episode': episode_text,
                             'lastplayed': last_played_text,
                             'aired': aired_text,
@@ -1318,7 +1330,7 @@ def handleSearch(content, contenturl, objectID, term):
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if season_text is not None: vinfo.setSeason(int(season_text))
+                        if season_kodi is not None: vinfo.setSeason(int(season_text))
                         if episode_text is not None: vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
@@ -1352,22 +1364,24 @@ def handleSearch(content, contenturl, objectID, term):
                         showId = 0                                          #  Set default 
                         if filekey[4] == 1:
                             showId = media.checkTVShow(filekey, album_text, genre_text, dbfile, content_rating_text, \
-                            production_company_text, icon, backdropurl)
+                            production_company_text, icon, backdropurl, knative)
                             mediaId = media.writeEpisodeToDb(filekey, mtitle, description_text, tagline_text,           \
                             writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl,    \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,        \
-                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text)
+                            sort_title_text, season_text, episode_text, showId, 'false', itemurl, imdb_text, tags_text, \
+                            imageSearchUrl, kdirector)
                         elif filekey[4] == 2:
                             mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
                             sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
-                            artist_text) 
+                            artist_text, imageSearchUrl, kdirector) 
                         else:  
                             mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
-                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset)
+                            sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
+                            kdirector)
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)
@@ -1476,6 +1490,8 @@ def handleSearch(content, contenturl, objectID, term):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
     setViewMode(contentType)
+    if searchcontrol2 == 'movieset':
+        xbmc.executebuiltin('Container.SetSortMethod(16)')
     xbmcplugin.endOfDirectory(addon_handle)
     
     #xbmc.executebuiltin("Dialog.Close(busydialog)")
