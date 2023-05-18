@@ -540,7 +540,14 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
         mpcurr = mpfile.execute('SELECT trTitle, trUrl, trVar3 from mTrailers where trVar1  \
         NOT LIKE ? AND mPcount=0 AND trYear=? AND trID=1 AND trPlay=0 AND NOT trTitle=?     \
         ORDER BY RANDOM() LIMIT ?', (tartrail, taryear, mtitle, prviewct,))
-        mptuples = mpcurr.fetchall()        
+        mptuples = mpcurr.fetchall()
+
+        if len(mptuples) < prviewct:                         # If all movies played in the requested year
+            mpcurr = mpfile.execute('SELECT trTitle, trUrl, trVar3 from mTrailers where trVar1  \
+            NOT LIKE ? AND trYear=? AND trID=1 AND trPlay=0 AND NOT trTitle=? ORDER BY RANDOM() \
+            LIMIT ?', (tartrail, taryear, mtitle, prviewct,))
+            mptuples = mpcurr.fetchall()        
+
         mpfile.close()
 
         xbmc.log('Mezzmo Movie Previews: ' + str(taryear) + ' ' + str(len(mptuples)) + ' '  \
@@ -561,7 +568,7 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
                 dsfile.commit()
                 dsfile.close()  
         else:                                                # No matching trailers found
-            xbmcgui.Dialog().notification(media.translate(30481), media.translate(30482), icon, 3000)
+            xbmcgui.Dialog().notification(media.translate(30481), media.translate(30482), icon, 5000)
 
         li = xbmcgui.ListItem(mtitle, vurl)                  # Add main feature to playlist
         li.setInfo('video', {'Title': mtitle})
