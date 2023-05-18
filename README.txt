@@ -1,3 +1,12 @@
+2.1.8.8 5/18/2023
+
+- Fixed a bug with the generic UPnP browser where a UPnP server would not return
+  any actor / cast information causing an exception error.
+- Changed Mezzmo Movie Preview query to account for when all movies in the 
+  requested year have a playcount of > 0.  Previously the addon would not play
+  further previews.  Now it will return the requested number of previews in the 
+  addon setting.  
+
 2.1.8.7 5/1/2023
 
 - Added major feature, Mezzmo Movie Previews which will play a user defined 

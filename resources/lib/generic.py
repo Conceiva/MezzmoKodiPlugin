@@ -285,7 +285,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                             actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
                             cast_dict.append(actor)
                 elif actors == None:                         # Plex cast
-                    actor_list = []
+                    actor_list = artist_text = []
                     if installed_version == '19': 
                         for actor in item.findall('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}actor'):
                             if actor != None:
