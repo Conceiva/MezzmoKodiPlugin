@@ -1,3 +1,19 @@
+2.1.8.9 5/25/2023
+
+- Fixed minor bug which could cause the same trailer to be played multiple times a
+  day even when there were unplayed trailers from the same year.
+- Improved trailer tracking of main movie playcount with the background sync process.
+  Previously it would only update once a day or if there was a change to the trailer
+  filename or URL.  Now it will update if there is a playcount change detected in
+  associated main movie.
+- Added by title as the default sort order for Mezzmo searches
+- Added new native mode Fast Sync feature which allows setting the sync time between
+  Mezzmo and Kodi for new Mezzmo library content and last watched / resume points. 
+  The setting is between 1-5 minutes to achieve near real time propagation across
+  all Kodi clients in native mode.  GUI mode continues to be instantaneous.  
+
+  *** Note version 6.0.7.14 of Mezzmo or higher is required for this feature *** 
+
 2.1.8.8 5/18/2023
 
 - Fixed a bug with the generic UPnP browser where a UPnP server would not return

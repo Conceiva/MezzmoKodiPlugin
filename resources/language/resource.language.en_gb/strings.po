@@ -656,6 +656,10 @@ msgctxt "#30482"
 msgid "No trailers found.  Starting main movie."
 msgstr ""
 
+msgctxt "#30483"
+msgid "Native Fast Sync Time 0-5 (mins)"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -846,4 +850,8 @@ msgstr ""
 
 msgctxt "#30548"
 msgid "When enabled the Mezzmo Movie Preview trailers will be from the year the movie was released to recreate a theater like experience.  If disabled they will be from the current year.  Default is enabled."
+msgstr ""
+
+msgctxt "#30549"
+msgid "Fast sync time for native mode syncing of new Mezzmo library content and Mezzmo boommark / resume timers from other clients. 0-5 minutes.  0 is disabled. Default is 0."
 msgstr ""

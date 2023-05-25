@@ -229,15 +229,15 @@ def checkMezzmoVersion():                                        # Returns Mezzm
     try:
         svrfile = openNosyncDB()                                 # Open server database
         curps = svrfile.execute('SELECT sModel FROM mServers WHERE mSync=?', ('Yes',))
-        srvrtuple = curps.fetchone()                             # Get server from database
-        srvfile.close()
-        if svrvtuple:
-            model = svrvtuple[0].replace('.','')            
+        svrtuple = curps.fetchone()                              # Get server from database
+        svrfile.close()
+        if svrtuple:
+            model = svrtuple[0].replace('.','')            
             return model
 
     except Exception as e:
         printexception()
-        msynclog = 'Mezzmo Mezzmo erro checking sync server model number or no Mezzmo sync server selected.'
+        msynclog = 'Mezzmo Mezzmo error checking sync server model number or no Mezzmo sync server selected.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog)
         return 0      

@@ -525,14 +525,14 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
 
         mpfile = openNosyncDB()
         mpcurr = mpfile.execute('SELECT trTitle, trUrl, trVar3 from mTrailers where trVar1  \
-        NOT LIKE ? AND mPcount=0 AND trYear=? AND trID=1 AND trPlay=0 AND NOT trTitle=?     \
-        ORDER BY RANDOM() LIMIT ?', (tartrail, taryear, mtitle, prviewct,))
+        NOT LIKE ? AND mPcount=? AND trYear=? AND trID=? AND trPlay=? AND NOT trTitle=?     \
+        ORDER BY RANDOM() LIMIT ?', (tartrail, 0, taryear, '1', '0', mtitle, prviewct,))
         mptuples = mpcurr.fetchall()
 
         if len(mptuples) < prviewct:                         # If all movies played in the requested year
             mpcurr = mpfile.execute('SELECT trTitle, trUrl, trVar3 from mTrailers where trVar1  \
-            NOT LIKE ? AND trYear=? AND trID=1 AND trPlay=0 AND NOT trTitle=? ORDER BY RANDOM() \
-            LIMIT ?', (tartrail, taryear, mtitle, prviewct,))
+            NOT LIKE ? AND trYear=? AND trID=? AND trPlay=? AND NOT trTitle=? ORDER BY RANDOM() \
+            LIMIT ?', (tartrail, taryear, '1', '0', mtitle, prviewct,))
             mptuples = mpcurr.fetchall()
         
         mpfile.close()
