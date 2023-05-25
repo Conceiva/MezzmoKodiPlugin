@@ -15,10 +15,12 @@ import media
 import time
 import datetime
 import bookmark
+from server import checkMezzmoVersion
 
 syncoffset = 400
 mezzmorecs = 0
 dupelog = 'false'
+fastcount = 0
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
   
@@ -170,6 +172,43 @@ def checkDailySync():
     xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
 
     return(dailysync)
+
+
+def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Kodi
+
+    try:
+        global fastcount
+
+        mezzver = checkMezzmoVersion()        
+        xbmc.log('Mezzmo version is: ' + str(mezzver), xbmc.LOGDEBUG)
+        if int(mezzver) < 60714:
+            msynclog = 'Mezzmo version 6.0.7.14 or higher is required for Fast Sync.  Fast Sync being disabled.'
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)          
+            media.settings('fastsync', '0')
+        syncobjid = 'recent'
+        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 30, syncpin)
+        rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 30)
+        xbmc.log('Mezzmo most recent rows returned ' + str(rows), xbmc.LOGDEBUG)
+        syncobjid = 'lastplayed'
+        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 10, syncpin)
+        rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 10)
+        xbmc.log('Mezzmo last played rows returned ' + str(rows), xbmc.LOGDEBUG)
+        media.nativeNotify()                             # Kodi native notification
+        if fastcount >= 60 / int(fset):                  # Regular log update
+            msynclog = 'Mezzmo Fast Sync normal. ' +  str(fastcount) + ' syncs since last log message.'
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)
+            fastcount = 0
+        else: 
+            fastcount += 1
+        xbmc.log('Mezzmo fastcount : ' + str(fastcount), xbmc.LOGDEBUG)
+
+    except Exception as e:
+        printsyncexception()    
+        msynclog = 'Mezzmo Fast Sync encounted an error.'
+        xbmc.log(msynclog, xbmc.LOGNOTICE)
+        media.mezlogUpdate(msynclog)
 
 
 def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi

@@ -302,13 +302,17 @@ def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpcount, mpremiered
                     xbmc.log('Mezzmo local trailer found: ' + mtitle.encode('utf-8','ignore') , xbmc.LOGDEBUG)
 
             if prflocaltr == 'true' and localcount > 0: 
-                dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=? and trUrl    \
-                NOT LIKE ?', (mtitle, ytmatch,))
+                dupes = dbsync.execute('SELECT count (trUrl), mPcount FROM mTrailers WHERE trTitle=?   \
+                and trUrl NOT LIKE ?', (mtitle, ytmatch,))
             else:
-                dupes = dbsync.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (mtitle,))
+                dupes = dbsync.execute('SELECT count (trUrl), mPcount FROM mTrailers WHERE trTitle=?', \
+                (mtitle,))
             dupetuple = dupes.fetchone()
             xbmc.log('Mezzmo trailers: ' + str(trlength) + ' ' + str(dupetuple[0]) + ' ' +               \
             str(localcount) + ' ' + mtitle.encode('utf-8','ignore'), xbmc.LOGDEBUG)  
+
+            if (mpcount != dupetuple[1] and dupetuple[0] > 0):  # Update trailer db play counts
+                dbsync.execute('UPDATE mTrailers SET mPcount=? WHERE trTitle=?', (mpcount, mtitle,))  
 
             if (prflocaltr == 'false' and dupetuple[0] <> trlength) or (prflocaltr == 'true' and          \
             localcount > 0 and dupetuple[0] <> localcount) or (prflocaltr == 'true' and localcount == 0   \

@@ -1363,8 +1363,10 @@ def handleSearch(content, contenturl, objectID, term):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
     setViewMode(contentType)
-    if searchcontrol2 == 'movieset':
+    if searchcontrol2 == 'movieset':               # Sort moviesets by year
         xbmc.executebuiltin('Container.SetSortMethod(16)')
+    else:                                          # Sort everything else by title
+        xbmc.executebuiltin('Container.SetSortMethod(7)')
     xbmcplugin.endOfDirectory(addon_handle)
     
     #xbmc.executebuiltin("Dialog.Close(busydialog)")

@@ -31,6 +31,7 @@
     <category label="30441">
     <setting id="knative" type="bool" label="30442" default="false"/>
     <setting id="mselsync" type="labelenum" label="30461" values="All|###1|###2|###3|###4" default="All" enable="eq(-1,true)"/>
+    <setting id="fastsync" type="labelenum" label="30483" values="0|1|2|3|4|5" default="0" enable="eq(-2,true)"/>
     <setting id="kbooksync" type="bool" label="30438" default="false"/>
     <setting id="nativeact" type="bool" label="30443" default="false"/>
     <setting id="nativetag" type="bool" label="30446" default="false"/>
