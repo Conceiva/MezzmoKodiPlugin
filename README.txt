@@ -1,3 +1,7 @@
+1.1.9.0 6/18/2023
+
+- Minor performance improvement 10-25% in Kodi processing large playlists from Mezzmo.
+
 1.1.8.9 5/25/2023
 
 - Fixed minor bug which could cause the same trailer to be played multiple times a

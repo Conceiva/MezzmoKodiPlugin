@@ -318,7 +318,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,        \
                 'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title, iconImage=icon)
+                li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
                 li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})  
               
                 mediaClass_text = 'video'
@@ -399,7 +399,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
                 
-                li = xbmcgui.ListItem(title, iconImage=icon)
+                li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
                 li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
