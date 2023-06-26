@@ -79,9 +79,9 @@ def addServers():                                                #  Manually add
 
     serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
+                   {'name': 'MediaMonkey', 'port': '4000', 'uri': '/DeviceDescription.xml'},
                    {'name': 'PlayOn', 'port': '52478', 'uri': '/'},
                    {'name': 'Plex', 'port': '32469', 'uri': '/DeviceDescription.xml'},
-                   {'name': 'Serviio', 'port': '8895', 'uri': '/deviceDescription/0f93c97d-befb-3f6e-8003-48116b8cbea6'},
                    {'name': 'Tversity', 'port': '41952', 'uri': '/description/fetch'},
                    {'name': 'Twonky', 'port': '9000', 'uri': '/dev0/desc.xml'}  ]
 
@@ -230,15 +230,15 @@ def checkMezzmoVersion():                                        # Returns Mezzm
     try:
         svrfile = openNosyncDB()                                 # Open server database
         curps = svrfile.execute('SELECT sModel FROM mServers WHERE mSync=?', ('Yes',))
-        srvrtuple = curps.fetchone()                             # Get server from database
-        srvfile.close()
-        if svrvtuple:
-            model = svrvtuple[0].replace('.','')            
+        svrtuple = curps.fetchone()                              # Get server from database
+        svrfile.close()
+        if svrtuple:
+            model = svrtuple[0].replace('.','')            
             return model
 
     except Exception as e:
         printexception()
-        msynclog = 'Mezzmo Mezzmo erro checking sync server model number or no Mezzmo sync server selected.'
+        msynclog = 'Mezzmo Mezzmo error checking sync server model number or no Mezzmo sync server selected.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog)
         return 0      

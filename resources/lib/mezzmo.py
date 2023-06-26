@@ -319,7 +319,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,           \
                 'contentdirectory': contenturl})
 
-                li = xbmcgui.ListItem(title)
+                li = xbmcgui.ListItem(title, offscreen=True)
                 mediaClass_text = 'video'
                 if installed_version == '19':                         #  Kodi 19 format
                     info = {
@@ -405,7 +405,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
 
-                li = xbmcgui.ListItem(title)
+                li = xbmcgui.ListItem(title, offscreen=True)
                 li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
@@ -1490,8 +1490,10 @@ def handleSearch(content, contenturl, objectID, term):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
     setViewMode(contentType)
-    if searchcontrol2 == 'movieset':
+    if searchcontrol2 == 'movieset':               # Sort moviesets by year
         xbmc.executebuiltin('Container.SetSortMethod(16)')
+    else:                                          # Sort everything else by title
+        xbmc.executebuiltin('Container.SetSortMethod(7)')
     xbmcplugin.endOfDirectory(addon_handle)
     
     #xbmc.executebuiltin("Dialog.Close(busydialog)")

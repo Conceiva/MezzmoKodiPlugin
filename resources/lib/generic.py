@@ -669,6 +669,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TRACKNUM)
     xbmcplugin.endOfDirectory(addon_handle)
 
 
