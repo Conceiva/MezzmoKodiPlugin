@@ -63,7 +63,8 @@ Mezzmo will also grow with you as your needs increase. Whether you want superior
 
 If you are ready to fully enjoy Kodi the easy way, then Mezzmo is probably the solution for you.
 <br/>
-
+<b>Sample Mezzmo Kodi addon screenshots</b>
+<br/>
 <b>GUI Mode</b>
 
 <img src="http://www.conceiva.com/images/moviedetails.png" width="100%">
