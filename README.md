@@ -62,9 +62,13 @@ The Mezzmo Kodi addon was designed to simplify the Kodi experience, maximize the
 Mezzmo will also grow with you as your needs increase. Whether you want superior <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library">library management</a> tools, share your library across multiple Kodi and non-Kodi clients, host all forms of media, add parental controls and more, Mezzmo has the solution for you. See <a href="http://www.conceiva.com/products/mezzmo/features.asp">here</a> for a complete set of Mezzmo features.
 
 If you are ready to fully enjoy Kodi the easy way, then Mezzmo is probably the solution for you.
+
 <br/>
+
 <b>Sample Mezzmo Kodi addon screenshots</b>
+
 <br/>
+
 <b>GUI Mode</b>
 
 <img src="http://www.conceiva.com/images/moviedetails.png" width="100%">
