@@ -20,7 +20,7 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 
 
 <b>Features: </b>
-- Kodi 18, 19 and 20 versions with 100% feature parity
+- Kodi 18 and 19-21+ versions with 100% feature parity
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
 - Automatic backup of resume points every 30 seconds while media is playing
@@ -59,3 +59,9 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 <b>Native Mode</b>
 
 <img src="https://user-images.githubusercontent.com/63779136/168551275-aebf5064-d2d5-4f07-b5de-5c36f1076f16.jpg" width="100%">
+
+<b>GUI Based Library Editor</b>
+
+Mezzmo provides a powerful GUI driven library editor which gives you full control and easier ways to update your library without writing SQL code or struggling through file naming standards, complicated metadata scrapers, complex path statements and similar. <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library">Click here</a> to see a better way to manage your library across all Kodi and non-Kodi clients. 
+
+<img src="https://user-images.githubusercontent.com/63779136/164066248-c48f89c3-665e-4991-b881-2ca6b22fb435.jpg" width="100%">
