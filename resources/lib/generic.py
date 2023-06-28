@@ -364,7 +364,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
                     episode_text = episode.text
-                 
+                else:                                  #  Added for MediaMonkey track number XML tag
+                    episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}originalTrackNumber')
+                    if episode != None:
+                        episode_text = episode.text                 
+
                 season_text = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
@@ -577,6 +581,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 elif mediaClass_text == 'music':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ]) 
                     #offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
+                    #if len(episode_text) > 0: title = str(format(int(episode_text), '02')) + ' - ' + title
                     info = {
                         'duration': durationsecs,
                         'genre': genre_text,
