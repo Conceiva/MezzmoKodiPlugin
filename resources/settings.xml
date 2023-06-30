@@ -1254,6 +1254,83 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="entrailer" type="boolean" label="30484" help="30550">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="playcolor" type="string" label="30485" help="30551" parent="entrailer">
+					<level>0</level>
+					<default>Blue</default>
+					<constraints>
+						<options>
+							<option label="White">White</option>
+							<option label="[COLOR yellow]Yellow[/COLOR]">Yellow</option>
+							<option label="[COLOR green]Green[/COLOR]">Green</option>
+							<option label="[COLOR blue]Blue[/COLOR]">Blue</option>
+							<option label="[COLOR purple]Purple[/COLOR]">Purple</option>
+							<option label="[COLOR orange]Orange[/COLOR]">Orange</option>
+							<option label="[COLOR red]Red[/COLOR]">Red</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="imcolor" type="string" label="30486" help="30552" parent="entrailer">
+					<level>0</level>
+					<default>Yellow</default>
+					<constraints>
+						<options>
+							<option label="White">White</option>
+							<option label="[COLOR yellow]Yellow[/COLOR]">Yellow</option>
+							<option label="[COLOR green]Green[/COLOR]">Green</option>
+							<option label="[COLOR blue]Blue[/COLOR]">Blue</option>
+							<option label="[COLOR purple]Purple[/COLOR]">Purple</option>
+							<option label="[COLOR orange]Orange[/COLOR]">Orange</option>
+							<option label="[COLOR red]Red[/COLOR]">Red</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="ytcolor" type="string" label="30487" help="30553" parent="entrailer">
+					<level>0</level>
+					<default>Green</default>
+					<constraints>
+						<options>
+							<option label="White">White</option>
+							<option label="[COLOR yellow]Yellow[/COLOR]">Yellow</option>
+							<option label="[COLOR green]Green[/COLOR]">Green</option>
+							<option label="[COLOR blue]Blue[/COLOR]">Blue</option>
+							<option label="[COLOR purple]Purple[/COLOR]">Purple</option>
+							<option label="[COLOR orange]Orange[/COLOR]">Orange</option>
+							<option label="[COLOR red]Red[/COLOR]">Red</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+						<dependency type="visible">
+							<condition operator="is" setting="entrailer">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="spinner" format="string"/>
+				</setting>
 			</group>
 		</category>
 		<category id="search" label="30351" help="">

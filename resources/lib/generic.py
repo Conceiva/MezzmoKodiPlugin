@@ -79,7 +79,10 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
             
             #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             elems = xml.etree.ElementTree.fromstring(result.text)
-            picnotify = 0               
+            picnotify = 0
+
+            genmulist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)        # Create playlist
+            genmulist.clear()               
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -367,8 +370,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 else:                                  #  Added for MediaMonkey track number XML tag
                     episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}originalTrackNumber')
                     if episode != None:
-                        episode_text = episode.text                 
-
+                        episode_text = episode.text   
+                 
                 season_text = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
@@ -579,7 +582,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if len(cast_dict) > 0: vinfo.setCast(cast_dict)    
                              
                 elif mediaClass_text == 'music':
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ]) 
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
                     #offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     #if len(episode_text) > 0: title = str(format(int(episode_text), '02')) + ' - ' + title
                     info = {
@@ -613,6 +616,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if playcount is not None: minfo.setPlayCount(int(playcount))
                         minfo.setLastPlayed(last_played_text)
                     contentType = 'songs'
+                    genmulist.add(url=itemurl, listitem=li)
 
                 elif mediaClass_text == 'pictures':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'), \

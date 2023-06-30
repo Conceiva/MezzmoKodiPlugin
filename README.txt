@@ -1,3 +1,11 @@
+2.1.9.1
+
+- Added support for manually adding a MediaMonkey UPnP server.
+- Added support for parsing MediaMonkey XML track information tag.
+- Improved displaying movie trailer information tp indicate source (i.e. Local IMDB,
+  Loval YouTube etc..)
+- Added support by track sort order for music files 
+
 2.1.9.0 6/18/2023
 
 - Minor performance improvement 10-25% in Kodi processing large playlists from Mezzmo.
