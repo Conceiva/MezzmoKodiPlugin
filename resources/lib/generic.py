@@ -81,7 +81,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
             elems = xml.etree.ElementTree.fromstring(result.text)
             picnotify = 0
 
-            genmulist = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)        # Create playlist
+            genmulist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)        # Create playlist
             genmulist.clear()               
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
