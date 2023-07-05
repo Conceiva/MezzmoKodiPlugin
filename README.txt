@@ -2,7 +2,7 @@
 
 - Added support for manually adding a MediaMonkey UPnP server.
 - Added support for parsing MediaMonkey XML track information tag.
-- Improved displaying movie trailer information tp indicate source (i.e. Local IMDB,
+- Improved displaying movie trailer information to indicate source (i.e. Local IMDB,
   Loval YouTube etc..)
 - Added support by track sort order for music files 
 

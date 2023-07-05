@@ -772,4 +772,9 @@ if len(sys.argv) > 1:
         trcount = int(sys.argv[3])
         icon = sys.argv[4]
         trDisplay(title, trcount, icon)
+    elif sys.argv[1] == 'playlist':
+        #xbmc.log('Mezzmo playlist: ' + sys.argv[2] + ' ' + sys.argv[3], xbmc.LOGINFO)
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",      \
+        "params":{"item":{"playlistid":%s, "position":%s}},"id":1}' % (sys.argv[2], sys.argv[3]))
+
 

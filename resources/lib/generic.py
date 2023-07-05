@@ -58,6 +58,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
     menuitem8 = addon.getLocalizedString(30412)
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
+
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
@@ -82,7 +83,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
             picnotify = 0
 
             genmulist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)        # Create playlist
-            genmulist.clear()               
+            genmulist.clear()
+            muid = genmulist.getPlayListId()             
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -502,6 +504,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 if 'photo' in upnpclass_text or 'image' in protocol_text:
                     mediaClass_text = 'pictures'
 
+                genmupos = 0
+                #genmupos = int(xbmc.getInfoLabel('ListItem.CurrentItem'))
                 durationsecs = sync.getSeconds(duration_text)                        
                 if mediaClass_text == 'video':  
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ]) 
@@ -582,9 +586,13 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if len(cast_dict) > 0: vinfo.setCast(cast_dict)    
                              
                 elif mediaClass_text == 'music':
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
+                    #li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
                     #offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     #if len(episode_text) > 0: title = str(format(int(episode_text), '02')) + ' - ' + title
+
+                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),  \
+                    ('Mezzmo Playlist', 'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "playlist", muid, genmupos)) ])
+                    #xbmc.log('Print playlist: ' + str(genmulist[0]), xbmc.LOGINFO) 
                     info = {
                         'duration': durationsecs,
                         'genre': genre_text,
