@@ -281,7 +281,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
     try:
         while True:
             e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                mgenlog ='Mezzmo no browsing response received from server.'
+                xbmc.log(mgenlog, xbmc.LOGINFO)
+                media.mgenlogUpdate(mgenlog)             
+                break;     #sanity check            
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')
@@ -911,6 +916,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TRACKNUM)
     xbmcplugin.endOfDirectory(addon_handle)
 
 
@@ -1615,7 +1621,8 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         mgenlog = media.translate(30451) + serverurl
         xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
-        notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
+        #notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
+        notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
     listServers(False)
     
 if mode[0] == 'serverlist':

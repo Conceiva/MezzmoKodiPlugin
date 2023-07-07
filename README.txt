@@ -1,3 +1,18 @@
+2.1.9.1 7/7/2023
+
+- Added support for manually adding a MediaMonkey UPnP server.
+- Added support for parsing MediaMonkey XML track information tag.
+- Improved displaying movie trailer information to indicate source (i.e. Local IMDB,
+  Local YouTube etc..) and choose trailer information colors by type.
+- Added support by track sort order for music files
+- Fixed bug which would cause a Python exception error when a Mezzmo server was down
+  for a period of time and came back up.  
+- Changed from an Ok dialog box to a notification message when a Mezzmo server is 
+  down.  The sync process will now resume automatically when the Mezzmo server comes 
+  back online vs. requiring the user to click Ok.
+- Added dynamic music playlist option to automatically create a playlist and add a
+  context menu item while browsing music on generic UPnP servers. 
+
 2.1.9.0 6/18/2023
 
 - Minor performance improvement 10-25% in Kodi processing large playlists from Mezzmo.

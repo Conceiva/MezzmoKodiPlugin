@@ -79,6 +79,7 @@ def addServers():                                                #  Manually add
 
     serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
+                   {'name': 'MediaMonkey', 'port': '4000', 'uri': '/DeviceDescription.xml'},
                    {'name': 'PlayOn', 'port': '52478', 'uri': '/'},
                    {'name': 'Plex', 'port': '32469', 'uri': '/DeviceDescription.xml'},
                    {'name': 'Tversity', 'port': '41952', 'uri': '/description/fetch'},

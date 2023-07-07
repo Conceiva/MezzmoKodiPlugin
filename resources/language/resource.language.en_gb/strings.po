@@ -660,6 +660,30 @@ msgctxt "#30483"
 msgid "Native Fast Sync Time 0-5 (mins)"
 msgstr ""
 
+msgctxt "#30484"
+msgid "Enhanced Trailer Information"
+msgstr ""
+
+msgctxt "#30485"
+msgid "Played Trailer Color"
+msgstr ""
+
+msgctxt "#30486"
+msgid "Local IMDB Trailer Color"
+msgstr ""
+
+msgctxt "#30487"
+msgid "Local YouTube Trailer Color"
+msgstr ""
+
+msgctxt "#30488"
+msgid "Mezzmo Music Playlist"
+msgstr ""
+
+msgctxt "#30489"
+msgid "UPnP Dynamic Music Playlists"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -854,4 +878,24 @@ msgstr ""
 
 msgctxt "#30549"
 msgid "Fast sync time for native mode syncing of new Mezzmo library content and Mezzmo boommark / resume timers from other clients. 0-5 minutes.  0 is disabled. Default is 0."
+msgstr ""
+
+msgctxt "#30550"
+msgid "Provide additional local trailer information regarding trailer type and enables color settings by type.  Default is disabled."
+msgstr ""
+
+msgctxt "#30551"
+msgid "Select trailer information color for trailers which have been played."
+msgstr ""
+
+msgctxt "#30552"
+msgid "Select trailer information color for local IMDB trailers. "
+msgstr ""
+
+msgctxt "#30553"
+msgid "Select trailer information color for local YouTube trailers."
+msgstr ""
+
+msgctxt "#30554"
+msgid "When enabled will create dynamic music playlists for UPnP servers and add a context menu item to play them.  Default is disabled."
 msgstr ""

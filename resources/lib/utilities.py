@@ -405,17 +405,30 @@ def trDisplay(title, trcount, icon):                              # Play trailer
         traillist = []
         msdialog = xbmcgui.Dialog()   
 
-        curtrail = dsfile.execute('SELECT trUrl, trPlay from mTrailers WHERE trTitle=? ORDER BY   \
-        trID ASC LIMIT ?', (mtitle, trcount,))
+        curtrail = dsfile.execute('SELECT trUrl, trPlay, trVar1 from mTrailers WHERE trTitle=? \
+        ORDER BY trID ASC LIMIT ?', (mtitle, trcount,))
         mtrailers = curtrail.fetchall()                            # Get trailers from database
         dsfile.close()
         trselect = x = 1
         if mtrailers:        
-            for a in range(len(mtrailers)):
-                if int(mtrailers[a][1]) == 0:
-                    traillist.append("Trailer  #" + str(x))        # Convert rows to list for dialog box
+            for a in range(len(mtrailers)):                        # Convert rows to list for dialog box
+                if media.settings('entrailer') == 'false':
+                    if int(mtrailers[a][1]) == 0:
+                        traillist.append("Trailer  #" + str(x))    # Convert rows to list for dialog box
+                    else:
+                        traillist.append("Trailer  #" + str(x) + "     [COLOR blue]Played[/COLOR]") 
                 else:
-                    traillist.append("Trailer  #" + str(x) + "     [COLOR blue]Played[/COLOR]") 
+                    plcolor = "[COLOR " + media.settings('playcolor').lower() + "]" 
+                    imcolor = "[COLOR " + media.settings('imcolor').lower() + "]"
+                    ytcolor = "[COLOR " +  media.settings('ytcolor').lower() + "]"
+                    if int(mtrailers[a][1]) > 0:
+                        traillist.append("Trailer  #" + str(x) + "     " + plcolor + "Played[/COLOR]") 
+                    elif '\imdb_' in str(mtrailers[a][2]):
+                        traillist.append("Trailer  #" + str(x) + "     " + imcolor + "Local IMDB[/COLOR]")
+                    elif 'www.youtube' not in str(mtrailers[a][2]):
+                        traillist.append("Trailer  #" + str(x) + "     " + ytcolor + "Local YouTube[/COLOR]")  
+                    else:
+                        traillist.append("Trailer  #" + str(x) + "     YouTube")
                 x += 1
             trselect = msdialog.select('Select Trailer: ' + mtitle[:60], traillist)
             if trselect < 0:                                       # User cancel
@@ -436,6 +449,7 @@ def trDisplay(title, trcount, icon):                              # Play trailer
             trdialog = xbmcgui.Dialog()
             dialog_text = "No trailers found. Please wait for the daily sync process."        
             trdialog.ok("Mezzmo Trailer Playback Error", dialog_text)   
+
     except:
         mgenlog ='Mezzmo problem displaying trailers for: ' + title
         xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -758,4 +772,9 @@ if len(sys.argv) > 1:
         trcount = int(sys.argv[3])
         icon = sys.argv[4]
         trDisplay(title, trcount, icon)
+    elif sys.argv[1] == 'playlist':
+        xbmc.log('Mezzmo Music playlist: ' + sys.argv[2] + ' ' + sys.argv[3], xbmc.LOGDEBUG)
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",      \
+        "params":{"item":{"playlistid":%s, "position":%s}},"id":1}' % (sys.argv[2], sys.argv[3]))
+
 
