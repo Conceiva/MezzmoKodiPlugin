@@ -21,6 +21,7 @@
     <setting id="mdupelog" type="bool" label="30374" default="false"/>
     <setting id="perflog" type="bool" label="30378" default="true"/>
     <setting id="cconfirm" type="bool" label="30475" default="true"/>
+    <setting id="udynlist" type="bool" label="30489" default="false"/>
     <setting type="action" label="30427" action="RunScript(plugin.video.mezzmo,export)"/>
     <setting id="kodiclean" type="labelenum" label="30368" values="Off|Clean|Full Sync" default="Off"/>
     <setting id="autostart" type="text" label="30388" default="clear" visible="false"/>
@@ -88,6 +89,10 @@
     <setting id="prviewct" type="labelenum" label="30479" values="0|1|2|3|4|5|6" default="3"/>
     <setting id="prflocaltr" type="bool" label="30462" default="true"/>
     <setting id="prviewyr" type="bool" label="30480" default="true"/>
+    <setting id="entrailer" type="bool" label="30484" default="false"/>
+    <setting id="playcolor" type="labelenum" label="30485" values="White|[COLOR yellow]Yellow[/COLOR]|[COLOR green]Green[/COLOR]|[COLOR blue]Blue[/COLOR]|[COLOR purple]Purple[/COLOR]|[COLOR orange]Orange[/COLOR]|[COLOR red]Red[/COLOR]" default="[COLOR blue]Blue[/COLOR]" subsetting="true"  visible="eq(-1,true)" enable="eq(-1,true)"/>
+    <setting id="imcolor" type="labelenum" label="30486" values="White|[COLOR yellow]Yellow[/COLOR]|[COLOR green]Green[/COLOR]|[COLOR blue]Blue[/COLOR]|[COLOR purple]Purple[/COLOR]|[COLOR orange]Orange[/COLOR]|[COLOR red]Red[/COLOR]" default="[COLOR yellow]Yellow[/COLOR]" subsetting="true"  visible="eq(-2,true)" enable="eq(-2,true)"/>
+    <setting id="ytcolor" type="labelenum" label="30487" values="White|[COLOR yellow]Yellow[/COLOR]|[COLOR green]Green[/COLOR]|[COLOR blue]Blue[/COLOR]|[COLOR purple]Purple[/COLOR]|[COLOR orange]Orange[/COLOR]|[COLOR red]Red[/COLOR]" default="[COLOR green]Green[/COLOR]" subsetting="true"  visible="eq(-3,true)" enable="eq(-3,true)"/>
     </category>
 
     <!-- Search -->

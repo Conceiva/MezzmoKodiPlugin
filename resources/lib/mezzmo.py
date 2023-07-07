@@ -281,6 +281,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
     try:
         while True:
+            if len(content) == 0:                       # Handle downed server
+                mgenlog ='Mezzmo no browsing response received from server.'
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                media.mgenlogUpdate(mgenlog)             
+                break;     #sanity check
             e = xml.etree.ElementTree.fromstring(content)
             
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
@@ -848,6 +853,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TRACKNUM)
     xbmcplugin.endOfDirectory(addon_handle)
 
 
@@ -1526,7 +1532,8 @@ elif mode[0] == 'server':
         xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)
         dialog_text = media.translate(30407)
-        xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+        #xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+        notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
 
 elif mode[0] == 'home':
     xbmc.executebuiltin('Dialog.Close(all)')
