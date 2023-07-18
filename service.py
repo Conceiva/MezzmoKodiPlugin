@@ -80,6 +80,9 @@ class XBMCPlayer(xbmc.Player):
         if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
             bookmark.updateKodiBookmark(objectID, pos, self.mtitle, mtype)
+            if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
+                xbmc.executebuiltin('Container.Refresh')
+                media.settings('movieprvw', 'false')
  
     def onPlayBackStopped(self):
         global mtype
@@ -93,6 +96,9 @@ class XBMCPlayer(xbmc.Player):
         if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle, mtype)
+            if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
+                xbmc.executebuiltin('Container.Refresh')
+                media.settings('movieprvw', 'false')
              
 player = XBMCPlayer()
  
