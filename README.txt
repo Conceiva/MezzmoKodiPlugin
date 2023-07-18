@@ -1,3 +1,11 @@
+2.1.9.2 7/18/2023
+
+- Added a new addon setting to enable refreshing the Kodi GUI after playing a Mezzmo
+  Movies Previews playlist.  Some Kodi skins, such as Confluence, will refresh after
+  playing an individual movie but not a playlist.  Thus the user needs to manually 
+  refresh the GUI to see the updated playcount, bookmark and similar items.  Enabling
+  this option allows that to happen automatically.  The default is disabled.    
+
 2.1.9.1 7/7/2023
 
 - Added support for manually adding a MediaMonkey UPnP server.
