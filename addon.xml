@@ -40,5 +40,7 @@
     </assets>
     <summary lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server. </summary>
     <description lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</description>
+    <summary lang="pt_BR">Navegue e reproduza arquivos de mídia locais de vídeo, música e foto gerenciados pelo Mezzmo Media Server.</summary>
+    <description lang="pr_BR">Navegue e reproduza arquivos de mídia locais de vídeo, música e foto gerenciados pelo Mezzmo Media Server.</description> 
   </extension>
 </addon>
