@@ -8,910 +8,902 @@ msgstr ""
 "Report-Msgid-Bugs-To: support@conceiva.com\n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Peter Edens\n"
-"Language-Team: English"
+"Last-Translator: Wanilton\n"
+"Language-Team: Portuguese (Brazil)"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: en_GB\n"
+"Language: pt_BR\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30300"
 msgid "View"
-msgstr ""
+msgstr "Visualização"
 
 msgctxt "#30310"
 msgid "Sort method"
-msgstr ""
+msgstr "Método de ordenamento"
 
 msgctxt "#30311"
 msgid "None"
-msgstr ""
+msgstr "Nenhum"
 
 msgctxt "#30312"
 msgid "Name"
-msgstr ""
+msgstr "Nome"
 
 msgctxt "#30320"
 msgid "Sort direction"
-msgstr ""
+msgstr "Direção do ordenamento"
 
 msgctxt "#30321"
 msgid "Ascending"
-msgstr ""
+msgstr "Ascendente"
 
 msgctxt "#30322"
 msgid "Descending"
-msgstr ""
+msgstr "Descendente"
 
 msgctxt "#30330"
 msgid "Movies View"
-msgstr ""
+msgstr "Visualização para os Filmes"
 
 msgctxt "#30331"
 msgid "List"
-msgstr ""
+msgstr "Lista"
 
 msgctxt "#30332"
 msgid "Big List"
-msgstr ""
+msgstr "Lista Grande"
 
 msgctxt "#30333"
 msgid "Thumbnails"
-msgstr ""
+msgstr "Miniaturas"
 
 msgctxt "#30334"
 msgid "Poster Wrap"
-msgstr ""
+msgstr "Poster Wrap"
 
 msgctxt "#30335"
 msgid "Fanart"
-msgstr ""
+msgstr "Fanart"
 
 msgctxt "#30336"
 msgid "Media info"
-msgstr ""
+msgstr "Media info"
 
 msgctxt "#30337"
 msgid "Media info 2"
-msgstr ""
+msgstr "Media info 2"
 
 msgctxt "#30338"
 msgid "Media info 3"
-msgstr ""
+msgstr "Media info 3"
 
 msgctxt "#30339"
 msgid "Timers & Servers"
-msgstr ""
+msgstr "Temporizadores & Servidores"
 
 msgctxt "#30340"
 msgid "Server Search Time (secs)"
-msgstr ""
+msgstr "Tempo de Procura do Servidor (segs)"
 
 msgctxt "#30341"
 msgid "TV Shows View"
-msgstr ""
+msgstr "Visualização para os Seriados"
 
 msgctxt "#30342"
 msgid "Folders View"
-msgstr ""
+msgstr "Visualização para as Pastas"
 
 msgctxt "#30343"
 msgid "Photos View"
-msgstr ""
+msgstr "Visualização para as Fotos"
 
 msgctxt "#30344"
 msgid "Servers View"
-msgstr ""
+msgstr "Visualização para os Servidores"
 
 msgctxt "#30345"
 msgid "Default"
-msgstr ""
+msgstr "Padrão"
 
 msgctxt "#30346"
 msgid "Go up"
-msgstr ""
+msgstr "Ir para o nível superiora"
 
 msgctxt "#30347"
 msgid "Refresh"
-msgstr ""
+msgstr "Atualizar"
 
 msgctxt "#30348"
 msgid "Details"
-msgstr ""
+msgstr "Detalhes"
 
 msgctxt "#30349"
 msgid "Top Folder View"
-msgstr ""
+msgstr "Visualizar a Pasta Superior"
 
 msgctxt "#30350"
 msgid "Only Show Mezzmo Servers"
-msgstr ""
+msgstr "Somente Mostrar os Servidores Mezzmo"
 
 msgctxt "#30351"
 msgid "Search"
-msgstr ""
+msgstr "Procurar"
 
 msgctxt "#30352"
 msgid "Video"
-msgstr ""
+msgstr "Vídeo"
 
 msgctxt "#30353"
 msgid "Music"
-msgstr ""
+msgstr "Música"
 
 msgctxt "#30354"
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 msgctxt "#30355"
 msgid "Album"
-msgstr ""
+msgstr "Álbum"
 
 msgctxt "#30356"
 msgid "Artist"
-msgstr ""
+msgstr "Artista"
 
 msgctxt "#30357"
 msgid "Tagline"
-msgstr ""
+msgstr "Tagline"
 
 msgctxt "#30358"
 msgid "Description"
-msgstr ""
+msgstr "Descrição"
 
 msgctxt "#30359"
 msgid "Keywords"
-msgstr ""
+msgstr "Palavras chaves"
 
 msgctxt "#30360"
 msgid "Title"
-msgstr ""
+msgstr "Título"
 
 msgctxt "#30361"
 msgid "Selected Skin"
-msgstr ""
+msgstr "Skin Selecionada"
 
 msgctxt "#30362"
 msgid "Content Control"
-msgstr ""
+msgstr "Controle de Conteúdo"
 
 msgctxt "#30363"
 msgid "PIN to unlock all content"
-msgstr ""
+msgstr "PIN para desbloquear todos os conteúdos"
 
 msgctxt "#30364"
 msgid "Creator/Director"
-msgstr ""
+msgstr "Criador/Diretor"
 
 msgctxt "#30365"
 msgid "Music View"
-msgstr ""
+msgstr "Visualização para as Músicas"
 
 msgctxt "#30366"
 msgid "Cache Mezzmo images"
-msgstr ""
+msgstr "Cache de imagens Mezzmo"
 
 msgctxt "#30367"
 msgid "Kodi DB actor information copy"
-msgstr ""
+msgstr "Copiar informação do ator para o Database do Kodi"
 
 msgctxt "#30368"
 msgid "Kodi DB clear Mezzmo data on startup"
-msgstr ""
+msgstr "Kodi Database limpa os dados do Mezzmo ao iniciar"
 
 msgctxt "#30369"
 msgid "Add TV Episodes to Kodi DB"
-msgstr ""
+msgstr "Adicionar Episódios de TV para o Kodi"
 
 msgctxt "#30370"
 msgid "Kodi DB Change Detection"
-msgstr ""
+msgstr "Detectar alterações no Database do Kodi"
 
 msgctxt "#30371"
 msgid "Mezzmo Background Sync"
-msgstr ""
+msgstr "Sincronização Mezzmo em Segundo Plano"
 
 msgctxt "#30372"
 msgid "Mezzmo mark watched"
-msgstr ""
+msgstr "Mezzmo marcar como assistido"
 
 msgctxt "#30373"
 msgid "Mezzmo mark unwatched"
-msgstr ""
+msgstr "Mezzmo marcar como por assistir"
 
 msgctxt "#30374"
 msgid "Mezzmo Duplicate Logging"
-msgstr ""
+msgstr "Mezzmo Log de Duplicatas" 
 
 msgctxt "#30375"
 msgid "Top/Folder Content Mapping "
-msgstr ""
+msgstr "Top/Pastas Mapeamento Conteúdo"
 
 msgctxt "#30376"
 msgid "Music Info"
-msgstr ""
+msgstr "Info Música"
 
 msgctxt "#30377"
 msgid "Bookmark Delay 0-30 (secs)"
-msgstr ""
+msgstr "Atraso nos Marcadores 0-30 (segs)"
 
 msgctxt "#30378"
 msgid "Performance Logging Enabled"
-msgstr ""
+msgstr "Log de Performance Ativado"
 
 msgctxt "#30379"
 msgid "Mezzmo Set Autostart"
-msgstr ""
+msgstr "Mezzmo Definir começo automático
 
 msgctxt "#30380"
 msgid "Mezzmo Clear Autostart"
-msgstr ""
+msgstr "Mezzmo Limpar Começo Automático"
 
 msgctxt "#30381"
 msgid "All Other View"
-msgstr ""
+msgstr "Todas os Outras Modos de Visualizações"
 
 msgctxt "#30382"
 msgid "Music Videos View"
-msgstr ""
+msgstr "Visualização para Concertos"
 
 msgctxt "#30383"
 msgid "Pause Autostop (mins)"
-msgstr ""
+msgstr "Pausar Auto parar (mins)"
 
 msgctxt "#30384"
 msgid "Mezzmo Logs & Stats"
-msgstr ""
+msgstr "Mezzmo Logs & Estatísticas"
 
 msgctxt "#30385"
 msgid "Refresh Flag"
-msgstr ""
+msgstr "Atualizar Etiqueta"
 
 msgctxt "#30386"
 msgid "Auto Background Sync"
-msgstr ""
+msgstr "Sincronização Automática em Segundo Plano"
 
 msgctxt "#30387"
 msgid "Mezzmo View Mapping"
-msgstr ""
+msgstr "Mezzmo Visualização de Mapeamento"
 
 msgctxt "#30388"
 msgid "Hidden variable"
-msgstr ""
+msgstr "Ocultar variável"
 
 msgctxt "#30389"
 msgid "Mezzmo data successfully cleared from Kodi database."
-msgstr ""
+msgstr "Dados do Mezzmo limpos com sucesso no database do Kodi."
 
 msgctxt "#30390"
 msgid "Mezzmo Server Timeout 10-60 (secs)"
-msgstr ""
+msgstr "Servidor Mezzmo tempo para Expirar 10-60 (segs)"
 
 msgctxt "#30391"
 msgid "Search History 0-30 (searches)"
-msgstr ""
+msgstr "Procurar Histórico 0-30 (procuras)"
 
 msgctxt "#30392"
 msgid "Select Mezzmo Sync Server"
-msgstr ""
+msgstr "Selecione Sincronizar Servidor Mezzmo"
 
 msgctxt "#30393"
 msgid "Missing information from UPnP server to support playback."
-msgstr ""
+msgstr "Informação ausente do Servidor UPnP para suportar reprodução."
 
 msgctxt "#30394"
 msgid "This UPnP server uses native UPnP support to play media.  Would you like to enable this in Kodi ?"
-msgstr ""
+msgstr "Este servidor UPnP usa suporte UPnP nativo para reproduzir mídia. Gostaria de habilitar isso no Kodi?
 
 msgctxt "#30395"
 msgid "There was a problem enabling Kodi UPnP support.  Please check the Kodi logs and the UPnP settings in Services."
-msgstr ""
+msgstr "Ocorreu um problema ao ativar o suporte Kodi UPnP. Por favor, verifique os logs Kodi e as configurações UPnP em Serviços."
 
 msgctxt "#30396"
 msgid "Mezzmo UPnP Kodi Setting"
-msgstr ""
+msgstr "Mezzmo UPnP Ajustes do Kodi"
 
 msgctxt "#30397"
 msgid "Kodi UPnP support enabled."
-msgstr ""
+msgstr "Kodi UPnP suporte ativado."
 
 msgctxt "#30398"
 msgid "Mezzmo UPnP Server Discovery"
-msgstr ""
+msgstr "Descoberta de Servidor UPnP Mezzmo"
 
 msgctxt "#30399"
 msgid "No Mezzmo servers found."
-msgstr ""
+msgstr "Nenhum servidor Mezzmo localizado."
 
 msgctxt "#30400"
 msgid "Mezzmo sync server updated automatically: "
-msgstr ""
+msgstr "Servidor de sincronização Mezzmo atualizado automaticamente:"
 
 msgctxt "#30401"
 msgid "Mezzmo Sync Server"
-msgstr ""
+msgstr "Servidor de Sincronização Mezzmo"
 
 msgctxt "#30402"
 msgid "Refreshing UPnP Server List.  Please wait."
-msgstr ""
+msgstr "Atualizando Lista de Servidor UPnP.  Por favor aguarde."
 
 msgctxt "#30403"
 msgid "Mezzmo sync server search. No UPnP servers found."
-msgstr ""
+msgstr "Pesquisa do servidor de sincronização Mezzmo. Nenhum servidor UPnP encontrado."
 
 msgctxt "#30404"
 msgid "UPnP Server Error"
-msgstr ""
+msgstr "Erro no servidor UPnP"
 
 msgctxt "#30405"
 msgid "UPnP server not responding.  Would you like to delete ? "
-msgstr ""
+msgstr "Servidor UPnP não respondendo.  Você desejar deletar?"
 
 msgctxt "#30406"
 msgid "Mezzmo UPnP Playback"
-msgstr ""
+msgstr "Mezzmo Reprodução UPnP"
 
 msgctxt "#30407"
 msgid "The Mezzmo server did not respond."
-msgstr ""
+msgstr "O servidor do Mezzmo não respondeu"
 
 msgctxt "#30408"
 msgid "Mezzmo Server Error"
-msgstr ""
+msgstr "Erro no Servidor Mezzmo"
 
 msgctxt "#30409"
 msgid "Select Mezzmo Sync Server"
-msgstr ""
+msgstr "Selecione o Servidor de Sincronização Mezzmo"
 
 msgctxt "#30410"
 msgid "Other UPnP Server Timeout 10-60 (secs)"
-msgstr ""
+msgstr "Outro Servidor UPnP tempo para expirar 10-60 (segs)"
 
 msgctxt "#30411"
 msgid "Picture Slideshow Pause 2-20 (secs)"
-msgstr ""
+msgstr "Pausar o Slideshow de imagem 2-20 (segs)"
 
 msgctxt "#30412"
 msgid "Mezzmo Slideshow Viewer"
-msgstr ""
+msgstr "Mezzmo Visualizador de Slideshow"
 
 msgctxt "#30413"
 msgid "Kodi is unable to display pictures via native UPnP.  Please choose a different UPnP server for viewing pictures."
-msgstr ""
+msgstr "O Kodi não consegue exibir imagens via UPnP nativo. Escolha um servidor UPnP diferente para visualizar as imagens"
 
 msgctxt "#30414"
 msgid "There were no matching search results found on your Mezzmo server."
-msgstr ""
+msgstr "Não foram encontrados resultados de pesquisa correspondentes em seu servidor Mezzmo."
 
 msgctxt "#30415"
 msgid "Select Picture Viewing Format"
-msgstr ""
+msgstr "Selecione o formato de visualização da imagem"
 
 msgctxt "#30416"
 msgid "Select Picture to View"
-msgstr ""
+msgstr "Selecione Imagem para Visualizar"
 
 msgctxt "#30417"
 msgid "Slideshow"
-msgstr ""
+msgstr "Slideshow"
 
 msgctxt "#30418"
 msgid "Pictures Normal Delay"
-msgstr ""
+msgstr "Atraso Normal das Imagens"
 
 msgctxt "#30419"
 msgid "Pictures Extended Delay"
-msgstr ""
+msgstr "Atraso Extendido das Imagens"
 
 msgctxt "#30420"
 msgid "Mezzmo Search Results"
-msgstr ""
+msgstr "Mezzmo Resultados da Procura"
 
 msgctxt "#30421"
 msgid "The server returned no items for the selected playlist."
-msgstr ""
+msgstr "O servidor não retornou itens para a lista de reprodução selecionada."
 
 msgctxt "#30422"
 msgid "Mezzmo Search Results"
-msgstr ""
+msgstr "Mezzmo Resultados da Pesquisa"
 
 msgctxt "#30423"
 msgid "Mezzmo Server Response"
-msgstr ""
+msgstr "Resposta do Servidor Mezzmo"
 
 msgctxt "#30424"
 msgid "UPnP Server Response"
-msgstr ""
+msgstr "Resposta do Servidor UPnP"
 
 msgctxt "#30425"
 msgid "Automatic Slideshow Viewer"
-msgstr ""
+msgstr "Visualizador Automático de Imagens"
 
 msgctxt "#30426"
 msgid "No Mezzmo sync server selected"
-msgstr ""
+msgstr "Nenhuma sincroção do servidor Mezzmo selecionada"
 
 msgctxt "#30427"
 msgid "Export Data From Database"
-msgstr ""
+msgstr "Exportar Informações do Banco de Dados"
 
 msgctxt "#30428"
 msgid "Mezzmo database extract successful at: \n"
-msgstr ""
+msgstr "Mezzmo banco de dados extraído com sucesso em: \n"
 
 msgctxt "#30429"
 msgid "Mezzmo Database Export"
-msgstr ""
+msgstr "Mezzmo Exportar Banco de Dados"
 
 msgctxt "#30430"
 msgid "Mezzmo experienced an error exporting database table:  "
-msgstr ""
+msgstr "Mezzmo experimentou um erro ao exportar tabela do database: "
 
 msgctxt "#30431"
 msgid "Mezzmo Export Error for Database"
-msgstr ""
+msgstr "Mezzmo Exportar para o Database com erro"
 
 msgctxt "#30432"
 msgid "Select Database Table(s) to Export"
-msgstr ""
+msgstr "Selecione a(s) Tabelas do Database para Exportar"
 
 msgctxt "#30433"
 msgid "Multiple Trailer Count"
-msgstr ""
+msgstr "Número de Trailers Múltiplos"
 
 msgctxt "#30434"
 msgid "Mezzmo Play Trailers"
-msgstr ""
+msgstr "Mezzmo Reproduzir Trailers"
 
 msgctxt "#30435"
 msgid "Mezzmo"
-msgstr ""
+msgstr "Mezzmo"
 
 msgctxt "#30436"
 msgid "Mezzmo Addon GUI"
-msgstr ""
+msgstr "Mezzmo Addon GUI"
 
 msgctxt "#30437"
 msgid "Mezzmo Search"
-msgstr ""
+msgstr "Mezzmo Procurar"
 
 msgctxt "#30438"
 msgid "Kodi Bookmark Sync"
-msgstr ""
+msgstr "Kodi Sincronizar os Marcadores"
 
 msgctxt "#30439"
 msgid "Kodi Native Skin Updates"
-msgstr ""
+msgstr "Skin Nativa do Kodi Atualizações"
 
 msgctxt "#30440"
 msgid "Mezzmo Clear Bookmark"
-msgstr ""
+msgstr "Mezzmo Limpar Marcador"
 
 msgctxt "#30441"
 msgid "Native Mode"
-msgstr ""
+msgstr "Modo Nativo"
 
 msgctxt "#30442"
 msgid "Kodi Native Mode Sync"
-msgstr ""
+msgstr "Modo Nativo de Sincronização do Kodi"
 
 msgctxt "#30443"
 msgid "Native Mode TV Show Actors"
-msgstr ""
+msgstr "Atores de programas de TV no modo nativo"
 
 msgctxt "#30444"
 msgid "Mezzmo data in the Kodi DB could not be cleared."
-msgstr ""
+msgstr "Dados do Mezzmo no database do Kodi nao puderam ser apagados."
 
 msgctxt "#30445"
 msgid "Mezzmo data in the Mezzmo10 DB could not be cleared."
-msgstr ""
+msgstr "Os dados Mezzmo no banco de dados Mezzmo10 não puderam ser apagados."
 
 msgctxt "#30446"
 msgid "Sync Kodi Tags From Mezzmo"
-msgstr ""
+msgstr "Sincronização das Tags do Kodi via Mezzmo"
 
 msgctxt "#30447"
 msgid "Add Server Manually"
-msgstr ""
+msgstr "Adicionar Servidor Manualmente"
 
 msgctxt "#30448"
 msgid "Enter New Server IP address"
-msgstr ""
+msgstr "Entre com o Novo endereço IP do Servidor"
 
 msgctxt "#30449"
 msgid "Enter New Server port #"
-msgstr ""
+msgstr "Entre Nova Porta do Servidor #"
 
 msgctxt "#30450"
 msgid "Select New Server Type"
-msgstr ""
+msgstr "Selecione Novo tipo de Servidor"
 
 msgctxt "#30451"
 msgid "Mezzmo new UPnP server manually added: "
-msgstr ""
+msgstr "Mezzmo novo Servidor UPnP adicionado manualmente: "
 
 msgctxt "#30452"
 msgid "Diagnostics"
-msgstr ""
+msgstr "Diagnósticos"
 
 msgctxt "#30453"
 msgid "Mezzmo Server Response Logging"
-msgstr ""
+msgstr "Log de Resposta do Servidor Mezzmo"
 
 msgctxt "#30454"
 msgid "UPnP Server Response Logging"
-msgstr ""
+msgstr "Log de Resposta do Servidor UPnP"
 
 msgctxt "#30455"
 msgid "Mezzmo Records Processed: "
-msgstr ""
+msgstr "Mezzmo Registros Processados: "
 
 msgctxt "#30456"
 msgid "Mezzmo Full Sync Status"
-msgstr ""
+msgstr "Mezzmo Estatus de Sincronização Completa"
 
 msgctxt "#30457"
 msgid "Mezzmo Sync Beginning"
-msgstr ""
+msgstr "Sincronização Mezzmo Iniciando"
 
 msgctxt "#30458"
 msgid "Mezzmo Full Sync Completed"
-msgstr ""
+msgstr "Mezzmo Sincronização Completa Finalizada"
 
 msgctxt "#30459"
 msgid "Kodi Clear Mezzmo Status"
-msgstr ""
+msgstr "Kodi Limpar Estatus do Mezzmo"
 
 msgctxt "#30460"
 msgid "Percent Complete: "
-msgstr ""
+msgstr "Percentual Completo: "
 
 msgctxt "#30461"
 msgid "Mezzmo Selective Sync Tag"
-msgstr ""
+msgstr "Marca de sincronização seletiva Mezzmo"
 
 msgctxt "#30462"
 msgid "Prefer Local Trailers"
-msgstr ""
+msgstr "Preferir Trailers Locais"
 
 msgctxt "#30463"
 msgid "Kodi Music Video Sync"
-msgstr ""
+msgstr "Sincronização de Concertos no Kodi"
 
 msgctxt "#30464"
 msgid "Kodi Home"
-msgstr ""
+msgstr "Kodi Home"
 
 msgctxt "#30465"
 msgid "New Search"
-msgstr ""
+msgstr "Nova Procura"
 
 msgctxt "#30466"
 msgid "Mezzmo UPnP server successfully deleted: "
-msgstr ""
+msgstr "Mezzmo Servidor UPnP deletado com sucesso: "
 
 msgctxt "#30467"
 msgid "Mezzmo Movie Set"
-msgstr ""
+msgstr "Mezzmo Coletânea de Filmes"
 
 msgctxt "#30468"
 msgid "Mezzmo Movie Collection"
-msgstr ""
+msgstr "Mezzmo Coletânea de Filmes"
 
 msgctxt "#30469"
 msgid "Mezzmo Music Video Collection"
-msgstr ""
+msgstr "Mezzmo Coletânea de Concertos"
 
 msgctxt "#30470"
 msgid "Mezzmo Keywords"
-msgstr ""
+msgstr "Mezzmo Palavras Chaves"
 
 msgctxt "#30471"
 msgid "Select Mezzmo Feature"
-msgstr ""
+msgstr "Selecione o Recurso Mezzmo"
 
 msgctxt "#30472"
 msgid "Confirm clearing bookmark"
-msgstr ""
+msgstr "Confirmar a limpeza de marcador"
 
 msgctxt "#30473"
 msgid "Confirm clearing / setting watched status"
-msgstr ""
+msgstr "Confirmar limpeza / ajuste estatus assistido"
 
 msgctxt "#30474"
 msgid "Mezzmo Addon Playcount Error"
-msgstr ""
+msgstr "Mezzmo Erro Addon Contador de Reprodução"
 
 msgctxt "#30475"
 msgid "Context Menu Confirmations"
-msgstr ""
+msgstr "Menu de Contexto Confirmações"
 
 msgctxt "#30476"
 msgid "Slideshow - Continuous"
-msgstr ""
+msgstr "Slideshow - Contínuo"
 
 msgctxt "#30477"
 msgid "Kodi Director / Writer Sync"
-msgstr ""
+msgstr "Sincronização Diretor / Escritor Kodi"
 
 msgctxt "#30478"
 msgid "Trailers"
-msgstr ""
+msgstr "Trailers"
 
 msgctxt "#30479"
 msgid "Mezzmo Movie Preview Count"
-msgstr ""
+msgstr "Número de Itens Mezzmo Movie Previews"
 
 msgctxt "#30480"
 msgid "Release Year Trailers"
-msgstr ""
+msgstr "Trailers Lançados no Ano"
 
 msgctxt "#30481"
 msgid "Mezzmo Movie Previews"
-msgstr ""
+msgstr "Mezzmo Movie Previews"
 
 msgctxt "#30482"
 msgid "No trailers found.  Starting main movie."
-msgstr ""
+msgstr "Nenhum trailer encontrado.  Iniciando filme principal."
 
 msgctxt "#30483"
 msgid "Native Fast Sync Time 0-5 (mins)"
-msgstr ""
+msgstr "Tempo de sincronização rápida nativa 0-5 (minutos)"
 
 msgctxt "#30484"
 msgid "Enhanced Trailer Information"
-msgstr ""
+msgstr "Informações aprimoradas do trailer"
 
 msgctxt "#30485"
 msgid "Played Trailer Color"
-msgstr ""
+msgstr "Cor do Trailer Assistido"
 
 msgctxt "#30486"
 msgid "Local IMDB Trailer Color"
-msgstr ""
+msgstr "Cor de trailer Local IMDB"
 
 msgctxt "#30487"
 msgid "Local YouTube Trailer Color"
-msgstr ""
+msgstr "Cor de trailer local YouTube"
 
 msgctxt "#30488"
 msgid "Mezzmo Music Playlist"
-msgstr ""
+msgstr "Mezzmo Lista de Reprodução Músicas"
 
 msgctxt "#30489"
 msgid "UPnP Dynamic Music Playlists"
-msgstr ""
+msgstr "Listas de reprodução de música dinâmica UPnP"
 
 msgctxt "#30490"
 msgid "Refresh Screen After Preview Playback"
-msgstr ""
-
-msgctxt "#30491"
-msgid "Server No Response Dialog Box"
-msgstr ""
+msgstr "Atualizar a tela após a reprodução de visualização"
 
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
-msgstr ""
+msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
 
 msgctxt "#30502"
 msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance."
-msgstr ""
+msgstr "Sempre desative o cache do Kodi durante a navegação no Mezzmo, caso contrário, os tempos de cache são atualizados a cada 30 minutos. A desativação pode diminuir o desempenho."
 
 msgctxt "#30503"
 msgid "Add Mezzmo actor information to Kodi database during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
-msgstr ""
+msgstr "Adicione informações do ator Mezzmo ao banco de dados Kodi durante a navegação na lista de reprodução. Desativado automaticamente pela opção de sincronização em segundo plano quando ativado e a sincronização é alcançada"
 
 msgctxt "#30504"
 msgid "Add Mezzmo TV episodes to the Kodi database.  Options are to match by season & episode or by media category.  Default is season & episode.  Category is handy when you have both season and episode = 0 TV media files."
-msgstr ""
+msgstr "Adicione episódios de TV Mezzmo ao banco de dados Kodi. As opções devem corresponder por temporada e episódio ou por categoria de mídia. O padrão é temporada e episódio. A categoria é útil quando você tem temporada e episódio = 0 arquivos de mídia de TV."
 
 msgctxt "#30505"
 msgid "Detect Mezzmo metadata changes during playlist browsing.  Automatically disabled by background sync option when enabled and sync is achieved."
-msgstr ""
+msgstr "Detecte alterações de metadados do Mezzmo durante a navegação na lista de reprodução. Desativado automaticamente pela opção de sincronização em segundo plano quando ativado e a sincronização é alcançada."
 
 msgctxt "#30506"
 msgid "Background sync process to keep Mezzmo and Kodi databases in sync.  Automatically disables real time updates when sync is achieved."
-msgstr ""
+msgstr "Processo de sincronização em segundo plano para manter os bancos de dados Mezzmo e Kodi sincronizados. Desativa automaticamente as atualizações em tempo real quando a sincronização é alcançada."
 
 msgctxt "#30507"
 msgid "Logs duplicate entries in the Mezzmo database to the Kodi logfile during daily sync process (Midnight to 6AM). A handy feature to keep your Mezzmo database clean."
-msgstr ""
+msgstr "Registrar entradas duplicadas no banco de dados Mezzmo para o arquivo de log Kodi durante o processo de sincronização diária (meia-noite às 6h). Um recurso útil para manter seu banco de dados Mezzmo limpo"
 
 msgctxt "#30508"
 msgid "Clears and/or resync the Mezzmo entries in your Kodi database upon Mezzmo addon startup.  Clear: Just clears Mezzmo data in the Kodi DB.  Full sync: Clears and rebuilds all Mezzmo data in the Kodi DB.  Option will be set to Off when complete. A regular database clear is part of the daily sync process.  This option is for one time clearing."
-msgstr ""
+msgstr "Limpar e/ou ressincronizar as entradas do Mezzmo em seu banco de dados Kodi na inicialização do addon Mezzmo. Limpar: apenas limpa os dados do Mezzmo no banco de dados Kodi. Sincronização total: Limpa e reconstrói todos os dados do Mezzmo no Kodi DB. A opção será definida como Desligado quando concluída. Uma limpeza regular do banco de dados faz parte do processo de sincronização diária. Esta opção é para uma limpeza única.
 
 msgctxt "#30509"
 msgid "Enable to only see Mezzmo UPnP servers.  Disable to see all."
-msgstr ""
+msgstr "Ative para ver apenas os servidores Mezzmo UPnP. Desative para ver todos"
 
 msgctxt "#30510"
 msgid "Select skin to change Mezzmo addon view options."
-msgstr ""
+msgstr "Selecione a skin para alterar as opções de visualização do Addon Mezzmo."
 
 msgctxt "#30511"
 msgid "Top folder view display format."
-msgstr ""
+msgstr "Formato de exibição da exibição da pasta principal."
 
 msgctxt "#30512"
 msgid "Folder view display format."
-msgstr ""
+msgstr "Formato de exibição de exibição de pasta."
 
 msgctxt "#30513"
 msgid "Top folder view mapping to a specific view format."
-msgstr ""
+msgstr "Mapeamento de exibição de pasta superior para um formato de exibição específico."
 
-msgctxt "#30514"
+msgctxt "#30514"Folder view mapping to a specific view format.
 msgid "Folder view mapping to a specific view format."
-msgstr ""
+msgstr "Mapeamento de exibição de pasta para um formato de exibição específico."
 
 msgctxt "#30515"
 msgid "Photos view display format."
-msgstr ""
+msgstr "Formato de exibição de fotos"
 
 msgctxt "#30516"
 msgid "Servers view display format."
-msgstr ""
+msgstr "Servidores Formatos da visualização."
 
 msgctxt "#30517"
 msgid "Movies view display format."
-msgstr ""
+msgstr "Formato de visualização de filmes."
 
 msgctxt "#30518"
 msgid "TV Shows / Episodes view display format."
-msgstr ""
+msgstr "Formato de visualização de Seriados / Episódios."
 
 msgctxt "#30519"
 msgid "Music view display format."
-msgstr ""
+msgstr "Formato de visualização de Músicas"
 
 msgctxt "#30520"
 msgid "Logs performance stastics to the Kodi logfile.   Default is enabled."
-msgstr ""
+msgstr "Registra as estatísticas de desempenho no arquivo de log Kodi.    O padrão é ativado."
 
 msgctxt "#30521"
 msgid "All other content view display format."
-msgstr ""
+msgstr "Todos os outros formatos de exibição de exibição de conteúdo."
 
 msgctxt "#30522"
 msgid "Music Videos view display format."
-msgstr ""
+msgstr "Formato de visualização de Concertos"
 
 msgctxt "#30523"
 msgid "Automatically stop paused video in minutes.  0 - never automatically stop paused video."
-msgstr ""
+msgstr "Pare automaticamente o vídeo pausado em minutos. 0 - nunca pare automaticamente o vídeo pausado"
 
 msgctxt "#30524"
 msgid "Kodi automatically manages the Mezzmo Background Sync setting based upon the sync state with Mezzmo. Default is enabled. Disable for more manual control. "
-msgstr ""
+msgstr "O Kodi gerencia automaticamente a configuração Mezzmo Background Sync com base no estado de sincronização com o Mezzmo. O padrão é ativado. Desative para controle manual adicional."
 
 msgctxt "#30525"
 msgid "Mezzmo addon manages Kodi views based upon content type. Disable to have Kodi manage.  Default is enabled."
-msgstr ""
+msgstr "O Add-on Mezzmo gerencia as visualizações do Kodi com base no tipo de conteúdo. Desative para que o Kodi gerencie. O padrão é ativado."
 
 msgctxt "#30526"
 msgid "Mezzmo addon Mezzmo server response timeout value.  Default is 60 seconds."
-msgstr ""
+msgstr "Mezzmo addon Valor de tempo limite de resposta do servidor Mezzmo. O padrão é 60 segundos."
 
 msgctxt "#30527"
 msgid "Mezzmo addon new UPnP server discovery timeout value.  Default is 5 seconds."
-msgstr ""
+msgstr "Mezzmo addon novo valor de tempo limite de descoberta de servidor UPnP. O padrão é 5 segundos."
 
 msgctxt "#30528"
 msgid "Number of previous searches to display 0-30.  Default is 10 searches"
-msgstr ""
+msgstr "Número de pesquisas anteriores para exibir 0-30. O padrão é 10 pesquisas"
 
 msgctxt "#30529"
 msgid "Select and view Mezzmo server to sync with Kodi. "
-msgstr ""
+msgstr "Selecione e visualize o servidor Mezzmo para sincronizar com o Kodi."
 
 msgctxt "#30530"
 msgid "Mezzmo addon non-Mezzmo server response timeout value.  Default is 60 seconds."
-msgstr ""
+msgstr "Valor de tempo limite de resposta de outros servidores não Mezzmo do add-on Mezzmo.  O padrão é 60 segundos."
 
 msgctxt "#30531"
 msgid "Adjust slideshow pause between photos / images 2-20 secs.  Default is 3 seconds."
-msgstr ""
+msgstr "Ajuste a pausa da apresentação de slides entre fotos / imagens 2-20 segundos. O padrão é 3 segundos"
 
 msgctxt "#30532"
 msgid "Enable slideshow viewer when browsing pictures.  When enabled a prompt will be displayed asking if the pictures should be shown using a slidewshow viewer.  Default is enabled."
-msgstr ""
+msgstr "Ative o visualizador de apresentação de slides ao navegar pelas fotos. Quando ativado, um prompt será exibido perguntando se as imagens devem ser exibidas usando um visualizador de apresentação de slides. O padrão é ativado."
 
 msgctxt "#30533"
 msgid "Select Kodi DB or Mezzmo addon table(s) for export to CSV format for external use."
-msgstr ""
+msgstr "Selecione a(s) tabela(s) de complemento Kodi DB ou Mezzmo para exportar para o formato CSV para uso externo."
 
 msgctxt "#30534"
 msgid "Select number of trailers to display on Mezzmo Play Trailers context menu option.  Default is 10.  0 disables multiple trailers."
-msgstr ""
+msgstr "Selecione o número de trailers a serem exibidos na opção do menu de contexto Mezzmo Play Trailers.   O padrão é 10.   0 desativa vários trailers."
 
 msgctxt "#30535"
 msgid "Enable to sync Mezzmo bookmarks to the Kodi DB.  This is only needed when running in Kodi native mode and playing files directly from the Kodi skin.  Default is disabled."
-msgstr ""
+msgstr "Ative para sincronizar os favoritos do Mezzmo com o Kodi DB. Isso só é necessário ao executar no modo nativo do Kodi e reproduzir arquivos diretamente da skin do Kodi. O padrão é desabilitado."
 
 msgctxt "#30536"
 msgid "Enable to for native Kodi skin updates when Mezzmo finishes a sync process.  This is optional when running in Kodi native mode and playing files directly from the Kodi skin.  It willl cause extra log messages.  Default is disabled."
-msgstr ""
+msgstr "Ative para atualizações de skin nativas do Kodi quando o Mezzmo terminar um processo de sincronização. Isso é opcional ao executar no modo nativo do Kodi e reproduzir arquivos diretamente da skin do Kodi. Isso causará mensagens de log extras. O padrão é desabilitado."
 
 msgctxt "#30537"
 msgid "Enable for native Kodi Mezzmo data sync.  This is needed to display cast metadata and similar in native mode operation.  Default is disabled."
-msgstr ""
+msgstr "Ative a sincronização nativa de dados Kodi Mezzmo. Isso é necessário para exibir metadados de transmissão e similares na operação do modo nativo. O padrão é desativado"
 
 msgctxt "#30538"
 msgid "Enable for native Kodi mode to display TV Shows by actor.  Default is disabled."
-msgstr ""
+msgstr "Ative o modo Kodi nativo para exibir programas de TV por ator. O padrão é desabilitado."
 
 msgctxt "#30539"
 msgid "Enable for native Kodi mode to sync Mezzmo keywords to Kodi tags.  Default is disabled."
-msgstr ""
+msgstr "Ativar modo Kodi nativo para sincronizar palavras-chave Mezzmo com tags Kodi. O padrão é desabilitado."
 
 msgctxt "#30540"
 msgid "Enables logging a specific number of Mezzmo server responses before automatically disabling.  Default is disabled."
-msgstr ""
+msgstr "Ativa o registro de um número específico de respostas do servidor Mezzmo antes de desativar automaticamente. O padrão é desabilitado."
 
 msgctxt "#30541"
 msgid "Enables logging a specific number of UPnP server responses before automatically disabling.  Default is disabled."
-msgstr ""
+msgstr "Ativa o registro de um número específico de respostas do servidor UPnP antes de desativar automaticamente. O padrão é desabilitado."
 
 msgctxt "#30542"
 msgid "Enables selectively syncing portins of the Mezzmo library with Kodi with Smart Playists that contain the selected tag name. Default is All."
-msgstr ""
+msgstr "Permite a sincronização seletiva de portas da biblioteca Mezzmo com Kodi com Smart Playists que contêm o nome da tag selecionada. O padrão é todos"
 
 msgctxt "#30543"
 msgid "When enabled will only sync local trailers to Kodi when found otherwise You Tube trailers will sync.  Default is enabled."
-msgstr ""
+msgstr "Quando ativado, apenas os trailers locais serão sincronizados com o Kodi quando encontrados, caso contrário, os trailers do You Tube serão sincronizados. O padrão é ativado."
 
 msgctxt "#30544"
 msgid "Enable to sync Mezzmo category musicvideo as Kodi musicvideos otherwise they will sync as movies.  Default is disabled."
-msgstr ""
+msgstr "Ative para sincronizar videoclipes da categoria Mezzmo como videoclipes Kodi, caso contrário, eles serão sincronizados como filmes. O padrão é desabilitado."
 
 msgctxt "#30545"
 msgid "Enable to provide context menu confirmation dialogs for bookmark clearing and watch status updates to protect against accidental changes.  Default is enabled."
-msgstr ""
+msgstr "Ative para fornecer caixas de diálogo de confirmação do menu de contexto para limpeza de favoritos e atualizações de estatus assistido para proteção contra alterações acidentais. O padrão é ativado."
 
 msgctxt "#30546"
 msgid "Enable for native Kodi mode to sync Mezzmo directors / writers to Kodi.  Default is disabled."
-msgstr ""
+msgstr "Ative o modo Kodi nativo para sincronizar os diretores / escritores Mezzmo com o Kodi. O padrão é desativado"
 
 msgctxt "#30547"
 msgid "Mezzmo Movie Previews feature number of trailers to play before the main movie 0-6. 0 disables Mezzmo Movie Previews. Default is 3."
-msgstr ""
+msgstr "O Mezzmo Movie Previews apresenta vários trailers para reproduzir antes do filme principal 0-6. 0 desativa as visualizações de filmes Mezzmo. O padrão é 3."
 
 msgctxt "#30548"
 msgid "When enabled the Mezzmo Movie Preview trailers will be from the year the movie was released to recreate a theater like experience.  If disabled they will be from the current year.  Default is enabled."
-msgstr ""
+msgstr "Quando ativado, os trailers do Mezzmo Movie Preview serão do ano em que o filme foi lançado para recriar uma experiência semelhante a um cinema. Se desativados, serão do ano atual. O padrão é ativado."
 
 msgctxt "#30549"
 msgid "Fast sync time for native mode syncing of new Mezzmo library content and Mezzmo boommark / resume timers from other clients. 0-5 minutes.  0 is disabled. Default is 0."
-msgstr ""
+msgstr "Tempo de sincronização rápido para sincronização de modo nativo do novo conteúdo da biblioteca Mezzmo e temporizadores de marcador/retomada Mezzmo de outros clientes. 0-5 minutos. 0 está desabilitado. O padrão é 0."
 
 msgctxt "#30550"
 msgid "Provide additional local trailer information regarding trailer type and enables color settings by type.  Default is disabled."
-msgstr ""
+msgstr "Forneça informações adicionais sobre o trailer local sobre o tipo de trailer e habilite as configurações de cores por tipo. O padrão é desabilitado."
 
 msgctxt "#30551"
 msgid "Select trailer information color for trailers which have been played."
-msgstr ""
+msgstr "Selecione a cor das informações do trailer para os trailers que foram reproduzidos."
 
 msgctxt "#30552"
 msgid "Select trailer information color for local IMDB trailers. "
-msgstr ""
+msgstr "Selecione a cor das informações do trailer para trailers locais do IMDB."
 
 msgctxt "#30553"
 msgid "Select trailer information color for local YouTube trailers."
-msgstr ""
+msgstr "Selecione a cor das informações do trailer para trailers locais do YouTube."
 
 msgctxt "#30554"
 msgid "When enabled will create dynamic music playlists for UPnP servers and add a context menu item to play them.  Default is disabled."
-msgstr ""
+msgstr "Quando ativado, criará listas de reprodução de música dinâmicas para servidores UPnP e adicionará um item de menu de contexto para reproduzi-las. O padrão é desabilitado."
 
 msgctxt "#30555"
 msgid "When enabled will refresh the Kodi screen after playback of the main movie completes.  Not all Kodi skins (such as Confluence) refresh properly after playing a playlist.  Enabling this resolves the issue.  Default is disabled."
-msgstr ""
-
-msgctxt "#30556"
-msgid "Display dialog box for server not responding.  Enable displays a dialog box.  Disable displays a notification.  Default is enabled."
-msgstr ""
+msgstr "Quando ativado, atualizará a tela do Kodi após a conclusão da reprodução do filme principal. Nem todas as skins do Kodi (como o Confluence) são atualizadas corretamente após a reprodução de uma lista de reprodução. Habilitar isso resolve o problema. O padrão é desabilitado."

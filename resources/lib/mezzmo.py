@@ -19,7 +19,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle, delServer
-from server import clearPictures, updatePictures, addServers, checkSync
+from server import clearPictures, updatePictures, addServers, checkSync, downServer
 from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
 
@@ -280,8 +280,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
     try:
         while True:
+
+            if len(content) == 0:                       # Handle downed server
+                downServer()				# Down server response           
+                break;     #sanity check  
+          
             e = xml.etree.ElementTree.fromstring(content)
-            
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')
@@ -911,6 +915,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
+    xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TRACKNUM)
     xbmcplugin.endOfDirectory(addon_handle)
 
 
@@ -937,8 +942,12 @@ def handleSearch(content, contenturl, objectID, term):
     
     try:
         while True:
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                downServer()				# Down server response          
+                break;     #sanity check  
+
+            e = xml.etree.ElementTree.fromstring(content)          
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}SearchResponse')
             result = browseresponse.find('Result')
@@ -1588,11 +1597,7 @@ def promptSearch():
         if len(content) > 0:                                  #  Check for server response
             handleSearch(content, url[0], '0', searchCriteria)
         else:
-            mgenlog ='Mezzmo no response from server. '
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            media.mgenlogUpdate(mgenlog)
-            dialog_text = media.translate(30407)
-            xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+            downServer()				      # Down server response 
     
 mode = args.get('mode', 'none')
 
@@ -1615,7 +1620,8 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         mgenlog = media.translate(30451) + serverurl
         xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
-        notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
+        #notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
+        notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
     listServers(False)
     
 if mode[0] == 'serverlist':
@@ -1644,18 +1650,17 @@ elif mode[0] == 'server':
     if 'Conceiva' in manufacturer:         #  Check for server response
         brtime = time.time()                                    #  Get start time of browse                  
         content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
-        patime = time.time()                                    #  Get start time of parse 
-        handleBrowse(content, url[0], objectID[0], parentID[0])
+        patime = time.time()                                    #  Get start time of parse
+        if len(content) > 0:
+            handleBrowse(content, url[0], objectID[0], parentID[0])
+        else:
+            downServer() 
     elif 'Conceiva' not in manufacturer:   #  Check for server response
         content = gBrowse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
-        ghandleBrowse(content, url[0], objectID[0], parentID[0])
-
-    if len(content) == 0:
-        mgenlog ='Mezzmo no response from server. '
-        xbmc.log(mgenlog, xbmc.LOGINFO)
-        media.mgenlogUpdate(mgenlog)
-        dialog_text = media.translate(30407)
-        xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+        if len(content) > 0:
+            ghandleBrowse(content, url[0], objectID[0], parentID[0])
+        else:
+            downServer('upnp') 
 
 elif mode[0] == 'home':
     xbmc.executebuiltin('Dialog.Close(all)')
@@ -1701,6 +1706,8 @@ elif mode[0] == 'movieset':
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria)
+    else:
+        downServer() 
 
 elif mode[0] == 'collection':
     contenturl = args.get('contentdirectory', '')
@@ -1718,6 +1725,8 @@ elif mode[0] == 'collection':
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria)        
+    else:
+        downServer() 
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')

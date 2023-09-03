@@ -14,6 +14,7 @@ if mezzmo_response > 0:
 
 def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     global logcount
+    xbmc.log("Mezzmo server timeout " + str(srvrtime), xbmc.LOGINFO) 
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -57,9 +58,8 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     #xbmc.log('The current response is: ' + str(response), xbmc.LOGINFO)    
     return response
 
-def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
 
-    
+def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):   
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Search"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">

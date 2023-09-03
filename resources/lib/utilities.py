@@ -525,6 +525,7 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
     try:
         prflocaltr = media.settings('prflocaltr')   
         prviewyr = media.settings('prviewyr')
+        prvrefresh = media.settings('prvrefresh')            # Is refresh Kodi screen enabled ?
         curryear = datetime.now().strftime('%Y')
 
         if prviewyr == 'true':                               # Preview year or current year
@@ -584,6 +585,8 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
         li.setArt({'thumb': icon, 'poster': icon})
         mezzlist.add(url=vurl, listitem=li)
 
+        if prvrefresh == 'true':                             # Set movie preview flag if enabled
+            media.settings('movieprvw', 'true') 
         xbmc.Player().play(mezzlist)   
         del mezzlist
 
@@ -773,7 +776,7 @@ if len(sys.argv) > 1:
         icon = sys.argv[4]
         trDisplay(title, trcount, icon)
     elif sys.argv[1] == 'playlist':
-        #xbmc.log('Mezzmo playlist: ' + sys.argv[2] + ' ' + sys.argv[3], xbmc.LOGINFO)
+        xbmc.log('Mezzmo Music playlist: ' + sys.argv[2] + ' ' + sys.argv[3], xbmc.LOGDEBUG)
         xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",      \
         "params":{"item":{"playlistid":%s, "position":%s}},"id":1}' % (sys.argv[2], sys.argv[3]))
 

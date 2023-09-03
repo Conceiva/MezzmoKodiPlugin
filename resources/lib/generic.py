@@ -17,7 +17,7 @@ import sync
 import time
 from views import content_mapping, setViewMode
 from server import getItemlUrl, upnpCheck, picDisplay
-from server import clearPictures, updatePictures
+from server import clearPictures, updatePictures, downServer
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
@@ -47,7 +47,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
     itemsleft = -1
     pitemsleft = -1
     media.settings('contenturl', contenturl)
-    slideshow = media.settings('slideshow')             # Check if slideshow is enabled   
+    slideshow = media.settings('slideshow')             # Check if slideshow is enabled
+    udynlist =  media.settings('udynlist')              # Check if Dynamic Lists are enabled
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -56,13 +57,18 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
     menuitem6 = addon.getLocalizedString(30380)
     menuitem7 = addon.getLocalizedString(30384)
     menuitem8 = addon.getLocalizedString(30412)
+    menuitem9 = addon.getLocalizedString(30488)
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
 
     try:
         while True:
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                downServer('upnp')                      # Downed server message         
+                break;     #sanity check  
+
+            e = xml.etree.ElementTree.fromstring(content)          
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')
@@ -82,9 +88,10 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
             elems = xml.etree.ElementTree.fromstring(result.text)
             picnotify = 0
 
-            genmulist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)        # Create playlist
-            genmulist.clear()
-            muid = genmulist.getPlayListId()             
+            if udynlist == 'true':
+                genmulist = xbmc.PlayList(xbmc.PLAYLIST_MUSIC)        # Create playlist
+                genmulist.clear()
+                muid = genmulist.getPlayListId()             
             for container in elems.findall('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}container'):
                 title = container.find('.//{http://purl.org/dc/elements/1.1/}title').text 
                 containerid = container.get('id')
@@ -589,10 +596,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     #li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ])  
                     #offsetmenu = 'Resume from ' + time.strftime("%H:%M:%S", time.gmtime(int(dcmInfo_text)))
                     #if len(episode_text) > 0: title = str(format(int(episode_text), '02')) + ' - ' + title
+                    if udynlist == 'true':
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),  \
+                        (menuitem9, 'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "playlist", muid, genmupos)) ])
+                    else:
+                        li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)') ]) 
 
-                    li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),  \
-                    ('Mezzmo Playlist', 'RunScript(%s, %s, %s, %s)' % ("plugin.video.mezzmo", "playlist", muid, genmupos)) ])
-                    #xbmc.log('Print playlist: ' + str(genmulist[0]), xbmc.LOGINFO) 
                     info = {
                         'duration': durationsecs,
                         'genre': genre_text,
@@ -624,7 +633,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if playcount is not None: minfo.setPlayCount(int(playcount))
                         minfo.setLastPlayed(last_played_text)
                     contentType = 'songs'
-                    genmulist.add(url=itemurl, listitem=li)
+                    if udynlist == 'true':
+                        genmulist.add(url=itemurl, listitem=li)
 
                 elif mediaClass_text == 'pictures':
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'), \
@@ -691,7 +701,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
 
 
 def gBrowse(url, objectID, flag, startingIndex, requestedCount, pin):
-    global logcount      
+    global logcount     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
