@@ -133,9 +133,10 @@ while not monitor.abortRequested():
             media.mgenlogUpdate(mgenlog)
 
     count += 1
-    if count == 2:                           # Check for autostarting the Mezzmo GUI
+    if count == 2:                            # Check for autostarting the Mezzmo GUI
         media.autostart()
-        media.settings('kodiclean', 'Off')   # Clear manual resync flag on addon restart
+        media.settings('kodiclean', 'Off')    # Clear manual resync flag on addon restart
+        media.settings('curr_sync','0')       # Clear sync running flag
         knative = media.settings('knative')   # Get initial native sync setting
         fastsync = media.settings('fastsync') # Get initial fast sync setting
 
@@ -215,18 +216,20 @@ while not monitor.abortRequested():
                 xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)
 
-    if not xbmc.Player().isPlaying() and int(fastsync) > 0 and count % (int(fastsync) * 60) == 0: 
+    if count % 120 == 0:                                  # Check for fast sync changes every 2 minutes
         currsync = fastsync                               # Fast Sync is enabled
         fastsync = media.settings('fastsync')             # Check Fast Sync setting for updates
         if fastsync != currsync:                          # Detect setting change
             msynclog = 'Mezzmo fast sync setting changed to ' + fastsync + ' min(s)'
             xbmc.log(msynclog, xbmc.LOGNOTICE)
-            media.mezlogUpdate(msynclog)               
+            media.mezlogUpdate(msynclog)   
+
+    if not xbmc.Player().isPlaying() and int(fastsync) > 0 and count % (int(fastsync) * 60) == 0:            
         syncpin = media.settings('content_pin')
         syncset = media.settings('kodisyncvar')
         syncurl = checkSync(count)                        # Get server control URL
         xbmc.log('Mezzmo fast sync enabled: ' + str(count), xbmc.LOGDEBUG)
-        if syncpin and syncset != 'Off' and syncurl != 'None':
+        if syncpin and syncset != 'Off' and syncurl != 'None' and int(fastsync) > 0:
             try:             
                 sync.fastSync(syncurl, syncpin, fastsync)
             except:

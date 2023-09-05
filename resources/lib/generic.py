@@ -17,9 +17,10 @@ import os
 import media
 import sync
 import time
-from server import getItemlUrl, upnpCheck, picDisplay
-from server import clearPictures, updatePictures
 from views import content_mapping, setViewMode
+from server import getItemlUrl, upnpCheck, picDisplay
+from server import clearPictures, updatePictures, downServer
+
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
@@ -65,8 +66,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGNOTICE)
     try:
         while True:
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                downServer('upnp')                      # Downed server message            
+                break;     #sanity check
+
+            e = xml.etree.ElementTree.fromstring(content)           
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')

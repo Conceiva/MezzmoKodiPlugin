@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.mezzmo" name="Mezzmo" version="1.1.9.2" provider-name="Conceiva">
+<addon  id="plugin.video.mezzmo" name="Mezzmo" version="1.1.9.3" provider-name="Conceiva">
   <requires>
     <import addon="xbmc.python" version="2.25.0"/>
   </requires>      
@@ -41,6 +41,6 @@
     <summary lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</summary>
     <description lang="en_GB">Browse and play local video, music and photo media files managed by Mezzmo Media Server.</description>
     <summary lang="pt_BR">Navegue e reproduza arquivos de mídia locais de vídeo, música e foto gerenciados pelo Mezzmo Media Server.</summary>
-    <description lang="pr_BR">Navegue e reproduza arquivos de mídia locais de vídeo, música e foto gerenciados pelo Mezzmo Media Server.</description>
+    <description lang="pt_BR">Navegue e reproduza arquivos de mídia locais de vídeo, música e foto gerenciados pelo Mezzmo Media Server.</description>
   </extension>
 </addon>

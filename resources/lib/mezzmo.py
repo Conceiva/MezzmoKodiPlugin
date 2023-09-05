@@ -20,7 +20,7 @@ import os
 import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle, delServer
-from server import clearPictures, updatePictures, addServers, checkSync
+from server import clearPictures, updatePictures, addServers, checkSync, downServer
 from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
 
@@ -112,14 +112,14 @@ def listServers(force):
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     srvcount = len(servers)
-    addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
+    addtlmsg = '  ' + str(srvcount) + '  UPnP servers discovered.'
     ddialogmsg = dialogmsg + addtlmsg
     msgdialogprogress.update(50, ddialogmsg)
     if force:
         xbmc.sleep(1000)
     a = sselect = 0
 
-    mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' uPNP servers found.'
+    mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' UPnP servers found.'
     xbmc.log(mgenlog, xbmc.LOGNOTICE)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
@@ -132,7 +132,7 @@ def listServers(force):
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read(), count=1)
           
             e = xml.etree.ElementTree.fromstring(xmlstring)
-            mgenlog = 'Mezzmo uPNP server url: ' + url[:48]  
+            mgenlog = 'Mezzmo UPnP server url: ' + url[:48]  
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)   
             device = e.find('device')
@@ -210,7 +210,7 @@ def listServers(force):
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 updateServers(url, friendlyname, contenturl, manufacturer, modelnumber, iconurl, description, udn) 
         except urllib2.URLError, urllib2.HTTPError:    # Detect Server Issues
-            mgenlog = 'Mezzmo uPNP server not responding: ' + url
+            mgenlog = 'Mezzmo UPnP server not responding: ' + url
             xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)  
             dialog_text = media.translate(30405) + '\n\n' + url
@@ -281,13 +281,12 @@ def handleBrowse(content, contenturl, objectID, parentID):
 
     try:
         while True:
+
             if len(content) == 0:                       # Handle downed server
-                mgenlog ='Mezzmo no browsing response received from server.'
-                xbmc.log(mgenlog, xbmc.LOGNOTICE)
-                media.mgenlogUpdate(mgenlog)             
+                downServer()				# Down server response              
                 break;     #sanity check
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            e = xml.etree.ElementTree.fromstring(content)           
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')
@@ -880,8 +879,12 @@ def handleSearch(content, contenturl, objectID, term):
     
     try:
         while True:
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                downServer()				# Down server response            
+                break;     #sanity check
+
+            e = xml.etree.ElementTree.fromstring(content)           
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}SearchResponse')
             result = browseresponse.find('Result')
@@ -1468,11 +1471,7 @@ def promptSearch():
         if len(content) > 0:                                  #  Check for server response
             handleSearch(content, url[0], '0', searchCriteria)
         else:
-            mgenlog ='Mezzmo no response from server. '
-            xbmc.log(mgenlog, xbmc.LOGNOTICE)
-            media.mgenlogUpdate(mgenlog)
-            dialog_text = media.translate(30407)
-            xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
+            downServer()				      # Down server response 
     
 mode = args.get('mode', 'none')
 
@@ -1522,18 +1521,16 @@ elif mode[0] == 'server':
         brtime = time.time()               #  Get start time of browse                  
         content = browse.Browse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
         patime = time.time()               #  Get start time of parse 
-        handleBrowse(content, url[0], objectID[0], parentID[0])
+        if len(content) > 0:
+            handleBrowse(content, url[0], objectID[0], parentID[0])
+        else:
+            downServer() 
     elif 'Conceiva' not in manufacturer:   #  Check for server response
         content = gBrowse(url[0], objectID[0], 'BrowseDirectChildren', 0, 1000, pin)
-        ghandleBrowse(content, url[0], objectID[0], parentID[0])
-
-    if len(content) == 0:
-        mgenlog ='Mezzmo no response from server. '
-        xbmc.log(mgenlog, xbmc.LOGNOTICE)
-        media.mgenlogUpdate(mgenlog)
-        dialog_text = media.translate(30407)
-        #xbmcgui.Dialog().ok(media.translate(30408), dialog_text)
-        notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
+        if len(content) > 0:
+            ghandleBrowse(content, url[0], objectID[0], parentID[0])
+        else:
+            downServer('upnp') 
 
 elif mode[0] == 'home':
     xbmc.executebuiltin('Dialog.Close(all)')
@@ -1576,7 +1573,9 @@ elif mode[0] == 'movieset':
     pin = media.settings('content_pin')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria) 
+        handleSearch(content, scontenturl, '0', searchCriteria)
+    else:
+        downServer()  
 
 elif mode[0] == 'collection':
     contenturl = args.get('contentdirectory', '')
@@ -1593,7 +1592,9 @@ elif mode[0] == 'collection':
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria)        
+        handleSearch(content, scontenturl, '0', searchCriteria)
+    else:
+        downServer()         
 
 elif mode[0] == 'picture':
     url = args.get('itemurl', '')
