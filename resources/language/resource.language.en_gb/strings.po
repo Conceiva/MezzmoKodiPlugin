@@ -688,6 +688,10 @@ msgctxt "#30490"
 msgid "Refresh Screen After Preview Playback"
 msgstr ""
 
+msgctxt "#30491"
+msgid "Server No Response Dialog Box"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -906,4 +910,8 @@ msgstr ""
 
 msgctxt "#30555"
 msgid "When enabled will refresh the Kodi screen after playback of the main movie completes.  Not all Kodi skins (such as Confluence) refresh properly after playing a playlist.  Enabling this resolves the issue.  Default is disabled."
+msgstr ""
+
+msgctxt "#30556"
+msgid "Display dialog box for server not responding.  Enable displays a dialog box.  Disable displays a notification.  Default is enabled."
 msgstr ""

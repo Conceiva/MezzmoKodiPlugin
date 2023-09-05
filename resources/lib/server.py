@@ -142,6 +142,25 @@ def delServer(srvurl):                                           # Delete server
         mgenlogUpdate(mgenlog)
 
 
+def downServer(srvrtype='mezzmo'):                               # Handle downed server
+
+    try:
+        mgenlog ='Mezzmo no response from server. '
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)
+        if srvrtype == 'mezzmo':                                 # Mezzmo server error
+            dialog_text = translate(30407)
+        else:
+            dialog_text = translate(30405).split('.')[0]         # UPnP server error            
+        if settings('srvrdialog') == 'true':                     # Ok dialog box for downed server
+            xbmcgui.Dialog().ok(translate(30408), dialog_text)
+        else:
+            xbmcgui.Dialog().notification(translate(30408), dialog_text, addon_icon, 5000)
+    except:
+        mgenlog = 'Mezzmo error displaying server down message.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)                    
+
+
 def updateSync(controlurl):                                      # Set sync for Mezzmo server
 
     try:
@@ -164,7 +183,8 @@ def updateSync(controlurl):                                      # Set sync for 
 def checkMezzmo(srvurl):                                         # Check / Update sync sever info
 
     try:
-        response = urllib.request.urlopen(srvurl)
+        timeoutval = int(settings('ssdp_timeout'))
+        response = urllib.request.urlopen(srvurl, timeout=timeoutval)
         xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
         e = xml.etree.ElementTree.fromstring(xmlstring)    
@@ -320,7 +340,7 @@ def getServers():                                                # Find uPNP ser
         for server in servers:
             url = server.location                
             try:
-                response = urllib.request.urlopen(url)
+                response = urllib.request.urlopen(url, timeout=int(timeoutval))
                 xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
                 e = xml.etree.ElementTree.fromstring(xmlstring)    

@@ -17,7 +17,7 @@ import sync
 import time
 from views import content_mapping, setViewMode
 from server import getItemlUrl, upnpCheck, picDisplay
-from server import clearPictures, updatePictures
+from server import clearPictures, updatePictures, downServer
 
 addon = xbmcaddon.Addon()
 base_url = sys.argv[0]
@@ -63,8 +63,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
 
     try:
         while True:
-            e = xml.etree.ElementTree.fromstring(content)
-            
+
+            if len(content) == 0:                       # Handle downed server
+                downServer('upnp')                      # Downed server message         
+                break;     #sanity check  
+
+            e = xml.etree.ElementTree.fromstring(content)          
             body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
             browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
             result = browseresponse.find('Result')
@@ -697,7 +701,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
 
 
 def gBrowse(url, objectID, flag, startingIndex, requestedCount, pin):
-    global logcount      
+    global logcount     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">

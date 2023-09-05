@@ -12,8 +12,8 @@ if mezzmo_response > 0:
     logcount = int(media.settings('mrespcount'))
 
 
-def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
-    global logcount
+def Browse(url, objectID, flag, startingIndex, requestedCount, pin, mode='browse'):
+    global logcount, srvrtime
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Browse"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -40,6 +40,11 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     req = urllib.request.Request(url, body.encode('utf-8'), headers)
     response = ''
     try:
+        if 'browse' in mode:                       # Set timeout to 60 seconds during sync
+            srvrtime = srvrtime
+        else:
+            srvrtime = 60
+        xbmc.log('Mezzmo srvrtime is: ' + str(srvrtime), xbmc.LOGDEBUG) 
         response = urllib.request.urlopen(req, timeout=srvrtime).read().decode('utf-8')
         if logcount < mezzmo_response and mezzmo_response > 0:
             xbmc.log(response, xbmc.LOGINFO)
@@ -57,9 +62,8 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin):
     #xbmc.log('The current response is: ' + str(response), xbmc.LOGINFO)    
     return response
 
-def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
 
-    
+def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):   
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Search"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
