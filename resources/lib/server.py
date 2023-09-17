@@ -263,6 +263,48 @@ def checkMezzmoVersion():                                        # Returns Mezzm
         return 0  
 
 
+def onlyDiscMezzmo(srvrlist):                                    # Discover only Mezzmo servers
+
+    try:
+        if settings('discover_only_mezzmo') == 'false':          # Disable return original UPnP server list
+            return srvrlist
+        else:
+            svrfile = openNosyncDB()                             # Open server database
+            curps = svrfile.execute('SELECT srvUrl FROM mServers WHERE sManuf LIKE ?', ('%Conceiva%',))
+            svrtuples = curps.fetchall()                         # Get Mezzmo servers from database
+            svrfile.close()
+            del curps 
+            if not svrtuples:                                    # No Mezzmo servers found
+                mgenlog = 'Mezzmo only discovery no Mezzmo servers found.'
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlogUpdate(mgenlog)
+                return srvrlist
+            else:
+                mezzlist = []                                    # Mezzmo server list
+                for server in srvrlist:
+                    try:                                         # Get server URL from SSDP object
+                        url = server.location
+                    except:
+                        url = server.get('serverurl')                        
+                    if url in str(svrtuples):                    # Is there a match in kwnon servers
+                        mezzlist.append(server) 
+
+                mgenlog = 'Mezzmo only Mezzmo servers enabled. ' + str(len(mezzlist)) + ' Mezzmo server(s) found.'
+                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                mgenlogUpdate(mgenlog)
+                if len(mezzlist) > 0:                            # If Mezzmo server(s) found return list
+                    return mezzlist
+                else:
+                    return srvrlist 
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo discover only Mezzmo server error.'
+        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        mgenlogUpdate(mgenlog)
+        return srvrlist 
+
+
 def checkSync(count):                                            # Check for Sync server
 
     svrfile = openNosyncDB()                                     # Open server database    

@@ -7,6 +7,7 @@
     <setting id="gsrvrtime" type="slider" label="30410" default="60" range="10,5,60" option="int"/>
     <setting id="ssdp_timeout" type="number" label="30340" default="5"/>
     <setting id="pastop" type="labelenum" label="30383" values="0|5|10|15|20|25|30|35|40|45|50|55|60" default="0"/>
+    <setting id="discover_only_mezzmo" type="bool" label="30492" default="false"/>
     <setting id="srvrdialog" type="bool" label="30491" default="true"/>
     <setting id="getservers" type="action" label="30392" action="RunScript(plugin.video.mezzmo,servers)"/>
     <setting id="saved_servers" type="text" label="30388" default="none" visible="false"/>

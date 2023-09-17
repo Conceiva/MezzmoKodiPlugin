@@ -921,5 +921,5 @@ msgid "Display dialog box for server not responding.  Enable displays a dialog b
 msgstr "Exibir caixa de diálogo para servidor que não está respondendo. Ativar exibe uma caixa de diálogo. Desativar exibe uma notificação. O padrão é ativado"
 
 msgctxt "#30557"
-msgid "When enabled only Mezzmo seves are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
 msgstr "Quando ativado, apenas os servidores Mezzmo são descobertos pelo UPnP. Caso contrário, todos os servidores UPnP serão encontrados. O padrão é desabilitado."

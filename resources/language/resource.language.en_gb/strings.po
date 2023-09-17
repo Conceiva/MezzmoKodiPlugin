@@ -921,5 +921,5 @@ msgid "Display dialog box for server not responding.  Enable displays a dialog b
 msgstr ""
 
 msgctxt "#30557"
-msgid "When enabled only Mezzmo seves are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
 msgstr ""

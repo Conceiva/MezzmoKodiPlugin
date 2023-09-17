@@ -21,6 +21,7 @@ import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle, delServer
 from server import clearPictures, updatePictures, addServers, checkSync, downServer
+from server import onlyDiscMezzmo
 from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
 
@@ -91,7 +92,9 @@ def listServers(force):
     msgdialogprogress.create(dialoghead, dialogmsg)
     saved_servers = media.settings('saved_servers')
     if len(saved_servers) < 5 or saved_servers == 'none' or force:
-        servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+        srvrlist = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+        xbmc.log('Mezzmo UPnP servers found: ' + str(srvrlist), xbmc.LOGDEBUG)
+        servers = onlyDiscMezzmo(srvrlist)
         # save the servers for faster loading
         media.settings('saved_servers', pickle.dumps(servers))
     else:
