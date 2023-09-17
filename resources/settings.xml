@@ -80,6 +80,11 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="discover_only_mezzmo" type="boolean" label="30492" help="30557">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="srvrdialog" type="boolean" label="30491" help="30556">
 					<level>0</level>
 					<default>true</default>

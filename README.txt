@@ -1,3 +1,8 @@
+2.1.9.4 9/17/2023
+
+- Added feature and addon setting to allow only discovering and saving Mezzmo servers
+  vs. all UPnP servers on your network.
+
 2.1.9.3 9/5/2023
 
 - Added Portuguese Brazilian language translation

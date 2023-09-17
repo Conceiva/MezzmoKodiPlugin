@@ -692,6 +692,10 @@ msgctxt "#30491"
 msgid "Server No Response Dialog Box"
 msgstr "Servidor Sem Resposta Caixa de Diálogo"
 
+msgctxt "#30492"
+msgid "Only Discover Mezzmo Servers"
+msgstr "Somente Descubra Servidores Mezzmo"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -915,3 +919,7 @@ msgstr "Quando ativado, atualizará a tela do Kodi após a conclusão da reprodu
 msgctxt "#30556"
 msgid "Display dialog box for server not responding.  Enable displays a dialog box.  Disable displays a notification.  Default is enabled."
 msgstr "Exibir caixa de diálogo para servidor que não está respondendo. Ativar exibe uma caixa de diálogo. Desativar exibe uma notificação. O padrão é ativado"
+
+msgctxt "#30557"
+msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgstr "Quando ativado, apenas os servidores Mezzmo são descobertos pelo UPnP. Caso contrário, todos os servidores UPnP serão encontrados. O padrão é desabilitado."
