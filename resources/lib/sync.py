@@ -187,12 +187,20 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
             xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)          
             media.settings('fastsync', '0')
+        curr_sync = int(media.settings('curr_sync'))     #  Running sync setting
+        if curr_sync == 0:                               #  Check if sync already running
+            media.settings('curr_sync','1')
+        else:
+            msynclog = 'Mezzmo fast sync process skipped sync already running.'
+            xbmc.log(msynclog, xbmc.LOGINFO)
+            media.mezlogUpdate(msynclog)
+            return 
         syncobjid = 'recent'
-        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 30, syncpin)
+        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 30, syncpin, mode='sync')
         rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 30)
         xbmc.log('Mezzmo most recent rows returned ' + str(rows), xbmc.LOGDEBUG)
         syncobjid = 'lastplayed'
-        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 10, syncpin)
+        content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 10, syncpin, mode='sync')
         rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 10)
         xbmc.log('Mezzmo last played rows returned ' + str(rows), xbmc.LOGDEBUG)
         media.nativeNotify()                             # Kodi native notification
@@ -204,6 +212,7 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
         else: 
             fastcount += 1
         xbmc.log('Mezzmo fastcount : ' + str(fastcount), xbmc.LOGDEBUG)
+        media.settings('curr_sync','0')                  # Clear sync running flag
 
     except Exception as e:
         printsyncexception()    
@@ -215,9 +224,17 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
 def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
     global syncoffset, dupelog
     ksync = media.settings('kodisyncvar')                #  Get sync setting
+    curr_sync = int(media.settings('curr_sync'))         #  Running sync setting
     syncobjid = 'recent'
     if 'ContentDirectory' not in syncurl:
         msynclog = 'Mezzmo sync process aborted.  Invalid server selected.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog)
+        return
+    if curr_sync == 0:                                   #  Check if sync already running
+        media.settings('curr_sync','1')
+    else:
+        msynclog = 'Mezzmo sync process skipped sync already running.'
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
         return 
@@ -247,7 +264,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog) 
         if count < 12:   
-            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin)
+            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin, mode='sync')
             rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400)
             recs = media.countKodiRecs(syncurl)           #  Get record count in Kodi DB
             recscount = media.countsyncCount()            #  Get nosync record count in nosync DB
@@ -257,7 +274,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             syncLogging(recscount, mezzmorecs)            #  Write sync logs 
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)
         elif clean == 0 and ksync != 'Daily':             #  Hourly sync set of records
-            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin)
+            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin, mode='sync')
             rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400)
             if rows == None:                              #  Did sync get data from Mezzmo server ?
                 rows = 0
@@ -276,7 +293,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
                 if  itemsleft < fetch:                    #  Detect end of Mezzmo database
                      fetch = itemsleft
                 xbmc.log('Mezzmo fetch = ' + str(fetch), xbmc.LOGDEBUG)                                  
-                content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', syncoffset, fetch, syncpin)
+                content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', syncoffset, fetch, syncpin, mode='sync')
                 rows1 = syncContent(content, syncurl, syncobjid, syncpin, syncoffset, fetch)
                 xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGDEBUG)
                 if rows1 != None and rows1 > 0:
@@ -305,7 +322,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             syncoffset = 0
             lvcount = 0                                #  Reset live channel skip counter
             nsyncount = 0                              #  Reset nosync skip counter     
-            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 1000, syncpin)
+            content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 1000, syncpin, mode='sync')
             rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 1000)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
@@ -335,6 +352,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog) 
     media.nativeNotify()                              # Kodi native notification
+    media.settings('curr_sync','0')                   # Clear sync running flag
 
 
 def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
@@ -758,7 +776,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
 
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = media.settings('content_pin') 
-            content = browse.Browse(syncurl, objectId, 'BrowseDirectChildren', offset, requestedCount, syncpin)
+            content = browse.Browse(syncurl, objectId, 'BrowseDirectChildren', offset, requestedCount, syncpin, mode='sync')
     except Exception as e:
         printsyncexception()
         pass
@@ -794,7 +812,7 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
             media.mezlogUpdate(msynclog)
             return 'recent'    
 
-        content = browse.Browse(syncurl, '0', 'BrowseDirectChildren', 0, 100, syncpin)
+        content = browse.Browse(syncurl, '0', 'BrowseDirectChildren', 0, 100, syncpin, mode='sync')
         e = xml.etree.ElementTree.fromstring(content)           
         body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
         browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')
@@ -818,7 +836,7 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
                 xbmc.log('Mezzmo selective sync video playlist: ' + title + ' ' + str(containerid), xbmc.LOGDEBUG)
                 break
 
-        content = browse.Browse(syncurl, videobjectid, 'BrowseDirectChildren', 0, 200, syncpin)
+        content = browse.Browse(syncurl, videobjectid, 'BrowseDirectChildren', 0, 200, syncpin, mode='sync')
         e = xml.etree.ElementTree.fromstring(content)           
         body = e.find('.//{http://schemas.xmlsoap.org/soap/envelope/}Body')
         browseresponse = body.find('.//{urn:schemas-upnp-org:service:ContentDirectory:1}BrowseResponse')

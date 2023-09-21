@@ -688,6 +688,18 @@ msgctxt "#30490"
 msgid "Refresh Screen After Preview Playback"
 msgstr "Atualizar a tela após a reprodução de visualização"
 
+msgctxt "#30491"
+msgid "Server No Response Dialog Box"
+msgstr "Servidor Sem Resposta Caixa de Diálogo"
+
+msgctxt "#30492"
+msgid "Only Discover Mezzmo Servers"
+msgstr "Somente Descubra Servidores Mezzmo"
+
+msgctxt "#30493"
+msgid "Timed Slideshow"
+msgstr "Apresentação de slides programada"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -907,3 +919,11 @@ msgstr "Quando ativado, criará listas de reprodução de música dinâmicas par
 msgctxt "#30555"
 msgid "When enabled will refresh the Kodi screen after playback of the main movie completes.  Not all Kodi skins (such as Confluence) refresh properly after playing a playlist.  Enabling this resolves the issue.  Default is disabled."
 msgstr "Quando ativado, atualizará a tela do Kodi após a conclusão da reprodução do filme principal. Nem todas as skins do Kodi (como o Confluence) são atualizadas corretamente após a reprodução de uma lista de reprodução. Habilitar isso resolve o problema. O padrão é desabilitado."
+
+msgctxt "#30556"
+msgid "Display dialog box for server not responding.  Enable displays a dialog box.  Disable displays a notification.  Default is enabled."
+msgstr "Exibir caixa de diálogo para servidor que não está respondendo. Ativar exibe uma caixa de diálogo. Desativar exibe uma notificação. O padrão é ativado"
+
+msgctxt "#30557"
+msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgstr "Quando ativado, apenas os servidores Mezzmo são descobertos pelo UPnP. Caso contrário, todos os servidores UPnP serão encontrados. O padrão é desabilitado."

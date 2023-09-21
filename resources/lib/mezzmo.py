@@ -20,6 +20,7 @@ import media
 import sync
 from server import updateServers, getContentURL, picDisplay, showSingle, delServer
 from server import clearPictures, updatePictures, addServers, checkSync, downServer
+from server import onlyDiscMezzmo
 from views import content_mapping, setViewMode
 from generic import ghandleBrowse, gBrowse
 
@@ -92,7 +93,9 @@ def listServers(force):
     msgdialogprogress.create(dialoghead, dialogmsg)
     saved_servers = media.settings('saved_servers')
     if len(saved_servers) < 5 or saved_servers == 'none' or force:
-        servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+        srvrlist = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)
+        xbmc.log('Mezzmo UPnP servers found: ' + str(srvrlist), xbmc.LOGDEBUG)
+        servers = onlyDiscMezzmo(srvrlist)
         # save the servers for faster loading
         media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
     else:
@@ -114,14 +117,14 @@ def listServers(force):
     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
 
     srvcount = len(servers)
-    addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
+    addtlmsg = '  ' + str(srvcount) + '  UPnP servers discovered.'
     ddialogmsg = dialogmsg + addtlmsg
     msgdialogprogress.update(50, ddialogmsg)
     if force:
         xbmc.sleep(1000)
     a = sselect = 0
 
-    mgenlog ='Mezzmo server search: ' + str(srvcount) + ' uPNP servers found.'
+    mgenlog ='Mezzmo server search: ' + str(srvcount) + ' UPnP servers found.'
     xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
@@ -134,7 +137,7 @@ def listServers(force):
             xmlstring = re.sub(' xmlns="[^"]+"', '', response.read().decode(), count=1)
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
-            mgenlog ='Mezzmo uPNP server url: ' + url[:48]
+            mgenlog ='Mezzmo UPnP server url: ' + url[:48]
             xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)        
             device = e.find('device')
@@ -212,7 +215,7 @@ def listServers(force):
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=True)
                 updateServers(url, friendlyname, contenturl, manufacturer, modelnumber, iconurl, description, udn) 
         except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
-            mgenlog = 'Mezzmo uPNP server not responding: ' + url
+            mgenlog = 'Mezzmo UPnP server not responding: ' + url
             xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)  
             dialog_text = media.translate(30405) + '\n\n' + url

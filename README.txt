@@ -1,3 +1,21 @@
+2.1.9.4 9/17/2023
+
+- Added feature and addon setting to allow only discovering and saving Mezzmo servers
+  vs. all UPnP servers on your network.
+
+2.1.9.3 9/5/2023
+
+- Added Portuguese Brazilian language translation
+- Improved and standardized detection for downed Mezzmo and UPnP servers.  
+- Added option for either a dialog box or Kodi notification message when a downed
+  server is encountered when browsing in GUI mode. Default is dialog box.
+- Increased Mezzmo server timeout to 60 secs during sync process to improve sync 
+  reliability if the timer is set too low and the Mezzmo server is very busy.
+- Fixed bug introduced with v2.1.8.9 which could cause manual full sync problems and
+  if fast sync was enabled. Fast sync will now skip if a manual sync is detected.
+- Eliminated an error if Fast Sync was set to 0 while running and added check 
+  every 2 minutes to detect Fast Sync settings change. 
+
 2.1.9.2 7/18/2023
 
 - Added a new addon setting to enable refreshing the Kodi GUI after playing a Mezzmo

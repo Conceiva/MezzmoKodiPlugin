@@ -692,6 +692,14 @@ msgctxt "#30491"
 msgid "Server No Response Dialog Box"
 msgstr ""
 
+msgctxt "#30492"
+msgid "Only Discover Mezzmo Servers"
+msgstr ""
+
+msgctxt "#30493"
+msgid "Timed Slideshow"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -914,4 +922,8 @@ msgstr ""
 
 msgctxt "#30556"
 msgid "Display dialog box for server not responding.  Enable displays a dialog box.  Disable displays a notification.  Default is enabled."
+msgstr ""
+
+msgctxt "#30557"
+msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
 msgstr ""
