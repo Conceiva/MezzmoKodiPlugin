@@ -604,6 +604,10 @@ def getPictures():                                               # Get pictures 
             itemdict = {
                 'title': pictuple[a][0],
                 'url': pictuple[a][1],
+                'iheight': '720',
+                'iwidth': '1280',
+                'idate': '02-01-2023',
+                'idesc': 'This is a test image. \n Checking for multiple lines.', 
             }
             piclist.append(itemdict)
         picfile.close()     
@@ -663,60 +667,88 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
     def __init__(self, *args):
         xbmcgui.Window.__init__(self)
         self.slideIdx = self.piclength = 0
+        self.infoflag = False
         self.piclist = []
+        self.ititle = self.iwidth = self.iheight = self.idate = self.idesc = ''
         self.x = self.getWidth()
         self.y = self.getHeight()
         self.icontrol = xbmcgui.ControlImage(0, 0, self.x, self.y, "", 2)
+        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 200) /  2), 400, 200, "")
+        self.infcontrol.setVisible(False) 
         self.addControl(self.icontrol)
+        self.addControl(self.infcontrol)
         pass
 
     def onAction(self, action):
         actionkey = action.getId()
-        if actionkey in [10, 13, 92] :                                       # Exit slideshow
+        if actionkey in [10, 13, 92] :                                           # Exit slideshow
+            del self.icontrol
+            del self.infcontrol
             self.close()
 
-        if actionkey == 11:                                                  # Future info control
-            self.slideIdx = self.slideIdx
-            self.updatePic()
+        if actionkey == 11:                                                      # Display image information
+            if self.infcontrol.isVisible() == False:
+                newlabel = self.formatInfo(self.piclist[self.slideIdx])
+                self.infcontrol.setLabel(newlabel)
+                self.icontrol.setVisible(False)
+                self.infcontrol.setVisible(True)
+                self.infoflag = True                                             # Stop navigation during info
+            else:
+                self.icontrol.setVisible(True)
+                self.infcontrol.setVisible(False)
+                self.infoflag = False                                            # Restart navigation                
 
-        if actionkey in [2, 5] and self.slideIdx < (self.piclength - 1):     # Next slide
-            self.slideIdx += 1
-            self.updatePic()
-        elif actionkey in [2, 5] and self.slideIdx >= (self.piclength - 1):  # Stop on last slide
-            self.close()   
+        if not self.infoflag:                                                    # Navigate if not info
+            if actionkey in [2, 5] and self.slideIdx < (self.piclength - 1):     # Next slide
+                self.slideIdx += 1
+                self.updatePic()
+            elif actionkey in [2, 5] and self.slideIdx >= (self.piclength - 1):  # Stop on last slide
+                del self.icontrol
+                del self.infcontrol
+                self.close()   
 
-        if actionkey in [1, 6] :                                             # Previous slide
-            if self.slideIdx > 0:
-                self.slideIdx -= 1
+            if actionkey in [1, 6] :                                             # Previous slide
+                if self.slideIdx > 0:
+                    self.slideIdx -= 1
+                    self.updatePic()
+
+            if actionkey == 77 and (self.slideIdx + 10) < (self.piclength - 1):  # FF 10 slides
+                self.slideIdx += 10
+                self.updatePic()
+            elif actionkey == 77 and (self.slideIdx + 10) >= (self.piclength - 1):
+                self.slideIdx = (self.piclength - 1)             
                 self.updatePic()
 
-        if actionkey == 77 and (self.slideIdx + 10) < (self.piclength - 1):  # FF 10 slides
-            self.slideIdx += 10
-            self.updatePic()
-        elif actionkey == 77 and (self.slideIdx + 10) >= (self.piclength - 1):
-            self.slideIdx = (self.piclength - 1)             
-            self.updatePic()
+            if actionkey == 78 and (self.slideIdx - 10) >= 0:                    # RW 10 slides
+                self.slideIdx -= 10
+                self.updatePic()
+            elif actionkey == 78 and (self.slideIdx - 10) < 0:
+                self.slideIdx = 0            
+                self.updatePic()
 
-        if actionkey == 78 and (self.slideIdx - 10) >= 0:                    # RW 10 slides
-            self.slideIdx -= 10
-            self.updatePic()
-        elif actionkey == 78 and (self.slideIdx - 10) < 0:
-            self.slideIdx = 0            
-            self.updatePic()
+            if actionkey == 14 and (self.slideIdx + 25) < (self.piclength - 1):  # Jump +25 slides
+                self.slideIdx += 25
+                self.updatePic()
+            elif actionkey == 14 and (self.slideIdx + 25) >= (self.piclength - 1):
+                self.slideIdx = (self.piclength - 1)             
+                self.updatePic()
 
-        if actionkey == 14 and (self.slideIdx + 25) < (self.piclength - 1):  # Jump +25 slides
-            self.slideIdx += 25
-            self.updatePic()
-        elif actionkey == 14 and (self.slideIdx + 25) >= (self.piclength - 1):
-            self.slideIdx = (self.piclength - 1)             
-            self.updatePic()
+            if actionkey == 15 and (self.slideIdx - 25) >= 0:                    # Jump - 25 slides
+                self.slideIdx -= 25
+                self.updatePic()
+            elif actionkey == 15 and (self.slideIdx - 25) < 0:
+                self.slideIdx = 0            
+                self.updatePic()
 
-        if actionkey == 15 and (self.slideIdx - 25) >= 0:                    # Jump - 25 slides
-            self.slideIdx -= 25
-            self.updatePic()
-        elif actionkey == 15 and (self.slideIdx - 25) < 0:
-            self.slideIdx = 0            
-            self.updatePic()    
+    def formatInfo(self, playinfo):                                              # Format image information
+        ititle = playinfo['title']
+        idate = playinfo['idate']            
+        iheight = playinfo['iheight']
+        iwidth = playinfo['iwidth']
+        idesc = playinfo['idesc']
+        newlabel = ititle + '\n' + str(iwidth) + ' x ' + str(iheight) + '\n' +  \
+        idate + '\n' + idesc
+        return newlabel
         
         xbmc.log('Mezzmo slide control action: ' + str(actionkey) , xbmc.LOGDEBUG)
 
