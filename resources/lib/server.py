@@ -740,6 +740,8 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
                 self.slideIdx = 0            
                 self.updatePic()
 
+        xbmc.log('Mezzmo slide control action: ' + str(actionkey) , xbmc.LOGDEBUG)
+
     def formatInfo(self, playinfo):                                              # Format image information
         ititle = playinfo['title']
         idate = playinfo['idate']            
@@ -750,8 +752,6 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         idate + '\n' + idesc
         return newlabel
         
-        xbmc.log('Mezzmo slide control action: ' + str(actionkey) , xbmc.LOGDEBUG)
-
     def showPic(self, piclist):                                              # Initial slide show starting point
         self.piclist = piclist
         self.piclength = len(self.piclist)                                   # Get number of slides in list
