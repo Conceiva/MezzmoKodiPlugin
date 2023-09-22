@@ -581,7 +581,12 @@ def updatePictures(piclist):                                     # Update pictur
         while a < len(piclist):
             title = str(piclist[a]['title'])
             url = str(piclist[a]['url'])
-            picfile.execute('INSERT into mPictures (mpTitle, mpUrl) values (?, ?)', (title, url,))
+            width = piclist[a]['iwidth'] 
+            height = piclist[a]['iheight'] 
+            date = piclist[a]['idate'].replace('T',' ').strip('Z') 
+            desc = piclist[a]['idesc']  
+            picfile.execute('INSERT into mPictures (mpTitle, mpUrl, iWidth, iHeight, iDate, idesc)  \
+            values (?, ?, ?, ?, ?, ?)', (title, url, width, height, date, desc))
             a += 1     
         picfile.commit()
         picfile.close()
@@ -597,17 +602,17 @@ def getPictures():                                               # Get pictures 
 
     try:
         picfile = openNosyncDB()                                 # Open picture DB
-        curps = picfile.execute('SELECT mpTitle, mpUrl FROM mPictures')
+        curps = picfile.execute('SELECT mpTitle, mpUrl, iWidth, iHeight, iDate, iDesc FROM mPictures')
         pictuple = curps.fetchall()                              # Get pictures from database
         piclist = []
         for a in range(len(pictuple)):
             itemdict = {
                 'title': pictuple[a][0],
                 'url': pictuple[a][1],
-                'iheight': '720',
-                'iwidth': '1280',
-                'idate': '02-01-2023',
-                'idesc': 'This is a test image. \n Checking for multiple lines.', 
+                'iheight': pictuple[a][2],
+                'iwidth': pictuple[a][3],
+                'idate': pictuple[a][4],
+                'idesc': pictuple[a][5], 
             }
             piclist.append(itemdict)
         picfile.close()     
@@ -672,10 +677,14 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         self.ititle = self.iwidth = self.iheight = self.idate = self.idesc = ''
         self.x = self.getWidth()
         self.y = self.getHeight()
+        self.backdropimg = addon_path + '/resources/backdrop.jpg'
         self.icontrol = xbmcgui.ControlImage(0, 0, self.x, self.y, "", 2)
-        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 200) /  2), 400, 200, "")
-        self.infcontrol.setVisible(False) 
+        self.imgcontrol = xbmcgui.ControlImage(int((self.x - 430) / 2), int((self.y - 280) /  2), 420, 360, self.backdropimg)
+        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 250) /  2), 400, 300, "")
+        self.infcontrol.setVisible(False)
+        self.imgcontrol.setVisible(False) 
         self.addControl(self.icontrol)
+        self.addControl(self.imgcontrol)
         self.addControl(self.infcontrol)
         pass
 
@@ -690,11 +699,11 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
             if self.infcontrol.isVisible() == False:
                 newlabel = self.formatInfo(self.piclist[self.slideIdx])
                 self.infcontrol.setLabel(newlabel)
-                self.icontrol.setVisible(False)
                 self.infcontrol.setVisible(True)
+                self.imgcontrol.setVisible(True)               
                 self.infoflag = True                                             # Stop navigation during info
             else:
-                self.icontrol.setVisible(True)
+                self.imgcontrol.setVisible(False)
                 self.infcontrol.setVisible(False)
                 self.infoflag = False                                            # Restart navigation                
 
@@ -748,8 +757,9 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         iheight = playinfo['iheight']
         iwidth = playinfo['iwidth']
         idesc = playinfo['idesc']
-        newlabel = ititle + '\n' + str(iwidth) + ' x ' + str(iheight) + '\n' +  \
-        idate + '\n' + idesc
+        newlabel = 'Slide: ' + str(self.slideIdx + 1) + ' of ' + str(self.piclength) + '\n\n'       \
+         + '{0:10}'.format('Name:') + ititle + '\n' + '{0:13}'.format('Res:') + str(iwidth) + ' x ' \
+         + str(iheight) +  '\n' + '{0:12}'.format('Date:') +  idate + '\n\n' + idesc
         return newlabel
         
     def showPic(self, piclist):                                              # Initial slide show starting point
@@ -800,22 +810,22 @@ def picDisplay():                                                # Picture slide
                 pictures = [translate(30417), translate(30493), translate(30476), translate(30418), translate(30419)]
                 ddialog = xbmcgui.Dialog() 
                 cselect = ddialog.select(translate(30415), pictures)
-                if cselect == 3:                                 # User selects pictures normal
-                    showPictureMenu(piclist, slidetime)
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 3:                               # User selects pictures extended
-                    showPictureMenu(piclist, (slidetime * 3))
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 4:                               # User selects normal slideshow
-                    ShowSlides(piclist, slidetime, 'no')
-                elif cselect == 2:                               # User selects continuous slideshow
-                    ShowSlides(piclist, slidetime, 'yes')
-                elif cselect == 0:                               # User selects manual slideshow
-                    manualSlides(piclist)
-                elif cselect < 0:
+                if cselect < 0:
                     #xbmc.executebuiltin('Action(ParentDir)')
                     xbmc.executebuiltin('Dialog.Close(all, true)')
                     break
+                elif cselect == 0:                               # User selects manual slideshow
+                    manualSlides(piclist)
+                elif cselect == 1:                               # User selects normal timed slideshow
+                    ShowSlides(piclist, slidetime, 'no')
+                elif cselect == 2:                               # User selects continuous slideshow
+                    ShowSlides(piclist, slidetime, 'yes')
+                elif cselect == 3:                               # User selects pictures normal
+                    showPictureMenu(piclist, slidetime)
+                    #xbmc.executebuiltin('Action(ParentDir)')
+                elif cselect == 4:                               # User selects pictures extended
+                    showPictureMenu(piclist, (slidetime * 3))
+                    #xbmc.executebuiltin('Action(ParentDir)')
 
     except Exception as e:    
         printexception()
@@ -899,7 +909,7 @@ def manualSlides(piclist):                                      # Manual slidesh
         slideIdx = 0
         slwindow.showPic(piclist)
         slwindow.doModal()
-        xbmc.sleep(1000)                                         # Pause on window closing to give Kodi a chance
+        xbmc.sleep(1500)                                         # Pause on window closing to give Kodi a chance
         del slwindow
     except:
         printexception()
