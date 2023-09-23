@@ -679,8 +679,8 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         self.y = self.getHeight()
         self.backdropimg = addon_path + '/resources/backdrop.jpg'
         self.icontrol = xbmcgui.ControlImage(0, 0, self.x, self.y, "", 2)
-        self.imgcontrol = xbmcgui.ControlImage(int((self.x - 430) / 2), int((self.y - 280) /  2), 420, 360, self.backdropimg)
-        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 250) /  2), 400, 300, "")
+        self.imgcontrol = xbmcgui.ControlImage(int((self.x - 430) / 2), int((self.y - 300) /  2), 400, 400, self.backdropimg)
+        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 270) /  2), 380, 380, "")
         self.infcontrol.setVisible(False)
         self.imgcontrol.setVisible(False) 
         self.addControl(self.icontrol)
@@ -757,6 +757,12 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         iheight = playinfo['iheight']
         iwidth = playinfo['iwidth']
         idesc = playinfo['idesc']
+        splitchar = '\n'
+        idesclines = idesc.count(splitchar)
+        if idesclines > 8:                                                       # Display 8 lines of description
+            idesctemp = idesc.split(splitchar)
+            idescfpart = splitchar.join(idesctemp[:8])
+            idesc = idescfpart + '\n...'
         newlabel = 'Slide: ' + str(self.slideIdx + 1) + ' of ' + str(self.piclength) + '\n\n'       \
          + '{0:10}'.format('Name:') + ititle + '\n' + '{0:13}'.format('Res:') + str(iwidth) + ' x ' \
          + str(iheight) +  '\n' + '{0:12}'.format('Date:') +  idate + '\n\n' + idesc
@@ -906,10 +912,9 @@ def manualSlides(piclist):                                      # Manual slidesh
     try:
         slwindow =  SlideWindow()
         xbmc.executebuiltin('Dialog.Close(all, true)')               
-        slideIdx = 0
         slwindow.showPic(piclist)
         slwindow.doModal()
-        xbmc.sleep(1500)                                         # Pause on window closing to give Kodi a chance
+        xbmc.sleep(1500)                                        # Pause on window closing to give Kodi a chance
         del slwindow
     except:
         printexception()
@@ -918,10 +923,10 @@ def manualSlides(piclist):                                      # Manual slidesh
         mgenlogUpdate(mgenlog)        
 
 
-def showSingle(url):                                             # Display individual native picture
+def showSingle(url):                                            # Display individual native picture
 
     try:
-        if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over uPNP
+        if 'upnp' in str(url[0]):                               # Kodi cannot display pictures over uPNP
             dialog_text = translate(30413)
             xbmcgui.Dialog().ok(translate(30406), dialog_text)
             xbmc.executebuiltin('Action(ParentDir)')
