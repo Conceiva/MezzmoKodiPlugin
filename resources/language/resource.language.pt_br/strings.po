@@ -696,6 +696,10 @@ msgctxt "#30492"
 msgid "Only Discover Mezzmo Servers"
 msgstr "Somente Descubra Servidores Mezzmo"
 
+msgctxt "#30493"
+msgid "Timed Slideshow"
+msgstr "Apresentação de slides programada"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."

@@ -581,7 +581,12 @@ def updatePictures(piclist):                                     # Update pictur
         while a < len(piclist):
             title = str(piclist[a]['title'])
             url = str(piclist[a]['url'])
-            picfile.execute('INSERT into mPictures (mpTitle, mpUrl) values (?, ?)', (title, url,))
+            width = piclist[a]['iwidth'] 
+            height = piclist[a]['iheight'] 
+            date = piclist[a]['idate'].replace('T',' ').strip('Z') 
+            desc = piclist[a]['idesc']  
+            picfile.execute('INSERT into mPictures (mpTitle, mpUrl, iWidth, iHeight, iDate, idesc)  \
+            values (?, ?, ?, ?, ?, ?)', (title, url, width, height, date, desc))
             a += 1     
         picfile.commit()
         picfile.close()
@@ -597,13 +602,17 @@ def getPictures():                                               # Get pictures 
 
     try:
         picfile = openNosyncDB()                                 # Open picture DB
-        curps = picfile.execute('SELECT mpTitle, mpUrl FROM mPictures')
+        curps = picfile.execute('SELECT mpTitle, mpUrl, iWidth, iHeight, iDate, iDesc FROM mPictures')
         pictuple = curps.fetchall()                              # Get pictures from database
         piclist = []
         for a in range(len(pictuple)):
             itemdict = {
                 'title': pictuple[a][0],
                 'url': pictuple[a][1],
+                'iheight': pictuple[a][2],
+                'iwidth': pictuple[a][3],
+                'idate': pictuple[a][4],
+                'idesc': pictuple[a][5], 
             }
             piclist.append(itemdict)
         picfile.close()     
@@ -638,24 +647,124 @@ def getContentURL(contenturl):                                   # Check for man
         printexception()
         mgenlog = 'Mezzmo content server search error.'
         xbmc.log(mgenlog, xbmc.LOGINFO)
-        mgenlogUpdate(mgenlog)   
+        mgenlogUpdate(mgenlog)      
 
 
-class KodiMonitor(xbmc.Monitor):                                 # Notification class for monitoring 
+class SlideWindow(xbmcgui.Window):                               # Window class for monitoring 
                                                                  # slideshow controls
     def __init__(self, *args):
-        xbmc.Monitor.__init__(self)
-        self.flag = 'play'
+        xbmcgui.Window.__init__(self)
+        self.slideIdx = self.piclength = self.actionkey = self.exiting = 0
+        self.infoflag = self.timed = False
+        self.piclist = []
+        self.ititle = self.iwidth = self.iheight = self.idate = self.idesc = ''
+        self.x = self.getWidth()
+        self.y = self.getHeight()
+        self.backdropimg = addon_path + '/resources/backdrop.jpg'
+        self.icontrol = xbmcgui.ControlImage(0, 0, self.x, self.y, "", 2)
+        self.imgcontrol = xbmcgui.ControlImage(int((self.x - 430) / 2), int((self.y - 300) /  2), 400, 400, self.backdropimg)
+        self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 270) /  2), 380, 380, "")
+        self.infcontrol.setVisible(False)
+        self.imgcontrol.setVisible(False)
+        self.addControl(self.icontrol)
+        self.addControl(self.imgcontrol)
+        self.addControl(self.infcontrol)  
         pass
 
-    def onNotification( self, sender, method, data):
+    def onAction(self, action):
+        actionkey = action.getId()
+        self.actionkey = actionkey
 
-        if method == "Player.OnStop":
-            self.flag = 'stop'
-        if method == "Player.OnPause":
-            self.flag = 'pause'
-        if method == "Player.OnPlay":
-            self.flag = 'play'        
+        if actionkey in [10, 13, 92] and self.timed == False :                   # Exit slideshow
+            self.exiting = 1
+            self.exitClass()
+
+        if actionkey == 11:                                                      # Display image information
+            if self.infcontrol.isVisible() == False:
+                newlabel = self.formatInfo(self.piclist[self.slideIdx])
+                self.infcontrol.setLabel(newlabel)
+                self.infcontrol.setVisible(True)
+                self.imgcontrol.setVisible(True)               
+                self.infoflag = True                                             # Stop navigation during info
+            else:
+                self.imgcontrol.setVisible(False)
+                self.infcontrol.setVisible(False)
+                self.infoflag = False                                            # Restart navigation                
+
+        if not self.infoflag or not self.timed:                                  # Navigate if not info or timed
+            if actionkey in [2, 5] and self.slideIdx < (self.piclength - 1):     # Next slide
+                self.slideIdx += 1
+            elif actionkey in [2, 5] and self.slideIdx >= (self.piclength - 1):  # Stop on last slide
+                self.exiting = 1
+                self.exitClass()
+
+            if actionkey in [1, 6] :                                             # Previous slide
+                if self.slideIdx > 0:
+                    self.slideIdx -= 1
+
+            if actionkey == 77 and (self.slideIdx + 10) < (self.piclength - 1):  # FF 10 slides
+                self.slideIdx += 10
+            elif actionkey == 77 and (self.slideIdx + 10) >= (self.piclength - 1):
+                self.slideIdx = (self.piclength - 1)             
+
+            if actionkey == 78 and (self.slideIdx - 10) >= 0:                    # RW 10 slides
+                self.slideIdx -= 10
+            elif actionkey == 78 and (self.slideIdx - 10) < 0:
+                self.slideIdx = 0            
+
+            if actionkey == 14 and (self.slideIdx + 25) < (self.piclength - 1):  # Jump +25 slides
+                self.slideIdx += 25
+            elif actionkey == 14 and (self.slideIdx + 25) >= (self.piclength - 1):
+                self.slideIdx = self.piclength - 1             
+
+            if actionkey == 15 and (self.slideIdx - 25) >= 0:                    # Jump - 25 slides
+                self.slideIdx -= 25
+            elif actionkey == 15 and (self.slideIdx - 25) < 0:
+                self.slideIdx = 0            
+
+        if not self.timed and self.exiting == 0:                                 # Update for manual slideshow
+            self.updatePic()     
+
+        xbmc.log('Mezzmo slide control action: ' + str(actionkey) , xbmc.LOGDEBUG)
+
+    def exitClass(self):                                                         # Close slideWindow class)
+        del self.icontrol
+        del self.infcontrol
+        del self.imgcontrol
+        self.close()        
+
+    def formatInfo(self, playinfo):                                              # Format image information
+        ititle = playinfo['title']
+        idate = playinfo['idate']            
+        iheight = playinfo['iheight']
+        iwidth = playinfo['iwidth']
+        idesc = playinfo['idesc']
+        splitchar = '\n'
+        idesclines = idesc.count(splitchar)
+        if idesclines > 8:                                                       # Display 8 lines of description
+            idesctemp = idesc.split(splitchar)
+            idescfpart = splitchar.join(idesctemp[:8])
+            idesc = idescfpart + '\n...'
+        xbmc.log('Mezzmo idesc line count: ' + str(idesclines) , xbmc.LOGDEBUG)
+        newlabel = 'Slide: ' + str(self.slideIdx + 1) + ' of ' + str(self.piclength) + '\n\n'       \
+         + '{0:10}'.format('Name:') + ititle + '\n' + '{0:13}'.format('Res:') + str(iwidth) + ' x ' \
+         + str(iheight) +  '\n' + '{0:12}'.format('Date:') +  idate + '\n\n' + idesc
+        return newlabel
+        
+    def showPic(self, piclist):                                              # Initial manual slide show starting point
+        self.piclist = piclist
+        self.piclength = len(self.piclist)                                   # Get number of slides in list
+        mgenlog = 'Mezzmo manual slideshow started with ' + str(len(piclist)) + ' slides.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)         
+        playitem = picURL(piclist[self.slideIdx]['url']).strip('"')
+        xbmc.log('Mezzmo slide control showPic: ' + str(playitem) , xbmc.LOGDEBUG)    
+        self.icontrol.setImage(playitem, False)
+
+    def updatePic(self):                                                     # Update slide image
+        playitem = picURL(self.piclist[self.slideIdx]['url']).strip('"')
+        self.icontrol.setImage(playitem, False)
+        #xbmc.log('Mezzmo slide control showPic2: ' + str(playitem) , xbmc.LOGDEBUG)
 
 
 def picURL(itemurl):                                            # Check for proper file extension
@@ -687,25 +796,27 @@ def picDisplay():                                                # Picture slide
             xbmc.executebuiltin('Action(ParentDir)')
             return
         else:
-            cselect = 3
-            while cselect >= 0:
-                pictures = [translate(30417), translate(30476), translate(30418), translate(30419)]
+            cselect = 0
+            while cselect >= 0 :
+                pictures = [translate(30417), translate(30493), translate(30476), translate(30418), translate(30419)]
                 ddialog = xbmcgui.Dialog() 
                 cselect = ddialog.select(translate(30415), pictures)
-                if cselect == 2:                                 # User selects pictures normal
-                    showPictureMenu(piclist, slidetime)
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 3:                               # User selects pictures extended
-                    showPictureMenu(piclist, (slidetime * 3))
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 0:                               # User selects normal slideshow
-                    ShowSlides(piclist, slidetime, 'no')
-                elif cselect == 1:                               # User selects continuous slideshow
-                    ShowSlides(piclist, slidetime, 'yes')
-                elif cselect < 0:
+                if cselect < 0:
                     #xbmc.executebuiltin('Action(ParentDir)')
                     xbmc.executebuiltin('Dialog.Close(all, true)')
                     break
+                elif cselect == 0:                               # User selects manual slideshow
+                    manualSlides(piclist)
+                elif cselect == 1:                               # User selects normal timed slideshow
+                    ShowSlide(piclist, slidetime, 'no')
+                elif cselect == 2:                               # User selects continuous slideshow
+                    ShowSlide(piclist, slidetime, 'yes')
+                elif cselect == 3:                               # User selects pictures normal
+                    showPictureMenu(piclist, slidetime)
+                    #xbmc.executebuiltin('Action(ParentDir)')
+                elif cselect == 4:                               # User selects pictures extended
+                    showPictureMenu(piclist, (slidetime * 3))
+                    #xbmc.executebuiltin('Action(ParentDir)')
 
     except Exception as e:    
         printexception()
@@ -743,42 +854,81 @@ def showPictureMenu(piclist, slidetime):                         # Picture viewe
             mgenlogUpdate(mgenlog)   
 
 
-def ShowSlides(piclist, slidetime, ssmode):                      # Slidehow viewier
+def ShowSlide(piclist, slidetime, ssmode):                             # Timed Slidehow viewier (new)
 
-    try:    
-        kbmonitor = KodiMonitor()                   
-        slideIdx = 0   
-        #xbmc.log('Mezzmo picture url is: ' + str(playitem) , xbmc.LOGINFO)
-
-        xbmc.executebuiltin('Dialog.Close(all, true)')
-        while slideIdx < len(piclist):           
-            if kbmonitor.flag == 'play':  
-                playitem = picURL(piclist[slideIdx]['url'])      # Verify proper file name
-                #xbmc.log('Mezzmo picture index is: ' + str(playitem) , xbmc.LOGINFO)
-                json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
-                "params":{"item":{"file":%s }},"id":1}' % (playitem))           
-                #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGINFO)
-                slideIdx += 1
-            xbmc.sleep(slidetime * 1000)
-            if slideIdx == len(piclist) and ssmode == 'yes':     # Continuous slideshow
-                slideIdx = 0
-            #xbmc.log('Mezzmo monitor data is: ' + (kbmonitor.flag) , xbmc.LOGINFO)
-            if kbmonitor.flag == 'stop':
-                del kbmonitor
-                xbmc.executebuiltin('Dialog.Close(all, true)')
-                return
+    try:
+        if settings('slideshow') == 'true':                            # Automatic slideshow enabled ?
+            xbmc.executebuiltin('Dialog.Close(all, true)')             # If so, close modal display
+            xbmc.sleep(1000)             
+        slidePause = pausetime = 0 
+        slwindow = SlideWindow()              
+        slwindow.show()
+        slwindow.timed = True                                          # Notify class of timed slideshow
+        slwindow.piclist = piclist
+        slwindow.piclength = len(piclist)
+        if 'yes' in ssmode:
+            mgenlog = 'Mezzmo continuous slideshow started with ' + str(len(piclist)) + ' slides.'
+        else:
+            mgenlog = 'Mezzmo timed slideshow started with ' + str(len(piclist)) + ' slides.'
+            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlogUpdate(mgenlog)   
+        while slwindow.slideIdx < slwindow.piclength: 
+            playitem = picURL(piclist[slwindow.slideIdx]['url']).strip('"')
+            xbmc.log('Mezzmo slide control showPic: ' + str(playitem) + ' ' + str(slwindow.slideIdx), xbmc.LOGDEBUG)    
+            slwindow.updatePic()
+            actionkey = slwindow.actionkey
+            slwindow.actionkey = 0
+            while pausetime <= (slidetime * 1000) and slwindow.actionkey == 0:
+                xbmc.sleep(200)                                                  # Check for keystroke every 200ms
+                pausetime += 200
+                #xbmc.log('Mezzmo timed slideshow pausetime: ' + str(pausetime) , xbmc.LOGINFO)
+            xbmc.log('Mezzmo slide key command: ' + str(actionkey) , xbmc.LOGDEBUG)
+            if actionkey in [10, 13, 92]:                                        # End slideshow
                 break
-            if kbmonitor.flag == 'pause':
-                slideIdx = slideIdx
+            elif actionkey in [2, 5] and slwindow.slideIdx < len(piclist)- 1 :   # Go forward 1 slide
+                slwindow.slideIdx += 1
+            elif actionkey in [7, 12] and slidePause == 0:                       # Pause slideshow
+                slidePause = 1
+            elif actionkey in [7, 12] and slidePause == 1:                       # Resume slideshow
+                slidePause = 0
+                slwindow.slideIdx += 1
+            elif actionkey == 11 and slidePause == 0:                            # Slide information
+                slidePause = 1                
+            elif actionkey == 11 and slidePause == 1:                            # Resume after information
+                slidePause = 0
+                slwindow.slideIdx += 1    
+            elif slwindow.slideIdx == len(piclist) - 1 and ssmode == 'yes':      # Continuous slideshow
+                slwindow.slideIdx = 0
+            elif slidePause == 0 and slwindow.actionkey == 0:
+                slwindow.slideIdx += 1
+            pausetime = 0
 
-        xbmc.executebuiltin('Action(ParentDir)')
-        del kbmonitor
-
-    except Exception as e:  
+        slwindow.timed = False                                                   # Notify class slideshow ending
+        slwindow.close()
+        del slwindow
+        xbmc.sleep(1500)                                        # Pause on window closing to give Kodi a chance
+    except:
         printexception()
-        mgenlog = 'Mezzmo error displaying slides.'
+        mgenlog = 'Mezzmo timed slideshow error displaying slides.'
         xbmc.log(mgenlog, xbmc.LOGINFO)
-        mgenlogUpdate(mgenlog)       
+        mgenlogUpdate(mgenlog)    
+
+
+def manualSlides(piclist):                                      # Manual slideshow with full controls
+
+    try:
+        slwindow =  SlideWindow()
+        xbmc.executebuiltin('Dialog.Close(all, true)')               
+        slideIdx = 0
+        slwindow.showPic(piclist)
+        slwindow.doModal()
+        xbmc.sleep(1500)                                         # Pause on window closing to give Kodi a chance
+        del slwindow
+    except:
+        printexception()
+        mgenlog = 'Mezzmo manual slideshow error displaying slides.'
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        mgenlogUpdate(mgenlog)        
 
 
 def showSingle(url):                                             # Display individual native picture

@@ -145,25 +145,7 @@ def get_installedversion():
 
 def getDatabaseName():
     installed_version = get_installedversion()
-    if installed_version == '10':
-        return "MyVideos37.db"
-    elif installed_version == '11':
-        return "MyVideos60.db"
-    elif installed_version == '12':
-        return "MyVideos75.db"
-    elif installed_version == '13':
-        return "MyVideos78.db"
-    elif installed_version == '14':
-        return "MyVideos90.db"
-    elif installed_version == '15':
-        return "MyVideos93.db"
-    elif installed_version == '16':
-        return "MyVideos99.db"
-    elif installed_version == '17':
-        return "MyVideos107.db"
-    elif installed_version == '18':
-        return "MyVideos116.db"
-    elif installed_version == '19':
+    if installed_version == '19':
         return "MyVideos119.db"
     elif installed_version == '20':
         return "MyVideos121.db"
@@ -283,7 +265,15 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
         dbsync.execute('ALTER TABLE mTrailers ADD COLUMN mPcount INTEGER')  
         dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_6 ON mTrailers (mPcount)')
     except:
-        xbmc.log('Mezzmo check nosync DB. No column mPcount: ' , xbmc.LOGDEBUG) 
+        xbmc.log('Mezzmo check nosync DB. No column mPcount: ' , xbmc.LOGDEBUG)
+
+    try:
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iWidth INTEGER')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iHeight INTEGER')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iDate TEXT')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iDesc TEXT')
+    except:
+        xbmc.log('Mezzmo check nosync DB. No column iWidth: ' , xbmc.LOGDEBUG)  
 
     dbsync.commit()
     dbsync.close()
