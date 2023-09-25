@@ -1,3 +1,9 @@
+1.1.9.5 9/25/2023
+
+- Complete rewrite of the slideshow capability.  There are now 3 options for slideshows:
+  manual, timed and continuous.  All have a full set of navigation controls and a new
+  information screen to view details about the image.   
+
 1.1.9.4 9/17/2023
 
 - Added feature and addon setting to allow only discovering and saving Mezzmo servers

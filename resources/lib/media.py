@@ -259,7 +259,15 @@ def checkNosyncDB():                                 #  Verify Mezzmo noSync dat
         dbsync.execute('ALTER TABLE mTrailers ADD COLUMN mPcount INTEGER')  
         dbsync.execute('CREATE INDEX IF NOT EXISTS mtrailer_6 ON mTrailers (mPcount)')
     except:
-        xbmc.log('Mezzmo check nosync DB. No column mPcount: ' , xbmc.LOGDEBUG) 
+        xbmc.log('Mezzmo check nosync DB. No column mPcount: ' , xbmc.LOGDEBUG)
+
+    try:
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iWidth INTEGER')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iHeight INTEGER')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iDate TEXT')
+        dbsync.execute('ALTER TABLE mPictures ADD COLUMN iDesc TEXT')
+    except:
+        xbmc.log('Mezzmo check nosync DB. No column iWidth: ' , xbmc.LOGDEBUG)   
   
     dbsync.commit()
     dbsync.close()

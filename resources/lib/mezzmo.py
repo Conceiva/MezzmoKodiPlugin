@@ -789,7 +789,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     picnotify += 1
                     itemdict = {
                         'title': title,
-                         'url': itemurl,
+                        'url': itemurl,
+                        'idate': aired_text,
+                        'iwidth': video_width,
+                        'iheight': video_height,
+                        'idesc': description_text,
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB

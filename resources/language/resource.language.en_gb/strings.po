@@ -696,6 +696,10 @@ msgctxt "#30492"
 msgid "Only Discover Mezzmo Servers"
 msgstr ""
 
+msgctxt "#30493"
+msgid "Timed Slideshow"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
