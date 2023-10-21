@@ -1,3 +1,10 @@
+2.1.9.6 10/21/2023
+
+- Improved sync timer logic to avoid potential race condition between fast sync and hourly
+  sync timers.
+- Added safety check to reset fast sync timer flag after an hour
+- Updated video database version for Kodi Omega 21 Alpha 3 and higher support
+
 2.1.9.5 9/25/2023
 
 - Complete rewrite of the slideshow capability.  There are now 3 options for slideshows:
