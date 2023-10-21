@@ -236,6 +236,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         msynclog = 'Mezzmo sync process skipped sync already running.'
         xbmc.log(msynclog, xbmc.LOGNOTICE)
         media.mezlogUpdate(msynclog)
+        media.settings('curr_sync','0')                  # Reset after an hour
         return  
     if ksync != 'Off':                                   #  Check if enabled
         msynclog = 'Mezzmo sync beginning.'

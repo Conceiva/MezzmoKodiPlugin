@@ -114,6 +114,8 @@ def displayMenu():
 
         if vdate < 0:                                            # User cancel
             pdfile.close()
+            xbmc.executebuiltin('Dialog.Close(all, true)')
+            xbmc.sleep(2000)
             break      
         elif (pselect[vdate]) == "Mezzmo Duplicate Logs":
             displayDupeLogs()

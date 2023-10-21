@@ -312,7 +312,7 @@ def checkSync(count):                                            # Check for Syn
     srvrtuple = curps.fetchone()                                 # Get server from database
     if srvrtuple:
         syncurl = srvrtuple[0]
-        if count < 12 or count % 3600 == 0:                      # Don't check Mezzmo server on fast sync
+        if count < 12 or count > 3600:                           # Don't check Mezzmo server on fast sync
             modelnumb = checkMezzmo(srvrtuple[1])
             if modelnumb != '0.0.0.0':
                 sname = srvrtuple[2]

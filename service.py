@@ -9,12 +9,10 @@ import sync
 import media
 from server import checkSync, getContentURL
 
-pos = 0
+pos = fastsync = 0
 file = ''
-count = 0 
-pacount = 0
+count = pacount = fscount = cacount = 0 
 knative = 'false'
-fastsync = 0
 
 def getObjectID(file):
     end = file.rfind('/') + 1
@@ -133,6 +131,14 @@ while not monitor.abortRequested():
             media.mgenlogUpdate(mgenlog)
 
     count += 1
+    fscount += 1
+    cacount += 1
+    pacount += 1
+
+    if count % 10 == 0:                       # Counter debugger
+        xbmc.log('Mezzmo service counters: ' + str(count) + ' ' + str(fscount) + ' ' +    \
+        str(cacount) + ' ' + str(pacount), xbmc.LOGDEBUG)   
+
     if count == 2:                            # Check for autostarting the Mezzmo GUI
         media.autostart()
         media.settings('kodiclean', 'Off')    # Clear manual resync flag on addon restart
@@ -140,7 +146,6 @@ while not monitor.abortRequested():
         knative = media.settings('knative')   # Get initial native sync setting
         fastsync = media.settings('fastsync') # Get initial fast sync setting
 
-    pacount += 1 
     if pacount % 30 == 0:                   # Check for paused video every 30 seconds
         pastoptime = int(media.settings('pastop'))
         xbmc.log('Mezzmo count and stop time ' + str(pacount) + ' ' + str(pastoptime) +    \
@@ -163,7 +168,7 @@ while not monitor.abortRequested():
         except:
             pass 
 
-    if count % 1800 == 0 or count == 10:    # Update cache on Kodi start and every 30 mins
+    if cacount > 1800 or count == 10:          # Update cache on Kodi start and every 30 mins
         contenturl = media.settings('contenturl')
         fastsync = media.settings('fastsync') # Check fast sync setting for updates
         if xbmc.Player().isPlayingVideo():
@@ -192,12 +197,14 @@ while not monitor.abortRequested():
             media.mgenlogUpdate(mgenlog)
         else:
             sync.updateTexturesCache(contenturl)
+        cacount = 11                        # Reset cache counter
 
-    if count % 3600 == 0 or count == 11:    # Mezzmo sync process
+    if count >= 3620 or count == 11:        # Mezzmo sync process
         if xbmc.Player().isPlaying():
             msynclog = 'Mezzmo sync skipped. A video is playing.'
             xbmc.log(msynclog, xbmc.LOGNOTICE)
             media.mezlogUpdate(msynclog)
+            count = 20                      # Reset hourly counter
         else:
             syncpin = media.settings('content_pin')
             syncset = media.settings('kodisyncvar')
@@ -215,19 +222,12 @@ while not monitor.abortRequested():
                 msynclog ='Mezzmo no servers selected yet or sync server is down.  Mezzmo sync skipped.'
                 xbmc.log(msynclog, xbmc.LOGNOTICE)
                 media.mezlogUpdate(msynclog)
+            count = 20                      # Reset hourly counter
 
-    if count % 120 == 0:                                  # Check for fast sync changes every 2 minutes
-        currsync = fastsync                               # Fast Sync is enabled
-        fastsync = media.settings('fastsync')             # Check Fast Sync setting for updates
-        if fastsync != currsync:                          # Detect setting change
-            msynclog = 'Mezzmo fast sync setting changed to ' + fastsync + ' min(s)'
-            xbmc.log(msynclog, xbmc.LOGNOTICE)
-            media.mezlogUpdate(msynclog)   
-
-    if not xbmc.Player().isPlaying() and int(fastsync) > 0 and count % (int(fastsync) * 60) == 0:            
+    elif not xbmc.Player().isPlaying() and int(fastsync) > 0 and fscount >= (int(fastsync) * 60):            
         syncpin = media.settings('content_pin')
         syncset = media.settings('kodisyncvar')
-        syncurl = checkSync(count)                        # Get server control URL
+        syncurl = checkSync(fscount)                      # Get server control URL
         xbmc.log('Mezzmo fast sync enabled: ' + str(count), xbmc.LOGDEBUG)
         if syncpin and syncset != 'Off' and syncurl != 'None' and int(fastsync) > 0:
             try:             
@@ -241,9 +241,15 @@ while not monitor.abortRequested():
             msynclog ='Mezzmo no servers selected yet or sync server is down.  Mezzmo sync skipped.'
             xbmc.log(msynclog, xbmc.LOGNOTICE)
             media.mezlogUpdate(msynclog)
+        fscount = 0                                       # Reset fast sync counter
 
-    if count > 86419:                      # Reset counter daily
-        count = 20
+    if count % 120 == 0:                                  # Check for fast sync changes every 2 minutes
+        currsync = fastsync                               # Fast Sync is enabled
+        fastsync = media.settings('fastsync')             # Check Fast Sync setting for updates
+        if fastsync != currsync:                          # Detect setting change
+            msynclog = 'Mezzmo fast sync setting changed to ' + fastsync + ' min(s)'
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+            media.mezlogUpdate(msynclog)   
 
     if monitor.waitForAbort(1): # Sleep/wait for abort for 1 second.
         try:
