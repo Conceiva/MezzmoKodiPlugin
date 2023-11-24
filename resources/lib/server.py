@@ -156,6 +156,7 @@ def downServer(srvrtype='mezzmo'):                               # Handle downed
             xbmcgui.Dialog().ok(translate(30408), dialog_text)
         else:
             xbmcgui.Dialog().notification(translate(30408), dialog_text, addon_icon, 5000)
+        return
     except:
         mgenlog = 'Mezzmo error displaying server down message.'
         xbmc.log(mgenlog, xbmc.LOGINFO)                    

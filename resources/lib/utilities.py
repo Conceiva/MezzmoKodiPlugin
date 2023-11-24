@@ -397,7 +397,7 @@ def clearPerf():                                                  # Clear perfor
     return
 
 
-def trDisplay(title, trcount, icon):                              # Play trailers
+def trDisplay(title, trcount, icon, imdb_id = ''):                # Play trailers
 
     try:
         #xbmc.log("Mezzmo trailer title request: " + title, xbmc.LOGINFO)
@@ -407,8 +407,8 @@ def trDisplay(title, trcount, icon):                              # Play trailer
         traillist = []
         msdialog = xbmcgui.Dialog()   
 
-        curtrail = dsfile.execute('SELECT trUrl, trPlay, trVar1 from mTrailers WHERE trTitle=? \
-        ORDER BY trID ASC LIMIT ?', (mtitle, trcount,))
+        curtrail = dsfile.execute('SELECT trUrl, trPlay, trVar1 from mTrailers WHERE trTitle = ?  \
+        OR trVar2 = ? ORDER BY trID ASC LIMIT ?', (mtitle, imdb_id, trcount,))
         mtrailers = curtrail.fetchall()                            # Get trailers from database
         dsfile.close()
         trselect = x = 1
@@ -599,7 +599,7 @@ def moviePreviews(mtitle, vurl, prviewct, myear, icon):      # Play Mezzmo movie
 
 
 def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, contenturl, \
-    bmposition, icon, movieset, taglist, mezyear) :
+    bmposition, icon, movieset, taglist, mezyear, trtype, imdb_id) :
 
     addon = xbmcaddon.Addon()
     menuitem1 = addon.getLocalizedString(30434)
@@ -613,12 +613,14 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem9 = addon.getLocalizedString(30468)
     menuitem10 = addon.getLocalizedString(30469)
     menuitem11 = addon.getLocalizedString(30470)
-    menuitem12 = addon.getLocalizedString(30481)        
+    menuitem12 = addon.getLocalizedString(30481)
+    menuitem13 = addon.getLocalizedString(30494)
+    menuitem14 = addon.getLocalizedString(30495)       
     trcount = media.settings('trcount')
     prviewct = int(media.settings('prviewct'))    
     mplaycount = int(playcount)
     currpos = int(bmposition)
-    if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode':  # Check for collection tag
+    if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode' :  # Check for collection tag
         collection = checkGuiTags(taglist, mtitle)
     else:
         collection = 'none'
@@ -626,15 +628,20 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     xbmc.executebuiltin('Dialog.Close(all, true)')    
     #xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
     #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGINFO)
-    #xbmc.log('Mezzmo collection is: ' + str(collection), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo collection is: ' + str(collection) + ' ' + mseries, xbmc.LOGINFO) 
 
     pdfile = openNosyncDB()                              # Open Trailer database
     cselect = []
-    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=?', (title,))
+    curpt = pdfile.execute('SELECT count (trUrl) FROM mTrailers WHERE trTitle=? or         \
+    trVar2=?', (title,imdb_id,))
     tcontext = curpt.fetchone()                          # Get trailer count from database
+    if mtype == 'movie' or  'trailer' in trtype.lower():
+        keytarget = 'movie'
+    else:
+        keytarget = mtype  
     curpk = pdfile.execute('SELECT count (kyTitle) FROM mKeywords WHERE kyType=? and kyTitle \
-    not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (mtype, '%###%', 'No',))
-    kcontext = curpk.fetchone()                          # Get keyword count from database    
+    not like ? AND (kyVar1 <> ? OR kyVar1 IS NULL)', (keytarget, '%###%', 'No',))
+    kcontext = curpk.fetchone()                          # Get keyword count from database  
     pdfile.close()
 
     pdfile = openKodiDB()                                # Open Kodi DB
@@ -651,14 +658,24 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         curpt = pdfile.execute('SELECT idBookmark FROM bookmark INNER JOIN movie_view USING       \
         (idFile) WHERE movie_view.c00=?', (mtitle,))
         bcontext = curpt.fetchone()                      # Get bookmark from database
+    if trtype.lower() == 'trailer':
+        curtr = pdfile.execute('SELECT c22, c01 from movie_view WHERE uniqueid_value = ?', (imdb_id,))
+        trcontext = curtr.fetchone()
+    else:
+        trcontext = None
+    if 'tvtrailer' in  trtype.lower():                   # check for TV episodes for TV trailers
+        curptv= pdfile.execute('SELECT count (c00) FROM tvshow WHERE c00=?', (movieset,))
+        tvcontext = curptv.fetchone()                    # Get keyword count from database
+    else:
+        tvcontext = None  
     pdfile.close()
 
-    if mplaycount == 0:                                  # Mezzmo playcount is 0
+    if mplaycount == 0 and 'trailer' not in trtype.lower():  # Mezzmo playcount is 0
         cselect.append(menuitem3)
-    elif mplaycount > 0:
+    elif mplaycount > 0 and 'trailer' not in trtype.lower():
         cselect.append(menuitem4)
 
-    if currpos > 0:                                      # If bookmark exists
+    if currpos > 0 and 'trailer' not in trtype.lower():      # If bookmark exists
         cselect.append(menuitem7)          
 
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
@@ -667,7 +684,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if prviewct > 0 and mtype == 'movie':                # If Mezmo Movie Previews > 0
         cselect.append(menuitem12)
 
-    if movieset != 'Unknown Album' and mtype == 'movie': # If movieset and type is movie
+    if movieset != 'Unknown Album' and movieset != 'None' and (mtype == 'movie' 
+    or trtype.lower() == 'trailer'):                     # If movieset and type is movie
         cselect.append(menuitem8)
 
     if collection != 'none' and (mtype == 'movie' or mtype == 'episode'):  # If collection tag and type
@@ -677,10 +695,16 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         cselect.append(menuitem10)
 
     if kcontext[0] > 0 :                                 # If Keywords for media type
-        cselect.append(menuitem11)   
+        cselect.append(menuitem11)
+
+    if tvcontext != None :                               # If TV Episodes exist for TV Trailer
+        cselect.append(menuitem14)    
 
     cselect.append(menuitem2)                            # Logs & Stats
-    #cselect.append(menuitem6)                            # Mezzmo Search
+
+    if trcontext != None:                                # Trailer play movie
+        cselect.append(menuitem13)
+
     ddialog = xbmcgui.Dialog()    
     vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
 
@@ -688,7 +712,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         xbmc.executebuiltin('Dialog.Close(all, true)') 
         return      
     elif (cselect[vcontext]) == menuitem1:               # Mezzmo trailers
-        trDisplay(title, trcount, icon)
+        trDisplay(title, trcount, icon, imdb_id)
     elif (cselect[vcontext]) == menuitem12:              # Mezzmo Movie Previews
         moviePreviews(title, vurl, prviewct, mezyear, icon)
     elif (cselect[vcontext]) == menuitem2:               # Mezzmo Logs & stats
@@ -722,14 +746,37 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         media.mgenlogUpdate(mgenlog)   
         mgenlog ='Mezzmo Kodi bookmark cleared for: '
         media.mgenlogUpdate(mgenlog) 
-    elif (cselect[vcontext]) == menuitem8:               # Mezzmo display movie sets          
+    elif (cselect[vcontext]) == menuitem8 or (cselect[vcontext]) == menuitem14:   # Display movie sets or episodes
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=movieset;source=browse;searchset=' + movieset))
     elif (cselect[vcontext]) == menuitem9 or (cselect[vcontext]) == menuitem10 : # Mezzmo display collections          
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=collection;source=browse;searchset=' + collection))
-    elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
-        selectKeywords(mtype, menuitem11, 'browse', contenturl)          
+    elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords
+        selectKeywords(keytarget, menuitem11, 'browse', contenturl)
+    elif (cselect[vcontext]) == menuitem13:              # Play trailer movie  
+        trPlayMovie(mtitle, trcontext[0], icon, trcontext[1])  
+
+
+def trPlayMovie(title, itemurl, icon, mplot):                      # Display trailer movie
+
+    try:
+        li = xbmcgui.ListItem(title)
+        if int(get_installedversion()) == 19:
+            li.setInfo('video', {'Title': title, 'plot': mplot,})
+        else:
+            linfo = li.getVideoInfoTag()
+            linfo.setTitle(title)
+            linfo.setPlot(mplot)
+        li.setArt({'thumb': icon, 'poster': icon}) 
+        xbmc.Player().play(itemurl, li)
+    except:
+        mgenlog ='Mezzmo problem playing movie ' + title
+        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog)         
+        trdialog = xbmcgui.Dialog()
+        dialog_text = mgenlog        
+        trdialog.ok("Mezzmo Movie Playback Error", dialog_text)          
 
 
 if len(sys.argv) > 1:
@@ -757,9 +804,16 @@ if len(sys.argv) > 1:
         icon = sys.argv[11]
         movieset = sys.argv[12]
         taglist = sys.argv[13]
-        mezyear = sys.argv[14] 
-        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  mtype, 
-        contenturl, currposs, icon, movieset, taglist, mezyear)       # call GUI context menu
+        mezyear = sys.argv[14]
+        if len(sys.argv) >= 16:                                       # Check for Mezzmp Movie Trailer Channel
+            trtype = sys.argv[15]
+            imdb_id = sys.argv[16]
+        else:
+            trtype = 'video'
+            imdb_id = 0 
+        guiContext(title, vurl, vseason, vepisode, mplaycount, series,  \
+        mtype, contenturl, currposs, icon, movieset, taglist, mezyear,  \
+        trtype, imdb_id)                                              # call GUI context menu
     elif sys.argv[1] == 'auto':                                       # Set / Remove autostart
         autoStart()
     elif sys.argv[1] == 'playm':                                      # Play music with bookmark

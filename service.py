@@ -29,6 +29,7 @@ class XBMCPlayer(xbmc.Player):
     def onPlayBackStarted(self):
         try:
             global mtype
+            mtype = ''
             file = xbmc.Player().getPlayingFile()
             xbmc.sleep(2000)
             if xbmc.Player().isPlayingVideo():
@@ -52,7 +53,7 @@ class XBMCPlayer(xbmc.Player):
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
                 self.paflag = 1
@@ -75,7 +76,7 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         pos = 0
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
             bookmark.updateKodiBookmark(objectID, pos, self.mtitle, mtype)
             if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
@@ -90,7 +91,7 @@ class XBMCPlayer(xbmc.Player):
         bmdelay = 15 - int(media.settings('bmdelay'))
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         self.paflag = 0
-        if len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle, mtype)
             if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
