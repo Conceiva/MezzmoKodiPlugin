@@ -1,3 +1,17 @@
+1.1.9.7 11/24/2023
+
+- Fixed bug where a stalled Mezzmo channel playback would cause an exception error
+  when trying to update the bookmark / resume pointer.
+- Added support for the Mezzmo Movie Trailers Channel 2 to allow moviesets, additional 
+  trailers, keywords / favorites and a direct playback function from the context menu.
+- Added support for the Mezzmo TV Show Trailers Channel to allow episodes, additional 
+  trailers, keywords / favorites and a direct playback function from the context menu.
+- Improved Mezzmo Trailers to movie matching by adding IMDB ID to existing match by
+  movie name.  Now it will match by either the movie name or IMDB ID number.
+- Fixed minor bug which would cause a "No Response from Server" error when trying to
+  do a Mezzmo library search on a TV Series which has more than 100 episodes.
+- Added diagnostic server response logging to Mezzmo server searches
+
 1.1.9.6 10/21/2023
 
 - Improved sync timer logic to avoid potential race condition between fast sync and hourly

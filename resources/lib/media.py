@@ -295,7 +295,8 @@ def syncCount(dbsync, mtitle, mtype):
     dupes.close()
 
 
-def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpcount, mpremiered, micon):  #  Add movie trailers to Syncdb
+def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpcount, mpremiered, micon, imdb_id): 
+    #  Add movie trailers to Mezzmo10db
 
     try:
         localcount = 0
@@ -356,13 +357,13 @@ def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpcount, mpremiered
                                 + ' ' + str(e), xbmc.LOGDEBUG)
                         try:
                             dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1, trYear, mPcount, \
-                            trPremiered, trvar3) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0",      \
-                            orgtrailer, int(myear), mpcount, mpremiered, micon))
+                            trPremiered, trVar3, trVar2) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer,        \
+                            str(a), "0", orgtrailer, int(myear), mpcount, mpremiered, micon, imdb_id))
                         except:
                             orgtrailer = "Unable to decode local trailer"
-                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1, trYear, mPcount, \
-                            trPremiered, trvar3) values (?, ?, ?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer, str(a), "0",      \
-                            orgtrailer, int(myear), mpcount, mpremiered, micon))
+                            dbsync.execute('INSERT into mTrailers (trTitle, trUrl, trID, trPlay, trVar1, trYear, mPcount,  \
+                            trPremiered, trVar3, trVar2) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (mtitle, trailer,         \
+                            str(a), "0", orgtrailer, int(myear), mpcount, mpremiered, micon, imdb_id))
                         a += 1            
             dbsync.commit()
 

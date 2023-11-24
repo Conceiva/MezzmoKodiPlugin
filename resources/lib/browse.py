@@ -64,7 +64,7 @@ def Browse(url, objectID, flag, startingIndex, requestedCount, pin, mode='browse
 
 
 def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
-    
+    global logcount, srvrtime     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#Search"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -92,7 +92,16 @@ def Search(url, objectID, searchCriteria, startingIndex, requestedCount, pin):
     response = ''
     try:
         response = urllib2.urlopen(req, timeout=srvrtime).read()
-        #response = urllib2.urlopen(req, timeout=60).read()
+        if logcount < mezzmo_response and mezzmo_response > 0:
+            xbmc.log(response.encode('utf-8'), xbmc.LOGNOTICE)
+            logcount += 1
+            media.settings('mrespcount', str(logcount))
+        elif logcount >= mezzmo_response and mezzmo_response > 0:
+            media.settings('mezzmo_response', '0')            
+            media.settings('mrespcount', '0')
+            mgenlog = 'Mezzmo server response logging limit.'   
+            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            media.mgenlogUpdate(mgenlog)     
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Search: ' + str(e))
         pass

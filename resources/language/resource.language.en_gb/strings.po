@@ -700,6 +700,14 @@ msgctxt "#30493"
 msgid "Timed Slideshow"
 msgstr ""
 
+msgctxt "#30494"
+msgid "Play Movie From Mezzmo"
+msgstr ""
+
+msgctxt "#30495"
+msgid "Mezzmo Show TV Episodes"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""

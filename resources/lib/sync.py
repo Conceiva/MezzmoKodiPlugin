@@ -732,7 +732,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info
                     media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr, release_year_text, playcount,      \
-                    release_date_text, icon)                                     # Update movie trailers info
+                    release_date_text, icon, imdb_text)                          # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')
                     mobjectID = itemurl[rtrimpos+1:]                             # Get Mezzmo objectID
                     mtype = categories_text
