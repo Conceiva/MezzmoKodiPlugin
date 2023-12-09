@@ -1,3 +1,9 @@
+1.1.9.8 12/9/2023
+
+- Fixed bug introduced in v1.1.9.7 which was causing an exception error when browsing
+  non-video library items.  This was due to the introduction of the Mezzmo Movie Trailers
+  and Mezzmo TV Show Trailers Kodi library matching for existing movies and TV series. 
+
 1.1.9.7 11/24/2023
 
 - Fixed bug where a stalled Mezzmo channel playback would cause an exception error
