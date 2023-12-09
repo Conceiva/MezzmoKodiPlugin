@@ -532,7 +532,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         contentType = 'videos'
                         showtitle = title
                 else:
-                    movieset = album_text = ''
+                    movieset = album_text = trtype = ''
                     categories_text = 'video'
                     contentType = 'videos'
                     showtitle = title
