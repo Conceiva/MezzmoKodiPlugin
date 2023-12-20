@@ -700,6 +700,18 @@ msgctxt "#30493"
 msgid "Timed Slideshow"
 msgstr ""
 
+msgctxt "#30494"
+msgid "Play Movie From Mezzmo"
+msgstr ""
+
+msgctxt "#30495"
+msgid "Mezzmo Show TV Episodes"
+msgstr ""
+
+msgctxt "#30496"
+msgid "Mezzmo Reduced Sync Logging"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -926,4 +938,8 @@ msgstr ""
 
 msgctxt "#30557"
 msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgstr ""
+
+msgctxt "#30558"
+msgid "When enabled reduces he amount of sync log entries on the Kodi logfile. All logs are still sent to the addon log viewer.  Default is disabled."
 msgstr ""
