@@ -14,7 +14,7 @@
     </category>
     <category label="30362">
     <setting id="content_pin" type="number" label="30363" option="hidden" default=""/>
-    <setting id="caching" type="bool" label="30366" default="false"/>
+    <setting id="caching" type="labelenum" label="30366" values="Off|On|On Demand" default="On"/>
     <setting id="kodiactor" type="bool" label="30367" default="true"/>
     <setting id="koditv" type="labelenum" label="30369" values="Off|Season|Category" default="Season"/>
     <setting id="kodichange" type="bool" label="30370" default="true"/>
@@ -120,6 +120,8 @@
         <setting id="mezzmo_response" type="slider" label="30453" default="0" range="0,1,25" option="int"/>
         <setting id="mrespcount" type="text" label="none" default="0" visible="false"/> 
         <setting id="generic_response" type="slider" label="30454" default="0" range="0,1,25" option="int"/>
-        <setting id="genrespcount" type="text" label="none" default="0" visible="false"/>    
+        <setting id="genrespcount" type="text" label="none" default="0" visible="false"/>
+	<setting id="reduceglog" type="bool" label="30497" default="false"/>
+	<setting id="reduceslog" type="bool" label="30496" default="false"/>    
     </category>
 </settings>

@@ -7,6 +7,7 @@ import media
 import sys
 import bookmark
 import utilities
+from sync import deleteTexturesCache
 
 #xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
 #xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGNOTICE)
@@ -16,6 +17,8 @@ import utilities
 def contextMenu():                                       # Display contxt menu for native Kodi skin
 
     addon = xbmcaddon.Addon()
+    addon_path = addon.getAddonInfo("path")
+    addon_icon = addon_path + '/resources/icon.png'
     menuitem1 = addon.getLocalizedString(30434)
     menuitem2 = addon.getLocalizedString(30384)
     menuitem3 = addon.getLocalizedString(30372)
@@ -27,7 +30,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem9 = addon.getLocalizedString(30468)
     menuitem10 = addon.getLocalizedString(30469)
     menuitem11 = addon.getLocalizedString(30470)
-    menuitem12 = addon.getLocalizedString(30481)        
+    menuitem12 = addon.getLocalizedString(30481)
+    menuitem15 = addon.getLocalizedString(30498)         
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()    
     mtype = minfo.getMediaType()
@@ -108,7 +112,7 @@ def contextMenu():                                       # Display contxt menu f
     if pcount == None:                                   # Kodi playcount is null
         cselect.append(menuitem3)
         pcount = 0
-    elif pcount == 0:                                    # Kodi playcount is 0
+    elif pcount <= 0:                                    # Kodi playcount is 0
         cselect.append(menuitem3)
     elif pcount > 0:
         cselect.append(menuitem4)
@@ -137,6 +141,9 @@ def contextMenu():                                       # Display contxt menu f
     cselect.append(menuitem2)                            # Logs & Stats
     cselect.append(menuitem6)                            # Mezzmo Search
     cselect.append(menuitem5)                            # Mezzmo Addon Gui
+    if media.settings('caching')  == 'On Demand':        # Clear Kodi cache
+        cselect.append(menuitem15) 
+
     ddialog = xbmcgui.Dialog()    
     vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
 
@@ -193,7 +200,10 @@ def contextMenu():                                       # Display contxt menu f
         xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
         ';mode=collection;source=native;searchset=' + collection)) 
     elif (cselect[vcontext]) == menuitem11:              # Mezzmo display keywords  
-        utilities.selectKeywords(mtype, menuitem11, 'native', contenturl)  
+        utilities.selectKeywords(mtype, menuitem11, 'native', contenturl)
+    elif (cselect[vcontext]) == menuitem15:              # Clear Kodi cache  
+        deleteTexturesCache(contenturl, 'yes')  
+        xbmcgui.Dialog().notification(media.translate(30435), media.translate(30499), addon_icon, 3000)    
 
 
 def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem

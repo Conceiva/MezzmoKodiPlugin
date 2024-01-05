@@ -123,7 +123,7 @@ def listServers(force):
     a = sselect = 0
 
     mgenlog ='Mezzmo server search: ' + str(len(servers)) + ' UPnP servers found.'
-    xbmc.log(mgenlog, xbmc.LOGNOTICE)
+    #xbmc.log(mgenlog, xbmc.LOGNOTICE)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
         try:
@@ -136,7 +136,7 @@ def listServers(force):
           
             e = xml.etree.ElementTree.fromstring(xmlstring)
             mgenlog = 'Mezzmo UPnP server url: ' + url[:48]  
-            xbmc.log(mgenlog, xbmc.LOGNOTICE)
+            #xbmc.log(mgenlog, xbmc.LOGNOTICE)
             media.mgenlogUpdate(mgenlog)   
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
@@ -324,8 +324,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,        \
-                'contentdirectory': contenturl})        
-                li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
+                'contentdirectory': contenturl})
+                if installed_version > '17':                
+                    li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
+                else:
+                    li = xbmcgui.ListItem(title, iconImage=icon)        
                 li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})  
               
                 mediaClass_text = 'video'
@@ -405,8 +408,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     backdropurl = backdropurl.text
                     if (backdropurl [-4:]) !=  '.jpg': 
                         backdropurl  = backdropurl  + '.jpg'
-                
-                li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
+                if installed_version > '17':                
+                    li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
+                else:
+                    li = xbmcgui.ListItem(title, iconImage=icon)
                 li.setArt({'thumb': icon, 'poster': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
@@ -674,9 +679,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     mtype = categories_text
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
                     (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
-                    ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
-                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist, release_year_text, trtype, \
-                    imdb_text))])   
+                    ("plugin.video.mezzmo", "context", pctitle.decode(errors='replace'), itemurl, season_text,     \
+                    episode_text, playcount, pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist,   \
+                    release_year_text, trtype, imdb_text))])   
 
                     info = {
                         'duration': durationsecs,
@@ -851,7 +856,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                #xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 media.mgenlogUpdate(mgenlog)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
@@ -1379,7 +1384,7 @@ def handleSearch(content, contenturl, objectID, term):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database 
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGNOTICE)
+                #xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 media.mgenlogUpdate(mgenlog) 
                 break
             else:
@@ -1521,7 +1526,7 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         servers.append(add_server) 
         media.settings('saved_servers', pickle.dumps(servers))
         mgenlog = media.translate(30451) + serverurl
-        xbmc.log(mgenlog, xbmc.LOGNOTICE)
+        #xbmc.log(mgenlog, xbmc.LOGNOTICE)
         media.mgenlogUpdate(mgenlog)
         notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
     listServers(False)

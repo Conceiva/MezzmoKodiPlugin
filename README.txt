@@ -1,3 +1,16 @@
+1.1.9.9 1/5/2024
+
+- Added option setting to reduce general and sync logging to Kodi logfile.  All logs
+  will still be written to the addon logging database.
+- Fixed a bug which caused the Mezzmo menu to set item as played not to be displayed  
+  if the item play count was < 0.
+- Added a feature which sets the Mezzmo and Kodi play counts to 0 if an item has a
+  play count of < 0 in the Mezzmo database.
+- Fixed a couple of bugs which were causing exception errors when displaying TV Show
+  channel trailers and either the name or series name contained non-ASCII characters
+- Fixed a bug where the TV Shows trailers channel would present a context menu option
+  to search for TV show episodes even though none existed.
+
 1.1.9.8 12/9/2023
 
 - Fixed bug introduced in v1.1.9.7 which was causing an exception error when browsing

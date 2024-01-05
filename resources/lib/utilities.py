@@ -11,6 +11,7 @@ import media
 from server import displayServers, picDisplay, displayTrailers
 from datetime import datetime, timedelta
 from exports import selectExport
+from sync import deleteTexturesCache
 
 #xbmc.log('Name of script: ' + str(sys.argv[0]), xbmc.LOGNOTICE)
 #xbmc.log('Number of arguments: ' + str(len(sys.argv)), xbmc.LOGNOTICE)
@@ -611,6 +612,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     bmposition, icon, movieset, taglist, mezyear, trtype, imdb_id) :
 
     addon = xbmcaddon.Addon()
+    addon_path = addon.getAddonInfo("path")
+    addon_icon = addon_path + '/resources/icon.png'
     menuitem1 = addon.getLocalizedString(30434)
     menuitem2 = addon.getLocalizedString(30384)
     menuitem3 = addon.getLocalizedString(30372)
@@ -624,7 +627,8 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem11 = addon.getLocalizedString(30470)
     menuitem12 = addon.getLocalizedString(30481)
     menuitem13 = addon.getLocalizedString(30494)
-    menuitem14 = addon.getLocalizedString(30495)                  
+    menuitem14 = addon.getLocalizedString(30495)                     # Show TV Episodes
+    menuitem15 = addon.getLocalizedString(30498)                   
     trcount = media.settings('trcount')
     prviewct = int(media.settings('prviewct'))  
     mplaycount = int(playcount)
@@ -677,14 +681,17 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         trcontext = curtr.fetchone()
     else:
         trcontext = None
-    if 'tvtrailer' in  trtype.lower():                   # check for TV episodes for TV trailers
-        curptv= pdfile.execute('SELECT count (c00) FROM tvshow WHERE c00=?', (movieset,))
-        tvcontext = curptv.fetchone()                    # Get keyword count from database
-    else:
-        tvcontext = None  
+    if 'tvtrailer' in  trtype.lower():                   # check for TV episodes for TV trailers                          
+        try:                                                                                                              
+            curptv= pdfile.execute('SELECT c00 FROM tvshow WHERE c00=?', (movieset,))                             
+            tvcontext = curptv.fetchone()                # Get TV Show from database if exists                               
+        except:                                                                                                           
+            tvcontext = None                                                                                              
+    else:                                                                                                                 
+        tvcontext = None       
     pdfile.close()
 
-    if mplaycount == 0 and 'trailer' not in trtype.lower():  # Mezzmo playcount is 0
+    if mplaycount <= 0 and 'trailer' not in trtype.lower():  # Mezzmo playcount is 0
         cselect.append(menuitem3)
     elif mplaycount > 0 and 'trailer' not in trtype.lower():
         cselect.append(menuitem4)
@@ -718,6 +725,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
 
     if trcontext != None:                                # Trailer play movie
         cselect.append(menuitem13)
+
+    if media.settings('caching')  == 'On Demand':        # Clear Kodi cache
+        cselect.append(menuitem15)  
 
     ddialog = xbmcgui.Dialog()    
     vcontext = ddialog.select(addon.getLocalizedString(30471), cselect)
@@ -770,7 +780,9 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         selectKeywords(keytarget, menuitem11, 'browse', contenturl)
     elif (cselect[vcontext]) == menuitem13:              # Play trailer movie  
         trPlayMovie(mtitle, trcontext[0], icon, trcontext[1])
-
+    elif (cselect[vcontext]) == menuitem15:
+        deleteTexturesCache(contenturl, 'yes')  
+        xbmcgui.Dialog().notification(media.translate(30435), media.translate(30499), addon_icon, 3000)
 
 def trPlayMovie(title, itemurl, icon, mplot):                      # Display trailer movie
 
