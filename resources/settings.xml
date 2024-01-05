@@ -119,10 +119,17 @@
 						<heading>30363</heading>
 					</control>
 				</setting>
-				<setting id="caching" type="boolean" label="30366" help="30502">
+				<setting id="caching" type="string" label="30366" help="30502">
 					<level>0</level>
-					<default>false</default>
-					<control type="toggle"/>
+					<default>On</default>
+					<constraints>
+						<options>
+							<option label="Off">Off</option>
+							<option label="On">On</option>
+							<option label="On Demand">Demand</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
 				</setting>
 				<setting id="kodiactor" type="boolean" label="30367" help="30503">
 					<level>0</level>
@@ -1501,6 +1508,16 @@
 					<control type="edit" format="string">
 						<heading>30388</heading>
 					</control>
+				</setting>
+				<setting id="reduceglog" type="boolean" label="30497" help="30559">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="reduceslog" type="boolean" label="30496" help="30558">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 		</category>

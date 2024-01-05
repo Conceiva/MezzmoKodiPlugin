@@ -125,7 +125,7 @@ def listServers(force):
     a = sselect = 0
 
     mgenlog ='Mezzmo server search: ' + str(srvcount) + ' UPnP servers found.'
-    xbmc.log(mgenlog, xbmc.LOGINFO)
+    #xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
         try:
@@ -138,7 +138,7 @@ def listServers(force):
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
             mgenlog ='Mezzmo UPnP server url: ' + url[:48]
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            #xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)        
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
@@ -917,7 +917,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                #xbmc.log(mgenlog, xbmc.LOGINFO)
                 media.mgenlogUpdate(mgenlog)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
@@ -1509,7 +1509,7 @@ def handleSearch(content, contenturl, objectID, term):
                 dbfile.close()             #  Final commit writes and close Kodi database
                 if pitemsleft >= 0:
                     mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                    xbmc.log(mgenlog, xbmc.LOGINFO)
+                    #xbmc.log(mgenlog, xbmc.LOGINFO)
                     media.mgenlogUpdate(mgenlog)   
                 break
             else:
@@ -1653,7 +1653,7 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         servers.append(add_server) 
         media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
         mgenlog = media.translate(30451) + serverurl
-        xbmc.log(mgenlog, xbmc.LOGINFO)
+        #xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
         #notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
         notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)

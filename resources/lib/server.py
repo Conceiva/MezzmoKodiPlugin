@@ -52,30 +52,27 @@ def displayServers():
         if ssync < 0:                                            # User cancel
             svrfile.close()
             break
-        elif ssync == 0:                                         # Refresh uPNP server list
+        elif ssync == 0:                                         # Refresh UPnP server list
             clearServers()
             mscount = getServers()
             if mscount == 0:
                 msynclog = translate(30399)
                 xbmcgui.Dialog().ok(translate(30398), msynclog)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
             else:
                 msynclog = 'Mezzmo refresh sync servers found: ' +  str(mscount)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)  
         elif ssync > 0:
             if updateSync(srvresults[ssync - 1][3]) == 0:        # Update sync server from selection
                 msynclog ='Mezzmo sync server updated manually: ' +          \
                 str(srvresults[ssync - 1][0])
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
             
     svrfile.close()
     return
 
 
-def addServers():                                                #  Manually add uPNP servers
+def addServers():                                                #  Manually add UPnP servers
 
     serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
@@ -93,10 +90,10 @@ def addServers():                                                #  Manually add
     serverlist = []
     for s in range(len(serverdict)):
         serverlist.append(serverdict[s]['name'])                 # Convert dict list to list for dialog box
-    #xbmc.log('Mezzmo uPNP server list: ' + str(serverlist), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo UPnP server list: ' + str(serverlist), xbmc.LOGINFO)
     sdialog = xbmcgui.Dialog()  
     server = sdialog.select(translate(30450), serverlist)
-    #xbmc.log('Mezzmo uPNP server selection: ' + str(server), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo UPnP server selection: ' + str(server), xbmc.LOGINFO)
 
     if server < 0:
         return 'None'
@@ -107,7 +104,7 @@ def addServers():                                                #  Manually add
         return 'None'
     else:
         serverurl = 'http://' + str(serverip) + ':' + str(sport) + serverdict[server]['uri']
-        xbmc.log('Mezzmo uPNP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
+        xbmc.log('Mezzmo UPnP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
         return serverurl
 
 
@@ -131,7 +128,6 @@ def delServer(srvurl):                                           # Delete server
                     newlist.append(server)                       # Do not delete from newlist              
             settings('saved_servers', pickle.dumps(newlist,0,fix_imports=True))
             mgenlog = translate(30466) + srvurl
-            xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog) 
             xbmcgui.Dialog().notification(translate(30404), mgenlog, addon_icon, 5000)
 
@@ -146,7 +142,6 @@ def downServer(srvrtype='mezzmo'):                               # Handle downed
 
     try:
         mgenlog ='Mezzmo no response from server. '
-        xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog)
         if srvrtype == 'mezzmo':                                 # Mezzmo server error
             dialog_text = translate(30407)
@@ -278,7 +273,6 @@ def onlyDiscMezzmo(srvrlist):                                    # Discover only
             del curps 
             if not svrtuples:                                    # No Mezzmo servers found
                 mgenlog = 'Mezzmo only discovery no Mezzmo servers found.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlogUpdate(mgenlog)
                 return srvrlist
             else:
@@ -292,7 +286,6 @@ def onlyDiscMezzmo(srvrlist):                                    # Discover only
                         mezzlist.append(server) 
 
                 mgenlog = 'Mezzmo only Mezzmo servers enabled. ' + str(len(mezzlist)) + ' Mezzmo server(s) found.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlogUpdate(mgenlog)
                 if len(mezzlist) > 0:                            # If Mezzmo server(s) found return list
                     return mezzlist
@@ -319,15 +312,12 @@ def checkSync(count):                                            # Check for Syn
             if modelnumb != '0.0.0.0':
                 sname = srvrtuple[2]
                 msynclog = 'Mezzmo sync server responded: ' + sname
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
                 msynclog = 'Mezzmo sync server version: ' + modelnumb 
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
             else:
                 sname = srvrtuple[2]
                 msynclog = 'Mezzmo sync server did not respond: ' + sname
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
                 syncurl = 'None'        
     else:
@@ -341,7 +331,6 @@ def checkSync(count):                                            # Check for Syn
             if updateSync(contenturl) == 0:                      # Update sync server flag
                 iconimage = srvrtuple[1]
                 msynclog = translate(30400) + str(sname)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
                 notify = xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)
         else:                                                    # Sync server not set yet
@@ -350,7 +339,7 @@ def checkSync(count):                                            # Check for Syn
     return syncurl    
 
 
-def getServers():                                                # Find uPNP servers
+def getServers():                                                # Find UPnP servers
 
     try:
         timeoutval = float(settings('ssdp_timeout'))
@@ -361,19 +350,17 @@ def getServers():                                                # Find uPNP ser
         msgdialogprogress.create(dialoghead, dialogmsg)
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)     
         srvcount = len(servers)
-        addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
+        addtlmsg = '  ' + str(srvcount) + '  UPnP servers discovered.'
         ddialogmsg = dialogmsg + addtlmsg
         msgdialogprogress.update(50, ddialogmsg)
         xbmc.sleep(1000)
 
         if srvcount > 0:
-            msynclog ='Mezzmo sync server search: ' + str(srvcount) + ' uPNP servers found.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
+            msynclog ='Mezzmo sync server search: ' + str(srvcount) + ' UPnP servers found.'
             mezlogUpdate(msynclog)
         else:
             msynclog = translate(30403)
             xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)            
-            xbmc.log(msynclog, xbmc.LOGINFO)
             mezlogUpdate(msynclog)
             return 0
         onlyShowMezzmo = False
@@ -460,7 +447,7 @@ def getServers():                                                # Find uPNP ser
                 iconurl, description, udn) 
 
             except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
-                msynclog = 'Mezzmo uPNP server not responding: ' + url
+                msynclog = 'Mezzmo UPnP server not responding: ' + url
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)  
                 dialog_text = translate(30405) + url
@@ -481,7 +468,7 @@ def getServers():                                                # Find uPNP ser
         return 0  
 
 
-def getItemlUrl(contenturl, itemid):                             # Get itemurl for generic uPNP
+def getItemlUrl(contenturl, itemid):                             # Get itemurl for generic UPnP
 
     try:
         svrfile = openNosyncDB()                                 # Open server database    
@@ -500,7 +487,7 @@ def getItemlUrl(contenturl, itemid):                             # Get itemurl f
     return itemurl 
 
 
-def upnpCheck():                                                 # Check Kodi uPNP setting
+def upnpCheck():                                                 # Check Kodi UPnP setting
 
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.GetSettingValue",       \
     "params":{"setting":"services.upnp"}, "id":1}')
@@ -508,14 +495,14 @@ def upnpCheck():                                                 # Check Kodi uP
     upnp_enabled = ''
     if 'result' in json_query and 'value' in json_query['result']:
         upnp_enabled  = json_query['result']['value']
-    xbmc.log('The uPNP status is: ' + str(upnp_enabled), xbmc.LOGDEBUG)
+    xbmc.log('The UPnP status is: ' + str(upnp_enabled), xbmc.LOGDEBUG)
 
     if upnp_enabled == True:
         return
     else:
         dialog_text = translate(30394)
         cselect = xbmcgui.Dialog().yesno(translate(30406), dialog_text)
-    if cselect == 1 :                                           #  Enable uPNP support in Kodi
+    if cselect == 1 :                                           #  Enable UPnP support in Kodi
         json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.SetSettingValue",   \
         "params":{"setting":"services.upnp","value":true}, "id":1}')
         json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.GetSettingValue",   \
@@ -527,14 +514,12 @@ def upnpCheck():                                                 # Check Kodi uP
             if upnp_enabled == True:
                 dialog_text = translate(30397)
                 xbmcgui.Dialog().ok(translate(30396), dialog_text)
-                mgenlog ='Mezzmo Kodi uPNP Set to Enabled.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                mgenlog ='Mezzmo Kodi UPnP Set to Enabled.'
                 mgenlogUpdate(mgenlog)
             else:        
                 dialog_text = translate(30395)
                 xbmcgui.Dialog().ok(translate(30396), dialog_text)
-                mgenlog ='Mezzmo Kodi uPNP Setting failed.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                mgenlog ='Mezzmo Kodi UPnP Setting failed.'
                 mgenlogUpdate(mgenlog)
 
             
@@ -546,7 +531,6 @@ def clearServers():                                              # Clear server 
         svrfile.commit()
         svrfile.close()
         msynclog = 'Mezzmo sync servers cleared.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog)  
 
     except Exception as e:
@@ -756,7 +740,6 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         self.piclist = piclist
         self.piclength = len(self.piclist)                                   # Get number of slides in list
         mgenlog = 'Mezzmo manual slideshow started with ' + str(len(piclist)) + ' slides.'
-        xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog)         
         playitem = picURL(piclist[self.slideIdx]['url']).strip('"')
         xbmc.log('Mezzmo slide control showPic: ' + str(playitem) , xbmc.LOGDEBUG)    
@@ -791,7 +774,7 @@ def picDisplay():                                                # Picture slide
         piclist = getPictures()                                  # Get pictures from picture DB
         slidetime = int(settings('slidetime'))                   # Get slide pause time
         #xbmc.log('Mezzmo picture list: ' + str(piclist) , xbmc.LOGINFO)  
-        if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over uPNP
+        if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over UPnP
             dialog_text = translate(30413)
             xbmcgui.Dialog().ok(translate(30412), dialog_text)
             xbmc.executebuiltin('Action(ParentDir)')
@@ -871,8 +854,7 @@ def ShowSlide(piclist, slidetime, ssmode):                             # Timed S
             mgenlog = 'Mezzmo continuous slideshow started with ' + str(len(piclist)) + ' slides.'
         else:
             mgenlog = 'Mezzmo timed slideshow started with ' + str(len(piclist)) + ' slides.'
-            xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlogUpdate(mgenlog)   
+        mgenlogUpdate(mgenlog)   
         while slwindow.slideIdx < slwindow.piclength: 
             playitem = picURL(piclist[slwindow.slideIdx]['url']).strip('"')
             xbmc.log('Mezzmo slide control showPic: ' + str(playitem) + ' ' + str(slwindow.slideIdx), xbmc.LOGDEBUG)    
@@ -935,7 +917,7 @@ def manualSlides(piclist):                                      # Manual slidesh
 def showSingle(url):                                             # Display individual native picture
 
     try:
-        if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over uPNP
+        if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over UPnP
             dialog_text = translate(30413)
             xbmcgui.Dialog().ok(translate(30406), dialog_text)
             xbmc.executebuiltin('Action(ParentDir)')
@@ -957,7 +939,6 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
     try:
         mtitle = title                                            # Handle commas
         mgenlog ='Mezzmo trailer #' + trselect + ' selected for: '  + title
-        xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog) 
         #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGINFO)
         #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGINFO)

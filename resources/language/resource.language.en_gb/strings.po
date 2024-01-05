@@ -708,12 +708,28 @@ msgctxt "#30495"
 msgid "Mezzmo Show TV Episodes"
 msgstr ""
 
+msgctxt "#30496"
+msgid "Mezzmo Reduced Sync Logging"
+msgstr ""
+
+msgctxt "#30497"
+msgid "Mezzmo Reduced General Logging"
+msgstr ""
+
+msgctxt "#30498"
+msgid "Clear Kodi Cache"
+msgstr ""
+
+msgctxt "#30499"
+msgid "Kodi Mezzmo cache cleared"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
 
 msgctxt "#30502"
-msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance."
+msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance. Default is On."
 msgstr ""
 
 msgctxt "#30503"
@@ -934,4 +950,12 @@ msgstr ""
 
 msgctxt "#30557"
 msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
+msgstr ""
+
+msgctxt "#30558"
+msgid "When enabled reduces the amount of addon sync log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
+msgstr ""
+
+msgctxt "#30559"
+msgid "When enabled reduces the amount of addon general log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
 msgstr ""
