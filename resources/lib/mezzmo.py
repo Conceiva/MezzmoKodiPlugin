@@ -626,9 +626,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     rating_valf = float(rating_val) * 2
                     rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
                 
-                production_company_text = ''
+                production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None:
+                if production_company != None and len(production_company) > 0:
                     production_company_text = production_company.text.split(',')[0]
 
                 sort_title_text = ''
@@ -1253,9 +1253,9 @@ def handleSearch(content, contenturl, objectID, term):
                     rating_valf = float(rating_val) * 2
                     rating_val = str(rating_valf) #kodi ratings are out of 10, Mezzmo is out of 5
 
-                production_company_text = ''
+                production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None:
+                if production_company != None and len(production_company) > 0:
                     production_company_text = production_company.text.split(',')[0]
 
                 sort_title_text = ''

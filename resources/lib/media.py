@@ -309,7 +309,7 @@ def syncCount(dbsync, mtitle, mtype):
         (currdlDate, currmsTime, msynclog))
         if settings('reduceslog') == 'false':
             xbmc.log(msynclog, xbmc.LOGINFO)
-    elif not dupetuple:                         #  Insert into nosync table if not dupe
+    elif not dupetuple and settings('mdupelog') == 'true': #  Insert into nosync table if not dupe
         dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))    
 
     dbsync.commit()        
