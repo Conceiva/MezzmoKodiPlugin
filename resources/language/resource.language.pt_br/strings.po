@@ -700,6 +700,38 @@ msgctxt "#30493"
 msgid "Timed Slideshow"
 msgstr "Apresentação de slides programada"
 
+msgctxt "#30494"
+msgid "Play Movie From Mezzmo"
+msgstr "Reproduzir filme de Mezzmo"
+
+msgctxt "#30495"
+msgid "Mezzmo Show TV Episodes"
+msgstr "Mezzmo Mostrar Episódios de TV"
+
+msgctxt "#30496"
+msgid "Mezzmo Reduced Sync Logging"
+msgstr "Registro de sincronização reduzida do Mezzmo"
+
+msgctxt "#30497"
+msgid "Mezzmo Reduced General Logging"
+msgstr "Registro geral reduzido Mezzmo"
+
+msgctxt "#30498"
+msgid "Clear Kodi Cache"
+msgstr "Limpar cache de Kodi"
+
+msgctxt "#30499"
+msgid "Kodi Mezzmo cache cleared"
+msgstr "Cache do Kodi Mezzmo limpo"
+
+msgctxt "#30500"
+msgid "Mezzmo Preview Trailer Volume Adjust %"
+msgstr "Ajuste de volume do trailer de visualização do Mezzmo %"
+
+msgctxt "#30801"
+msgid "Mezzmo Preview Movie Volume Adjust %"
+msgstr "Ajuste de volume do filme de visualização Mezzmo %"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -927,3 +959,19 @@ msgstr "Exibir caixa de diálogo para servidor que não está respondendo. Ativa
 msgctxt "#30557"
 msgid "When enabled only Mezzmo servers are discovered by UPnP.  Otherwise all UPnP servers are found.  Default is disabled."
 msgstr "Quando ativado, apenas os servidores Mezzmo são descobertos pelo UPnP. Caso contrário, todos os servidores UPnP serão encontrados. O padrão é desabilitado."
+
+msgctxt "#30558"
+msgid "When enabled reduces the amount of addon sync log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
+msgstr "Quando ativado, reduz a quantidade de entradas de log de sincronização de complementos no arquivo de log Kodi. Todos os logs ainda são enviados para o visualizador de log do complemento Mezzmo Kodi. O padrão é desabilitado."
+
+msgctxt "#30559"
+msgid "When enabled reduces the amount of addon general log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
+msgstr "Quando ativado, reduz a quantidade de entradas de log gerais adicionais no arquivo de log Kodi. Todos os logs ainda são enviados para o visualizador de log do complemento Mezzmo Kodi. O padrão é desabilitado."
+
+msgctxt "#30560"
+msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Previews trailer volume is different than the main movie.  Default is 100 percent."
+msgstr "Ajusta o volume de reprodução do trailer do Mezzmo Preview. Isso pode ser usado quando o volume do trailer do Mezzmo Previews é diferente do filme principal. O padrão é 100 por cento."
+
+msgctxt "#30561"
+msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Previews movie volume is different than the trailer volume.  Default is 100 percent."
+msgstr "Ajusta o volume de reprodução do filme Mezzmo Preview. Isso pode ser usado quando o volume do filme Mezzmo Previews é diferente do volume do trailer. O padrão é 100 por cento."

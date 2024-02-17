@@ -1,3 +1,68 @@
+2.2.0.0 2/17/2024
+
+- Fixed very minor bug where the no bookmark condition for music files was not being
+  detected properly.
+- Added Information context menu item to TV Trailer and Movie Trailer channels.  Now
+  you can see the full information about the underlying movie from either the context
+  menu or the I (information) key for these Mezzmo trailer channels.
+- Fixed Mezzmo record count calculation error in the sync summary reporting
+- Added automatic Kodi sync detection of Mezzmo live streams like IP Camers, IP Video
+  streams, OTA tuners etc..
+- Added option to the Mezzmo Context menu for TV Show episodes to provide a listing 
+  of all TV episodes in the series and launch playback.
+- Moved the Export Data from Database settings option from the settings Content 
+  Control tab to the Diagnostics tab.
+- Added duplicate detection for nosync videos so you can easily find duplicate Mezzmo
+  entries that you do not sync to Kodi (i.e. home videos, custom metadata etc..)
+- Added feature to allow setting the playback volume for both trailers and the main 
+  movie when using Mezzmo Movie Previews. This allows you to tailor the settings so
+  that the trailers and the main movie play at the same volume.  
+
+2.1.9.9 1/5/2024
+
+- Added option setting to reduce general and sync logging to Kodi logfile.  All logs
+  will still be written to the addon logging database.
+- Fixed a bug which caused the Mezzmo menu to set item as played not to be displayed  
+  if the item play count was < 0.
+- Added a feature which sets the Mezzmo and Kodi play counts to 0 if an item has a
+  play count of < 0 in the Mezzmo database.
+- Fixed a bug where the TV Shows trailers channel would present a context menu option
+  to search for TV show episodes even though none existed.
+- Added support for Kodi 21 Omega beta 2 with video database 124.
+
+2.1.9.8 12/9/2023
+
+- Fixed bug introduced in v2.1.9.7 which was causing an exception error when browsing
+  non-video library items.  This was due to the introduction of the Mezzmo Movie Trailers
+  and Mezzmo TV Show Trailers Kodi library matching for existing movies and TV series. 
+
+2.1.9.7  11/24/2023
+
+- Fixed bug where a stalled Mezzmo channel playback would cause an exception error
+  when trying to update the bookmark / resume pointer.
+- Added support for the Mezzmo Movie Trailers Channel 2 to allow moviesets, additional 
+  trailers, keywords / favorites and a direct playback function from the context menu.
+- Added support for the Mezzmo TV Show Trailers Channel to allow episodes, additional 
+  trailers, keywords / favorites and a direct playback function from the context menu.
+- Improved Mezzmo Trailers to movie matching by adding IMDB ID to existing match by
+  movie name.  Now it will match by either the movie name or IMDB ID number.
+- Fixed minor bug which would cause a "No Response from Server" error when trying to
+  do a Mezzmo library search on a TV Series which has more than 100 episodes.
+- Added diagnostic server response logging to Mezzmo server searches
+
+2.1.9.6 10/21/2023
+
+- Improved sync timer logic to avoid potential race condition between fast sync and hourly
+  sync timers.
+- Added safety check to reset fast sync timer flag after an hour
+- Updated video database version for Kodi Omega 21 Alpha 3 and higher support
+
+2.1.9.5 9/25/2023
+
+- Complete rewrite of the slideshow capability.  There are now 3 options for slideshows:
+  manual, timed and continuous .  All have a full set of navigation controls and a new
+  information screen to view details about the image.   
+
 2.1.9.4 9/17/2023
 
 - Added feature and addon setting to allow only discovering and saving Mezzmo servers

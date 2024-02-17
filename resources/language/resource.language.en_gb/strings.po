@@ -716,12 +716,28 @@ msgctxt "#30497"
 msgid "Mezzmo Reduced General Logging"
 msgstr ""
 
+msgctxt "#30498"
+msgid "Clear Kodi Cache"
+msgstr ""
+
+msgctxt "#30499"
+msgid "Kodi Mezzmo cache cleared"
+msgstr ""
+
+msgctxt "#30500"
+msgid "Mezzmo Preview Trailer Volume Adjust %"
+msgstr ""
+
+msgctxt "#30801"
+msgid "Mezzmo Preview Movie Volume Adjust %"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
 
 msgctxt "#30502"
-msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance."
+msgid "Disable Kodi caching always during Mezzmo browsing otherwise cache times are updated devery 30 minutes.  Disabling can slow down performance. Default is On."
 msgstr ""
 
 msgctxt "#30503"
@@ -950,4 +966,12 @@ msgstr ""
 
 msgctxt "#30559"
 msgid "When enabled reduces the amount of addon general log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
+msgstr ""
+
+msgctxt "#30560"
+msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Preview trailer volume is different than the main movie.  Default is 100 percent."
+msgstr ""
+
+msgctxt "#30561"
+msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Preview movie volume is different than the trailer volume.  Default is 100 percent."
 msgstr ""

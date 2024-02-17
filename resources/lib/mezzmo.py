@@ -125,7 +125,7 @@ def listServers(force):
     a = sselect = 0
 
     mgenlog ='Mezzmo server search: ' + str(srvcount) + ' UPnP servers found.'
-    xbmc.log(mgenlog, xbmc.LOGINFO)
+    #xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)
     for server in servers:
         try:
@@ -138,7 +138,7 @@ def listServers(force):
             
             e = xml.etree.ElementTree.fromstring(xmlstring)
             mgenlog ='Mezzmo UPnP server url: ' + url[:48]
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            #xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)        
             device = e.find('device')
             friendlyname = device.find('friendlyName').text
@@ -254,7 +254,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     itemsleft = -1
     pitemsleft = -1
     global brtime, patime
-    srtime = 0  
+    srtime = 0 
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
@@ -478,7 +478,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
                             #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
                             actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
-                            cast_dict.append(actor)
+                            cast_dict.append(actor) 
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
@@ -511,11 +511,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     else:
                         movieset =  album_text = ''                      
 
+                    if 'trailer' in categories_text.lower():
+                        trtype = categories_text.lower()
+                    else:
+                        trtype = 'video' 
                     if 'tv show' in categories_text.lower():
                         categories_text = 'episode'
                         contentType = 'episodes'
                         showtitle = album_text
-                    elif 'movie' in categories_text.lower():
+                    elif 'movie' in categories_text.lower() or 'trailer' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
                         showtitle = title
@@ -528,11 +532,34 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         contentType = 'videos'
                         showtitle = title
                 else:
-                    movieset = album_text = ''
+                    movieset = album_text = trtype = ''
                     categories_text = 'video'
                     contentType = 'videos'
                     showtitle = title
-                       
+
+                if 'tvtrailer' in trtype and imageSearchUrl != None and actors != None  \
+                and actors.text == 'Unknown Artist':                     # TV trailer cast search
+                    trcurr = dbfile.execute('select idEpisode FROM episode_view WHERE   \
+                    strTitle = ? ORDER BY c12, c13 ASC LIMIT 1', (movieset,))
+                    trtuple = trcurr.fetchone()  
+                    cast_dict = []
+                    if trtuple != None:
+                        trcurc = dbfile.execute('SELECT name FROM actor INNER JOIN actor_link  \
+                        USING (actor_id) WHERE media_id = ? and media_type = ? ORDER BY        \
+                        cast_order ASC LIMIT 20', (trtuple[0], 'episode',))
+                        tctuples = trcurc.fetchall()  
+                        xbmc.log('Mezzmo searching Kodi for TV traileractors. ' + str(tctuples), xbmc.LOGDEBUG)
+                        for a in range(len(tctuples)):                  
+                            actorSearchUrl = imageSearchUrl + "?imagesearch=" + tctuples[a][0].lstrip().replace(" ","+")
+                            #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
+                            if installed_version == '19' and tctuples[a][0] != 'Unknown Artist':
+                                new_record = [ tctuples[a][0] , actorSearchUrl]
+                                cast_dict.append(dict(list(zip(cast_dict_keys, new_record))))
+                            elif tctuples[a][0] != 'Unknown Artist':
+                                actor = xbmc.Actor(tctuples[a][0], '', a, actorSearchUrl)
+                                cast_dict.append(actor)
+                        actor_list = '' 
+                     
                 episode_text = ''
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
@@ -602,7 +629,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
                 if production_company != None:
-                    production_company_text = production_company.text
+                    production_company_text = production_company.text.split(',')[0]
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
@@ -660,10 +687,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     mtype = categories_text                 
                     li.addContextMenuItems([ (menuitem1, 'Container.Refresh'), (menuitem2, 'Action(ParentDir)'),   \
-                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' %         \
+                    (menuitem10, 'RunScript(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)' % \
                     ("plugin.video.mezzmo", "context", pctitle, itemurl, season_text, episode_text, playcount,     \
-                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist, release_year_text))])    
-              
+                    pcseries, mtype, contenturl, dcmInfo_text, icon, movieset, taglist, release_year_text, trtype, \
+                    imdb_text))])       
+             
                     if installed_version == '19':   
                         info = {
                             'duration': durationsecs,
@@ -854,7 +882,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     picnotify += 1
                     itemdict = {
                         'title': title,
-                         'url': itemurl,
+                        'url': itemurl,
+                        'idate': aired_text,
+                        'iwidth': video_width,
+                        'iheight': video_height,
+                        'idesc': description_text,
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB
@@ -885,7 +917,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                #xbmc.log(mgenlog, xbmc.LOGINFO)
                 media.mgenlogUpdate(mgenlog)
                 if int(TotalMatches) > 49 and perflog == "true":
                     endtime = time.time()
@@ -1224,7 +1256,7 @@ def handleSearch(content, contenturl, objectID, term):
                 production_company_text = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
                 if production_company != None:
-                    production_company_text = production_company.text
+                    production_company_text = production_company.text.split(',')[0]
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
@@ -1477,7 +1509,7 @@ def handleSearch(content, contenturl, objectID, term):
                 dbfile.close()             #  Final commit writes and close Kodi database
                 if pitemsleft >= 0:
                     mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                    xbmc.log(mgenlog, xbmc.LOGINFO)
+                    #xbmc.log(mgenlog, xbmc.LOGINFO)
                     media.mgenlogUpdate(mgenlog)   
                 break
             else:
@@ -1621,7 +1653,7 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         servers.append(add_server) 
         media.settings('saved_servers', pickle.dumps(servers,0,fix_imports=True))
         mgenlog = media.translate(30451) + serverurl
-        xbmc.log(mgenlog, xbmc.LOGINFO)
+        #xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
         #notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
         notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
@@ -1706,7 +1738,7 @@ elif mode[0] == 'movieset':
     searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
     pin = media.settings('content_pin')
     xbmc.executebuiltin('Dialog.Close(all, true)')
-    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria)
     else:

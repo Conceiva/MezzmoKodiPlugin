@@ -52,30 +52,27 @@ def displayServers():
         if ssync < 0:                                            # User cancel
             svrfile.close()
             break
-        elif ssync == 0:                                         # Refresh uPNP server list
+        elif ssync == 0:                                         # Refresh UPnP server list
             clearServers()
             mscount = getServers()
             if mscount == 0:
                 msynclog = translate(30399)
                 xbmcgui.Dialog().ok(translate(30398), msynclog)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
             else:
                 msynclog = 'Mezzmo refresh sync servers found: ' +  str(mscount)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)  
         elif ssync > 0:
             if updateSync(srvresults[ssync - 1][3]) == 0:        # Update sync server from selection
                 msynclog ='Mezzmo sync server updated manually: ' +          \
                 str(srvresults[ssync - 1][0])
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
             
     svrfile.close()
     return
 
 
-def addServers():                                                #  Manually add uPNP servers
+def addServers():                                                #  Manually add UPnP servers
 
     serverdict = [ {'name': 'Mezzmo', 'port': '53168', 'uri': '/desc'},
                    {'name': 'HDHomeRun', 'port': '80', 'uri': '/dms/device.xml'},
@@ -93,10 +90,10 @@ def addServers():                                                #  Manually add
     serverlist = []
     for s in range(len(serverdict)):
         serverlist.append(serverdict[s]['name'])                 # Convert dict list to list for dialog box
-    #xbmc.log('Mezzmo uPNP server list: ' + str(serverlist), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo UPnP server list: ' + str(serverlist), xbmc.LOGINFO)
     sdialog = xbmcgui.Dialog()  
     server = sdialog.select(translate(30450), serverlist)
-    #xbmc.log('Mezzmo uPNP server selection: ' + str(server), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo UPnP server selection: ' + str(server), xbmc.LOGINFO)
 
     if server < 0:
         return 'None'
@@ -107,7 +104,7 @@ def addServers():                                                #  Manually add
         return 'None'
     else:
         serverurl = 'http://' + str(serverip) + ':' + str(sport) + serverdict[server]['uri']
-        xbmc.log('Mezzmo uPNP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
+        xbmc.log('Mezzmo UPnP URL is: ' + str(serverurl), xbmc.LOGDEBUG)
         return serverurl
 
 
@@ -131,7 +128,6 @@ def delServer(srvurl):                                           # Delete server
                     newlist.append(server)                       # Do not delete from newlist              
             settings('saved_servers', pickle.dumps(newlist,0,fix_imports=True))
             mgenlog = translate(30466) + srvurl
-            xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog) 
             xbmcgui.Dialog().notification(translate(30404), mgenlog, addon_icon, 5000)
 
@@ -146,7 +142,6 @@ def downServer(srvrtype='mezzmo'):                               # Handle downed
 
     try:
         mgenlog ='Mezzmo no response from server. '
-        xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog)
         if srvrtype == 'mezzmo':                                 # Mezzmo server error
             dialog_text = translate(30407)
@@ -156,6 +151,7 @@ def downServer(srvrtype='mezzmo'):                               # Handle downed
             xbmcgui.Dialog().ok(translate(30408), dialog_text)
         else:
             xbmcgui.Dialog().notification(translate(30408), dialog_text, addon_icon, 5000)
+        return
     except:
         mgenlog = 'Mezzmo error displaying server down message.'
         xbmc.log(mgenlog, xbmc.LOGINFO)                    
@@ -277,7 +273,6 @@ def onlyDiscMezzmo(srvrlist):                                    # Discover only
             del curps 
             if not svrtuples:                                    # No Mezzmo servers found
                 mgenlog = 'Mezzmo only discovery no Mezzmo servers found.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlogUpdate(mgenlog)
                 return srvrlist
             else:
@@ -291,7 +286,6 @@ def onlyDiscMezzmo(srvrlist):                                    # Discover only
                         mezzlist.append(server) 
 
                 mgenlog = 'Mezzmo only Mezzmo servers enabled. ' + str(len(mezzlist)) + ' Mezzmo server(s) found.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlogUpdate(mgenlog)
                 if len(mezzlist) > 0:                            # If Mezzmo server(s) found return list
                     return mezzlist
@@ -313,20 +307,17 @@ def checkSync(count):                                            # Check for Syn
     srvrtuple = curps.fetchone()                                 # Get server from database
     if srvrtuple:
         syncurl = srvrtuple[0]
-        if count < 12 or count % 3600 == 0:                      # Don't check Mezzmo server on fast sync
+        if count < 12 or count > 3600:                           # Don't check Mezzmo server on fast sync
             modelnumb = checkMezzmo(srvrtuple[1])
             if modelnumb != '0.0.0.0':
                 sname = srvrtuple[2]
                 msynclog = 'Mezzmo sync server responded: ' + sname
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
                 msynclog = 'Mezzmo sync server version: ' + modelnumb 
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
             else:
                 sname = srvrtuple[2]
                 msynclog = 'Mezzmo sync server did not respond: ' + sname
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)
                 syncurl = 'None'        
     else:
@@ -340,7 +331,6 @@ def checkSync(count):                                            # Check for Syn
             if updateSync(contenturl) == 0:                      # Update sync server flag
                 iconimage = srvrtuple[1]
                 msynclog = translate(30400) + str(sname)
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog) 
                 notify = xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)
         else:                                                    # Sync server not set yet
@@ -349,7 +339,7 @@ def checkSync(count):                                            # Check for Syn
     return syncurl    
 
 
-def getServers():                                                # Find uPNP servers
+def getServers():                                                # Find UPnP servers
 
     try:
         timeoutval = float(settings('ssdp_timeout'))
@@ -360,19 +350,17 @@ def getServers():                                                # Find uPNP ser
         msgdialogprogress.create(dialoghead, dialogmsg)
         servers = ssdp.discover("urn:schemas-upnp-org:device:MediaServer:1", timeout=timeoutval)     
         srvcount = len(servers)
-        addtlmsg = '  ' + str(srvcount) + '  uPNP servers discovered.'
+        addtlmsg = '  ' + str(srvcount) + '  UPnP servers discovered.'
         ddialogmsg = dialogmsg + addtlmsg
         msgdialogprogress.update(50, ddialogmsg)
         xbmc.sleep(1000)
 
         if srvcount > 0:
-            msynclog ='Mezzmo sync server search: ' + str(srvcount) + ' uPNP servers found.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
+            msynclog ='Mezzmo sync server search: ' + str(srvcount) + ' UPnP servers found.'
             mezlogUpdate(msynclog)
         else:
             msynclog = translate(30403)
             xbmcgui.Dialog().notification(translate(30401), msynclog, addon_icon, 5000)            
-            xbmc.log(msynclog, xbmc.LOGINFO)
             mezlogUpdate(msynclog)
             return 0
         onlyShowMezzmo = False
@@ -459,7 +447,7 @@ def getServers():                                                # Find uPNP ser
                 iconurl, description, udn) 
 
             except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
-                msynclog = 'Mezzmo uPNP server not responding: ' + url
+                msynclog = 'Mezzmo UPnP server not responding: ' + url
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 mezlogUpdate(msynclog)  
                 dialog_text = translate(30405) + url
@@ -480,7 +468,7 @@ def getServers():                                                # Find uPNP ser
         return 0  
 
 
-def getItemlUrl(contenturl, itemid):                             # Get itemurl for generic uPNP
+def getItemlUrl(contenturl, itemid):                             # Get itemurl for generic UPnP
 
     try:
         svrfile = openNosyncDB()                                 # Open server database    
@@ -499,7 +487,7 @@ def getItemlUrl(contenturl, itemid):                             # Get itemurl f
     return itemurl 
 
 
-def upnpCheck():                                                 # Check Kodi uPNP setting
+def upnpCheck():                                                 # Check Kodi UPnP setting
 
     json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.GetSettingValue",       \
     "params":{"setting":"services.upnp"}, "id":1}')
@@ -507,14 +495,14 @@ def upnpCheck():                                                 # Check Kodi uP
     upnp_enabled = ''
     if 'result' in json_query and 'value' in json_query['result']:
         upnp_enabled  = json_query['result']['value']
-    xbmc.log('The uPNP status is: ' + str(upnp_enabled), xbmc.LOGDEBUG)
+    xbmc.log('The UPnP status is: ' + str(upnp_enabled), xbmc.LOGDEBUG)
 
     if upnp_enabled == True:
         return
     else:
         dialog_text = translate(30394)
         cselect = xbmcgui.Dialog().yesno(translate(30406), dialog_text)
-    if cselect == 1 :                                           #  Enable uPNP support in Kodi
+    if cselect == 1 :                                           #  Enable UPnP support in Kodi
         json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.SetSettingValue",   \
         "params":{"setting":"services.upnp","value":true}, "id":1}')
         json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Settings.GetSettingValue",   \
@@ -526,14 +514,12 @@ def upnpCheck():                                                 # Check Kodi uP
             if upnp_enabled == True:
                 dialog_text = translate(30397)
                 xbmcgui.Dialog().ok(translate(30396), dialog_text)
-                mgenlog ='Mezzmo Kodi uPNP Set to Enabled.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                mgenlog ='Mezzmo Kodi UPnP Set to Enabled.'
                 mgenlogUpdate(mgenlog)
             else:        
                 dialog_text = translate(30395)
                 xbmcgui.Dialog().ok(translate(30396), dialog_text)
-                mgenlog ='Mezzmo Kodi uPNP Setting failed.'
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                mgenlog ='Mezzmo Kodi UPnP Setting failed.'
                 mgenlogUpdate(mgenlog)
 
             
@@ -545,7 +531,6 @@ def clearServers():                                              # Clear server 
         svrfile.commit()
         svrfile.close()
         msynclog = 'Mezzmo sync servers cleared.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog)  
 
     except Exception as e:
@@ -647,32 +632,15 @@ def getContentURL(contenturl):                                   # Check for man
         printexception()
         mgenlog = 'Mezzmo content server search error.'
         xbmc.log(mgenlog, xbmc.LOGINFO)
-        mgenlogUpdate(mgenlog)   
-
-
-class KodiMonitor(xbmc.Monitor):                                 # Notification class for monitoring 
-                                                                 # slideshow controls
-    def __init__(self, *args):
-        xbmc.Monitor.__init__(self)
-        self.flag = 'play'
-        pass
-
-    def onNotification( self, sender, method, data):
-
-        if method == "Player.OnStop":
-            self.flag = 'stop'
-        if method == "Player.OnPause":
-            self.flag = 'pause'
-        if method == "Player.OnPlay":
-            self.flag = 'play'        
+        mgenlogUpdate(mgenlog)      
 
 
 class SlideWindow(xbmcgui.Window):                               # Window class for monitoring 
                                                                  # slideshow controls
     def __init__(self, *args):
         xbmcgui.Window.__init__(self)
-        self.slideIdx = self.piclength = 0
-        self.infoflag = False
+        self.slideIdx = self.piclength = self.actionkey = self.exiting = 0
+        self.infoflag = self.timed = False
         self.piclist = []
         self.ititle = self.iwidth = self.iheight = self.idate = self.idesc = ''
         self.x = self.getWidth()
@@ -682,18 +650,19 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
         self.imgcontrol = xbmcgui.ControlImage(int((self.x - 430) / 2), int((self.y - 300) /  2), 400, 400, self.backdropimg)
         self.infcontrol = xbmcgui.ControlLabel(int((self.x - 400) / 2), int((self.y - 270) /  2), 380, 380, "")
         self.infcontrol.setVisible(False)
-        self.imgcontrol.setVisible(False) 
+        self.imgcontrol.setVisible(False)
         self.addControl(self.icontrol)
         self.addControl(self.imgcontrol)
-        self.addControl(self.infcontrol)
+        self.addControl(self.infcontrol)  
         pass
 
     def onAction(self, action):
         actionkey = action.getId()
-        if actionkey in [10, 13, 92] :                                           # Exit slideshow
-            del self.icontrol
-            del self.infcontrol
-            self.close()
+        self.actionkey = actionkey
+
+        if actionkey in [10, 13, 92] and self.timed == False :                   # Exit slideshow
+            self.exiting = 1
+            self.exitClass()
 
         if actionkey == 11:                                                      # Display image information
             if self.infcontrol.isVisible() == False:
@@ -707,49 +676,47 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
                 self.infcontrol.setVisible(False)
                 self.infoflag = False                                            # Restart navigation                
 
-        if not self.infoflag:                                                    # Navigate if not info
+        if not self.infoflag or not self.timed:                                  # Navigate if not info or timed
             if actionkey in [2, 5] and self.slideIdx < (self.piclength - 1):     # Next slide
                 self.slideIdx += 1
-                self.updatePic()
             elif actionkey in [2, 5] and self.slideIdx >= (self.piclength - 1):  # Stop on last slide
-                del self.icontrol
-                del self.infcontrol
-                self.close()   
+                self.exiting = 1
+                self.exitClass()
 
             if actionkey in [1, 6] :                                             # Previous slide
                 if self.slideIdx > 0:
                     self.slideIdx -= 1
-                    self.updatePic()
 
             if actionkey == 77 and (self.slideIdx + 10) < (self.piclength - 1):  # FF 10 slides
                 self.slideIdx += 10
-                self.updatePic()
             elif actionkey == 77 and (self.slideIdx + 10) >= (self.piclength - 1):
                 self.slideIdx = (self.piclength - 1)             
-                self.updatePic()
 
             if actionkey == 78 and (self.slideIdx - 10) >= 0:                    # RW 10 slides
                 self.slideIdx -= 10
-                self.updatePic()
             elif actionkey == 78 and (self.slideIdx - 10) < 0:
                 self.slideIdx = 0            
-                self.updatePic()
 
             if actionkey == 14 and (self.slideIdx + 25) < (self.piclength - 1):  # Jump +25 slides
                 self.slideIdx += 25
-                self.updatePic()
             elif actionkey == 14 and (self.slideIdx + 25) >= (self.piclength - 1):
-                self.slideIdx = (self.piclength - 1)             
-                self.updatePic()
+                self.slideIdx = self.piclength - 1             
 
             if actionkey == 15 and (self.slideIdx - 25) >= 0:                    # Jump - 25 slides
                 self.slideIdx -= 25
-                self.updatePic()
             elif actionkey == 15 and (self.slideIdx - 25) < 0:
                 self.slideIdx = 0            
-                self.updatePic()
+
+        if not self.timed and self.exiting == 0:                                 # Update for manual slideshow
+            self.updatePic()     
 
         xbmc.log('Mezzmo slide control action: ' + str(actionkey) , xbmc.LOGDEBUG)
+
+    def exitClass(self):                                                         # Close slideWindow class)
+        del self.icontrol
+        del self.infcontrol
+        del self.imgcontrol
+        self.close()        
 
     def formatInfo(self, playinfo):                                              # Format image information
         ititle = playinfo['title']
@@ -763,15 +730,17 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
             idesctemp = idesc.split(splitchar)
             idescfpart = splitchar.join(idesctemp[:8])
             idesc = idescfpart + '\n...'
+        xbmc.log('Mezzmo idesc line count: ' + str(idesclines) , xbmc.LOGDEBUG)
         newlabel = 'Slide: ' + str(self.slideIdx + 1) + ' of ' + str(self.piclength) + '\n\n'       \
          + '{0:10}'.format('Name:') + ititle + '\n' + '{0:13}'.format('Res:') + str(iwidth) + ' x ' \
          + str(iheight) +  '\n' + '{0:12}'.format('Date:') +  idate + '\n\n' + idesc
         return newlabel
         
-    def showPic(self, piclist):                                              # Initial slide show starting point
+    def showPic(self, piclist):                                              # Initial manual slide show starting point
         self.piclist = piclist
         self.piclength = len(self.piclist)                                   # Get number of slides in list
-        xbmc.log('Mezzmo slideshow started with ' + str(len(piclist)) + ' slides.' , xbmc.LOGINFO)        
+        mgenlog = 'Mezzmo manual slideshow started with ' + str(len(piclist)) + ' slides.'
+        mgenlogUpdate(mgenlog)         
         playitem = picURL(piclist[self.slideIdx]['url']).strip('"')
         xbmc.log('Mezzmo slide control showPic: ' + str(playitem) , xbmc.LOGDEBUG)    
         self.icontrol.setImage(playitem, False)
@@ -779,7 +748,7 @@ class SlideWindow(xbmcgui.Window):                               # Window class 
     def updatePic(self):                                                     # Update slide image
         playitem = picURL(self.piclist[self.slideIdx]['url']).strip('"')
         self.icontrol.setImage(playitem, False)
-        xbmc.log('Mezzmo slide control showPic2: ' + str(playitem) , xbmc.LOGDEBUG)
+        #xbmc.log('Mezzmo slide control showPic2: ' + str(playitem) , xbmc.LOGDEBUG)
 
 
 def picURL(itemurl):                                            # Check for proper file extension
@@ -805,14 +774,14 @@ def picDisplay():                                                # Picture slide
         piclist = getPictures()                                  # Get pictures from picture DB
         slidetime = int(settings('slidetime'))                   # Get slide pause time
         #xbmc.log('Mezzmo picture list: ' + str(piclist) , xbmc.LOGINFO)  
-        if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over uPNP
+        if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over UPnP
             dialog_text = translate(30413)
             xbmcgui.Dialog().ok(translate(30412), dialog_text)
             xbmc.executebuiltin('Action(ParentDir)')
             return
         else:
-            cselect = 3
-            while cselect >= 0:
+            cselect = 0
+            while cselect >= 0 :
                 pictures = [translate(30417), translate(30493), translate(30476), translate(30418), translate(30419)]
                 ddialog = xbmcgui.Dialog() 
                 cselect = ddialog.select(translate(30415), pictures)
@@ -823,9 +792,9 @@ def picDisplay():                                                # Picture slide
                 elif cselect == 0:                               # User selects manual slideshow
                     manualSlides(piclist)
                 elif cselect == 1:                               # User selects normal timed slideshow
-                    ShowSlides(piclist, slidetime, 'no')
+                    ShowSlide(piclist, slidetime, 'no')
                 elif cselect == 2:                               # User selects continuous slideshow
-                    ShowSlides(piclist, slidetime, 'yes')
+                    ShowSlide(piclist, slidetime, 'yes')
                 elif cselect == 3:                               # User selects pictures normal
                     showPictureMenu(piclist, slidetime)
                     #xbmc.executebuiltin('Action(ParentDir)')
@@ -869,42 +838,63 @@ def showPictureMenu(piclist, slidetime):                         # Picture viewe
             mgenlogUpdate(mgenlog)   
 
 
-def ShowSlides(piclist, slidetime, ssmode):                      # Slidehow viewier
+def ShowSlide(piclist, slidetime, ssmode):                             # Timed Slidehow viewier (new)
 
-    try:    
-        kbmonitor = KodiMonitor()                   
-        slideIdx = 0   
-        #xbmc.log('Mezzmo picture url is: ' + str(playitem) , xbmc.LOGINFO)
-
-        xbmc.executebuiltin('Dialog.Close(all, true)')
-        while slideIdx < len(piclist):           
-            if kbmonitor.flag == 'play':  
-                playitem = picURL(piclist[slideIdx]['url'])      # Verify proper file name
-                #xbmc.log('Mezzmo picture index is: ' + str(playitem) , xbmc.LOGINFO)
-                json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
-                "params":{"item":{"file":%s }},"id":1}' % (playitem))           
-                #xbmc.log('Mezzmo picture dictionary list  is: ' + str(piclist) , xbmc.LOGINFO)
-                slideIdx += 1
-            xbmc.sleep(slidetime * 1000)
-            if slideIdx == len(piclist) and ssmode == 'yes':     # Continuous slideshow
-                slideIdx = 0
-            #xbmc.log('Mezzmo monitor data is: ' + (kbmonitor.flag) , xbmc.LOGINFO)
-            if kbmonitor.flag == 'stop':
-                del kbmonitor
-                xbmc.executebuiltin('Dialog.Close(all, true)')
-                return
+    try:
+        if settings('slideshow') == 'true':                            # Automatic slideshow enabled ?
+            xbmc.executebuiltin('Dialog.Close(all, true)')             # If so, close modal display
+            xbmc.sleep(1000)             
+        slidePause = pausetime = 0 
+        slwindow = SlideWindow()              
+        slwindow.show()
+        slwindow.timed = True                                          # Notify class of timed slideshow
+        slwindow.piclist = piclist
+        slwindow.piclength = len(piclist)
+        if 'yes' in ssmode:
+            mgenlog = 'Mezzmo continuous slideshow started with ' + str(len(piclist)) + ' slides.'
+        else:
+            mgenlog = 'Mezzmo timed slideshow started with ' + str(len(piclist)) + ' slides.'
+        mgenlogUpdate(mgenlog)   
+        while slwindow.slideIdx < slwindow.piclength: 
+            playitem = picURL(piclist[slwindow.slideIdx]['url']).strip('"')
+            xbmc.log('Mezzmo slide control showPic: ' + str(playitem) + ' ' + str(slwindow.slideIdx), xbmc.LOGDEBUG)    
+            slwindow.updatePic()
+            actionkey = slwindow.actionkey
+            slwindow.actionkey = 0
+            while pausetime <= (slidetime * 1000) and slwindow.actionkey == 0:
+                xbmc.sleep(200)                                                  # Check for keystroke every 200ms
+                pausetime += 200
+                #xbmc.log('Mezzmo timed slideshow pausetime: ' + str(pausetime) , xbmc.LOGINFO)
+            xbmc.log('Mezzmo slide key command: ' + str(actionkey) , xbmc.LOGDEBUG)
+            if actionkey in [10, 13, 92]:                                        # End slideshow
                 break
-            if kbmonitor.flag == 'pause':
-                slideIdx = slideIdx
+            elif actionkey in [2, 5] and slwindow.slideIdx < len(piclist)- 1 :   # Go forward 1 slide
+                slwindow.slideIdx += 1
+            elif actionkey in [7, 12] and slidePause == 0:                       # Pause slideshow
+                slidePause = 1
+            elif actionkey in [7, 12] and slidePause == 1:                       # Resume slideshow
+                slidePause = 0
+                slwindow.slideIdx += 1
+            elif actionkey == 11 and slidePause == 0:                            # Slide information
+                slidePause = 1                
+            elif actionkey == 11 and slidePause == 1:                            # Resume after information
+                slidePause = 0
+                slwindow.slideIdx += 1    
+            elif slwindow.slideIdx == len(piclist) - 1 and ssmode == 'yes':      # Continuous slideshow
+                slwindow.slideIdx = 0
+            elif slidePause == 0 and slwindow.actionkey == 0:
+                slwindow.slideIdx += 1
+            pausetime = 0
 
-        xbmc.executebuiltin('Action(ParentDir)')
-        del kbmonitor
-
-    except Exception as e:  
+        slwindow.timed = False                                                   # Notify class slideshow ending
+        slwindow.close()
+        del slwindow
+        xbmc.sleep(1500)                                        # Pause on window closing to give Kodi a chance
+    except:
         printexception()
-        mgenlog = 'Mezzmo error displaying slides.'
+        mgenlog = 'Mezzmo timed slideshow error displaying slides.'
         xbmc.log(mgenlog, xbmc.LOGINFO)
-        mgenlogUpdate(mgenlog)       
+        mgenlogUpdate(mgenlog)    
 
 
 def manualSlides(piclist):                                      # Manual slideshow with full controls
@@ -912,9 +902,10 @@ def manualSlides(piclist):                                      # Manual slidesh
     try:
         slwindow =  SlideWindow()
         xbmc.executebuiltin('Dialog.Close(all, true)')               
+        slideIdx = 0
         slwindow.showPic(piclist)
         slwindow.doModal()
-        xbmc.sleep(1500)                                        # Pause on window closing to give Kodi a chance
+        xbmc.sleep(1500)                                         # Pause on window closing to give Kodi a chance
         del slwindow
     except:
         printexception()
@@ -923,10 +914,10 @@ def manualSlides(piclist):                                      # Manual slidesh
         mgenlogUpdate(mgenlog)        
 
 
-def showSingle(url):                                            # Display individual native picture
+def showSingle(url):                                             # Display individual native picture
 
     try:
-        if 'upnp' in str(url[0]):                               # Kodi cannot display pictures over uPNP
+        if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over UPnP
             dialog_text = translate(30413)
             xbmcgui.Dialog().ok(translate(30406), dialog_text)
             xbmc.executebuiltin('Action(ParentDir)')
@@ -948,7 +939,6 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
     try:
         mtitle = title                                            # Handle commas
         mgenlog ='Mezzmo trailer #' + trselect + ' selected for: '  + title
-        xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog) 
         #xbmc.log("Mezzmo trailer selected: " + itemurl, xbmc.LOGINFO)
         #xbmc.log("Mezzmo trailer icon: " + str(icon), xbmc.LOGINFO)
@@ -968,5 +958,4 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         trdialog = xbmcgui.Dialog()
         dialog_text = mgenlog        
         trdialog.ok("Mezzmo Trailer Playback Error", dialog_text) 
-
 

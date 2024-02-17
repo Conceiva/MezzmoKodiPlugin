@@ -17,11 +17,13 @@ import time
 import datetime
 import bookmark
 from server import checkMezzmoVersion
+from playcount import setPlaycount
 
 syncoffset = 400
 mezzmorecs = 0
 dupelog = 'false'
 fastcount = 0
+mezzmocounts = 0
 
 def updateTexturesCache(contenturl):     # Update Kodi image cache timers
   
@@ -42,12 +44,11 @@ def updateTexturesCache(contenturl):     # Update Kodi image cache timers
     cur.close()
     db.close()
     mgenlog = 'Mezzmo textures cache timers '  + str(rows) + ' rows updated.'
-    xbmc.log(mgenlog, xbmc.LOGINFO)
     media.mgenlogUpdate(mgenlog)     
 
 
-def deleteTexturesCache(contenturl):    # do not cache texture images if caching disabled
-    if media.settings('caching') == 'false':    
+def deleteTexturesCache(contenturl, force = ''):    # do not cache texture images if caching disabled
+    if media.settings('caching') == 'Off' or force == 'yes':    
         try:
             from sqlite3 import dbapi2 as sqlite
         except:
@@ -60,12 +61,11 @@ def deleteTexturesCache(contenturl):    # do not cache texture images if caching
         cur = db.execute('DELETE FROM texture WHERE url LIKE ?', (serverport,))        
         rows = cur.rowcount
         mgenlog ='Mezzmo addon texture rows deleted: ' + str(rows)
-        xbmc.log(mgenlog, xbmc.LOGINFO)
+        media.mgenlogUpdate(mgenlog) 
 
         db.commit()
         cur.close()
         db.close()
-        media.settings('caching', 'true')   # reset back to true after clearing 
 
 
 def dbClose():		 # Close database and commit any pending writes on abort
@@ -110,14 +110,12 @@ def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real ti
         media.settings('kodichange', 'true')
         msynclog = 'Mezzmo sync process not yet in sync at {:.1f}'.format(completepct) +     \
         '%. Real time updates enabled.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
     else:
         media.settings('kodiactor', 'false')                  #  Disable real time updates  
         media.settings('kodichange', 'false')
         msynclog = 'Mezzmo sync process in sync at {:.1f}'.format(completepct) +              \
         '%. Real time updates disabled.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
 
     kodisync = media.settings('kodisync')                     #  Check Kodi auto sync
@@ -127,21 +125,17 @@ def updateRealtime(mrecords, krecords, mlvcount, mnsyncount): #  Disable real ti
         and mksync != 'Newest':                               #  Set to Newest > 90%
             media.settings('kodisyncvar', 'Newest') 
             msynclog = 'Mezzmo autosync set to Newest.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
         elif int(completepct) <= 90 and mksync != 'Off'   \
         and mksync != 'Normal':                               #  Set to Normal <= 90%
             media.settings('kodisyncvar', 'Normal') 
             msynclog = 'Mezzmo autosync set to Normal.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
         else:
             msynclog = 'Mezzmo autosync is enabled.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
     else:
         msynclog = 'Mezzmo autosync is disabled.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)                
 
 
@@ -160,12 +154,10 @@ def checkDailySync():
         dailysync = 0                                  #  Reset daily sync flag
         media.settings('dailysync', str(dailysync))
         msynclog = 'Mezzmo daily sync process flag reset.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
     elif int(currhour) >= 0 and int(currhour) <= 6 and dailysync == 0:
         dailysync = 1                                  #  Set daily sync flag if not run yet
         msynclog = 'Mezzmo daily sync process flag set.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
     elif int(currhour) >= 0 and int(currhour) <= 6 and dailysync == 1:
         dailysync = 0         
@@ -184,7 +176,6 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
         xbmc.log('Mezzmo version is: ' + str(mezzver), xbmc.LOGDEBUG)
         if int(mezzver) < 60714:
             msynclog = 'Mezzmo version 6.0.7.14 or higher is required for Fast Sync.  Fast Sync being disabled.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)          
             media.settings('fastsync', '0')
         curr_sync = int(media.settings('curr_sync'))     #  Running sync setting
@@ -192,7 +183,6 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
             media.settings('curr_sync','1')
         else:
             msynclog = 'Mezzmo fast sync process skipped sync already running.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
             return 
         syncobjid = 'recent'
@@ -206,7 +196,6 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
         media.nativeNotify()                             # Kodi native notification
         if fastcount >= 60 / int(fset):                  # Regular log update
             msynclog = 'Mezzmo Fast Sync normal. ' +  str(fastcount) + ' syncs since last log message.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
             fastcount = 0
         else: 
@@ -222,25 +211,24 @@ def fastSync(syncurl, syncpin, fset):                  #  Fast sync Mezzmo to Ko
 
 
 def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
-    global syncoffset, dupelog
+    global syncoffset, dupelog, mezzmocounts
+    mezzmocounts = 0                                     # Reset Mezzmo record counter
     ksync = media.settings('kodisyncvar')                #  Get sync setting
     curr_sync = int(media.settings('curr_sync'))         #  Running sync setting
     syncobjid = 'recent'
     if 'ContentDirectory' not in syncurl:
         msynclog = 'Mezzmo sync process aborted.  Invalid server selected.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
         return
     if curr_sync == 0:                                   #  Check if sync already running
         media.settings('curr_sync','1')
     else:
         msynclog = 'Mezzmo sync process skipped sync already running.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
+        media.settings('curr_sync','0')                  # Reset after an hour
         return 
     if ksync != 'Off':                                   #  Check if enabled
         msynclog = 'Mezzmo sync beginning.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
         starttime = time.time()
         rows = 0
@@ -257,15 +245,16 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
         kodiclean = media.settings('kodiclean')           #  Get Kodi clean setting
         if clean == 1 and count > 12:
             force = 1
+            msynclog = 'Mezzmo daily sync process beginning.'
+            media.mezlogUpdate(msynclog, 'yes')     
             media.kodiCleanDB(force)                      #  Clear Kodi database daily
         elif kodiclean == 'resync':                       #  User forced resync
             clean = 1
             msynclog = 'Mezzmo user requested full resync.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog) 
         if count < 12:   
             content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin, mode='sync')
-            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400)
+            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400, clean)
             recs = media.countKodiRecs(syncurl)           #  Get record count in Kodi DB
             recscount = media.countsyncCount()            #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
@@ -275,11 +264,10 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             updateRealtime(mezzmorecs, recs, lvcount, nsyncount)
         elif clean == 0 and ksync != 'Daily':             #  Hourly sync set of records
             content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 400, syncpin, mode='sync')
-            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400)
+            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 400, clean)
             if rows == None:                              #  Did sync get data from Mezzmo server ?
                 rows = 0
                 msynclog = 'Mezzmo sync process could not contact the Mezzmo server'
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 media.mezlogUpdate(msynclog)   
             xbmc.log('Mezzmo sync offset = ' + str(syncoffset), xbmc.LOGDEBUG)  
             if rows == 400 and syncoffset % 400 == 0  \
@@ -294,7 +282,7 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
                      fetch = itemsleft
                 xbmc.log('Mezzmo fetch = ' + str(fetch), xbmc.LOGDEBUG)                                  
                 content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', syncoffset, fetch, syncpin, mode='sync')
-                rows1 = syncContent(content, syncurl, syncobjid, syncpin, syncoffset, fetch)
+                rows1 = syncContent(content, syncurl, syncobjid, syncpin, syncoffset, fetch, clean)
                 xbmc.log('Mezzmo sync rows1 = ' + str(rows1), xbmc.LOGDEBUG)
                 if rows1 != None and rows1 > 0:
                     syncoffset = syncoffset + rows1
@@ -317,13 +305,12 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             dupelog = media.settings('mdupelog')       #  Check if Mezzmo duplicate logging is enabled
             if dupelog == 'true':
                 msynclog = 'Mezzmo duplicate logging is enabled. '
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 media.mezlogUpdate(msynclog)    
             syncoffset = 0
             lvcount = 0                                #  Reset live channel skip counter
             nsyncount = 0                              #  Reset nosync skip counter     
             content = browse.Browse(syncurl, syncobjid, 'BrowseDirectChildren', 0, 1000, syncpin, mode='sync')
-            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 1000)   
+            rows = syncContent(content, syncurl, syncobjid, syncpin, 0, 1000, clean)   
             recs = media.countKodiRecs(syncurl)        #  Get record count in Kodi DB
             recscount = media.countsyncCount()         #  Get nosync record count in nosync DB
             nsyncount = recscount[0]
@@ -332,33 +319,37 @@ def syncMezzmo(syncurl, syncpin, count):                 #  Sync Mezzmo to Kodi
             syncLogging(recscount, mezzmorecs)         #  Write sync logs 
             media.optimizeDB()                         #  Optimize DB after resync
             media.settings('dailysync', '1')           #  Set daily sync flag
+            msynclog = 'Mezzmo daily sync process completed.'
+            media.mezlogUpdate(msynclog, 'yes')  
         endtime = time.time()
         duration = endtime-starttime
         difference = str(int(duration // 60)) + 'm ' + str(int(duration % 60)) + 's checked.'
         media.settings('sync_offset', str(syncoffset))
         dupelog = 'false'                              #  Set Mezzmo duplicate logging to disable
+        #xbmc.log('Sync info: ' + ksync + ' ' + str(count) + ' ' + str(clean) + ' ' + str(rows), xbmc.LOGINFO) 
         if ksync != 'Daily' or count < 30 or clean == 1:  #  Display summary stats if restart or not daily
-            msynclog = 'Mezzmo sync completed. ' + str(rows) + ' videos in ' + difference
+            #if rows != None and rows > mezzmorecs:  #  Account for +5 totalrecs fetching
+            #    rows = mezzmorecs
+            msynclog = 'Mezzmo sync completed. ' + str(mezzmocounts) + ' videos in ' + difference
+            #xbmc.log('Sync flags: ' + ksync + ' ' + str(count) + ' ' + str(clean), xbmc.LOGINFO)
+            xbmc.log('Mezzmo counts: ' + str(mezzmocounts), xbmc.LOGDEBUG)  
         elif ksync == 'Daily':
             msynclog = 'Mezzo sync Daily set.  Hourly sync not enabled.'  
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)  
     if ksync != 'Daily':
         msynclog = 'Mezzmo sync setting is: ' + media.settings('kodisyncvar') 
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)    
     if media.settings('perflog') == 'true':           #  Check if performance logging is enabled
         msynclog = 'Mezzmo performance logging is enabled.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog) 
     media.nativeNotify()                              # Kodi native notification
     media.settings('curr_sync','0')                   # Clear sync running flag
 
 
-def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  # Mezzmo data parsing / insertion function
+def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, clean=0):  # Mezzmo parsing / insert function
     contentType = 'movies'
     itemsleft = -1
-    global mezzmorecs, dupelog
+    global mezzmorecs, dupelog, mezzmocounts
     koditv = media.settings('koditv')
     knative = media.settings('knative')
     kdirector = media.settings('kdirector')
@@ -390,7 +381,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             if not TotalMatches:                       #  Sanity check
                 TotalMatches = 0
             else:
-                mezzmorecs = int(TotalMatches) + 5     #  Set global variable with record count
+                #mezzmorecs = int(TotalMatches) + 5     #  Set global variable with record count
+                mezzmorecs = int(TotalMatches)         #  Set global variable with record count
                     
             if int(NumberReturned) == 0:               #  Stop once offset = Total matches
                 itemsleft = 0
@@ -398,7 +390,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 break; #sanity check
             
             if maxrecords == 1000 or maxrecords > int(TotalMatches):
-                TotalMatches = int(TotalMatches) + 5
+                TotalMatches = int(TotalMatches) + 100  # Account for up to 100 live streams
+                #TotalMatches = int(TotalMatches)
                 dsyncflag = 1
             else:
                 TotalMatches = maxrecords
@@ -447,6 +440,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 video_height = 0
                 aspect = 0.0
                 validf = 0
+                size = 0
                 
                 if res != None:
                     itemurl = res.text 
@@ -462,6 +456,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                         video_height = int(resolution_text[mid + 1:])
                         aspect = float(float(video_width) / float(video_height))
                         validf = 1	     #  Set valid file info flag
+                        size = int(res.get('size'))
 
                 backdropurl = ''                            
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
@@ -586,6 +581,16 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                 if playcountElem != None:
                     playcount_text = playcountElem.text
                     playcount = int(playcount_text)
+                    if playcount < 0:
+                        playcount = 0
+                        rtrimpos = itemurl.rfind('/')
+                        mobjectID = itemurl[rtrimpos+1:]                  # Get Mezzmo objectID
+                        if '.' in mobjectID:                              # Remove file extension
+                            mobjectID = mobjectID[:mobjectID.rfind('.')]
+                        setPlaycount(syncurl, mobjectID, str(playcount), title)
+                        msynclog = 'Mezzmo invalid playcount reset to 0: ' + title
+                        media.mezlogUpdate(msynclog, 'yes') 
+                        xbmc.log('Mezzmo placount info: ' + syncurl + ' ' + mobjectID, xbmc.LOGDEBUG)
                  
                 last_played_text = ''
                 last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
@@ -631,10 +636,10 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     rating_val = float(rating_val) * 2
                     rating_val = str(rating_val) #kodi ratings are out of 10, Mezzmo is out of 5
                 
-                production_company_text = ''
+                production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None:
-                    production_company_text = production_company.text
+                if production_company != None and len(production_company) > 0:
+                    production_company_text = production_company.text.split(',')[0]
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
@@ -688,17 +693,20 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
 
                 mtitle = media.displayTitles(title)                          
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
-                if tvcheckval[1] == 1 and validf == 1:                  #  Update nosync database live channel
-                    media.syncCount(dbsync, mtitle, "livec")       
-                if tvcheckval[2] == 1 and validf == 1:                  #  Update nosync database nosync
-                    media.syncCount(dbsync, mtitle, "nosync")               
+                mezzmocounts += 1
+                if (tvcheckval[1] == 1 or size == 100000000000) and validf == 1 and clean == 1:   #  Update live channel
+                    media.syncCount(dbsync, mtitle, "livec")
+                    #xbmc.log('Mezzmo livec: ' + str(mtitle) + ' ' + mtitle, xbmc.LOGINFO)       
+                if tvcheckval[2] == 1 and validf == 1 and clean == 1:   #  Update nosync database nosync
+                    media.syncCount(dbsync, mtitle, "nosync")
+                    #xbmc.log('Mezzmo nosync: ' + str(mtitle) + ' ' + mtitle, xbmc.LOGINFO)                
                 if tvcheckval[0] == 1 and validf == 1:  
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id
                     filekey = media.checkDBpath(itemurl, mtitle, playcount, dbfile, pathcheck, serverid,        \
                     season_text, episode_text, album_text, last_played_text, date_added_text, dupelog, koditv,  \
                     categories_text, knative, musicvid)
-                    #xbmc.log('Mezzmo filekey is: ' + str(filekey), xbmc.LOGINFO) 
+                    #xbmc.log('Mezzmo filekey is: ' + str(filekey) + ' ' + mtitle, xbmc.LOGINFO)
                     durationsecs = getSeconds(duration_text)            #  convert movie duration to seconds before passing
                     kodichange = 'true'                                 #  Enable change detection during sync
                     showId = 0                                          #  Set default 
@@ -729,7 +737,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
                     icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info 
                     media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr, release_year_text, playcount,      \
-                    release_date_text, icon)                                     # Update movie trailers info
+                    release_date_text, icon, imdb_text)                          # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')
                     mobjectID = itemurl[rtrimpos+1:]                             # Get Mezzmo objectID
                     mtype = categories_text
@@ -740,7 +748,9 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
             dbfile.commit()                #  Commit writes
   
             xbmc.log('Mezzmo items left: ' + str(itemsleft), xbmc.LOGDEBUG) 
-            if itemsleft <= 0 or (TotalMatches < 1000 and itemsleft <= 5):
+            #if itemsleft <= 0 or (TotalMatches < 1000 and itemsleft <= 100):
+            #if (itemsleft - 100) <= 0 :    # Display completion notification
+            if itemsleft <= 0 or ((itemsleft - 100) <= 0 and clean == 1) :      # Display completion notification
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 dbsync.commit()
@@ -749,7 +759,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     msgdialogprogress.close()
                     name = xbmcaddon.Addon().getAddonInfo('name')
                     icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
-                    xbmcgui.Dialog().notification(name, dialogmsg + str(TotalMatches), icon, 4000) 
+                    xbmcgui.Dialog().notification(name, dialogmsg + str(mezzmocounts), icon, 4000) 
                 return(TotalMatches)
                 break
           
@@ -768,7 +778,6 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords):  #
                     dbfile.commit()
                     dbfile.close()                     #  Final commit writes and close Kodi database
                     msynclog = 'Mezzmo user canceled full resync.'
-                    xbmc.log(msynclog, xbmc.LOGINFO)
                     media.mezlogUpdate(msynclog)
                     return(offset)
                     break                 
@@ -787,17 +796,13 @@ def syncLogging(counts, mezzmorecs):
         nsyncount = counts[0]
         lvcount = counts[1]                                  #  Get Live Channel record count in nosync DB
         trailcount = counts[2]
-        msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs)
-        xbmc.log(msynclog, xbmc.LOGINFO)
+        msynclog = 'Mezzmo total Mezzmo record count: ' + str(mezzmorecs + lvcount)
         media.mezlogUpdate(msynclog)            
         msynclog = 'Mezzmo total Live Channels count: ' + str(lvcount)
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)    
         msynclog = 'Mezzmo total nosync videos count: ' + str(nsyncount)
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)    
         msynclog = 'Mezzmo total movie trailer count: ' + str(trailcount)
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog) 
 
 
@@ -808,7 +813,6 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
         videobjectid = ''
         if synctarget == 'All':                              #  Selective sync not selected
             msynclog = 'Mezzmo selective sync not enabled. Syncing all records.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
             return 'recent'    
 
@@ -821,7 +825,6 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
 
         if int(NumberReturned) == 0:
             msynclog = 'Mezzmo selective sync video playlist not found. Syncing all records.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
             return 'recent'
 
@@ -845,7 +848,6 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
 
         if int(NumberReturned) == 0:
             msynclog = 'Mezzmo selective sync playlist ' + synctarget + ' not found. Syncing all records.'
-            xbmc.log(msynclog, xbmc.LOGINFO)
             media.mezlogUpdate(msynclog)
             return 'recent'
 
@@ -857,12 +859,10 @@ def checkSyncobject(syncurl, syncpin):                       #  Check for select
             xbmc.log('Mezzmo selective sync playlist: ' + title + ' ' + str(containerid), xbmc.LOGDEBUG)                
             if synctarget in title.lower():                 #  Found target container
                 msynclog = 'Mezzmo selective sync found:  ' + title
-                xbmc.log(msynclog, xbmc.LOGINFO)
                 media.mezlogUpdate(msynclog)
                 return containerid
 
         msynclog = 'Mezzmo selective sync playlist ' + synctarget + ' not found. Syncing all records.'
-        xbmc.log(msynclog, xbmc.LOGINFO)
         media.mezlogUpdate(msynclog)
         return 'recent'   
     except:

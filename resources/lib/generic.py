@@ -669,7 +669,7 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
 
             if pitemsleft == itemsleft:    #  Detect items left not incrementing 
                 mgenlog ='Mezzmo items not displayed: ' + str(pitemsleft)
-                xbmc.log(mgenlog, xbmc.LOGINFO)
+                #xbmc.log(mgenlog, xbmc.LOGINFO)
                 media.mgenlogUpdate(mgenlog)
                 break
             else:
@@ -737,7 +737,7 @@ def gBrowse(url, objectID, flag, startingIndex, requestedCount, pin):
             media.settings('generic_response', '0')            
             media.settings('genrespcount', '0')
             mgenlog = 'Mezzmo generic server response logging limit.'   
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            #xbmc.log(mgenlog, xbmc.LOGINFO)
             media.mgenlogUpdate(mgenlog)
     except Exception as e:
         xbmc.log( 'EXCEPTION IN Browse: ' + str(e))
