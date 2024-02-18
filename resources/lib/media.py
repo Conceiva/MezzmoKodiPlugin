@@ -138,10 +138,10 @@ def get_installedversion():
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
     json_query = json.loads(json_query)
     version_installed = []
-    mversion_installed = []
+    #mversion_installed = []
     if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']['major']
-        mversion_installed  = json_query['result']['version']['tagversion']
+        #mversion_installed  = json_query['result']['version']['tagversion']
         #xbmc.log('Mezzmo version installed: ' + str(version_installed) + ' ' +     \
         #str(mversion_installed) , xbmc.LOGINFO)          
     return str(version_installed)
