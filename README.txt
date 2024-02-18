@@ -1,4 +1,4 @@
-2.2.0.0 2/17/2024
+2.2.0.0 2/18/2024
 
 - Fixed very minor bug where the no bookmark condition for music files was not being
   detected properly.
@@ -16,7 +16,12 @@
   entries that you do not sync to Kodi (i.e. home videos, custom metadata etc..)
 - Added feature to allow setting the playback volume for both trailers and the main 
   movie when using Mezzmo Movie Previews. This allows you to tailor the settings so
-  that the trailers and the main movie play at the same volume.  
+  that the trailers and the main movie play at the same volume.
+- Added Native Mode tab option setting option to only sync from Mezzmo and display 
+  with Kodi a single studio vs. a list of studios.  This is to support some Kodi 
+  skins which can only handle a single studio.
+- Bumped video database support to Kodi 21 Beta 3 for Kodi native sync.  Beta 2 not
+  supported for native sync just GUI mode.      
 
 2.1.9.9 1/5/2024
 

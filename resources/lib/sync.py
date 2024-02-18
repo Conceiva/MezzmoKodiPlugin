@@ -162,7 +162,7 @@ def checkDailySync():
     elif int(currhour) >= 0 and int(currhour) <= 6 and dailysync == 1:
         dailysync = 0         
 
-    xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGDEBUG)             
+    xbmc.log('Mezzmo final daily sync flag is: ' + str(dailysync), xbmc.LOGINFO)             
 
     return(dailysync)
 
@@ -357,6 +357,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
     kodiclean = media.settings('kodiclean')
     prflocaltr = media.settings('prflocaltr')
     musicvid = media.settings('musicvid')
+    sstudio = media.settings('singlestudio')         # Checks for single studio setting
 
     if kodiclean == 'resync':
         msgdialogprogress = xbmcgui.DialogProgress()
@@ -638,8 +639,13 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                 
                 production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None and len(production_company) > 0:
-                    production_company_text = production_company.text.split(',')[0]
+                if production_company != None and sstudio == 'false':
+                    production_company_text = production_company.text
+                elif production_company != None and sstudio == 'true':
+                    try:
+                        production_company_text = production_company.text.split(',')[0]
+                    except:
+                        pass
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
@@ -691,15 +697,16 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                     if mediaClass_text == 'P':
                         mediaClass_text = 'picture'
 
-                mtitle = media.displayTitles(title)                          
+                mtitle = media.displayTitles(title)
+                #xbmc.log('Mezzmo livec checking: ' +  mtitle + str(clean), xbmc.LOGINFO)                          
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
                 mezzmocounts += 1
                 if (tvcheckval[1] == 1 or size == 100000000000) and validf == 1 and clean == 1:   #  Update live channel
                     media.syncCount(dbsync, mtitle, "livec")
-                    #xbmc.log('Mezzmo livec: ' + str(mtitle) + ' ' + mtitle, xbmc.LOGINFO)       
+                    #xbmc.log('Mezzmo livec: ' + mtitle, xbmc.LOGINFO)       
                 if tvcheckval[2] == 1 and validf == 1 and clean == 1:   #  Update nosync database nosync
                     media.syncCount(dbsync, mtitle, "nosync")
-                    #xbmc.log('Mezzmo nosync: ' + str(mtitle) + ' ' + mtitle, xbmc.LOGINFO)                
+                    #xbmc.log('Mezzmo nosync: ' + mtitle, xbmc.LOGINFO)                
                 if tvcheckval[0] == 1 and validf == 1:  
                     pathcheck = media.getPath(itemurl)                  #  Get path string for media file
                     serverid = media.getMServer(itemurl)                #  Get Mezzmo server id

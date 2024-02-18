@@ -336,6 +336,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="singlestudio" type="boolean" label="30802" help="30562">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="kodiskin" type="boolean" label="30439" help="30536">
 					<level>0</level>
 					<default>false</default>

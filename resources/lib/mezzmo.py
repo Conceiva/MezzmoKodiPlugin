@@ -268,6 +268,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     trcount = media.settings('trcount')                 # Checks multiple trailer setting
+    sstudio = media.settings('singlestudio')            # Checks for single studio setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -628,8 +629,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 
                 production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None and len(production_company) > 0:
-                    production_company_text = production_company.text.split(',')[0]
+                if production_company != None and sstudio == 'false':
+                    production_company_text = production_company.text
+                elif production_company != None and sstudio == 'true':
+                    try:
+                        production_company_text = production_company.text.split(',')[0]
+                    except:
+                        pass
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')
@@ -973,6 +979,7 @@ def handleSearch(content, contenturl, objectID, term):
     menuitem11 = addon.getLocalizedString(30465)
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
+    sstudio = media.settings('singlestudio')            # Checks for single studio setting
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
     
     try:
@@ -1255,8 +1262,13 @@ def handleSearch(content, contenturl, objectID, term):
 
                 production_company_text = production_company = ''
                 production_company = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}production_company')
-                if production_company != None and len(production_company) > 0:
-                    production_company_text = production_company.text.split(',')[0]
+                if production_company != None and sstudio == 'false':
+                    production_company_text = production_company.text
+                elif production_company != None and sstudio == 'true':
+                    try:
+                        production_company_text = production_company.text.split(',')[0]
+                    except:
+                        pass
 
                 sort_title_text = ''
                 sort_title = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}sort_title')

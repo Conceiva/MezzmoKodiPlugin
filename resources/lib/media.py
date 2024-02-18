@@ -138,8 +138,12 @@ def get_installedversion():
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
     json_query = json.loads(json_query)
     version_installed = []
+    mversion_installed = []
     if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']['major']
+        mversion_installed  = json_query['result']['version']['tagversion']
+        #xbmc.log('Mezzmo version installed: ' + str(version_installed) + ' ' +     \
+        #str(mversion_installed) , xbmc.LOGINFO)          
     return str(version_installed)
 
 
@@ -150,7 +154,7 @@ def getDatabaseName():
     elif installed_version == '20':
         return "MyVideos121.db"
     elif installed_version == '21':
-        return "MyVideos124.db"
+        return "MyVideos131.db"
       
     return ""  
 
@@ -295,7 +299,7 @@ def getServerport(contenturl):                  #  Get Mezzmo server port info
 
 def syncCount(dbsync, mtitle, mtype):
 
-    #xbmc.log('Mezzmo nosync syncCount called: ' + mtitle, xbmc.LOGINFO)  
+    xbmc.log('Mezzmo nosync syncCount called: ' + mtitle + ' ' + mtype, xbmc.LOGDEBUG)  
     dupes = dbsync.execute('SELECT VideoTitle FROM nosyncVideo WHERE VideoTitle=? and Type=?', \
     (mtitle, mtype))
     dupetuple = dupes.fetchone() 
@@ -309,7 +313,7 @@ def syncCount(dbsync, mtitle, mtype):
         (currdlDate, currmsTime, msynclog))
         if settings('reduceslog') == 'false':
             xbmc.log(msynclog, xbmc.LOGINFO)
-    elif not dupetuple and settings('mdupelog') == 'true': #  Insert into nosync table if not dupe
+    elif not dupetuple:                       #  Insert into nosync table if not dupe
         dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))    
 
     dbsync.commit()        
@@ -574,7 +578,7 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
         tvcheck = 0
         lvcheck = 1
 
-    #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGINFO)
+    xbmc.log('TV check value is: ' + str(tvcheck) + ' ' + str(lvcheck) + ' ' + str(nsyncount), xbmc.LOGDEBUG)
 
     return[tvcheck, lvcheck, nsyncount]
 
