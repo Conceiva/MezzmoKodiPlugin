@@ -1,3 +1,28 @@
+2.2.0.0 2/18/2024
+
+- Fixed very minor bug where the no bookmark condition for music files was not being
+  detected properly.
+- Added Information context menu item to TV Trailer and Movie Trailer channels.  Now
+  you can see the full information about the underlying movie from either the context
+  menu or the I (information) key for these Mezzmo trailer channels.
+- Fixed Mezzmo record count calculation error in the sync summary reporting
+- Added automatic Kodi sync detection of Mezzmo live streams like IP Cameras, IP Video
+  streams, OTA tuners etc..
+- Added option to the Mezzmo Context menu for TV Show episodes to provide a listing 
+  of all TV episodes in the series and launch playback.
+- Moved the Export Data from Database settings option from the settings Content 
+  Control tab to the Diagnostics tab.
+- Added duplicate detection for nosync videos so you can easily find duplicate Mezzmo
+  entries that you do not sync to Kodi (i.e. home videos, custom metadata etc..)
+- Added feature to allow setting the playback volume for both trailers and the main 
+  movie when using Mezzmo Movie Previews. This allows you to tailor the settings so
+  that the trailers and the main movie play at the same volume.
+- Added Native Mode tab option setting option to only sync from Mezzmo and display 
+  with Kodi a single studio vs. a list of studios.  This is to support some Kodi 
+  skins which can only handle a single studio.
+- Bumped video database support to Kodi 21 Beta 3 for Kodi native sync.  Beta 2 not
+  supported for native sync just GUI mode.      
+
 2.1.9.9 1/5/2024
 
 - Added option setting to reduce general and sync logging to Kodi logfile.  All logs

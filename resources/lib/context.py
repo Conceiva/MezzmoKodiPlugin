@@ -31,6 +31,7 @@ def contextMenu():                                       # Display contxt menu f
     menuitem10 = addon.getLocalizedString(30469)
     menuitem11 = addon.getLocalizedString(30470)
     menuitem12 = addon.getLocalizedString(30481)
+    menuitem14 = addon.getLocalizedString(30495)        # Show TV Episodes
     menuitem15 = addon.getLocalizedString(30498)           
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
@@ -51,8 +52,8 @@ def contextMenu():                                       # Display contxt menu f
     vseries = titleinfo[5]
     movieset = titleinfo[6]
     mezyear = titleinfo[7] 
-    xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGDEBUG)
-    #xbmc.log('Mezzmo mediatype is: ' + str(mtype), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo titleinfo is: ' + str(titleinfo), xbmc.LOGINFO)
+    #xbmc.log('Mezzmo mediatype is: ' + str(mtype) + ' ' + mtitle, xbmc.LOGINFO)
 
     psfile = media.openNosyncDB()                        # Open Trailer database
     cselect = []
@@ -97,7 +98,8 @@ def contextMenu():                                       # Display contxt menu f
         if tcollection:
             collection = tcollection[0][0].strip()
         else:
-            collection = 'none'      
+            collection = 'none'
+      
     pdfile.close()
     psfile.close()
 

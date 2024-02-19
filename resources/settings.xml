@@ -191,12 +191,6 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-                               <setting id="exportdata" type="action" label="30427" help="30533">
-	                                 <level>0</level>
-	                                 <data>RunScript(plugin.video.mezzmo,export)</data>
-	                                 <control type="button" format="action">
-	                                 </control>
-                                </setting>
                                <setting id="kodiclean" type="string" label="30368" help="30508">
 	                                 <level>0</level>
 					<default>false</default>
@@ -338,6 +332,11 @@
 					<control type="toggle"/>
 				</setting>
 				<setting id="kdirector" type="boolean" label="30477" help="30546">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="singlestudio" type="boolean" label="30802" help="30562">
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
@@ -1278,6 +1277,40 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="trvolume" type="integer" label="30500" help="30560">
+					<level>0</level>
+					<default>100</default>
+					<constraints>
+						<minimum>0</minimum>
+						<step>5</step>
+						<maximum>100</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="gt" setting="prviewct">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="orgvolume" type="integer" label="30801" help="30561">
+					<level>0</level>
+					<default>100</default>
+					<constraints>
+						<minimum>0</minimum>
+						<step>5</step>
+						<maximum>100</maximum>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="gt" setting="prviewct">0</condition>
+						</dependency>
+					</dependencies>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
 				<setting id="prflocaltr" type="boolean" label="30462" help="30543">
 					<level>0</level>
 					<default>true</default>
@@ -1519,6 +1552,12 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+                                <setting id="exportdata" type="action" label="30427" help="30533">
+	                                 <level>0</level>
+	                                 <data>RunScript(plugin.video.mezzmo,export)</data>
+	                                 <control type="button" format="action">
+	                                 </control>
+                                </setting>
 			</group>
 		</category>
 	</section>

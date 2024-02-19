@@ -138,8 +138,12 @@ def get_installedversion():
     json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "method": "Application.GetProperties", "params": {"properties": ["version", "name"]}, "id": 1 }')
     json_query = json.loads(json_query)
     version_installed = []
+    #mversion_installed = []
     if 'result' in json_query and 'version' in json_query['result']:
         version_installed  = json_query['result']['version']['major']
+        #mversion_installed  = json_query['result']['version']['tagversion']
+        #xbmc.log('Mezzmo version installed: ' + str(version_installed) + ' ' +     \
+        #str(mversion_installed) , xbmc.LOGINFO)          
     return str(version_installed)
 
 
@@ -150,7 +154,7 @@ def getDatabaseName():
     elif installed_version == '20':
         return "MyVideos121.db"
     elif installed_version == '21':
-        return "MyVideos124.db"
+        return "MyVideos131.db"
       
     return ""  
 
@@ -163,6 +167,10 @@ def openKodiDB():                                   #  Open Kodi database
                       
     DB = os.path.join(xbmcvfs.translatePath("special://database"), getDatabaseName())
     db = sqlite.connect(DB)
+
+    db.execute('PRAGMA cache_size = -30000;')
+    #db.execute('PRAGMA journal_mode = WAL;')
+    #db.execute('PRAGMA synchronous = NORMAL;')
 
     return(db)    
 
@@ -291,15 +299,26 @@ def getServerport(contenturl):                  #  Get Mezzmo server port info
 
 def syncCount(dbsync, mtitle, mtype):
 
-    #xbmc.log('Mezzmo nosync syncCount called: ' + mtitle, xbmc.LOGINFO)  
+    xbmc.log('Mezzmo nosync syncCount called: ' + mtitle + ' ' + mtype, xbmc.LOGDEBUG)  
     dupes = dbsync.execute('SELECT VideoTitle FROM nosyncVideo WHERE VideoTitle=? and Type=?', \
     (mtitle, mtype))
     dupetuple = dupes.fetchone() 
-    if dupetuple == None:                       # Ensure nosync doesn't exist 
-        #xbmc.log('Mezzmo nosync not found in db: ' + mtitle, xbmc.LOGINFO)   
-        dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))             
-        dbsync.commit()
-    dupes.close()
+    if dupetuple and settings('mdupelog') == 'true': #  Check for nosync duplicate 
+        currdlDate = datetime.now().strftime('%Y-%m-%d')
+        dbsync.execute('INSERT into dupeTrack(dtDate, dtFnumb, dtLcount, dtTitle, dtType) values \
+        (?, ?, ?, ?, ?)', (currdlDate, 0, 0, mtitle, mtype))
+        msynclog = 'Mezzmo ' + mtype + ' duplicate found - Title: ' +  mtitle
+        currmsTime = datetime.now().strftime('%H:%M:%S:%f')
+        dbsync.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',      \
+        (currdlDate, currmsTime, msynclog))
+        if settings('reduceslog') == 'false':
+            xbmc.log(msynclog, xbmc.LOGINFO)
+    elif not dupetuple:                       #  Insert into nosync table if not dupe
+        dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))    
+
+    dbsync.commit()        
+    #dupes.close()
+    del dupes, dupetuple
 
 
 def countsyncCount():                           # returns count records in noSync DB 
@@ -553,13 +572,13 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
             nsyncount = 1
             xbmc.log('Nosync file found: ' + mmtitle, xbmc.LOGDEBUG)
         if ('tv show' not in mcategories.text.lower()) and mkoditv == 'Category':
-            tvcheck == 0
+            tvcheck = 0
             
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0
         lvcheck = 1
 
-    #xbmc.log('TV check value is: ' + str(tvcheck), xbmc.LOGINFO)
+    xbmc.log('TV check value is: ' + str(tvcheck) + ' ' + str(lvcheck) + ' ' + str(nsyncount), xbmc.LOGDEBUG)
 
     return[tvcheck, lvcheck, nsyncount]
 
@@ -583,14 +602,14 @@ def checkDupes(filenumb, lastcount, mtitle):             #  Add Dupelicate logs 
     dlfile.close()
 
 
-def mezlogUpdate(msynclog, reduceslog = 'no'):           #  Add Mezzmo sync logs to DB and logfile
+def mezlogUpdate(msynclog, reduceslog = 'no'): #  Add Mezzmo sync logs to DB and logfile
 
     msfile = openNosyncDB()                              #  Open Synclog database
 
     currmsDate = datetime.now().strftime('%Y-%m-%d')
     currmsTime = datetime.now().strftime('%H:%M:%S:%f')
-    msfile.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',               \
-   (currmsDate, currmsTime, msynclog))
+    msfile.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',                 \
+    (currmsDate, currmsTime, msynclog))
      
     msfile.commit()
     msfile.close()
@@ -953,9 +972,9 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             cur.close()
             curr.close()
         else:
-            movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
+            movienumb = dupmtuple[0]                                 # If dupe, return existing movie id
         dupm.close()
-    elif kchange == 'true':                        #  Update metadata if changes
+    elif kchange == 'true':                                          # Update metadata if changes
         curm = db.execute('SELECT idMovie, c01, c03, c06, c11, c15, c14, c12, premiered, c05, \
         c18, c10 FROM movie INNER JOIN files USING (idfile) INNER JOIN path USING (idpath)    \
         WHERE idFile=? COLLATE NOCASE', (int(fileId[1]),))  
@@ -1037,7 +1056,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
         else:
             movienumb = dupmtuple[0]                                  # If dupe, return existing movie id
         dupm.close()
-    elif kchange == 'true':                        #  Update metadata if changes
+    elif kchange == 'true':                                           #  Update metadata if changes
         curm = db.execute('SELECT idMVideo, c08, c04, c05, c11, premiered, c06, c10    \
         FROM musicvideo INNER JOIN files USING (idfile) INNER JOIN path USING (idpath) \
         WHERE idFile=? COLLATE NOCASE', (int(fileId[1]),))  

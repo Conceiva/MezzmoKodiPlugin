@@ -959,4 +959,3 @@ def displayTrailers(title, itemurl, icon, trselect):              # Display trai
         dialog_text = mgenlog        
         trdialog.ok("Mezzmo Trailer Playback Error", dialog_text) 
 
-

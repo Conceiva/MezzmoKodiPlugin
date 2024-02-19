@@ -724,6 +724,18 @@ msgctxt "#30499"
 msgid "Kodi Mezzmo cache cleared"
 msgstr "Cache do Kodi Mezzmo limpo"
 
+msgctxt "#30500"
+msgid "Mezzmo Preview Trailer Volume Adjust %"
+msgstr "Ajuste de volume do trailer de visualização do Mezzmo %"
+
+msgctxt "#30801"
+msgid "Mezzmo Preview Movie Volume Adjust %"
+msgstr "Ajuste de volume do filme de visualização Mezzmo %"
+
+msgctxt "#30802"
+msgid "Kodi Single Studio Sync"
+msgstr "Sincronização de estúdio único Kodi"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -959,3 +971,15 @@ msgstr "Quando ativado, reduz a quantidade de entradas de log de sincronização
 msgctxt "#30559"
 msgid "When enabled reduces the amount of addon general log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
 msgstr "Quando ativado, reduz a quantidade de entradas de log gerais adicionais no arquivo de log Kodi. Todos os logs ainda são enviados para o visualizador de log do complemento Mezzmo Kodi. O padrão é desabilitado."
+
+msgctxt "#30560"
+msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Previews trailer volume is different than the main movie.  Default is 100 percent."
+msgstr "Ajusta o volume de reprodução do trailer do Mezzmo Preview. Isso pode ser usado quando o volume do trailer do Mezzmo Previews é diferente do filme principal. O padrão é 100 por cento."
+
+msgctxt "#30561"
+msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Previews movie volume is different than the trailer volume.  Default is 100 percent."
+msgstr "Ajusta o volume de reprodução do filme Mezzmo Preview. Isso pode ser usado quando o volume do filme Mezzmo Previews é diferente do volume do trailer. O padrão é 100 por cento."
+
+msgctxt "#30562"
+msgid "When enabled only syncs and displays one studio with Kodi. This is to address certain Kodi skins which can only handle a single studio.   Default is disabled."
+msgstr "Quando ativado, sincroniza e exibe apenas um estúdio com Kodi. Isso é para abordar certas skins Kodi que só podem lidar com um único estúdio. O padrão é desabilitado."

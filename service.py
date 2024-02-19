@@ -9,7 +9,7 @@ import sync
 import media
 from server import checkSync, getContentURL
 
-pos = fastsync = 0
+pos = fastsync = orgtrvol = 0
 file = ''
 count = pacount = fscount = cacount = 0 
 knative = 'false'
@@ -28,18 +28,27 @@ class XBMCPlayer(xbmc.Player):
  
     def onPlayBackStarted(self):
         try:
-            global mtype
+            global mtype, orgtrvol
             mtype = ''
             file = xbmc.Player().getPlayingFile()
             xbmc.sleep(2000)
             if xbmc.Player().isPlayingVideo():
                 finfo = xbmc.Player().getVideoInfoTag()
                 mtype = finfo.getMediaType()
-                self.mtitle = media.displayTitles(finfo.getTitle())
+                self.mtitle = media.displayTitles(finfo.getTitle()) 
             if xbmc.Player().isPlayingAudio():
                 finfo = xbmc.Player().getMusicInfoTag()
                 mtype = 'audiom'      # For future music sync
                 self.mtitle = media.displayTitles(finfo.getTitle())
+            if media.settings('movieprvw') == 'true' and 'cva_extract' in file:
+                trvol = int(media.settings('trvolume'))
+                xbmc.log('Mezzmo Movie Previews Playback: ' + str(trvol), xbmc.LOGDEBUG)
+                if trvol < 100:
+                    xbmc.executebuiltin('SetVolume(%d)' % (trvol))
+            elif media.settings('movieprvw') == 'true' and 'cva_extract' not in file:
+                orgtrvol = int(media.settings('orgvolume'))         # Get volume setting 
+                xbmc.log('Mezzmo volume reset: ' + str(orgtrvol), xbmc.LOGDEBUG)
+                xbmc.executebuiltin('SetVolume(%d)' % (orgtrvol))        
             xbmc.log("Playback started - " + file , xbmc.LOGDEBUG)
         except:
             file = 'File playing is not video or audio'
@@ -53,7 +62,8 @@ class XBMCPlayer(xbmc.Player):
         manufacturer = getContentURL(contenturl)
         objectID = getObjectID(file)
         bmdelay = 15 - int(media.settings('bmdelay'))
-        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and     \
+        'cva_extract' not in file:                       # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             if media.getMServer(contenturl) in file:     #  Check for paused Mezzmo files
                 self.paflag = 1
@@ -76,13 +86,14 @@ class XBMCPlayer(xbmc.Player):
         objectID = getObjectID(file)
         pos = 0
         self.paflag = 0
-        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and     \
+        'cva_extract' not in file:                     # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos))
             bookmark.updateKodiBookmark(objectID, pos, self.mtitle, mtype)
             if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
                 xbmc.executebuiltin('Container.Refresh')
                 media.settings('movieprvw', 'false')
- 
+  
     def onPlayBackStopped(self):
         global mtype
         contenturl = media.settings('contenturl')
@@ -91,12 +102,14 @@ class XBMCPlayer(xbmc.Player):
         bmdelay = 15 - int(media.settings('bmdelay'))
         xbmc.log("Mezzmo Playback stopped at " + str(pos  + bmdelay) + " in " + objectID, xbmc.LOGDEBUG)
         self.paflag = 0
-        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and 'cva_extract' not in file: # Ensure Mezzmo server has been selected
+        if len(mtype) > 0 and len(contenturl) > 5 and 'Conceiva' in manufacturer and     \
+        'cva_extract' not in file:                    # Ensure Mezzmo server has been selected
             bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))
             bookmark.updateKodiBookmark(objectID, pos + bmdelay - 15, self.mtitle, mtype)
             if media.settings('prvrefresh') == 'true' and media.settings('movieprvw') == 'true':
                 xbmc.executebuiltin('Container.Refresh')
                 media.settings('movieprvw', 'false')
+
              
 player = XBMCPlayer()
  
@@ -115,7 +128,8 @@ while True:
                 manufacturer = getContentURL(contenturl)
                 objectID = getObjectID(file)
                 bmdelay = 15 - int(media.settings('bmdelay'))
-                if contenturl != 'none' and 'Conceiva' in manufacturer and 'cva_extract' not in file:   # Ensure Mezzmo server has been selected            
+                if contenturl != 'none' and 'Conceiva' in manufacturer and     \
+                'cva_extract' not in file:   # Ensure Mezzmo server has been selected            
                     bookmark.SetBookmark(contenturl, objectID, str(pos + bmdelay))   
                     if xbmc.Player().isPlayingVideo():
                         finfo = xbmc.Player().getVideoInfoTag()
@@ -143,6 +157,7 @@ while True:
         media.autostart()
         media.settings('kodiclean', 'false')  # Clear manual resync flag on addon restart
         media.settings('curr_sync','0')       # Clear sync running flag
+        media.settings('movieprvw', 'false')  # Clear Mezzmo movie previews flag
         knative = media.settings('knative')   # Get initial native sync setting
         fastsync = media.settings('fastsync') # Get initial fast sync setting
 
