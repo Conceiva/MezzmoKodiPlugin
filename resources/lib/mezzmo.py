@@ -510,7 +510,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         categories_text = 'episode'
                         contentType = 'episodes'
                         showtitle = album_text
-                    elif 'movie' in categories_text.lower():
+                    elif 'movie' in categories_text.lower() or 'trailer' in categories_text.lower():
                         categories_text = 'movie'
                         contentType = 'movies'
                         showtitle = title

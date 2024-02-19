@@ -290,11 +290,22 @@ def syncCount(dbsync, mtitle, mtype):
     dupes = dbsync.execute('SELECT VideoTitle FROM nosyncVideo WHERE VideoTitle=? and Type=?', \
     (mtitle, mtype))
     dupetuple = dupes.fetchone() 
-    if dupetuple == None:                        # Ensure nosync doesn't exist 
-        #xbmc.log('Mezzmo nosync not found in db: ' + mtitle.encode('utf-8'), xbmc.LOGNOTICE)   
-        dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))             
-        dbsync.commit()
-    dupes.close()
+    if dupetuple and settings('mdupelog') == 'true': #  Check for nosync duplicate 
+        currdlDate = datetime.now().strftime('%Y-%m-%d')
+        dbsync.execute('INSERT into dupeTrack(dtDate, dtFnumb, dtLcount, dtTitle, dtType) values \
+        (?, ?, ?, ?, ?)', (currdlDate, 0, 0, mtitle, mtype))
+        msynclog = 'Mezzmo ' + mtype + ' duplicate found - Title: ' +  mtitle.encode('utf-8')
+        currmsTime = datetime.now().strftime('%H:%M:%S:%f')
+        dbsync.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',      \
+        (currdlDate, currmsTime, msynclog))
+        if settings('reduceslog') == 'false':
+            xbmc.log(msynclog, xbmc.LOGNOTICE)
+    elif not dupetuple:                              #  Insert into nosync table if not dupe
+        dbsync.execute('INSERT into nosyncVideo (VideoTitle, Type) values (?, ?)', (mtitle, mtype))
+
+    dbsync.commit()        
+    #dupes.close()
+    del dupes, dupetuple    
 
 
 def addTrailers(dbsync, mtitle, trailers, prflocaltr, myear, mpcount, mpremiered, micon, imdb_id): 
@@ -461,7 +472,7 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     return(recscount) 
 
 
-def mComment(minfo, mduration,moffsetmenu):     #  Update music metadata comments
+def mComment(minfo, mduration, moffsetmenu):     #  Update music metadata comments
 
     artistpad = '{0:21}'.format('Artist:')
     songpad = '{0:19}'.format('Song:')
@@ -476,7 +487,7 @@ def mComment(minfo, mduration,moffsetmenu):     #  Update music metadata comment
         lplayed = minfo['lastplayed']
     width = 55 - len(lplayed)
     lpcount = '{0:{width}}'.format(lplayed, width=width)
-    if moffsetmenu == '00:00:00':
+    if '00:00:00' in moffsetmenu:
         moffsetmenu = 'No Bookmark Set'
     bmarkpad = '{0:13}'.format('Bookmark: ')
     
@@ -549,7 +560,7 @@ def tvChecker(mseason, mepisode, mkoditv, mmtitle, mcategories):  # Kodi dB add 
             nsyncount = 1
             xbmc.log('Nosync file found: ' + mmtitle.encode('utf-8', 'ignore'), xbmc.LOGDEBUG)
         if ('tv show' not in mcategories.text.lower()) and mkoditv == 'Category':
-            tvcheck == 0
+            tvcheck = 0
 
     if mmtitle[:13] == 'Live channel:' :                #  Do not add live channels to Kodi
         tvcheck = 0

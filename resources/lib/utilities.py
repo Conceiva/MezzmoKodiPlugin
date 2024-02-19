@@ -626,7 +626,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem10 = addon.getLocalizedString(30469)
     menuitem11 = addon.getLocalizedString(30470)
     menuitem12 = addon.getLocalizedString(30481)
-    menuitem13 = addon.getLocalizedString(30494)
+    menuitem13 = addon.getLocalizedString(30494)                     # Play movie from mezzmo
     menuitem14 = addon.getLocalizedString(30495)                     # Show TV Episodes
     menuitem15 = addon.getLocalizedString(30498)                   
     trcount = media.settings('trcount')
@@ -681,7 +681,7 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         trcontext = curtr.fetchone()
     else:
         trcontext = None
-    if 'tvtrailer' in  trtype.lower():                   # check for TV episodes for TV trailers                          
+    if mtype == 'episode' or 'tvtrailer' in  trtype.lower(): # check for TV episodes for TV trailers                       
         try:                                                                                                              
             curptv= pdfile.execute('SELECT c00 FROM tvshow WHERE c00=?', (movieset,))                             
             tvcontext = curptv.fetchone()                # Get TV Show from database if exists                               
@@ -702,11 +702,11 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
 
-    if prviewct > 0 and mtype == 'movie':                # If Mezmo Movie Previews > 0
+    if prviewct > 0 and mtype == 'movie' and 'trailer' not in trtype.lower(): # If Mezmo Movie Previews > 0
         cselect.append(menuitem12)
 
-    if movieset != 'Unknown Album' and movieset != 'None' and (mtype == 'movie' 
-    or trtype.lower() == 'trailer'):                     # If movieset and type is movie
+    if movieset != 'Unknown Album' and movieset != 'None' and (mtype == 'movie' or trtype.lower() \
+    == 'trailer') and (mtype == 'movie' and trtype.lower() != 'tvtrailer'):  # If movieset and type is movie
         cselect.append(menuitem8)
 
     if collection != 'none' and (mtype == 'movie' or mtype == 'episode'):  # If collection tag and type

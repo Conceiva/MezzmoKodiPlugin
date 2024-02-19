@@ -24,7 +24,6 @@
     <setting id="perflog" type="bool" label="30378" default="true"/>
     <setting id="cconfirm" type="bool" label="30475" default="true"/>
     <setting id="udynlist" type="bool" label="30489" default="false"/>
-    <setting type="action" label="30427" action="RunScript(plugin.video.mezzmo,export)"/>
     <setting id="kodiclean" type="labelenum" label="30368" values="Off|Clean|Full Sync" default="Off"/>
     <setting id="autostart" type="text" label="30388" default="clear" visible="false"/>
     <setting id="contenturl" type="text" label="30388" default="none" visible="false"/>
@@ -122,6 +121,7 @@
         <setting id="generic_response" type="slider" label="30454" default="0" range="0,1,25" option="int"/>
         <setting id="genrespcount" type="text" label="none" default="0" visible="false"/>
 	<setting id="reduceglog" type="bool" label="30497" default="false"/>
-	<setting id="reduceslog" type="bool" label="30496" default="false"/>    
+	<setting id="reduceslog" type="bool" label="30496" default="false"/>
+        <setting type="action" label="30427" action="RunScript(plugin.video.mezzmo,export)"/>  
     </category>
 </settings>
