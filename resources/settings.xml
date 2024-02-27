@@ -1424,6 +1424,18 @@
 		</category>
 		<category id="search" label="30351" help="">
 			<group id="1">
+				<setting id="maxsearch" type="integer" label="30803" help="30563">
+					<level>0</level>
+					<default>100</default>
+					<constraints>
+						<minimum>25</minimum>
+						<step>25</step>
+						<maximum>500</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
 				<setting id="srchlimit" type="string" label="30391" help="30528">
 					<level>0</level>
 					<default>10</default>

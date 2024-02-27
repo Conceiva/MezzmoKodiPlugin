@@ -358,6 +358,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
     prflocaltr = media.settings('prflocaltr')
     musicvid = media.settings('musicvid')
     sstudio = media.settings('singlestudio')         # Checks for single studio setting
+    installed_version = media.get_installedversion()
 
     if kodiclean == 'resync':
         msgdialogprogress = xbmcgui.DialogProgress()
@@ -736,7 +737,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                         sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
-                        kdirector)
+                        kdirector, int(installed_version))
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                         nativeact, showId)

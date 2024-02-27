@@ -801,7 +801,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                             sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
-                            kdirector)
+                            kdirector, int(installed_version))
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)
@@ -960,7 +960,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     xbmcplugin.endOfDirectory(addon_handle)
 
 
-def handleSearch(content, contenturl, objectID, term):
+def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     global searchcontrol, searchcontrol2
     contentType = 'movies'
     itemsleft = -1
@@ -1437,7 +1437,7 @@ def handleSearch(content, contenturl, objectID, term):
                             creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                             content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                             sort_title_text, 'false', itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
-                            kdirector)
+                            kdirector, int(installed_version))
                         if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                             media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                             nativeact, showId)
@@ -1511,7 +1511,7 @@ def handleSearch(content, contenturl, objectID, term):
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
             itemsleft = itemsleft - int(NumberReturned) - 1
-            if itemsleft == 0:
+            if itemsleft <= 0 or itemsleft > int(NumberReturned):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 break
@@ -1529,8 +1529,9 @@ def handleSearch(content, contenturl, objectID, term):
                         
             # get the next items
             offset = int(TotalMatches) - itemsleft
-            requestedCount = 1000
-            if itemsleft < 1000:
+            #requestedCount = 1000
+            requestedCount = reqcount
+            if itemsleft < reqcount:
                 requestedCount = itemsleft
             
             pin = media.settings('content_pin')   
@@ -1640,9 +1641,10 @@ def promptSearch():
         url = args.get('contentdirectory', '')
         
         pin = media.settings('content_pin')
-        content = browse.Search(url[0], '0', searchCriteria, 0, 1000, pin)
+        maxsearch = media.settings('maxsearch')
+        content = browse.Search(url[0], '0', searchCriteria, 0, maxsearch, pin)
         if len(content) > 0:                                  #  Check for server response
-            handleSearch(content, url[0], '0', searchCriteria)
+            handleSearch(content, url[0], '0', searchCriteria, maxsearch)
         else:
             downServer()				      # Down server response 
     
@@ -1769,9 +1771,9 @@ elif mode[0] == 'collection':
     searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
     pin = media.settings('content_pin')
     xbmc.executebuiltin('Dialog.Close(all, true)')
-    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria)        
+        handleSearch(content, scontenturl, '0', searchCriteria, 100)        
     else:
         downServer() 
 

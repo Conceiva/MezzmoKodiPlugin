@@ -736,6 +736,10 @@ msgctxt "#30802"
 msgid "Kodi Single Studio Sync"
 msgstr ""
 
+msgctxt "#30803"
+msgid "Maximum Mezzmo Search Results 25-500"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -982,4 +986,8 @@ msgstr ""
 
 msgctxt "#30562"
 msgid "When enabled only syncs and displays one studio with Kodi. This is to address certain Kodi skins which can only handle a single studio.   Default is disabled."
+msgstr ""
+
+msgctxt "#30563"
+msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
 msgstr ""

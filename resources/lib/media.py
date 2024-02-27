@@ -939,7 +939,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
     mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative,        \
-    movieset, imageSearchUrl, kdirector):  
+    movieset, imageSearchUrl, kdirector, kversion):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
@@ -958,10 +958,11 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
             insertKwords(mkeywords, 'movie', movienumb)              # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
-            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)   # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
-            insertStudios(movienumb, db, 'movie', mstudio, knative) 
+            insertStudios(movienumb, db, 'movie', mstudio, knative)
+            insertVversion(fileId[0], movienumb, db, 'movie', kversion) # Insert Kodi video version 
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
@@ -1008,10 +1009,11 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
             insertKwords(mkeywords, 'movie', movienumb)               # Insert keywords for movie 
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
-            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)   # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
             insertStudios(movienumb, db, 'movie', mstudio, knative)
+            insertVversion(fileId[0], movienumb, db, 'movie', kversion) # Insert Kodi video version 
             if mdupelog == 'false':
                 mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 #xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -1496,7 +1498,6 @@ def insertDirectors(movienumb, db, mtype, directors, imageSearchUrl, kdirector):
         xbmc.log(msynclog, xbmc.LOGINFO)
 
 
-
 def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
 
     try:
@@ -1533,6 +1534,21 @@ def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
         msynclog ='Mezzmo problem inserting writers for: ' + str(writers) + ' ' + str(movienumb)
         xbmc.log(msynclog, xbmc.LOGINFO)
 
+
+def insertVversion(fileId, movienumb, db, mediatype, kversion):                          # Insert Kodi video version 
+
+    try:
+        if kversion < 21:
+            return
+
+        db.execute('INSERT OR REPLACE into videoversion (idFile, idMedia, media_type, itemType, idType) \
+        values  (?, ?, ?, ?, ?)', (fileId, movienumb, mediatype, 0, 40400,))
+
+    except Exception as e:
+        printexception()
+        msynclog ='Mezzmo problem inserting video version for: ' + str(mediatype) + ' ' + str(movienumb)
+        xbmc.log(msynclog, xbmc.LOGINFO)                    
+  
 
 def insertStudios(movienumb, db, media_type, studios, knative):
 
