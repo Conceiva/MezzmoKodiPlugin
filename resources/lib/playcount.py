@@ -74,6 +74,10 @@ def updateKodiPlaycount(mplaycount, mtitle, murl, mseason, mepisode, mseries, mt
 
 def setPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play count
 
+    srvrtime = int(media.settings('srvrtime'))
+    if not srvrtime:
+        srvrtime = 60
+
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#X_SetPlaycount"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
     <s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -91,7 +95,7 @@ def setPlaycount(url, objectID, count, mtitle):            #  Set Mezzmo play co
     req = urllib2.Request(url, body, headers) 
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=srvrtime).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN SetPlaycount: ' + str(e))
         pass

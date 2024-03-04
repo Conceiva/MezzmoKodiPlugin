@@ -9,6 +9,9 @@ import media
 
 def SetBookmark(url, objectID, pos):
 
+    srvrtime = int(media.settings('srvrtime'))
+    if not srvrtime:
+        srvrtime = 60
     
     headers = {'content-type': 'text/xml', 'accept': '*/*', 'SOAPACTION' : '"urn:schemas-upnp-org:service:ContentDirectory:1#X_SetBookmark"', 'User-Agent': 'Kodi (Mezzmo Addon)'}
     body = '''<?xml version="1.0"?>
@@ -27,7 +30,7 @@ def SetBookmark(url, objectID, pos):
     req = urllib2.Request(url, body, headers)
     response = ''
     try:
-        response = urllib2.urlopen(req, timeout=60).read()
+        response = urllib2.urlopen(req, timeout=srvrtime).read()
     except Exception as e:
         xbmc.log( 'EXCEPTION IN SetBookmark: ' + str(e))
         pass

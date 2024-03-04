@@ -1374,8 +1374,8 @@ def handleSearch(content, contenturl, objectID, term):
                 if validf == 1:   
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
-            itemsleft = itemsleft - int(NumberReturned)
-            if itemsleft == 0:
+            itemsleft = itemsleft - int(NumberReturned) -1
+            if itemsleft <= 0 or itemsleft > int(NumberReturned):
                 dbfile.commit()
                 dbfile.close()             #  Final commit writes and close Kodi database
                 break             
@@ -1393,7 +1393,7 @@ def handleSearch(content, contenturl, objectID, term):
             # get the next items
             offset = int(TotalMatches) - itemsleft
             requestedCount = 1000
-            if itemsleft < 1000:
+            if itemsleft < requestedCount:
                 requestedCount = itemsleft
             
             pin = media.settings('content_pin')   
@@ -1627,7 +1627,7 @@ elif mode[0] == 'collection':
     searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
     pin = media.settings('content_pin')
     xbmc.executebuiltin('Dialog.Close(all, true)')
-    content = browse.Search(scontenturl, '0', searchCriteria, 0, 100, pin)
+    content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria)
     else:

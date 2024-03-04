@@ -724,6 +724,22 @@ msgctxt "#30499"
 msgid "Kodi Mezzmo cache cleared"
 msgstr ""
 
+msgctxt "#30500"
+msgid "Mezzmo Preview Trailer Volume Adjust %"
+msgstr ""
+
+msgctxt "#30801"
+msgid "Mezzmo Preview Movie Volume Adjust %"
+msgstr ""
+
+msgctxt "#30802"
+msgid "Kodi Single Studio Sync"
+msgstr ""
+
+msgctxt "#30803"
+msgid "Maximum Mezzmo Search Results 25-500"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -958,4 +974,20 @@ msgstr ""
 
 msgctxt "#30559"
 msgid "When enabled reduces the amount of addon general log entries in the Kodi logfile. All logs are still sent to the Mezzmo Kodi addon log viewer.  Default is disabled."
+msgstr ""
+
+msgctxt "#30560"
+msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Preview trailer volume is different than the main movie.  Default is 100 percent."
+msgstr ""
+
+msgctxt "#30561"
+msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Preview movie volume is different than the trailer volume.  Default is 100 percent."
+msgstr ""
+
+msgctxt "#30562"
+msgid "When enabled only syncs and displays one studio with Kodi. This is to address certain Kodi skins which can only handle a single studio.   Default is disabled."
+msgstr ""
+
+msgctxt "#30563"
+msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
 msgstr ""
