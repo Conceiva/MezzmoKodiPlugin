@@ -736,6 +736,14 @@ msgctxt "#30802"
 msgid "Kodi Single Studio Sync"
 msgstr "Sincronização de estúdio único Kodi"
 
+msgctxt "#30803"
+msgid "Maximum Mezzmo Search Results 25-500"
+msgstr "Resultados máximos da pesquisa Mezzmo 25-500"
+
+msgctxt "#30804"
+msgid "Mezzmo Maximum Playcount"
+msgstr "Contagem máxima de jogos do Mezzmo"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -983,3 +991,11 @@ msgstr "Ajusta o volume de reprodução do filme Mezzmo Preview. Isso pode ser u
 msgctxt "#30562"
 msgid "When enabled only syncs and displays one studio with Kodi. This is to address certain Kodi skins which can only handle a single studio.   Default is disabled."
 msgstr "Quando ativado, sincroniza e exibe apenas um estúdio com Kodi. Isso é para abordar certas skins Kodi que só podem lidar com um único estúdio. O padrão é desabilitado."
+
+msgctxt "#30563"
+msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
+msgstr "Limita o número de resultados de pesquisa do Mezzmo a 25-500. O padrão é 100."
+
+msgctxt "#30564"
+msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
+msgstr "Limita o valor da contagem de reproduções do Mezzmo apenas registrando, definindo a contagem de reproduções como não reproduzida ou redefinindo a contagem de reproduções para 1. O padrão é desativado / ilimitado."

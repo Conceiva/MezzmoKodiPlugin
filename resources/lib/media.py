@@ -130,7 +130,66 @@ def checkSeason(db, shownumb, season, murl, micon):   # Check if Episode season 
     #xbmc.log('The current season number is: ' + str(seasonnumb), xbmc.LOGINFO)
 
     curse.close()
-    return(seasonnumb)                           # Return seasons table idSeason  
+    return(seasonnumb)                           # Return seasons table idSeason
+
+
+def checkMaxPlayCount(maxsetting, playcount_text, title, itemurl,     \
+    syncurl, last_played):                                                # Check playcounts
+
+    try:
+        pcount = int(playcount_text)
+        maxplay = 0
+        plaction = maxsetting.split(' ' )[0].strip()
+        if plaction != 'Off':
+            maxplay = int(maxsetting.split(' ' )[0].strip())
+            plaction = maxsetting.split(' ' )[1].strip()
+
+        if pcount >= 0 and plaction == 'Off':                             # No playcount adjustnment needed
+            return pcount
+        if pcount < 0:                                                    # Negative, set to 0
+            pcount = 0
+            plaction = 'Invalid'
+        elif pcount < maxplay:                                            # No action needed
+            plaction = 'None'
+        elif pcount >= maxplay and plaction == 'NotPlayed':               # Max playcount exceeded
+            pcount = 0
+        elif pcount >= maxplay and plaction == 'Reset':                   # Max playcount exceeded
+            pcount = 1
+        elif pcount >= maxplay and plaction == 'LastPlayed' and len(last_played) > 1 : 
+            plaction = 'Reset'                                            # Played. Reset to 1
+            pcount = 1
+        elif pcount >= maxplay and plaction == 'LastPlayed' and len(last_played) <= 1: 
+            plaction = 'NotPlayed'                                        # Not Played. Reset to 0
+            pcount = 0
+
+        xbmc.log('Mezzmo playcount adjustment 2: ' + plaction + ' ' + str(pcount) \
+        + ' ' + str(maxplay) + ' ' + str(len(last_played)), xbmc.LOGDEBUG)
+
+        if plaction in ['NotPlayed', 'Reset', 'Invalid']:                 # Adjust Mezzmo playcount 
+            rtrimpos = itemurl.rfind('/')
+            mobjectID = itemurl[rtrimpos+1:]                              # Get Mezzmo objectID
+            if '.' in mobjectID:                                          # Remove file extension
+                mobjectID = mobjectID[:mobjectID.rfind('.')]
+            playcount.setPlaycount(syncurl, mobjectID, str(pcount), title)
+            xbmc.log('Mezzmo playcount info: ' + syncurl + ' ' + mobjectID, xbmc.LOGDEBUG) 
+
+        if plaction == 'Invalid':
+            msynclog = 'Mezzmo invalid playcount reset to 0: ' + title
+        elif plaction == 'NotPlayed':
+            msynclog = 'Mezzmo maximum playcount exceeded reset to 0: ' + title
+        elif plaction == 'Reset':
+            msynclog = 'Mezzmo maximum playcount exceeded reset to 1: ' + title
+        elif plaction == 'Log':
+            msynclog = 'Mezzmo maximum playcount exceeded. No action taken: ' + title
+        if plaction != 'None':
+            mezlogUpdate(msynclog, 'yes')
+ 
+        return pcount 
+
+    except Exception as e:
+        printexception()
+        msynclog ='Mezzmo problem adjusting playcount for: ' + type
+        xbmc.log(msynclog, xbmc.LOGINFO)   
 
 
 def get_installedversion():
@@ -421,12 +480,10 @@ def autostart():                                #  Check for autostart
 
     autourl = settings('autostart')
     mgenlog ='Mezzmo background service started.'
-    #xbmc.log(mgenlog, xbmc.LOGINFO)
     mgenlogUpdate(mgenlog, 'yes') 
     if len(autourl) > 6:    
         xbmc.executebuiltin('ActivateWindow(%s, %s)' % ('10025', autourl))   
         mgenlog ='Mezzmo autostart user GUI interface enabled.'
-        #xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog, 'yes') 
 
 
@@ -476,7 +533,6 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
     recscount = curm.fetchone()[0]
     
     msynclog = 'Mezzmo total Kodi DB record count: ' + str(recscount)
-    #xbmc.log(msynclog, xbmc.LOGINFO)
     mezlogUpdate(msynclog)
 
     curm.close()   
@@ -528,7 +584,6 @@ def optimizeDB():                               # Optimize Kodi DB
     db.close()
 
     mgenlog ='Mezzmo database reindex and vacuum complete.'
-    #xbmc.log(mgenlog, xbmc.LOGINFO)
     mgenlogUpdate(mgenlog)
 
 
@@ -593,11 +648,13 @@ def checkDupes(filenumb, lastcount, mtitle):             #  Add Dupelicate logs 
     if not dupltuple:				         # If not found add dupe log
         dlfile.execute('INSERT into dupeTrack(dtDate, dtFnumb, dtLcount, dtTitle, dtType) values      \
         (?, ?, ?, ?, ?)', (currdlDate, filenumb, lastcount, mtitle, "V"))
-        xbmc.log('Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' +   \
-        str(lastcount) + ' ' + mtitle, xbmc.LOGINFO)
+        msynclog = 'Mezzmo duplicate found.  Kodi file table record #: ' + str(filenumb) + ' Title: ' \
+        + str(lastcount) + ' ' + mtitle
+        mezlogUpdate(msynclog)
     else:
-        xbmc.log('Mezzmo duplicate already in DB.  Kodi record #: ' + str(filenumb) + ' Title: ' +      \
-        str(lastcount) + ' ' + mtitle, xbmc.LOGINFO)        
+        msynclog = 'Mezzmo duplicate already in DB.  Kodi record #: ' + str(filenumb) + ' Title: ' +  \
+        str(lastcount) + ' ' + mtitle
+        mezlogUpdate(msynclog)        
     dlfile.commit()
     dlfile.close()
 
@@ -657,7 +714,6 @@ def kodiCleanDB(force):
     ContentDeleteURL = getSyncUrl()                    #  Get current sync contenturl
     if ContentDeleteURL == 'None':
         mgenlog = translate(30426)
-        #xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog)
         settings('kodiclean', 'false')
         name = xbmcaddon.Addon().getAddonInfo('name')
@@ -679,7 +735,6 @@ def kodiCleanDB(force):
         syncurl = getSyncURL()                         #  Get Mezzmo sync server URL
         if syncurl == 'None':
             mgenlog ='Kodi database Mezzmo not cleared.  Missing valid Mezzmo sync server'
-            #xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog)            
             return
         db = openKodiDB()
@@ -721,7 +776,6 @@ def kodiCleanDB(force):
             db.execute('DELETE FROM path WHERE strPath LIKE ?', (serverport,))
             db.execute('DELETE FROM studio WHERE studio_id not in (SELECT studio_id FROM studio_link)') 
             mgenlog ='Kodi database Mezzmo data cleared.'
-            #xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog, 'yes')
             curf.close()
             db.commit()
@@ -731,7 +785,6 @@ def kodiCleanDB(force):
                 xbmc.sleep(1000) 
         except db.OperationalError:        
             mgenlog = translate(30444)
-            xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlogUpdate(mgenlog)
             name = xbmcaddon.Addon().getAddonInfo('name')
             icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
@@ -768,7 +821,7 @@ def kodiCleanDB(force):
             dbsync.close()
             if msgdialogprogress: msgdialogprogress.close()  
             mgenlog = translate(30445)
-            xbmc.log(mgenlog, xbmc.LOGINFO)
+            mgenlogUpdate(mgenlog)
             name = xbmcaddon.Addon().getAddonInfo('name')
             icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
             xbmcgui.Dialog().notification(name, mgenlog, icon)
@@ -797,7 +850,6 @@ def getSyncUrl():                                                # Get current s
     except Exception as e:
         printexception()
         msynclog = 'Mezzmo error getting sync URL.'
-        #xbmc.log(msynclog, xbmc.LOGINFO)
         mezlogUpdate(msynclog, 'yes')
         return ('None')
 
@@ -831,7 +883,6 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]
         mgenlog ='Mezzmo checkDBpath parent path added: ' + str(ppathnumb) + " " + mserver
-        #xbmc.log(mgenlog, xbmc.LOGINFO)
         mgenlogUpdate(mgenlog)
         db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
         ('movies', ppathnumb, '%' + serverport + '%', ppathnumb))   # Update Child paths with parent information
@@ -843,7 +894,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         contenttype = 'tvshows'
         episodes = 1
         if mdupelog == 'true' and mseries[:13] == "Unknown Album" : # Does TV episode have a blank series name
-            mgenlog ='Mezzmo episode missing TV series name: ' + mtitle
+            #mgenlog ='Mezzmo episode missing TV series name: ' + mtitle
             #xbmc.log(mgenlog, xbmc.LOGINFO)
             mgenlog = '###' + mtitle
             mgenlogUpdate(mgenlog)
@@ -877,12 +928,18 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files INNER JOIN movie   \
         USING (idFile) INNER JOIN path USING (idPath) WHERE c00=? and idParentPath=? and              \
         path.strContent=? COLLATE NOCASE', (mtitle, ppathnumb, contenttype))      # Check if movie    
-                                                             # exists in Kodi DB under parent path  
+                                                                     # exists in Kodi DB under parent path  
         filetuple = curf.fetchone()
         curf.close()
         #xbmc.log('Checking path for : ' + mtitle, xbmc.LOGINFO)     # Path check debugging
 
-    if not filetuple:                 # if not exist insert into Kodi DB and return file key value
+    if not filetuple:                                                # Double check file table name match
+        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files WHERE       \
+        strFilename=?', (filecheck,))
+        filetuple = curf.fetchone()
+        del curf 
+
+    if not filetuple:                  # if not exist insert into Kodi DB and return file key value
         if mcategory == 'musicvideo' and musicvid == 'true':
             catype = 'musicvideos'            
         elif mcategory == 'movie' or mcategory == 'video' or mcategory == 'musicvideo':
@@ -891,7 +948,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
             catype = 'tvshows'
 
         curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=?',                 \
-        (mpath, catype,))          #  Check path table
+        (mpath, catype,))              #  Check path table
         pathtuple = curp.fetchone()
         #xbmc.log('File not found movie: ' + mtitle), xbmc.LOGINFO)
         if not pathtuple:              # if path doesn't exist insert into Kodi DB
@@ -939,7 +996,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
     mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative,        \
-    movieset, imageSearchUrl, kdirector):  
+    movieset, imageSearchUrl, kdirector, kversion):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
@@ -958,10 +1015,11 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
             insertKwords(mkeywords, 'movie', movienumb)              # Insert keywords for movie
             insertIMDB(movienumb, db, 'movie', mimdb_text)           # Insert IMDB for movie
-            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)   # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
-            insertStudios(movienumb, db, 'movie', mstudio, knative) 
+            insertStudios(movienumb, db, 'movie', mstudio, knative)
+            insertVversion(fileId[0], movienumb, db, 'movie', kversion) # Insert Kodi video version 
             db.execute('INSERT into RATING (media_id, media_type, rating_type, rating) values   \
             (?, ?, ?, ?)', (movienumb,  'movie', 'imdb', murate,))
             curr = db.execute('SELECT rating_id FROM rating WHERE media_id=? and media_type=?', \
@@ -1008,12 +1066,13 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
             insertKwords(mkeywords, 'movie', movienumb)               # Insert keywords for movie 
             insertIMDB(movienumb, db, 'movie', mimdb_text)            # Insert IMDB for movie
-            insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
+            insertSets(movienumb, db, movieset, knative, murl, micon)   # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector)
             insertStudios(movienumb, db, 'movie', mstudio, knative)
+            insertVversion(fileId[0], movienumb, db, 'movie', kversion) # Insert Kodi video version 
             if mdupelog == 'false':
-                mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
+                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 #xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlog = '###' + mtitle
                 mgenlogUpdate(mgenlog)
@@ -1087,7 +1146,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)
             insertStudios(movienumb, db, 'musicvideo', mstudio, kdirector)    
             if mdupelog == 'false':
-                mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
+                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 #xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlog = '###' + mtitle
                 mgenlogUpdate(mgenlog)
@@ -1177,7 +1236,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertDirectors(movienumb, db, 'episode', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'episode', mwriter, imageSearchUrl, kdirector) 
             if mdupelog == 'false':
-                mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
+                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
                 #xbmc.log(mgenlog, xbmc.LOGINFO)
                 mgenlog = '###' + mtitle
                 mgenlogUpdate(mgenlog)
@@ -1296,8 +1355,8 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or pathmatch is False or \
                 iconmatch is False) and rows >= 3:
                 if mdupelog == 'false':
-                    mgenlog ='There was a Mezzmo streamdetails or artwork change detected: ' +                   \
-                    mtitle
+                    #mgenlog ='There was a Mezzmo streamdetails or artwork change detected: ' +                   \
+                    #mtitle
                     #xbmc.log(mgenlog, xbmc.LOGINFO)
                     mgenlog ='Mezzmo streamdetails artwork rowcount = : ' +  str(rows)
                     #xbmc.log(mgenlog, xbmc.LOGINFO)
@@ -1496,7 +1555,6 @@ def insertDirectors(movienumb, db, mtype, directors, imageSearchUrl, kdirector):
         xbmc.log(msynclog, xbmc.LOGINFO)
 
 
-
 def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
 
     try:
@@ -1533,6 +1591,21 @@ def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
         msynclog ='Mezzmo problem inserting writers for: ' + str(writers) + ' ' + str(movienumb)
         xbmc.log(msynclog, xbmc.LOGINFO)
 
+
+def insertVversion(fileId, movienumb, db, mediatype, kversion):                          # Insert Kodi video version 
+
+    try:
+        if kversion < 21:
+            return
+
+        db.execute('INSERT OR REPLACE into videoversion (idFile, idMedia, media_type, itemType, idType) \
+        values  (?, ?, ?, ?, ?)', (fileId, movienumb, mediatype, 0, 40400,))
+
+    except Exception as e:
+        printexception()
+        msynclog ='Mezzmo problem inserting video version for: ' + str(mediatype) + ' ' + str(movienumb)
+        xbmc.log(msynclog, xbmc.LOGINFO)                    
+  
 
 def insertStudios(movienumb, db, media_type, studios, knative):
 

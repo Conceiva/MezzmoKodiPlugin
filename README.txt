@@ -1,3 +1,29 @@
+2.2.0.1 3/4/2024
+
+- Moved Only Show Mezzmo Servers addon setting from the View tab to the Timers & Servers
+  tab to align with the Only Discover Mezzmo Servers addon setting.
+- Modified Mezzmo set playcount and bookmark calls to honor Mezzmo server timeout setting
+  vs. being hardcoded to 60 seconds.
+- Added Search tab option to limit the number of returned Mezzmo search results between 
+  25-500.  The default is 100 results.
+- Fixed obscure search bug where too many returned results would generate a Mezzmo server
+  not responding error before presenting the search results.
+- Increased the maximum number of movies, episodes or music videos that can be in a Mezzmo
+  or Kodi collection from 100 to 1000 items.  This will now support TV Shows with a large
+  number of episodes to be included with related movies into a single collection.
+- Fixed actor search not displaying movies when running Kodi 21 Beta 3 and higher.  This 
+  was caused by the Kodi video database Movie View now requiring the videoversion table
+  to be populated in order to support the upcoming Kodi Movie Version new feature.
+- Reduced duplicate media and metadata change logging to the Kodi logfile to align with 
+  the logging reduction feature added in v2.1.9.9
+- Added Mezzmo maximum playcount setting to automatically adjust excessive playcount 
+  values to either not played, a playcount of 1 or based upon whether the video file has
+  been previously played or not.
+- Fixed very obscure bug where multiple file table entries could occur for the same video
+  if the only match was the underlying stream URL and no other metadata.  Added additional
+  check for file table name only matching to avoid duplicates.  This also avoids multiple
+  Kodi database entries with different names all pointing to the same video file.  
+
 2.2.0.0 2/18/2024
 
 - Fixed very minor bug where the no bookmark condition for music files was not being
