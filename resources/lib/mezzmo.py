@@ -464,7 +464,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None and imageSearchUrl != None:
+                if actors != None and imageSearchUrl != None and len(actors) > 2:
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")
@@ -1060,7 +1060,7 @@ def handleSearch(content, contenturl, objectID, term):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None and imageSearchUrl != None:
+                if actors != None and imageSearchUrl != None and len(actors) > 2:
                     actor_list = actors.text.encode('utf-8', 'ignore').replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     for a in actor_list:                  
                         actorSearchUrl = imageSearchUrl + "?imagesearch=" + a.lstrip().replace(" ","+")

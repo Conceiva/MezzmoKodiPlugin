@@ -1,3 +1,15 @@
+1.2.0.2 3/9/2024
+
+- Modified secondary dupe check introduced in v1.2.0.1 which could cause race condition
+  between multiple duplicate entry checks and sync would fail. 
+- Fixed a bug where an empty actor / actress field could cause a sync failure
+- Bug fix which was causing a database lock condition for the logging database when certain
+  duplicate file log entries were attempted to be written during the daily sync process.
+- Improved error handling when the logging database is locked and an another attempt to 
+  write to it occurs.
+- Disabled metadata and stream details change detection logging during the fast sync process
+  to reduce kodi.log and log database excessive writing.
+
 1.2.0.1 3/4/2023
 
 - Moved Only Show Mezzmo Servers addon setting from the View tab to the Timers & Servers

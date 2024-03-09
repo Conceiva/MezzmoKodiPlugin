@@ -578,32 +578,36 @@ def checkDupes(filenumb, lastcount, mtitle):             #  Add Duplicate logs t
     if not dupltuple:				         # If not found add dupe log
         dlfile.execute('INSERT into dupeTrack(dtDate, dtFnumb, dtLcount, dtTitle, dtType) values      \
         (?, ?, ?, ?, ?)', (currdlDate, filenumb, lastcount, mtitle, "V"))
+        dlfile.commit()
         msynclog = 'Mezzmo duplicate found. Kodi DB record #: ' + str(filenumb) + ' Title: ' +        \
         str(lastcount) + ' ' + mtitle.encode('utf-8', 'ignore')
-        mezlogUpdate(msynclog)
     else:
         msynclog = 'Mezzmo duplicate already in DB. Kodi DB record #: ' + str(filenumb) + ' Title: '  \
         + str(lastcount) + ' ' + mtitle.encode('utf-8', 'ignore')
-        mezlogUpdate(msynclog)        
-    dlfile.commit()
-    dlfile.close()
-     
+    mezlogUpdate(msynclog)        
+
+    dlfile.close()   
 
 
 def mezlogUpdate(msynclog, reduceslog = 'no'):           #  Add Mezzmo sync logs to DB
 
-    msfile = openNosyncDB()                              #  Open Synclog database
+    try:
+        msfile = openNosyncDB()                          #  Open Synclog database
 
-    currmsDate = datetime.now().strftime('%Y-%m-%d')
-    currmsTime = datetime.now().strftime('%H:%M:%S:%f')
-    msfile.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',               \
-   (currmsDate, currmsTime, msynclog))
+        currmsDate = datetime.now().strftime('%Y-%m-%d')
+        currmsTime = datetime.now().strftime('%H:%M:%S:%f')  
+        msfile.execute('INSERT into msyncLog(msDate, msTime, msSyncDat) values (?, ?, ?)',           \
+       (currmsDate, currmsTime, msynclog))
      
-    msfile.commit()
-    msfile.close()
+        msfile.commit()
+        msfile.close()
 
-    if settings('reduceslog') == 'false' or reduceslog != 'no':
-        xbmc.log(msynclog, xbmc.LOGNOTICE)               #  Write to Kodi logfile
+        if settings('reduceslog') == 'false' or reduceslog != 'no':
+            xbmc.log(msynclog, xbmc.LOGNOTICE)           #  Write to Kodi logfile
+
+    except Exception as e:
+        xbmc.log('Problem writing to sync log DB: ' + str(e), xbmc.LOGINFO)
+        pass
 
 
 def mgenlogUpdate(mgenlog, reduceglog = 'no'):           #  Add Mezzmo general logs to DB
@@ -870,12 +874,6 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         filetuple = curf.fetchone()
         curf.close()
 
-    if not filetuple:                                        # Double check file table name match
-        curf = db.execute('SELECT idFile, playcount, idPath, lastPlayed FROM files WHERE       \
-        strFilename=?', (filecheck,))
-        filetuple = curf.fetchone()
-        del curf 
-
     if not filetuple:                   # if not exist insert into Kodi DB and return file key value
         if mcategory == 'musicvideo' and musicvid == 'true':
             catype = 'musicvideos'            
@@ -903,16 +901,24 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         pathnumb = pathtuple[0]
         curp.close()
 
-        if mcategory == 'episode' and mplaycount == 0:        # Adjust for Kodi expecting NULL vs. 0
-            db.execute('INSERT into FILES (idPath, strFilename, lastPlayed, dateAdded) values          \
-            (?, ?, ?, ? )', (str(pathnumb), filecheck, mlplayed, mdateadded,))
-        else: 
-            db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed, dateAdded) values  \
-            (?, ?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed, mdateadded))
-        cur = db.execute('SELECT idFile FROM files WHERE strFilename=?',(filecheck.decode('utf-8'),)) 
-        filetuple = cur.fetchone()
-        filenumb = filetuple[0]
-        cur.close()
+        curd = db.execute('SELECT idFile FROM files WHERE strFilename=? and idPath=?',         \
+        (filecheck, pathnumb,))                                    # 2nd duplicate files table only check
+        dfiletuple = curd.fetchone()
+
+        if not dfiletuple:                                         # Not found in files table by name & path
+            if mcategory == 'episode' and mplaycount == 0:  # Adjust for Kodi expecting NULL vs. 0
+                db.execute('INSERT into FILES (idPath, strFilename, lastPlayed, dateAdded) values        \
+                (?, ?, ?, ? )', (str(pathnumb), filecheck, mlplayed, mdateadded,))
+            else: 
+                db.execute('INSERT into FILES (idPath, strFilename, playCount, lastPlayed, dateAdded)    \
+                values (?, ?, ?, ?, ? )', (str(pathnumb), filecheck, mplaycount, mlplayed, mdateadded))
+            cur = db.execute('SELECT idFile FROM files WHERE strFilename=? and idPath=?',                \
+            (filecheck, pathnumb,)) 
+            filetuple = cur.fetchone()
+            filenumb = filetuple[0]
+            cur.close()
+        else:
+            filenumb = dfiletuple[0]
         realfilenumb = filenumb      # Save real file number before resetting found flag
     else:                            # Return 0 if file already exists and check for play count change 
         filenumb = filetuple[0] 
@@ -933,7 +939,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
     mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative,        \
-    movieset, imageSearchUrl, kdirector):  
+    movieset, imageSearchUrl, kdirector, fsyncflag='no'):  
 
     if fileId[0] > 0:                                                #  Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -1005,14 +1011,14 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertSets(movienumb, db, movieset, knative, murl, micon)  # Insert movie set for movie
             insertDirectors(movienumb, db, 'movie', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'movie', mwriter, imageSearchUrl, kdirector) 
-            if mdupelog == 'false':
+            if mdupelog == 'false' and fsyncflag == 'no':
                 #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
                 #xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
                 mgenlogUpdate(mgenlog)
                 mgenlog ='There was a Mezzmo metadata change detected: '
                 mgenlogUpdate(mgenlog)
-            else:
+            elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update
         curm.close()
@@ -1024,7 +1030,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
 
 def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer,   \
     mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative, movieset, \
-    mepisode, martist, imageSearchUrl, kdirector):  
+    mepisode, martist, imageSearchUrl, kdirector, fsyncflag='no'):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current musicvideo is: ' + mtitle.encode('utf-8', 'ignore'), xbmc.LOGNOTICE)
@@ -1079,14 +1085,14 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertKwords(mkeywords, 'musicvideo', movienumb)          # Insert keywords for musicvideo
             insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)
             insertStudios(movienumb, db, 'musicvideo', mstudio, knative)     
-            if mdupelog == 'false':
+            if mdupelog == 'false' and fsyncflag == 'no':
                 #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
                 #xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
                 mgenlogUpdate(mgenlog)
                 mgenlog ='There was a Mezzmo metadata change detected: '
                 mgenlogUpdate(mgenlog)
-            else:
+            elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update
         curm.close()
@@ -1098,7 +1104,7 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
 
 def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired, murate, mduration, mgenre, \
     mtrailer, mrating, micon, kchange, murl, db, mstudio, mstitle, mseason, mepisode, shownumb, mdupelog,    \
-    mitemurl, mimdb_text, mkeywords, imageSearchUrl, kdirector):  
+    mitemurl, mimdb_text, mkeywords, imageSearchUrl, kdirector, fsyncflag='no'):  
 
     #xbmc.log('Mezzmo fileId is: ' + str(fileId), xbmc.LOGNOTICE)
     if fileId[0] > 0:                                                #  Insert episode if does not exist in Kodi DB
@@ -1169,14 +1175,14 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertIMDB(movienumb, db, 'episode', mimdb_text)           # Insert IMDB for episode
             insertDirectors(movienumb, db, 'episode', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'episode', mwriter, imageSearchUrl, kdirector)    
-            if mdupelog == 'false':
+            if mdupelog == 'false' and fsyncflag == 'no':
                 #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle.encode('utf-8', 'ignore')
                 #xbmc.log(mgenlog, xbmc.LOGNOTICE)
                 mgenlog = '###' + mtitle.encode('utf-8', 'ignore')
                 mgenlogUpdate(mgenlog)
                 mgenlog ='There was a Mezzmo metadata change detected: '
                 mgenlogUpdate(mgenlog) 
-            else:
+            elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update          
         movienumb = 0                                                 # disable change checking
@@ -1186,7 +1192,11 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
 
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnativeact, mshowId):
-    actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')    
+
+    if len(actors) > 2:
+        actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')
+    else:
+        return    
   
     if fileId[4] == 0:
        media_type = 'movie'
@@ -1229,7 +1239,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnative
 
 
 def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mlang, mduration, mtitle,  \
-    kchange, itemurl, micon, murl, db, mpath, mdupelog, knative):
+    kchange, itemurl, micon, murl, db, mpath, mdupelog, knative, fsyncflag='no'):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
     filecheck = itemurl[rtrimpos+1:]
@@ -1289,7 +1299,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             iconmatch = urlMatch(micon, kicon)     # Check if icons match 
             if (sdur != mduration or svcodec != mvcodec or sacodec != macodec or pathmatch is False or \
                 iconmatch is False) and rows == 4:
-                if mdupelog == 'false':
+                if mdupelog == 'false' and fsyncflag == 'no':
                     #mgenlog ='There was a Mezzmo streamdetails or artwork change detected: ' +                   \
                     #mtitle.encode('utf-8', 'ignore')
                     #xbmc.log(mgenlog, xbmc.LOGNOTICE)
