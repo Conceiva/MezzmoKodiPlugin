@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 import xbmcaddon
 import ssdp
 import json
+import socket
 from media import openNosyncDB, settings, mezlogUpdate, printexception
 from media import mgenlogUpdate, translate, get_installedversion
 
@@ -226,6 +227,12 @@ def checkMezzmo(srvurl):                                         # Check / Updat
         updateServers(srvurl, friendlyname, contenturl, manufacturer, modelnumber,            \
         iconurl, description, udn)
         return modelnumber.strip()
+
+    except IOError:                                              # Socket timeout
+        msynclog = 'Mezzmo sync server socket timeout: ' + srvurl
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)  
+        return '0.0.0.0'
 
     except (urllib.error.URLError, urllib.error.HTTPError) :    # Detect Server Issues
         msynclog = 'Mezzmo sync server not responding: ' + srvurl
