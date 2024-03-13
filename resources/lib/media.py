@@ -455,16 +455,21 @@ def countKodiRecs(contenturl):                  # returns count records in Kodi 
 
     db = openKodiDB()
 
-    serverport = '%' + getServerport(contenturl) + '%'     #  Get Mezzmo server port info
-      
-    curm = db.execute('SELECT count (idFile) FROM files INNER JOIN path ON path.idPath = files.idPath \
-    WHERE strpath LIKE ?', (serverport,))
-    recscount = curm.fetchone()[0]
+    serverport = getMServer(contenturl) + '%'               #  Get Mezzmo server info
+    xbmc.log('Mezzmo serverport is: ' + serverport, xbmc.LOGDEBUG)
 
+    curm = db.execute('SELECT count (idFile) FROM movie WHERE c22 LIKE ?', (serverport,))
+    moviecount = curm.fetchone()[0]
+    cure = db.execute('SELECT count (idFile) FROM episode WHERE c18 LIKE ?', (serverport,))
+    episcount = cure.fetchone()[0]
+    curmv = db.execute('SELECT count (idFile) FROM musicvideo WHERE c13 LIKE ?', (serverport,))
+    muscount = curmv.fetchone()[0]  
+
+    recscount = moviecount + episcount + muscount
     msynclog = 'Mezzmo total Kodi DB record count: ' + str(recscount)
     mezlogUpdate(msynclog)
 
-    curm.close() 
+    del curm, cure, curmv  
     db.close()
     return(recscount) 
 

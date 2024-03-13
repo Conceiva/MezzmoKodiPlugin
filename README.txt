@@ -1,3 +1,10 @@
+1.2.0.3 3/13/2024
+
+- Improved accuracy of Kodi record count for sync stats.  Previously it would double
+  count a video file which was played from a playlist and a folder.
+- Fixed bug caused by 1.2.0.2 where newly added empty actor check was causing actor 
+  and actress images not to be displayed.
+
 1.2.0.2 3/9/2024
 
 - Modified secondary dupe check introduced in v1.2.0.1 which could cause race condition
