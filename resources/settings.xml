@@ -85,6 +85,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="only_mezzmo_servers" type="boolean" label="30350" help="30509">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="srvrdialog" type="boolean" label="30491" help="30556">
 					<level>0</level>
 					<default>true</default>
@@ -350,11 +355,6 @@
 		</category>
 		<category id="view" label="30300" help="">
 			<group id="1">
-				<setting id="only_mezzmo_servers" type="boolean" label="30350" help="30509">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
 				<setting id="viewmap" type="boolean" label="30387" help="30525">
 					<level>0</level>
 					<default>true</default>

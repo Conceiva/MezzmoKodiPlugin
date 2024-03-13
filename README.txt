@@ -1,3 +1,12 @@
+2.2.0.3 3/13/2024
+
+- Improved accuracy of Kodi record count for sync stats.  Previously it would double
+  count a video file which was played from a playlist and a folder.
+- The Only Show Mezzmo Servers addon setting accidentally got moved back to the View
+  Tab in version 2.2.0.2.  It has been moved back to the Timers & Servers tab.
+- Fixed bug caused by 2.2.0.2 where newly added empty actor check was causing actor 
+  and actress images not to be displayed.
+
 2.2.0.2 3/9/2024
 
 - Modified secondary dupe check introduced in v2.2.0.1 which could cause race condition
