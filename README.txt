@@ -1,4 +1,27 @@
-2.2.0.0b Test Release
+2.2.0.3 3/13/2024
+
+- Improved accuracy of Kodi record count for sync stats.  Previously it would double
+  count a video file which was played from a playlist and a folder.
+- The Only Show Mezzmo Servers addon setting accidentally got moved back to the View
+  Tab in version 2.2.0.2.  It has been moved back to the Timers & Servers tab.
+- Fixed bug caused by 2.2.0.2 where newly added empty actor check was causing actor 
+  and actress images not to be displayed.
+
+2.2.0.2 3/9/2024
+
+- Modified secondary dupe check introduced in v2.2.0.1 which could cause race condition
+  between multiple duplicate entry checks and sync would fail. 
+- Fixed a bug where an empty actor / actress field could cause a sync failure
+- Bug fix which was causing a database lock condition for the logging database when certain
+  duplicate file log entries were attempted to be written during the daily sync process.
+- Improved error handling when the logging database is locked and an another attempt to 
+  write to it occurs.
+- Added Mezzmo sync server socket timeout detection to avoid exception error when Mezzmo
+  sync server doesn't respond within an adequate time when checking the Mezzmo version.
+- Disabled metadata and stream details change detection logging during the fast sync process
+  to reduce kodi.log and log database excessive writing.
+
+2.2.0.1 3/4/2024
 
 - Moved Only Show Mezzmo Servers addon setting from the View tab to the Timers & Servers
   tab to align with the Only Discover Mezzmo Servers addon setting.
@@ -13,7 +36,16 @@
   number of episodes to be included with related movies into a single collection.
 - Fixed actor search not displaying movies when running Kodi 21 Beta 3 and higher.  This 
   was caused by the Kodi video database Movie View now requiring the videoversion table
-  to be populated in order to support the upcoming Kodi Movie Version new feature.   
+  to be populated in order to support the upcoming Kodi Movie Version new feature.
+- Reduced duplicate media and metadata change logging to the Kodi logfile to align with 
+  the logging reduction feature added in v2.1.9.9
+- Added Mezzmo maximum playcount setting to automatically adjust excessive playcount 
+  values to either not played, a playcount of 1 or based upon whether the video file has
+  been previously played or not.
+- Fixed very obscure bug where multiple file table entries could occur for the same video
+  if the only match was the underlying stream URL and no other metadata.  Added additional
+  check for file table name only matching to avoid duplicates.  This also avoids multiple
+  Kodi database entries with different names all pointing to the same video file.  
 
 2.2.0.0 2/18/2024
 

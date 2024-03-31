@@ -358,7 +358,13 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
     prflocaltr = media.settings('prflocaltr')
     musicvid = media.settings('musicvid')
     sstudio = media.settings('singlestudio')         # Checks for single studio setting
+    maxsetting = media.settings('maxplayc')          # Maximum Playcount setting
     installed_version = media.get_installedversion()
+
+    if maxrecords == 10 or maxrecords == 30:         # fast sync flag to reduce logging
+        fsyncflag = 'yes'
+    else:
+        fsyncflag = 'no'
 
     if kodiclean == 'resync':
         msgdialogprogress = xbmcgui.DialogProgress()
@@ -576,28 +582,19 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
                 if season != None:
                     season_text = season.text
+
+                last_played_text = ''
+                last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
+                if last_played != None:
+                    last_played_text = last_played.text
                  
                 playcount = 0
                 playcount_text = ''
                 playcountElem = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}playcount')               
                 if playcountElem != None:
                     playcount_text = playcountElem.text
-                    playcount = int(playcount_text)
-                    if playcount < 0:
-                        playcount = 0
-                        rtrimpos = itemurl.rfind('/')
-                        mobjectID = itemurl[rtrimpos+1:]                  # Get Mezzmo objectID
-                        if '.' in mobjectID:                              # Remove file extension
-                            mobjectID = mobjectID[:mobjectID.rfind('.')]
-                        setPlaycount(syncurl, mobjectID, str(playcount), title)
-                        msynclog = 'Mezzmo invalid playcount reset to 0: ' + title
-                        media.mezlogUpdate(msynclog, 'yes') 
-                        xbmc.log('Mezzmo placount info: ' + syncurl + ' ' + mobjectID, xbmc.LOGDEBUG)
-                 
-                last_played_text = ''
-                last_played = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}last_played')
-                if last_played != None:
-                    last_played_text = last_played.text
+                    playcount = media.checkMaxPlayCount(maxsetting, playcount_text, title, itemurl,     \
+                    syncurl, last_played_text)               
                         
                 writer_text = ''
                 writer = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}writers')
@@ -725,25 +722,25 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                         writer_text, creator_text, aired_text, rating_val, durationsecs, genre_text, trailerurl, \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,     \
                         sort_title_text, season_text, episode_text, showId, dupelog, itemurl, imdb_text,         \
-                        tags_text, imageSearchUrl, kdirector)
+                        tags_text, imageSearchUrl, kdirector, fsyncflag)
                     elif filekey[4] == 2:
                         mediaId = media.writeMusicVToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,            \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,          \
                         sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, episode_text,     \
-                        artist_text, imageSearchUrl, kdirector)
+                        artist_text, imageSearchUrl, kdirector, fsyncflag)
                     else:  
                         mediaId = media.writeMovieToDb(filekey, mtitle, description_text, tagline_text, writer_text, \
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                         sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
-                        kdirector, int(installed_version))
+                        kdirector, int(installed_version), fsyncflag)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                         nativeact, showId)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
-                    icon, backdropurl, dbfile, pathcheck, dupelog, knative)      # Update movie stream info 
+                    icon, backdropurl, dbfile, pathcheck, dupelog, knative, fsyncflag)  # Update movie stream info 
                     media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr, release_year_text, playcount,      \
                     release_date_text, icon, imdb_text)                          # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')

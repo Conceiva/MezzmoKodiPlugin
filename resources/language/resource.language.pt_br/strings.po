@@ -740,6 +740,10 @@ msgctxt "#30803"
 msgid "Maximum Mezzmo Search Results 25-500"
 msgstr "Resultados máximos da pesquisa Mezzmo 25-500"
 
+msgctxt "#30804"
+msgid "Mezzmo Maximum Playcount"
+msgstr "Contagem máxima de jogos do Mezzmo"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -991,3 +995,7 @@ msgstr "Quando ativado, sincroniza e exibe apenas um estúdio com Kodi. Isso é 
 msgctxt "#30563"
 msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
 msgstr "Limita o número de resultados de pesquisa do Mezzmo a 25-500. O padrão é 100."
+
+msgctxt "#30564"
+msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
+msgstr "Limita o valor da contagem de reproduções do Mezzmo apenas registrando, definindo a contagem de reproduções como não reproduzida ou redefinindo a contagem de reproduções para 1. O padrão é desativado / ilimitado."

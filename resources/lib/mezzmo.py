@@ -466,7 +466,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 cast_dict = []    # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None and imageSearchUrl != None:
+                if actors != None and imageSearchUrl != None and len(actors.text) > 2:
                     actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     if installed_version == '19':                     
                         for a in actor_list:                  
@@ -1127,7 +1127,7 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                 cast_dict = []        # Added cast & thumbnail display from Mezzmo server
                 cast_dict_keys = ['name','thumbnail']
                 actors = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}artist')
-                if actors != None and imageSearchUrl != None:
+                if actors != None and imageSearchUrl != None  and len(actors.text) > 2:
                     actor_list = actors.text.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(',')
                     if installed_version == '19':                     
                         for a in actor_list:                  
@@ -1641,7 +1641,7 @@ def promptSearch():
         url = args.get('contentdirectory', '')
         
         pin = media.settings('content_pin')
-        maxsearch = media.settings('maxsearch')
+        maxsearch = int(media.settings('maxsearch'))
         content = browse.Search(url[0], '0', searchCriteria, 0, maxsearch, pin)
         if len(content) > 0:                                  #  Check for server response
             handleSearch(content, url[0], '0', searchCriteria, maxsearch)
@@ -1754,7 +1754,7 @@ elif mode[0] == 'movieset':
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria)
+        handleSearch(content, scontenturl, '0', searchCriteria, 1000)
     else:
         downServer() 
 
@@ -1773,7 +1773,7 @@ elif mode[0] == 'collection':
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria, 100)        
+        handleSearch(content, scontenturl, '0', searchCriteria, 1000)        
     else:
         downServer() 
 

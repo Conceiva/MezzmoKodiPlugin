@@ -85,6 +85,11 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="only_mezzmo_servers" type="boolean" label="30350" help="30509">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="srvrdialog" type="boolean" label="30491" help="30556">
 					<level>0</level>
 					<default>true</default>
@@ -350,11 +355,6 @@
 		</category>
 		<category id="view" label="30300" help="">
 			<group id="1">
-				<setting id="only_mezzmo_servers" type="boolean" label="30350" help="30509">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
 				<setting id="viewmap" type="boolean" label="30387" help="30525">
 					<level>0</level>
 					<default>true</default>
@@ -1563,6 +1563,35 @@
 					<level>0</level>
 					<default>false</default>
 					<control type="toggle"/>
+				</setting>
+				<setting id="maxplayc" type="string" label="30804" help="30564">
+					<level>0</level>
+					<default>Off</default>
+					<constraints>
+						<options>
+							<option>Off</option>
+							<option>50 Log</option>
+                                                        <option>100 Log</option>
+                                                        <option>250 Log</option>
+                                                        <option>500 Log</option>
+                                                        <option>1000 Log</option>                                                                                                               <option>50 LastPlayed</option>
+                                                        <option>100 LastPlayed</option>
+                                                        <option>250 LastPlayed</option>
+                                                        <option>500 LastPlayed</option>
+                                                        <option>1000 LastPlayed</option>
+                                                        <option>50 NotPlayed</option>
+                                                        <option>100 NotPlayed</option>
+                                                        <option>250 NotPlayed</option>
+                                                        <option>500 NotPlayed</option>
+                                                        <option>1000 NotPlayed</option>
+                                                        <option>50 Reset</option>
+                                                        <option>100 Reset</option>
+                                                        <option>250 Reset</option>
+                                                        <option>500 Reset</option>
+                                                        <option>1000 Reset</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
 				</setting>
                                 <setting id="exportdata" type="action" label="30427" help="30533">
 	                                 <level>0</level>

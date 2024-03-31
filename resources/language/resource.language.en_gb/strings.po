@@ -740,6 +740,10 @@ msgctxt "#30803"
 msgid "Maximum Mezzmo Search Results 25-500"
 msgstr ""
 
+msgctxt "#30804"
+msgid "Mezzmo Maximum Playcount"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -991,3 +995,6 @@ msgstr ""
 msgctxt "#30563"
 msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
 msgstr ""
+
+msgctxt "#30564"
+msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
