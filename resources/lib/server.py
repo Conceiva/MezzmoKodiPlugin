@@ -781,33 +781,33 @@ def picDisplay():                                                # Picture slide
         piclist = getPictures()                                  # Get pictures from picture DB
         slidetime = int(settings('slidetime'))                   # Get slide pause time
         #xbmc.log('Mezzmo picture list: ' + str(piclist) , xbmc.LOGINFO)  
-        if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over UPnP
-            dialog_text = translate(30413)
-            xbmcgui.Dialog().ok(translate(30412), dialog_text)
-            xbmc.executebuiltin('Action(ParentDir)')
-            return
-        else:
-            cselect = 0
-            while cselect >= 0 :
-                pictures = [translate(30417), translate(30493), translate(30476), translate(30418), translate(30419)]
-                ddialog = xbmcgui.Dialog() 
-                cselect = ddialog.select(translate(30415), pictures)
-                if cselect < 0:
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                    xbmc.executebuiltin('Dialog.Close(all, true)')
-                    break
-                elif cselect == 0:                               # User selects manual slideshow
-                    manualSlides(piclist)
-                elif cselect == 1:                               # User selects normal timed slideshow
-                    ShowSlide(piclist, slidetime, 'no')
-                elif cselect == 2:                               # User selects continuous slideshow
-                    ShowSlide(piclist, slidetime, 'yes')
-                elif cselect == 3:                               # User selects pictures normal
-                    showPictureMenu(piclist, slidetime)
-                    #xbmc.executebuiltin('Action(ParentDir)')
-                elif cselect == 4:                               # User selects pictures extended
-                    showPictureMenu(piclist, (slidetime * 3))
-                    #xbmc.executebuiltin('Action(ParentDir)')
+        #if 'upnp' in str(piclist[0]['url']):                     # Kodi cannot display pictures over UPnP
+        #    dialog_text = translate(30413)
+        #    xbmcgui.Dialog().ok(translate(30412), dialog_text)
+        #    xbmc.executebuiltin('Action(ParentDir)')
+        #    return
+        #else:
+        cselect = 0
+        while cselect >= 0 :
+            pictures = [translate(30417), translate(30493), translate(30476), translate(30418), translate(30419)]
+            ddialog = xbmcgui.Dialog() 
+            cselect = ddialog.select(translate(30415), pictures)
+            if cselect < 0:
+                #xbmc.executebuiltin('Action(ParentDir)')
+                xbmc.executebuiltin('Dialog.Close(all, true)')
+                break
+            elif cselect == 0:                               # User selects manual slideshow
+                manualSlides(piclist)
+            elif cselect == 1:                               # User selects normal timed slideshow
+                ShowSlide(piclist, slidetime, 'no')
+            elif cselect == 2:                               # User selects continuous slideshow
+                ShowSlide(piclist, slidetime, 'yes')
+            elif cselect == 3:                               # User selects pictures normal
+                showPictureMenu(piclist, slidetime)
+                #xbmc.executebuiltin('Action(ParentDir)')
+            elif cselect == 4:                               # User selects pictures extended
+                showPictureMenu(piclist, (slidetime * 3))
+                #xbmc.executebuiltin('Action(ParentDir)')
 
     except Exception as e:    
         printexception()
@@ -924,15 +924,15 @@ def manualSlides(piclist):                                      # Manual slidesh
 def showSingle(url):                                             # Display individual native picture
 
     try:
-        if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over UPnP
-            dialog_text = translate(30413)
-            xbmcgui.Dialog().ok(translate(30406), dialog_text)
-            xbmc.executebuiltin('Action(ParentDir)')
-            return
-        else:
-            itemurl = picURL(url[0])
-            json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
-            "params":{"item":{"file":%s }},"id":1}' % (itemurl))  
+        #if 'upnp' in str(url[0]):                                # Kodi cannot display pictures over UPnP
+        #    dialog_text = translate(30413)
+        #    xbmcgui.Dialog().ok(translate(30406), dialog_text)
+        #    xbmc.executebuiltin('Action(ParentDir)')
+        #    return
+        #else:
+        itemurl = picURL(url[0])
+        json_query = xbmc.executeJSONRPC('{"jsonrpc":"2.0", "method":"Player.Open",        \
+        "params":{"item":{"file":%s }},"id":1}' % (itemurl))  
 
     except Exception as e:    
         printexception()

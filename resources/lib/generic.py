@@ -168,7 +168,9 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     if duration_text == None:
                         duration_text = '00:00:00.000'
                     elif len(duration_text) < 9:          #  Check for proper duration Twonky
-                        duration_text = duration_text + '.000'           
+                        duration_text = duration_text + '.000'
+                    elif duration_text[2] == ':' and duration_text[5] == ':':
+                        duration_text = duration_text[:8] + '.000'           
                     elif int(duration_text[len(duration_text)-3:len(duration_text)]) != 0:  
                         duration_text = duration_text[:6] + '.000'    
                     #xbmc.log('The duration is: ' + str(duration_text), xbmc.LOGINFO)  
@@ -651,12 +653,16 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     picnotify += 1
                     itemdict = {
                         'title': title,
-                         'url': itemurl,
+                        'url': itemurl,
+                        'idate': aired_text,
+                        'iwidth': video_width,
+                        'iheight': video_height,
+                        'idesc': description_text,
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB
-                        updatePictures(piclist)
                         if slideshow == 'true':                            # Slideshow display prompt
+                            updatePictures(piclist)
                             picDisplay()
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})  
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
