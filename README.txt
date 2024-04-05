@@ -10,6 +10,8 @@
 - Removed UPnP check for displaying photos with generic UPnP servers
 - Fixed bug in generic displaying of photo slideshow due to missing width, height
   and dates from item piclist dictionary
+- Fixed bug in generic displaying of music with Gerbera UPnP servers due to improper
+  format of originaltrack information. 
 
 2.2.0.3 3/13/2024
 

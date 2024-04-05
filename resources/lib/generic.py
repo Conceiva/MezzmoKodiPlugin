@@ -378,9 +378,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
                     episode_text = episode.text
-                else:                                  #  Added for MediaMonkey track number XML tag
+                else:                    
                     episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}originalTrackNumber')
-                    if episode != None:
+                    if episode != None and '/' in episode:      # Added for Gerbera server
+                        episode_split = episode.split('/')
+                        episode_text = episode_split[0]
+                    elif episode != None:                       #  Added for MediaMonkey track number XML tag
                         episode_text = episode.text   
                  
                 season_text = ''
@@ -573,8 +576,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if len(str(rating_valf)) > 0: vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if len(season_text) > 0: vinfo.setSeason(int(season_text))
-                        if len(episode_text) > 0: vinfo.setEpisode(int(episode_text))
+                        if len(season_text) > 0 and season_text.isdigit(): vinfo.setSeason(int(season_text))
+                        if len(episode_text) > 0 and episode_text.isdigit(): vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
                         vinfo.setMpaa(content_rating_text)
@@ -661,8 +664,8 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB
+                        updatePictures(piclist)
                         if slideshow == 'true':                            # Slideshow display prompt
-                            updatePictures(piclist)
                             picDisplay()
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})  
                 xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
