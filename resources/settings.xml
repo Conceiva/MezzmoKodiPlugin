@@ -365,6 +365,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="photoupnp" type="boolean" label="30805" help="30565">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="skinname" type="integer" label="30361" help="30510">
 					<level>0</level>
 					<default>Estuary</default>

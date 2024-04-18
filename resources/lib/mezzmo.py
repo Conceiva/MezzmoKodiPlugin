@@ -965,6 +965,7 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
+    searchmenu = itemcount = 0
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
@@ -1010,27 +1011,29 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
 
-            if searchcontrol == 'native' and searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
-                itemurl = build_url({'mode': 'home'})
-                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
-                'objectID': objectID})
-                li = xbmcgui.ListItem(menuitem10)
-                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-                li = xbmcgui.ListItem(menuitem11)
-                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
-            elif searchcontrol == 'native' and (searchcontrol2 == 'movieset' or searchcontrol2 == 'collection'):
-                itemurl = build_url({'mode': 'home'})
-                li = xbmcgui.ListItem(menuitem10)
-                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-            elif searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
-                itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
-                'objectID': objectID})
-                li = xbmcgui.ListItem(menuitem11)
-                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
-                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+            if searchmenu == 0:
+                if searchcontrol == 'native' and searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
+                    itemurl = build_url({'mode': 'home'})
+                    itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
+                    'objectID': objectID})
+                    li = xbmcgui.ListItem(menuitem10)
+                    li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                    li = xbmcgui.ListItem(menuitem11)
+                    li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+                elif searchcontrol == 'native' and (searchcontrol2 == 'movieset' or searchcontrol2 == 'collection'):
+                    itemurl = build_url({'mode': 'home'})
+                    li = xbmcgui.ListItem(menuitem10)
+                    li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                elif searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
+                    itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
+                    'objectID': objectID})
+                    li = xbmcgui.ListItem(menuitem11)
+                    li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
+                searchmenu += 1
             
             #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             elems = xml.etree.ElementTree.fromstring(result.text)
@@ -1509,7 +1512,9 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
 
                 if validf == 1:  
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-            
+                    itemcount += 1         #  Increment item counter
+
+            xbmc.log('Mezzmo search item count: ' + str(itemcount) + ' ' + str(reqcount), xbmc.LOGDEBUG)            
             itemsleft = itemsleft - int(NumberReturned) - 1
             if itemsleft <= 0 or itemsleft > int(NumberReturned):
                 dbfile.commit()
@@ -1533,6 +1538,11 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
             requestedCount = reqcount
             if itemsleft < reqcount:
                 requestedCount = itemsleft
+
+            if itemcount >= reqcount:      # Max count reached
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
+                break                
             
             pin = media.settings('content_pin')   
             content = browse.Search(contenturl, objectID, term, offset, requestedCount, pin)

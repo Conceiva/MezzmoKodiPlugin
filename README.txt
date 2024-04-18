@@ -1,3 +1,18 @@
+2.2.0.4 4/18/2024
+
+- Added checking to ensure multiple instances of New Search would be displayed in a
+  Search result when a large number of search items are returned.  
+- Improved checking for maximum search results introduced under v2.2.0.1.  Previously
+  there were instances where more items would be displayed than the addon setting.
+- Added error checking for certain Linux platforms not able to import the common.py
+  file properly due to Python handling of inspect command
+- Added improved duration format checking for certain UPnP servers
+- Added addon setting to enable displaying of photos with generic UPnP servers
+- Fixed bug in generic UPnP displaying of photo slideshow due to missing width, height
+  and dates from item piclist dictionary
+- Fixed bug in generic displaying of music with Gerbera UPnP servers due to improper
+  format of originaltrack information. 
+
 2.2.0.3 3/13/2024
 
 - Improved accuracy of Kodi record count for sync stats.  Previously it would double

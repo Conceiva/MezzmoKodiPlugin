@@ -168,7 +168,9 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     if duration_text == None:
                         duration_text = '00:00:00.000'
                     elif len(duration_text) < 9:          #  Check for proper duration Twonky
-                        duration_text = duration_text + '.000'           
+                        duration_text = duration_text + '.000'
+                    elif duration_text[2] == ':' and duration_text[5] == ':':
+                        duration_text = duration_text[:8] + '.000'           
                     elif int(duration_text[len(duration_text)-3:len(duration_text)]) != 0:  
                         duration_text = duration_text[:6] + '.000'    
                     #xbmc.log('The duration is: ' + str(duration_text), xbmc.LOGINFO)  
@@ -376,9 +378,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
                     episode_text = episode.text
-                else:                                  #  Added for MediaMonkey track number XML tag
+                else:                    
                     episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}originalTrackNumber')
-                    if episode != None:
+                    if episode != None and '/' in episode:      # Added for Gerbera server
+                        episode_split = episode.split('/')
+                        episode_text = episode_split[0]
+                    elif episode != None:                       #  Added for MediaMonkey track number XML tag
                         episode_text = episode.text   
                  
                 season_text = ''
@@ -567,12 +572,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         vinfo.setTagLine(tagline_text)
                         if writer_text is not None: vinfo.setWriters(writer_text.split(','))
                         #xbmc.log('Mezzmo rartists is: ' + str(artist_text), xbmc.LOGINFO) 
-                        if artist_text is not None: vinfo.setArtists(artist_text) 
+                        if artist_text is not None and isinstance(artist_text, list): vinfo.setArtists(artist_text) 
                         if len(str(rating_valf)) > 0: vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
-                        if len(season_text) > 0: vinfo.setSeason(int(season_text))
-                        if len(episode_text) > 0: vinfo.setEpisode(int(episode_text))
+                        if len(season_text) > 0 and season_text.isdigit(): vinfo.setSeason(int(season_text))
+                        if len(episode_text) > 0 and episode_text.isdigit(): vinfo.setEpisode(int(episode_text))
                         vinfo.setLastPlayed(last_played_text)
                         vinfo.setFirstAired(aired_text)
                         vinfo.setMpaa(content_rating_text)
@@ -624,11 +629,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         if len(genre_text) > 0: minfo.setGenres(genre_text)
                         if len(release_year_text) > 0: minfo.setYear(int(release_year_text))
                         minfo.setTitle(title)
-                        if artist_text is not None: minfo.setArtist(str(artist_text))
+                        if artist_text is not None and isinstance(artist_text, list): minfo.setArtist(str(artist_text))
                         if len(str(rating_valf)) > 0: minfo.setRating(rating_valf)
-                        if len(season_text) > 0: minfo.setDisc(int(season_text))
+                        if len(season_text) > 0 and season_text.isdigit(): minfo.setDisc(int(season_text))
                         minfo.setMediaType('song')
-                        if len(episode_text) > 0: minfo.setTrack(int(episode_text))
+                        if len(episode_text) > 0 and episode_text.isdigit(): minfo.setTrack(int(episode_text))
                         minfo.setAlbum(album_text)
                         if playcount is not None: minfo.setPlayCount(int(playcount))
                         minfo.setLastPlayed(last_played_text)
@@ -651,7 +656,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     picnotify += 1
                     itemdict = {
                         'title': title,
-                         'url': itemurl,
+                        'url': itemurl,
+                        'idate': aired_text,
+                        'iwidth': video_width,
+                        'iheight': video_height,
+                        'idesc': description_text,
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB

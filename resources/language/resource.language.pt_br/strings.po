@@ -378,7 +378,7 @@ msgstr "Mezzmo Visualizador de Slideshow"
 
 msgctxt "#30413"
 msgid "Kodi is unable to display pictures via native UPnP.  Please choose a different UPnP server for viewing pictures."
-msgstr "O Kodi não consegue exibir imagens via UPnP nativo. Escolha um servidor UPnP diferente para visualizar as imagens"
+msgstr "O Kodi pode não conseguir exibir imagens via UPnP nativo. A exibição de imagens via UPnP está desativada nas configurações do complemento."
 
 msgctxt "#30414"
 msgid "There were no matching search results found on your Mezzmo server."
@@ -744,6 +744,10 @@ msgctxt "#30804"
 msgid "Mezzmo Maximum Playcount"
 msgstr "Contagem máxima de jogos do Mezzmo"
 
+msgctxt "#30805"
+msgid "Kodi UPnP Pictures / Photos"
+msgstr "Imagens / fotos Kodi UPnP"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -999,3 +1003,7 @@ msgstr "Limita o número de resultados de pesquisa do Mezzmo a 25-500. O padrão
 msgctxt "#30564"
 msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
 msgstr "Limita o valor da contagem de reproduções do Mezzmo apenas registrando, definindo a contagem de reproduções como não reproduzida ou redefinindo a contagem de reproduções para 1. O padrão é desativado / ilimitado."
+
+msgctxt "#30565"
+msgid "Playing of pictures / photos via UPnP with Kodi doesn't always work.  You can enable this setting to try with a UPnP server.  Default is disabled."
+msgstr "A reprodução de imagens/fotos via UPnP com Kodi nem sempre funciona. Você pode ativar esta configuração para tentar com um servidor UPnP. O padrão é desabilitado."
