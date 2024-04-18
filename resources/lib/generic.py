@@ -166,11 +166,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     if duration_text == None:
                         duration_text = '00:00:00.000'
                     elif len(duration_text) < 9:          #  Check for proper duration Twonky
-                        duration_text = duration_text + '.000'  
-                    elif  len(duration_text) > 12:        #  Check for proper duration Jellyfin
-                        duration_text = duration_text[:9] + '000'         
+                        duration_text = duration_text + '.000'
+                    elif duration_text[2] == ':' and duration_text[5] == ':':
+                        duration_text = duration_text[:8] + '.000'           
                     elif int(duration_text[len(duration_text)-3:len(duration_text)]) != 0:  
-                        duration_text = duration_text[:6] + '.000'
+                        duration_text = duration_text[:6] + '.000'  
                     #xbmc.log('The duration is: ' + str(duration_text), xbmc.LOGNOTICE)                    
                     resolution_text = res.get('resolution')
                     if resolution_text != None:
@@ -357,10 +357,13 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                 episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}episode')
                 if episode != None:
                     episode_text = episode.text
-                else:                                  #  Added for MediaMonkey track number XML tag
+                else:                    
                     episode = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}originalTrackNumber')
-                    if episode != None:
-                        episode_text = episode.text   
+                    if episode != None and '/' in episode:      # Added for Gerbera server
+                        episode_split = episode.split('/')
+                        episode_text = episode_split[0]
+                    elif episode != None:                       #  Added for MediaMonkey track number XML tag
+                        episode_text = episode.text    
                  
                 season_text = ''
                 season = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}season')
@@ -575,7 +578,11 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                     picnotify += 1
                     itemdict = {
                         'title': title,
-                         'url': itemurl,
+                        'url': itemurl,
+                        'idate': aired_text,
+                        'iwidth': video_width,
+                        'iheight': video_height,
+                        'idesc': description_text,
                     }
                     piclist.append(itemdict)
                     if picnotify == int(NumberReturned):                   # Update picture DB
