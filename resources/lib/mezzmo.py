@@ -268,6 +268,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     trcount = media.settings('trcount')                 # Checks multiple trailer setting
+    mbackdrop = media.settings('mbackdrop')             # Checks container backdrop setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -321,15 +322,27 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                    xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)  
+                    xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)
+
+                cbackdropurl = container.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
+                if cbackdropurl != None and mbackdrop == 'Mezzmo':
+                    cbackdropurl = cbackdropurl.text
+                    if '.jpg' not in cbackdropurl: 
+                        cbackdropurl  = cbackdropurl  + '.jpg'
+                else:
+                    cbackdropurl = addon_fanart   
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,        \
                 'contentdirectory': contenturl})
                 if installed_version > '17':                
                     li = xbmcgui.ListItem(title, iconImage=icon, offscreen=True)
                 else:
-                    li = xbmcgui.ListItem(title, iconImage=icon)        
-                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})  
+                    li = xbmcgui.ListItem(title, iconImage=icon)
+        
+                if mbackdrop != 'None':
+                    li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': cbackdropurl})
+                else:             
+                    li.setArt({'banner': icon, 'poster': icon, 'icon': icon}) 
               
                 mediaClass_text = 'video'
                 info = {

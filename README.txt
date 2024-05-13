@@ -1,3 +1,10 @@
+1.2.0.5 5/13/2024
+
+- Added new setting to select folder / playlist backdrop source or None.  Previously 
+  only the generic addon backdrop was used.  Now the Mezzmo playlist / folder backdrops
+  can be selected for display.  The default setting is Mezzmo.  Addon was the previous
+  default behavior with prior versions of the addon.
+
 1.2.0.4 4/18/2024
 
 - Fixed where multiple instances of New Search would be displayed in a Search result

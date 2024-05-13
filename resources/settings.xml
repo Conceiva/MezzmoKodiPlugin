@@ -45,6 +45,7 @@
     </category>
     <!-- View -->
     <category label="30300">
+    <setting id="mbackdrop" type="labelenum" label="30806" values="Addon|Mezzmo|None" default="Mezzmo"/>
     <setting id="viewmap" type="bool" label="30387" default="true"/>
     <setting id="slideshow" type="bool" label="30425" default="true"/>
     <setting id="skinname" type="enum" label="30361" values="Estuary|Confluence|Aeon Nox 5" default="Estuary"/>

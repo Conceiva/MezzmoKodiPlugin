@@ -377,7 +377,7 @@ msgid "Mezzmo Slideshow Viewer"
 msgstr ""
 
 msgctxt "#30413"
-msgid "Kodi is unable to display pictures via native UPnP.  Please choose a different UPnP server for viewing pictures."
+msgid "Kodi may not be able to display pictures via native UPnP.  Displaying of pictures via UPnP is disabled in the addon settings."
 msgstr ""
 
 msgctxt "#30414"
@@ -740,6 +740,18 @@ msgctxt "#30803"
 msgid "Maximum Mezzmo Search Results 25-500"
 msgstr ""
 
+msgctxt "#30804"
+msgid "Mezzmo Maximum Playcount"
+msgstr ""
+
+msgctxt "#30805"
+msgid "Kodi UPnP Pictures / Photos"
+msgstr ""
+
+msgctxt "#30806"
+msgid "Playlist / Folder Backdrop"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -990,4 +1002,15 @@ msgstr ""
 
 msgctxt "#30563"
 msgid "Limits the number of search results from Mezzmo to 25-500. Default is 100."
+msgstr ""
+
+msgctxt "#30564"
+msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
+
+msgctxt "#30565"
+msgid "Playing of pictures / photos via UPnP with Kodi doesn't always work.  You can enable this setting to try with a UPnP server.  Default is disabled."
+msgstr ""
+
+msgctxt "#30566"
+msgid "Selects backdrop when browsing playlists.  Choices are standard Mezzmo addon backdrop, Mezzmo playlist / folder backdrop or None.  Default is Mezzmo."
 msgstr ""
