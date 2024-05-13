@@ -355,6 +355,18 @@
 		</category>
 		<category id="view" label="30300" help="">
 			<group id="1">
+				<setting id="mbackdrop" type="string" label="30806" help="30542">
+					<level>0</level>
+					<default>Mezzmo</default>
+					<constraints>
+						<options>
+							<option label="Addon">Addon</option>
+							<option label="Mezzmo">Mezzmo</option>
+							<option label="None">None</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="viewmap" type="boolean" label="30387" help="30525">
 					<level>0</level>
 					<default>true</default>

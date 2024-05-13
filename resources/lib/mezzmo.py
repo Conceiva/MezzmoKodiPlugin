@@ -269,6 +269,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     trcount = media.settings('trcount')                 # Checks multiple trailer setting
     sstudio = media.settings('singlestudio')            # Checks for single studio setting
+    mbackdrop = media.settings('mbackdrop')             # Checks container backdrop setting
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -322,7 +323,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     icon = icon.text
                     if (icon[-4:]) !=  '.jpg': 
                         icon = icon + '.jpg'
-                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)    
+                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)
+
+                cbackdropurl = container.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
+                if cbackdropurl != None and mbackdrop == 'Mezzmo':
+                    cbackdropurl = cbackdropurl.text
+                    if '.jpg' not in cbackdropurl: 
+                        cbackdropurl  = cbackdropurl  + '.jpg'
+                else:
+                    cbackdropurl = addon_fanart    
 
                 itemurl = build_url({'mode': 'server', 'parentID': objectID, 'objectID': containerid,           \
                 'contentdirectory': contenturl})
@@ -340,7 +349,10 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     finfo.setPlot(description_text)
                     finfo.setMediaType(mediaClass_text)  
 
-                li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': addon_fanart})             
+                if mbackdrop != 'None':
+                    li.setArt({'banner': icon, 'poster': icon, 'icon': icon, 'fanart': cbackdropurl})
+                else:             
+                    li.setArt({'banner': icon, 'poster': icon, 'icon': icon})
                     
                 searchargs = urllib.parse.urlencode({'mode': 'search', 'contentdirectory': contenturl,            \
                 'objectID': containerid})
@@ -478,9 +490,13 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         for a in range(len(actor_list)):                  
                             actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
                             #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
-                            actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
-                            cast_dict.append(actor) 
-
+                            if len(actor_list[a]) > 0:
+                                actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
+                                cast_dict.append(actor)
+                            else:
+                                mgenlog = 'Mezzmo issue with actor list in: ' + str(title)
+                                media.mgenlogUpdate(mgenlog)                                
+                                
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')
                 if creator != None:
@@ -1142,8 +1158,12 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                         for a in range(len(actor_list)):                  
                             actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
                             #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
-                            actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
-                            cast_dict.append(actor)                  
+                            if len(actor_list[a]) > 0:
+                                actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
+                                cast_dict.append(actor)
+                            else:
+                                mgenlog = 'Mezzmo issue with actor list in: ' + str(title)
+                                media.mgenlogUpdate(mgenlog)                    
 
                 creator_text = ''
                 creator = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}creator')

@@ -748,6 +748,10 @@ msgctxt "#30805"
 msgid "Kodi UPnP Pictures / Photos"
 msgstr ""
 
+msgctxt "#30806"
+msgid "Playlist / Folder Backdrop"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -1005,4 +1009,8 @@ msgid "Limits the Mezzmo playcount value by just logging, setting the play counn
 
 msgctxt "#30565"
 msgid "Playing of pictures / photos via UPnP with Kodi doesn't always work.  You can enable this setting to try with a UPnP server.  Default is disabled."
+msgstr ""
+
+msgctxt "#30566"
+msgid "Selects backdrop when browsing playlists.  Choices are standard Mezzmo addon backdrop, Mezzmo playlist / folder backdrop or None.  Default is Mezzmo."
 msgstr ""

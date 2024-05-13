@@ -1,3 +1,15 @@
+2.2.0.5 5/13/2024
+
+- Fixed minor bug where improperly and formatted actor list entry from Mezzmo or UPnP 
+  server could cause an exception error with Kodi 20 and higher.  The performance stats
+  would not display for the playlist.  This was due to a zero length actor entry.  
+  These entries will be ignored now but a message will be added to the Mezzmo addon 
+  logging facility to indicate an issue.
+- Added new setting to select folder / playlist backdrop source or None.  Previously 
+  only the generic addon backdrop was used.  Now the Mezzmo playlist / folder backdrops
+  can be selected for display.  The default setting is Mezzmo.  Addon was the previous
+  default behavior with prior versions of the addon.
+
 2.2.0.4 4/18/2024
 
 - Added checking to ensure multiple instances of New Search would be displayed in a
