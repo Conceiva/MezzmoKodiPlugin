@@ -1198,7 +1198,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnativeact, mshowId):
 
-    if len(actors) > 2:
+    if len(actors) > 2 and 'Unknown Artist' not in actors:
         actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')
     else:
         return    
