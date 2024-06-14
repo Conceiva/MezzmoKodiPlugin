@@ -960,9 +960,14 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
                 (mpath, catype, ppathnumb))
             else:
                 scraper = 'metadata.local'
-                db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,     \
-                idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, catype, scraper, '1', '0',          \
-                ppathnumb))
+                if catype == 'tvshows':
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude, \
+                    idParentPath, scanRecursive, useFolderNames) values (?, ?, ?, ?, ?, ?, ?, ?)',    \
+                    (mpath, catype, scraper, '1', '0', ppathnumb, '0', '1',))
+                else:
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude, \
+                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, catype, scraper, '1', '0',      \
+                    ppathnumb))
             curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',            \
             (mpath, catype,)) 
             pathtuple = curp.fetchone()
@@ -1264,7 +1269,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnativeact, mshowId):
 
-    if len(actors) > 2:
+    if len(actors) > 2 and 'Unknown Artist' not in actors:
         actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')
     else:                                           # no valid actor information
         return    
@@ -1398,9 +1403,14 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                     else:
                         #scraper = 'metadata.themoviedb.org.python'
                         scraper = 'metadata.local'
-                        db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
-                        idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, mcategory, scraper, '1', '0',         \
-                        int(fileId[2])))
+                        if mcategory == 'tvshows':
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,  \
+                            idParentPath, scanRecursive, useFolderNames) values (?, ?, ?, ?, ?, ?, ?, ?)',     \
+                            (mpath, mcategory, scraper, '1', '0', int(fileId[2]), '0', '1',))
+                        else:
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,  \
+                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, mcategory, scraper, '1', '0',    \
+                            int(fileId[2],)))
                     curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
                     pathtuple = curp.fetchone()
                 pathnumb = pathtuple[0]

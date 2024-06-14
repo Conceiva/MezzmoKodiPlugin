@@ -1,3 +1,10 @@
+2.2.0.6 6/14/2024
+
+- Fixed issue caused by path table behavior change in Kodi 21 where information
+  panel for TV Episodes was not working in some instances using Kodi native mode.
+- Removed Mezzmo Unknown Actor entry, when a video entry does not have any actors,
+  from syncing to the Kodi database.
+
 2.2.0.5 5/13/2024
 
 - Fixed minor bug where improperly and formatted actor list entry from Mezzmo or UPnP 
