@@ -7,8 +7,8 @@
   more leveraging the UserPoster feature.  Currently limited to movies.
 - Added enhanced description option which will prepend the Last Played Date / Time
   and playcount to the media item description.    
-- Moved some log entries which were beign written to the general log file to their 
-  proper sync log dataabse.
+- Moved some log entries which were being written to the general log file to their 
+  proper sync log database.
 - Continued the Kodi logfile reduction effort by writing them to the addon general
   and sync logs.
 
