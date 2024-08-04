@@ -27,6 +27,7 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 - Full data <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Data-Export">exporting</a> of Kodi video database tables and Mezzmo addon data
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/uPNP-Server-Support">UPnP servers</a>
+- Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Artwork">artwork management</a> including autmatic identification of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Artwork#finding-missing-artwork">mising artwork</a>.
 - Automatic Mezzmo / Kodi database background synchronization with up to <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Native-Kodi-Access#mezzmo-selective-sync">5 custom views</a> 
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
 - Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content
