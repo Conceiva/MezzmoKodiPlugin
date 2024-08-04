@@ -1,3 +1,17 @@
+2.2.0.7 8/4/2024
+
+- Added support for PNG artwork with Mezzmo servers.  Requires Mezzmo v6.0.7.25 .
+- Added detection for missing Mezzmo artwork when syncing with Kodi.  Now a sync
+  log entry will be generated indicating missing artwork.
+- Added support for Kodi additional artwork like clearlogo, clearart, banners and
+  more leveraging the UserPoster feature.  Currently limited to movies.
+- Added enhanced description option which will prepend the Last Played Date / Time
+  and playcount to the media item description.    
+- Moved some log entries which were beign written to the general log file to their 
+  proper sync log dataabse.
+- Continued the Kodi logfile reduction effort by writing them to the addon general
+  and sync logs.
+
 2.2.0.6 6/14/2024
 
 - Fixed issue caused by path table behavior change in Kodi 21 where information

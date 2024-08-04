@@ -752,6 +752,14 @@ msgctxt "#30806"
 msgid "Playlist / Folder Backdrop"
 msgstr "Pano de fundo da lista de reprodução / pasta"
 
+msgctxt "#30807"
+msgid "Enhanced Descriptions"
+msgstr "Descrições aprimoradas"
+
+msgctxt "#30808"
+msgid "Kodi Additional Artwork"
+msgstr "Arte adicional Kodi"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -1015,3 +1023,11 @@ msgstr "A reprodução de imagens/fotos via UPnP com Kodi nem sempre funciona. V
 msgctxt "#30566"
 msgid "Selects backdrop when browsing playlists.  Choices are standard Mezzmo addon backdrop, Mezzmo playlist / folder backdrop or None.  Default is Mezzmo."
 msgstr "Seleciona o pano de fundo ao navegar nas playlists. As opções são cenário padrão do complemento Mezzmo, cenário de lista de reprodução/pasta Mezzmo ou Nenhum. O padrão é Mezzmo."
+
+msgctxt "#30567"
+msgid "Prepends additional information such as Last Played Date / Time and Play Count to media item description. Default is Off."
+msgstr "Acrescenta informações adicionais, como data/hora da última reprodução e contagem de reproduções, à descrição do item de mídia. O padrão é desativado."
+
+msgctxt "#30568"
+msgid "Adds additional Kodi artwork entries such as Clearlogo, Clearart, Banner and more which can leverage the UserPoster feature for additional artwork.  Default is disabled."
+msgstr "Adiciona entradas adicionais de arte Kodi, como Clearlogo, Clearart, Banner e muito mais, que podem aproveitar o recurso UserPoster para arte adicional.  O padrão é desabilitado."

@@ -270,6 +270,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
     trcount = media.settings('trcount')                 # Checks multiple trailer setting
     sstudio = media.settings('singlestudio')            # Checks for single studio setting
     mbackdrop = media.settings('mbackdrop')             # Checks container backdrop setting
+    enhdesc = media.settings('enhdesc')                 # Enhanced description setting
+    kodiart = media.settings('kodiart')                 # Additional Kodi artwork
     menuitem1 = addon.getLocalizedString(30347)
     menuitem2 = addon.getLocalizedString(30346)
     menuitem3 = addon.getLocalizedString(30372)
@@ -321,15 +323,15 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
-                        xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)
+                    #if (icon[-4:]) !=  '.jpg': 
+                    #    icon = icon + '.jpg'
+                    xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)
 
                 cbackdropurl = container.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if cbackdropurl != None and mbackdrop == 'Mezzmo':
                     cbackdropurl = cbackdropurl.text
-                    if '.jpg' not in cbackdropurl: 
-                        cbackdropurl  = cbackdropurl  + '.jpg'
+                    #if '.jpg' not in cbackdropurl: 
+                    #    cbackdropurl  = cbackdropurl  + '.jpg'
                 else:
                     cbackdropurl = addon_fanart    
 
@@ -392,9 +394,9 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
                     icon = albumartUri.text
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
-                        xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
+                    #if (icon[-4:]) !=  '.jpg': 
+                    #    icon = icon + '.jpg'
+                    xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
 
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
@@ -422,11 +424,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
-                    if (backdropurl [-4:]) !=  '.jpg': 
-                        backdropurl  = backdropurl  + '.jpg'
+                    #if (backdropurl [-4:]) !=  '.jpg': 
+                    #    backdropurl  = backdropurl  + '.jpg'
 
                 li = xbmcgui.ListItem(title, offscreen=True)
-                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+                #li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
                   
@@ -702,9 +704,30 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     if mediaClass_text == 'P':
                         mediaClass_text = 'pictures'
 
-                durationsecs = sync.getSeconds(duration_text)                           #  convert movie duration to seconds                        
-                if mediaClass_text == 'video' and validf == 1:    
+                durationsecs = sync.getSeconds(duration_text)                           #  convert movie duration to seconds
+                if kodiart == 'false' or categories_text != 'movie' :                   #  Normal artwork
+                    li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})                        
+                if mediaClass_text == 'video' and validf == 1:
+                    if enhdesc in ['GUI', 'Both']:                                      #  Check for enhanced description
+                        description_text = media.enhancedDesc(last_played_text, \
+                        playcount_text, description_text)
                     mtitle = media.displayTitles(title)					#  Normalize title
+                    if kodiart == 'true' and categories_text == 'movie':                #  Additional artwork
+                        arttitle = media.kodiArtTitle(mtitle)
+                        cleararturl = imageSearchUrl + arttitle + "+clearart"
+                        clearlogourl = imageSearchUrl + arttitle + "+clearlogo"
+                        bannerurl = imageSearchUrl + arttitle + "+banner"
+                        discarturl = imageSearchUrl + arttitle + "+discart"
+                        keyarturl = imageSearchUrl + arttitle + "+keyart" 
+                        landscurl = imageSearchUrl + arttitle + "+landscape"  
+                        artwork = {'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl, 
+                                  'clearart': cleararturl, 'clearlogo': clearlogourl, 'banner': bannerurl,
+                                  'discart': discarturl, 'keyart': keyarturl, 'landscape': landscurl,
+                                  }
+                        li.setArt(artwork)
+                        xbmc.log('Mezzmo Kodi artwork is: ' + str(artwork), xbmc.LOGDEBUG)
+                    else:
+                        li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})                        
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     pcseries = '"' + album_text + '"'                                   #  Handle commas
                     mtype = categories_text                 
@@ -997,7 +1020,9 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
     sstudio = media.settings('singlestudio')            # Checks for single studio setting
-    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled. 
+    sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled
+    enhdesc = media.settings('enhdesc')                 # Enhanced description setting
+    kodiart = media.settings('kodiart')                 # Additional Kodi artwork 
     
     try:
         while True:
@@ -1062,9 +1087,9 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
                     icon = albumartUri.text
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
-                        xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)    
+                    #if (icon[-4:]) !=  '.jpg': 
+                    #    icon = icon + '.jpg'
+                    xbmc.log('Handle search initial icon is: ' + icon, xbmc.LOGDEBUG)    
                 res = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}res')
                 subtitleurl = None
                 duration_text = ''
@@ -1090,11 +1115,11 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
-                    if (backdropurl [-4:]) !=  '.jpg': 
-                        backdropurl  = backdropurl  + '.jpg'
+                    #if (backdropurl [-4:]) !=  '.jpg': 
+                    #    backdropurl  = backdropurl  + '.jpg'
                 
                 li = xbmcgui.ListItem(title)
-                li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
+                #li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})
                 if subtitleurl != None:
                     li.setSubtitles([subtitleurl])
 
@@ -1344,7 +1369,29 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                         mediaClass_text = 'picture'
 
                 durationsecs = sync.getSeconds(duration_text)                           #  convert duration to seconds before passing                        
-                if mediaClass_text == 'video' and validf == 1:  
+                if kodiart == 'false' or categories_text != 'movie' :                   #  Normal artwork
+                    li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})                        
+                if mediaClass_text == 'video' and validf == 1:
+                    if enhdesc in ['GUI', 'Both']:                                      #  Check for enhanced description
+                        description_text = media.enhancedDesc(last_played_text, \
+                        playcount_text, description_text)
+                    mtitle = media.displayTitles(title)					#  Normalize title
+                    if kodiart == 'true' and categories_text == 'movie':                #  Additional artwork
+                        arttitle = media.kodiArtTitle(mtitle)
+                        cleararturl = imageSearchUrl + arttitle + "+clearart"
+                        clearlogourl = imageSearchUrl + arttitle + "+clearlogo"
+                        bannerurl = imageSearchUrl + arttitle + "+banner"
+                        discarturl = imageSearchUrl + arttitle + "+discart"
+                        keyarturl = imageSearchUrl + arttitle + "+keyart" 
+                        landscurl = imageSearchUrl + arttitle + "+landscape"  
+                        artwork = {'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl, 
+                                  'clearart': cleararturl, 'clearlogo': clearlogourl, 'banner': bannerurl,
+                                  'discart': discarturl, 'keyart': keyarturl, 'landscape': landscurl,
+                                  }
+                        li.setArt(artwork)
+                        xbmc.log('Mezzmo Kodi artwork is: ' + str(artwork), xbmc.LOGDEBUG)
+                    else:
+                        li.setArt({'thumb': icon, 'poster': icon, 'icon': icon, 'fanart': backdropurl})  
                     mtitle = media.displayTitles(title)					#  Normalize title
                     pctitle = '"' + mtitle + '"'  		                        #  Handle commas
                     if int(trcount) > 0 and trailerurl != None:        

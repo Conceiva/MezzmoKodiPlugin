@@ -752,6 +752,14 @@ msgctxt "#30806"
 msgid "Playlist / Folder Backdrop"
 msgstr ""
 
+msgctxt "#30807"
+msgid "Enhanced Descriptions"
+msgstr ""
+
+msgctxt "#30808"
+msgid "Kodi Additional Artwork"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -1013,4 +1021,12 @@ msgstr ""
 
 msgctxt "#30566"
 msgid "Selects backdrop when browsing playlists.  Choices are standard Mezzmo addon backdrop, Mezzmo playlist / folder backdrop or None.  Default is Mezzmo."
+msgstr ""
+
+msgctxt "#30567"
+msgid "Prepends additional information such as Last Played Date / Time and Play Count to media item description. Default is Off."
+msgstr ""
+
+msgctxt "#30568"
+msgid "Adds additional Kodi artwork entries such as Clearlogo, Clearart, Banner and more which can leverage the UserPoster feature for additional artwork.  Default is disabled."
 msgstr ""

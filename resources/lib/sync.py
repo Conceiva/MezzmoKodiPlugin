@@ -359,6 +359,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
     musicvid = media.settings('musicvid')
     sstudio = media.settings('singlestudio')         # Checks for single studio setting
     maxsetting = media.settings('maxplayc')          # Maximum Playcount setting
+    enhdesc = media.settings('enhdesc')              # Enhanced description setting
+    kodiart = media.settings('kodiart')              # Additional Kodi artwork 
     installed_version = media.get_installedversion()
 
     if maxrecords == 10 or maxrecords == 30:         # fast sync flag to reduce logging
@@ -422,8 +424,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                 icon = container.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if icon != None:
                     icon = icon.text
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
+                    #if (icon[-4:]) !=  '.jpg': 
+                    #    icon = icon + '.jpg'
                     xbmc.log('Handle browse initial icon is: ' + icon, xbmc.LOGDEBUG)             
 
             dbfile = media.openKodiDB()                   #  Open Kodi database
@@ -435,8 +437,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                 albumartUri = item.find('.//{urn:schemas-upnp-org:metadata-1-0/upnp/}albumArtURI')
                 if albumartUri != None:
                     icon = albumartUri.text  
-                    if (icon[-4:]) !=  '.jpg': 
-                        icon = icon + '.jpg'
+                    #if (icon[-4:]) !=  '.jpg': 
+                    #    icon = icon + '.jpg'
                     xbmc.log('Handle browse second icon is: ' + icon, xbmc.LOGDEBUG)    
                 else:
                     icon = ''    
@@ -470,8 +472,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                 backdropurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}cvabackdrop')
                 if backdropurl != None:
                     backdropurl = backdropurl.text
-                    if (backdropurl [-4:]) !=  '.jpg': 
-                        backdropurl  = backdropurl  + '.jpg'
+                    #if (backdropurl [-4:]) !=  '.jpg': 
+                    #    backdropurl  = backdropurl  + '.jpg'
 
                 trailerurl = ''                                     
                 trailerurl = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}trailer')
@@ -696,7 +698,10 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                         mediaClass_text = 'picture'
 
                 mtitle = media.displayTitles(title)
-                #xbmc.log('Mezzmo livec checking: ' +  mtitle + str(clean), xbmc.LOGINFO)                          
+                #xbmc.log('Mezzmo livec checking: ' +  mtitle + str(clean), xbmc.LOGINFO)
+                if enhdesc in ['Native', 'Both']:                       #  Check for enhanced description
+                    description_text = media.enhancedDesc(last_played_text, \
+                    playcount_text, description_text)
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
                 mezzmocounts += 1
                 if (tvcheckval[1] == 1 or size == 100000000000) and validf == 1 and clean == 1:   #  Update live channel
@@ -734,13 +739,13 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                         creator_text, release_date_text, rating_val, durationsecs, genre_text, trailerurl,           \
                         content_rating_text, icon, kodichange, backdropurl, dbfile, production_company_text,         \
                         sort_title_text, dupelog, itemurl, imdb_text, tags_text, knative, movieset, imageSearchUrl,  \
-                        kdirector, int(installed_version), fsyncflag)
+                        kdirector, int(installed_version), fsyncflag, kodiart)
                     if (artist != None and filekey[0] > 0) or mediaId == 999999: #  Add actor information to new movie
                         media.writeActorsToDb(artist_text, mediaId, imageSearchUrl, mtitle, dbfile, filekey, 
                         nativeact, showId)
                     media.writeMovieStreams(filekey, video_codec_text, aspect, video_height, video_width,         \
                     audio_codec_text, audio_channels_text, audio_lang, durationsecs, mtitle, kodichange, itemurl, \
-                    icon, backdropurl, dbfile, pathcheck, dupelog, knative, fsyncflag)  # Update movie stream info 
+                    icon, backdropurl, dbfile, pathcheck, dupelog, knative, fsyncflag, kodiart)  # Update movie stream info 
                     media.addTrailers(dbsync, mtitle, trailerurls, prflocaltr, release_year_text, playcount,      \
                     release_date_text, icon, imdb_text)                          # Update movie trailers info
                     rtrimpos = itemurl.rfind('/')
