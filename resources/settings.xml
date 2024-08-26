@@ -196,6 +196,24 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="enhdesc" type="string" label="30807" help="30567">
+					<level>0</level>
+					<default>Off</default>
+					<constraints>
+						<options>
+							<option label="Off">Off</option>
+							<option label="GUI">GUI</option>
+							<option label="Native">Native</option>
+							<option label="GUI and Native">Both</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="kodiart" type="boolean" label="30808" help="30568">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
                                <setting id="kodiclean" type="string" label="30368" help="30508">
 	                                 <level>0</level>
 					<default>false</default>
@@ -355,6 +373,18 @@
 		</category>
 		<category id="view" label="30300" help="">
 			<group id="1">
+				<setting id="mbackdrop" type="string" label="30806" help="30542">
+					<level>0</level>
+					<default>Mezzmo</default>
+					<constraints>
+						<options>
+							<option label="Addon">Addon</option>
+							<option label="Mezzmo">Mezzmo</option>
+							<option label="None">None</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="viewmap" type="boolean" label="30387" help="30525">
 					<level>0</level>
 					<default>true</default>
@@ -363,6 +393,11 @@
 				<setting id="slideshow" type="boolean" label="30425" help="30532">
 					<level>0</level>
 					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="photoupnp" type="boolean" label="30805" help="30565">
+					<level>0</level>
+					<default>false</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="skinname" type="integer" label="30361" help="30510">

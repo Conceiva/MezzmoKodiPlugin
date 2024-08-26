@@ -3,7 +3,7 @@ import xbmcgui
 import xbmcplugin
 import xbmcaddon
 import xbmcvfs
-import os, sys, linecache
+import os, sys, linecache, re
 import json, base64
 import urllib.request, urllib.error, urllib.parse
 from datetime import datetime
@@ -214,6 +214,8 @@ def getDatabaseName():
         return "MyVideos121.db"
     elif installed_version == '21':
         return "MyVideos131.db"
+    elif installed_version == '22':
+        return "MyVideos133.db"
       
     return ""  
 
@@ -891,8 +893,8 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
         curpp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mserver,)) 
         ppathtuple = curpp.fetchone()
         ppathnumb = ppathtuple[0]
-        mgenlog ='Mezzmo checkDBpath parent path added: ' + str(ppathnumb) + " " + mserver
-        mgenlogUpdate(mgenlog)
+        msynclog ='Mezzmo checkDBpath parent path added: ' + str(ppathnumb) + " " + mserver
+        mezlogUpdate(msynclog)
         db.execute('UPDATE PATH SET strContent=?, idParentPath=? WHERE strPath LIKE ? AND idPath <> ?', \
         ('movies', ppathnumb, '%' + serverport + '%', ppathnumb))   # Update Child paths with parent information
         curpp.close() 
@@ -960,9 +962,14 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
                 (mpath, catype, ppathnumb))
             else:
                 scraper = 'metadata.local'
-                db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,     \
-                idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, catype, scraper, '1', '0',          \
-                ppathnumb))
+                if catype == 'tvshows':
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude, \
+                    idParentPath, scanRecursive, useFolderNames) values (?, ?, ?, ?, ?, ?, ?, ?)',    \
+                    (mpath, catype, scraper, '1', '0', ppathnumb, '0', '1',))
+                else:
+                    db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude, \
+                    idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, catype, scraper, '1', '0',      \
+                    ppathnumb))
             curp = db.execute('SELECT idPath FROM path WHERE strPATH=? and strContent=? ',            \
             (mpath, catype,)) 
             pathtuple = curp.fetchone()
@@ -1007,7 +1014,7 @@ def checkDBpath(itemurl, mtitle, mplaycount, db, mpath, mserver, mseason, mepiso
 
 def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, murate, mduration, mgenre, mtrailer, \
     mrating, micon, kchange, murl, db, mstudio, mstitle, mdupelog, mitemurl, mimdb_text, mkeywords, knative,        \
-    movieset, imageSearchUrl, kdirector, kversion, fsyncflag='no'):  
+    movieset, imageSearchUrl, kdirector, kversion, fsyncflag='no', kodiart='false'):  
 
     if fileId[0] > 0:                             # Insert movie if does not exist in Kodi DB
         #xbmc.log('The current movie is: ' + mtitle, xbmc.LOGINFO)
@@ -1021,7 +1028,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             cur = db.execute('SELECT idMovie FROM movie WHERE idFile=?',(str(fileId[0]),))  
             movietuple = cur.fetchone()
             movienumb = movietuple[0]                                # get new movie id 
-            insertArt(movienumb, db, 'movie', murl, micon)           # Insert artwork for movie  
+            insertArt(movienumb, db, 'movie', murl, micon, kodiart)  # Insert artwork for movie  
             insertGenre(movienumb, db, 'movie', mgenre)              # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)            # Insert tags for movie
             insertKwords(mkeywords, 'movie', movienumb)              # Insert keywords for movie
@@ -1071,7 +1078,7 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             myear, mgenres, mtrailer, mrating, mstudio, mstitle, fileId[5], murate, mitemurl, movienumb)) #  Update movie information
             db.execute('UPDATE rating SET rating=? WHERE rating_id=?', (murate, krate))
             db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
-            insertArt(movienumb, db, 'movie', murl, micon)            # Update artwork for movie
+            insertArt(movienumb, db, 'movie', murl, micon, kodiart)   # Update artwork for movie
             db.execute('DELETE FROM genre_link WHERE media_id=? and media_type=?',(str(movienumb), 'movie'))
             insertGenre(movienumb, db, 'movie', mgenre)               # Insert genre for movie
             insertTags(movienumb, db, 'movie', mkeywords)             # Insert tags for movie
@@ -1083,12 +1090,10 @@ def writeMovieToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, m
             insertStudios(movienumb, db, 'movie', mstudio, knative)
             insertVversion(fileId[0], movienumb, db, 'movie', kversion) # Insert Kodi video version 
             if mdupelog == 'false' and fsyncflag == 'no':
-                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
-                #xbmc.log(mgenlog, xbmc.LOGINFO)
-                mgenlog = '###' + mtitle
-                mgenlogUpdate(mgenlog)
-                mgenlog ='There was a Mezzmo metadata change detected: '
-                mgenlogUpdate(mgenlog)
+                mgsynclog = '###' + mtitle
+                mezlogUpdate(mgsynclog)
+                mgsynclog ='There was a Mezzmo metadata change detected: '
+                mezlogUpdate(mgsynclog)
             elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update
@@ -1157,12 +1162,10 @@ def writeMusicVToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, myear, 
             insertDirectors(movienumb, db, 'musicvideo', mdirector, imageSearchUrl, kdirector)
             insertStudios(movienumb, db, 'musicvideo', mstudio, kdirector)    
             if mdupelog == 'false' and fsyncflag == 'no':
-                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
-                #xbmc.log(mgenlog, xbmc.LOGINFO)
-                mgenlog = '###' + mtitle
-                mgenlogUpdate(mgenlog)
-                mgenlog ='There was a Mezzmo metadata change detected: '
-                mgenlogUpdate(mgenlog)
+                synclog = '###' + mtitle
+                mezlogUpdate(msynclog)
+                synclog ='There was a Mezzmo metadata change detected: '
+                mezlogUpdate(msynclog)
             elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    # Add dupes to database
             movienumb = 999999                                        # Trigger actor update
@@ -1247,12 +1250,10 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
             insertDirectors(movienumb, db, 'episode', mdirector, imageSearchUrl, kdirector)
             insertWriters(movienumb, db, 'episode', mwriter, imageSearchUrl, kdirector) 
             if mdupelog == 'false' and fsyncflag == 'no':
-                #mgenlog ='There was a Mezzmo metadata change detected: ' + mtitle
-                #xbmc.log(mgenlog, xbmc.LOGINFO)
-                mgenlog = '###' + mtitle
-                mgenlogUpdate(mgenlog)
+                msynclog = '###' + mtitle
+                mezlogUpdate(msynclog)
                 mgenlog ='There was a Mezzmo metadata change detected: '
-                mgenlogUpdate(mgenlog) 
+                mezlogUpdate(msynclog)
             elif fsyncflag == 'no':
                 checkDupes(movienumb, '0', mtitle)                    #  Add dupes to database
             movienumb = 999999                                        # Trigger actor update            
@@ -1264,7 +1265,7 @@ def writeEpisodeToDb(fileId, mtitle, mplot, mtagline, mwriter, mdirector, maired
 
 def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnativeact, mshowId):
 
-    if len(actors) > 2:
+    if len(actors) > 2 and 'Unknown Artist' not in actors:
         actorlist = actors.replace(', Jr.' , ' Jr.').replace(', Sr.' , ' Sr.').split(', ')
     else:                                           # no valid actor information
         return    
@@ -1309,7 +1310,7 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnative
 
 
 def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mchannels, mlang, mduration, mtitle,  \
-    kchange, itemurl, micon, murl, db, mpath, mdupelog, knative, fsyncflag='no'):
+    kchange, itemurl, micon, murl, db, mpath, mdupelog, knative, fsyncflag='no', kodiart='false'):
 
     rtrimpos = itemurl.rfind('/')       # Check for container / path change
     filecheck = itemurl[rtrimpos+1:]
@@ -1344,7 +1345,7 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
             idMovie, url FROM STREAMDETAILS INNER JOIN movie USING (idFile) INNER JOIN files USING (idfile) INNER \
             JOIN path USING (idpath) INNER JOIN art ON movie.idMovie=art.media_id WHERE idFile=? and media_type=? \
-            ORDER BY strAudioCodec', (int(fileId[1]), media_type))
+            and art.url not lIKE ? ORDER BY strAudioCodec', (int(fileId[1]), media_type, "%imagesearch%",))
         elif  fileId[4] == 1:
             scur = db.execute('SELECT DISTINCT iVideoDuration, strVideoCodec, strAudioCodec, idFile, strPath,     \
             idEpisode, url FROM STREAMDETAILS INNER JOIN episode USING (idFile) INNER JOIN files USING (idfile)   \
@@ -1373,14 +1374,14 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                     #mgenlog ='There was a Mezzmo streamdetails or artwork change detected: ' +                   \
                     #mtitle
                     #xbmc.log(mgenlog, xbmc.LOGINFO)
-                    mgenlog ='Mezzmo streamdetails artwork rowcount = : ' +  str(rows)
+                    #mgenlog ='Mezzmo streamdetails artwork rowcount = : ' +  str(rows)
                     #xbmc.log(mgenlog, xbmc.LOGINFO)
-                    mgenlog ='###Mezzmo streamdetails artwork rowcount = : ' +  str(rows)
-                    mgenlogUpdate(mgenlog)
-                    mgenlog = '###' + mtitle
-                    mgenlogUpdate(mgenlog)
-                    mgenlog ='There was a Mezzmo streamdetails or artwork change detected: '
-                    mgenlogUpdate(mgenlog)   
+                    msynclog ='###Mezzmo streamdetails artwork rowcount = : ' +  str(rows)
+                    mezlogUpdate(msynclog)
+                    msynclog = '###' + mtitle
+                    mezlogUpdate(msynclog)
+                    msynclog ='There was a Mezzmo streamdetails or artwork change detected: '
+                    mezlogUpdate(msynclog)   
                 xbmc.log('Mezzmo streamdetails sdur and mduration are: ' + str(sdur) + ' ' + str(mduration), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails svcodec and mvcodec are: ' + str(svcodec) + ' ' + str(mvcodec), xbmc.LOGDEBUG)
                 xbmc.log('Mezzmo streamdetails sacodec and macodec are: ' + str(sacodec) + ' ' + str(macodec), xbmc.LOGDEBUG)
@@ -1398,9 +1399,14 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                     else:
                         #scraper = 'metadata.themoviedb.org.python'
                         scraper = 'metadata.local'
-                        db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,       \
-                        idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, mcategory, scraper, '1', '0',         \
-                        int(fileId[2])))
+                        if mcategory == 'tvshows':
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,  \
+                            idParentPath, scanRecursive, useFolderNames) values (?, ?, ?, ?, ?, ?, ?, ?)',     \
+                            (mpath, mcategory, scraper, '1', '0', int(fileId[2]), '0', '1',))
+                        else:
+                            db.execute('INSERT into PATH (strpath, strContent, strScraper, noUpdate, exclude,  \
+                            idParentPath) values (?, ?, ?, ?, ?, ?)', (mpath, mcategory, scraper, '1', '0',    \
+                            int(fileId[2],)))
                     curp = db.execute('SELECT idPath FROM path WHERE strPATH=?',(mpath,)) 
                     pathtuple = curp.fetchone()
                 pathnumb = pathtuple[0]
@@ -1409,17 +1415,17 @@ def writeMovieStreams(fileId, mvcodec, maspect, mvheight, mvwidth, macodec, mcha
                 db.execute('UPDATE episode SET c19=? WHERE idFile=?', (pathnumb, filenumb))
                 db.execute('UPDATE musicvideo SET c14=? WHERE idFile=?', (pathnumb, filenumb))
                 db.execute('DELETE FROM art WHERE media_id=? and media_type=?',(str(movienumb), media_type))
-                insertArt(movienumb, db, media_type, murl, micon)     # Insert artwork for episode / movie
+                insertArt(movienumb, db, media_type, murl, micon, kodiart)  # Insert artwork for episode / movie
                 curp.close()
         else:                                   # Repair missing streamdetails data
             db.execute('DELETE FROM streamdetails WHERE idFile=?',(fileId[1],))
             insertStreams(fileId[1], db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang)
-            mgenlog ='The Mezzmo incomplete streamdetails repaired for : ' + mtitle
+            #mgenlog ='The Mezzmo incomplete streamdetails repaired for : ' + mtitle
             #xbmc.log(mgenlog, xbmc.LOGINFO)
-            mgenlog = '###' + mtitle
-            mgenlogUpdate(mgenlog)
-            mgenlog ='The Mezzmo incomplete streamdetails repaired for : '
-            mgenlogUpdate(mgenlog)   
+            msynclog = '###' + mtitle
+            mezlogUpdate(msynclog)
+            msynclog ='The Mezzmo incomplete streamdetails repaired for : '
+            mezlogUpdate(msynclog)   
         scur.close()
 
 def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, macodec, mchannels, mlang):
@@ -1432,16 +1438,61 @@ def insertStreams(filenumb, db, mvcodec, maspect, mvwidth, mvheight, mduration, 
     db.execute('UPDATE movie SET c11=? WHERE idFile=?', (mduration, filenumb,))
 
 
-def insertArt(movienumb, db, media_type, murl, micon):
+def insertArt(movienumb, db, media_type, murl, micon, kodiart='false'):
 
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-    (movienumb, media_type, 'poster', micon))
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-    (movienumb, media_type, 'fanart', murl))
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-    (movienumb, media_type, 'thumb', micon))
-    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
-    (movienumb, media_type, 'icon', micon))
+    try:
+        if murl == None:
+            msynclog = 'Mezzmo missing fanart artwork: '  + media_type +  ' ' + str(movienumb)
+            mezlogUpdate(msynclog)            
+
+        if micon == None or len(micon) == 0:
+            msynclog = 'Mezzmo missing poster artwork: '  + media_type +  ' ' + str(movienumb)
+            mezlogUpdate(msynclog)              
+
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+        (movienumb, media_type, 'poster', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+        (movienumb, media_type, 'fanart', murl))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+        (movienumb, media_type, 'thumb', micon))
+        db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+        (movienumb, media_type, 'icon', micon))
+
+        if kodiart != 'false' and media_type == 'movie' and murl != None and 'http' in murl:
+            curt = db.execute('SELECT c00 from movie where idMovie = ?', (movienumb,))
+            curtuple = curt.fetchall()
+            curc = db.execute('SELECT count (media_id) from ART where media_id = ? and      \
+            media_type = ?', (movienumb, 'movie',))
+            curctuple = curc.fetchone()
+            xbmc.log('Movie art info: ' +  str(len(curtuple)) + '  ' + str(curctuple[0]) \
+            + '  ' + str(movienumb), xbmc.LOGDEBUG)
+            if len(curtuple) > 0 and int(curctuple[0]) < 10:
+                newurl = murl[:murl.rfind("/")] + '/image' + kodiArtTitle(curtuple[0][0])
+                cleararturl = newurl + '+clearart'
+                clearlogourl = newurl + '+clearlogo'
+                bannerurl = newurl + '+banner'
+                landscurl = newurl + '+landscape'
+                keyarturl = newurl + '+keyart'
+                discarturl = newurl + '+discart'
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'clearart', cleararturl,))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'clearlogo', clearlogourl,))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'banner', bannerurl,))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'landscape', landscurl,))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'keyart', keyarturl,))
+                db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)', \
+                (movienumb, media_type, 'discart', discarturl,))
+                #xbmc.log('Movie art title: ' + curtuple[0][0], xbmc.LOGINFO)
+                xbmc.log('Movie art URL: ' +  newurl + '  ' + cleararturl, xbmc.LOGDEBUG)
+
+    except Exception as e:
+        printexception()
+        msynclog = 'Mezzmo error inserting artwork URLs.'
+        mezlogUpdate(msynclog)
 
 
 def insertIMDB(movienumb, db, media_type, mimdb_text):   
@@ -1604,7 +1655,8 @@ def insertWriters(movienumb, db, mtype, writers, imageSearchUrl, kdirector):
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting writers for: ' + str(writers) + ' ' + str(movienumb)
-        xbmc.log(msynclog, xbmc.LOGINFO)
+        #xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
 
 
 def insertVversion(fileId, movienumb, db, mediatype, kversion):                          # Insert Kodi video version 
@@ -1619,7 +1671,8 @@ def insertVversion(fileId, movienumb, db, mediatype, kversion):                 
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting video version for: ' + str(mediatype) + ' ' + str(movienumb)
-        xbmc.log(msynclog, xbmc.LOGINFO)                    
+        #xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)                    
   
 
 def insertStudios(movienumb, db, media_type, studios, knative):
@@ -1652,7 +1705,8 @@ def insertStudios(movienumb, db, media_type, studios, knative):
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting studios for: ' + str(studios) + ' ' + str(movienumb)
-        xbmc.log(msynclog, xbmc.LOGINFO)
+        #xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
 
 
 def insertGenre(movienumb, db, media_type, genres):
@@ -1731,7 +1785,8 @@ def insertKwords(keywords, mtype, movienumb):
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting keywords for: ' + mtype + ' ' + str(movienumb)
-        xbmc.log(msynclog, xbmc.LOGINFO)
+        #xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
 
 
 def insertCollection(movienumb, db, mtype, keywords):
@@ -1764,14 +1819,48 @@ def insertCollection(movienumb, db, mtype, keywords):
     except Exception as e:
         printexception()
         msynclog ='Mezzmo problem inserting collection tags for: ' + mtype + ' ' + str(movienumb)
-        xbmc.log(msynclog, xbmc.LOGINFO)
+        #xbmc.log(msynclog, xbmc.LOGINFO)
+        mezlogUpdate(msynclog)
 
 
 def nativeNotify():
 
-    if settings('kodiskin') == 'true':                            #  Kodi native notification
+    if settings('kodiskin') == 'true':                                         #  Kodi native notification
         #xbmc.executebuiltin('ReloadSkin()')
-        xbmc.executebuiltin('UpdateLibrary(video)') 
+        xbmc.executebuiltin('UpdateLibrary(video)')
+
+
+def enhancedDesc(last_played_text, playcount_text, description_text):          # Modify description
+
+    try:
+        if len(last_played_text) > 0 and len(playcount_text) > 0:
+            if last_played_text == '0': last_played_text = 'Not yet played'
+            description_enh = 'Last Played:  ' +  last_played_text + '\n'  \
+            + 'Playcount:     ' + playcount_text + '\n\n'
+            if len(description_text) > 0:
+                description_text = description_enh + description_text
+            else:
+                description_text = description_enh
+        return description_text
+        
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo error formatting an ehnaced decription.'
+        mezlogUpdate(mgenlog, 'yes')
+        return ('None')    
+
+
+def kodiArtTitle(movietitle):                                                # Remove extra characters from Kodi art URL
+
+    try:        
+        newtitle = "?imagesearch=" + re.sub('[\W_]+', ' ',movietitle).lower().strip().replace(' ' , '+')
+        return newtitle
+
+    except Exception as e:
+        printexception()
+        mgenlog = 'Mezzmo error formatting an Kodi art URL.'
+        mezlogUpdate(mgenlog, 'yes')
+        return movietitle  
 
 
 def printexception():

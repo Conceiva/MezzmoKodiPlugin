@@ -378,7 +378,7 @@ msgstr "Mezzmo Visualizador de Slideshow"
 
 msgctxt "#30413"
 msgid "Kodi is unable to display pictures via native UPnP.  Please choose a different UPnP server for viewing pictures."
-msgstr "O Kodi não consegue exibir imagens via UPnP nativo. Escolha um servidor UPnP diferente para visualizar as imagens"
+msgstr "O Kodi pode não conseguir exibir imagens via UPnP nativo. A exibição de imagens via UPnP está desativada nas configurações do complemento."
 
 msgctxt "#30414"
 msgid "There were no matching search results found on your Mezzmo server."
@@ -744,6 +744,22 @@ msgctxt "#30804"
 msgid "Mezzmo Maximum Playcount"
 msgstr "Contagem máxima de jogos do Mezzmo"
 
+msgctxt "#30805"
+msgid "Kodi UPnP Pictures / Photos"
+msgstr "Imagens / fotos Kodi UPnP"
+
+msgctxt "#30806"
+msgid "Playlist / Folder Backdrop"
+msgstr "Pano de fundo da lista de reprodução / pasta"
+
+msgctxt "#30807"
+msgid "Enhanced Descriptions"
+msgstr "Descrições aprimoradas"
+
+msgctxt "#30808"
+msgid "Kodi Additional Artwork"
+msgstr "Arte adicional Kodi"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -999,3 +1015,19 @@ msgstr "Limita o número de resultados de pesquisa do Mezzmo a 25-500. O padrão
 msgctxt "#30564"
 msgid "Limits the Mezzmo playcount value by just logging, setting the play counnt to not played or resetting the play count back to 1.  Default is off / unlimited."
 msgstr "Limita o valor da contagem de reproduções do Mezzmo apenas registrando, definindo a contagem de reproduções como não reproduzida ou redefinindo a contagem de reproduções para 1. O padrão é desativado / ilimitado."
+
+msgctxt "#30565"
+msgid "Playing of pictures / photos via UPnP with Kodi doesn't always work.  You can enable this setting to try with a UPnP server.  Default is disabled."
+msgstr "A reprodução de imagens/fotos via UPnP com Kodi nem sempre funciona. Você pode ativar esta configuração para tentar com um servidor UPnP. O padrão é desabilitado."
+
+msgctxt "#30566"
+msgid "Selects backdrop when browsing playlists.  Choices are standard Mezzmo addon backdrop, Mezzmo playlist / folder backdrop or None.  Default is Mezzmo."
+msgstr "Seleciona o pano de fundo ao navegar nas playlists. As opções são cenário padrão do complemento Mezzmo, cenário de lista de reprodução/pasta Mezzmo ou Nenhum. O padrão é Mezzmo."
+
+msgctxt "#30567"
+msgid "Prepends additional information such as Last Played Date / Time and Play Count to media item description. Default is Off."
+msgstr "Acrescenta informações adicionais, como data/hora da última reprodução e contagem de reproduções, à descrição do item de mídia. O padrão é desativado."
+
+msgctxt "#30568"
+msgid "Adds additional Kodi artwork entries such as Clearlogo, Clearart, Banner and more which can leverage the UserPoster feature for additional artwork.  Default is disabled."
+msgstr "Adiciona entradas adicionais de arte Kodi, como Clearlogo, Clearart, Banner e muito mais, que podem aproveitar o recurso UserPoster para arte adicional.  O padrão é desabilitado."

@@ -296,8 +296,12 @@ def ghandleBrowse(content, contenturl, objectID, parentID):
                         for a in range(len(actor_list)):                  
                             actorSearchUrl = imageSearchUrl + "?imagesearch=" + actor_list[a].lstrip().replace(" ","+")
                             #xbmc.log('search URL: ' + actorSearchUrl, xbmc.LOGINFO)  # uncomment for thumbnail debugging
-                            actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
-                            cast_dict.append(actor)
+                            if len(actor_list[a]) > 0:
+                                actor = xbmc.Actor(actor_list[a].strip(), '', a, actorSearchUrl)
+                                cast_dict.append(actor)
+                            else:
+                                mgenlog = 'Mezzmo issue with generic UPnP actor list in: ' + str(title)
+                                media.mgenlogUpdate(mgenlog) 
                 elif actors == None:                         # Plex cast
                     actor_list = artist_text = []
                     if installed_version == '19': 

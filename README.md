@@ -20,13 +20,15 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 
 
 <b>Features: </b>
-- Kodi 18 and 19-21+ versions with almost 100% feature parity 
+- Kodi 18 and 19-21+ versions with almost 100% feature parity
+- Kodi 22 interim development support 
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
 - Automatic backup of resume points every 30 seconds while media is playing
 - Full data <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Data-Export">exporting</a> of Kodi video database tables and Mezzmo addon data
 - Shows media in the sort order from the server
 - More metadata than standard UPnP view with support for most <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/uPNP-Server-Support">UPnP servers</a>
+- Comprehensive <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Artwork">artwork management</a> tools including automatic identification of <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Artwork#finding-missing-artwork">missing artwork</a>.
 - Automatic Mezzmo / Kodi database background synchronization with up to <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Native-Kodi-Access#mezzmo-selective-sync">5 custom views</a> 
 - <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#automatic-discovery">Automatic discovery</a> of new library content
 - Simplified <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Managing-Your-Library#deleting-content">deletion</a> of Kodi library content

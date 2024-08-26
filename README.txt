@@ -1,14 +1,51 @@
-2.2.0.4
+2.2.0.7a 8/25/2024 Test Release
+
+-  Added support for Kodi 22 Piers interim development builds
+
+2.2.0.7 8/4/2024
+
+- Added support for PNG artwork with Mezzmo servers.  Requires Mezzmo v6.0.7.25 .
+- Added detection for missing Mezzmo artwork when syncing with Kodi.  Now a sync
+  log entry will be generated indicating missing artwork.
+- Added support for Kodi additional artwork like clearlogo, clearart, banners and
+  more leveraging the UserPoster feature.  Currently limited to movies.
+- Added enhanced description option which will prepend the Last Played Date / Time
+  and playcount to the media item description.    
+- Moved some log entries which were being written to the general log file to their 
+  proper sync log database.
+- Continued the Kodi logfile reduction effort by writing them to the addon general
+  and sync logs.
+
+2.2.0.6 6/14/2024
+
+- Fixed issue caused by path table behavior change in Kodi 21 where information
+  panel for TV Episodes was not working in some instances using Kodi native mode.
+- Removed Mezzmo Unknown Actor entry, when a video entry does not have any actors,
+  from syncing to the Kodi database.
+
+2.2.0.5 5/13/2024
+
+- Fixed minor bug where improperly and formatted actor list entry from Mezzmo or UPnP 
+  server could cause an exception error with Kodi 20 and higher.  The performance stats
+  would not display for the playlist.  This was due to a zero length actor entry.  
+  These entries will be ignored now but a message will be added to the Mezzmo addon 
+  logging facility to indicate an issue.
+- Added new setting to select folder / playlist backdrop source or None.  Previously 
+  only the generic addon backdrop was used.  Now the Mezzmo playlist / folder backdrops
+  can be selected for display.  The default setting is Mezzmo.  Addon was the previous
+  default behavior with prior versions of the addon.
+
+2.2.0.4 4/18/2024
 
 - Added checking to ensure multiple instances of New Search would be displayed in a
-  Search result when a large number of seach items are returned.  
+  Search result when a large number of search items are returned.  
 - Improved checking for maximum search results introduced under v2.2.0.1.  Previously
   there were instances where more items would be displayed than the addon setting.
 - Added error checking for certain Linux platforms not able to import the common.py
   file properly due to Python handling of inspect command
-- Added more duration format checking for certain UPnP servers
-- Removed UPnP check for displaying photos with generic UPnP servers
-- Fixed bug in generic displaying of photo slideshow due to missing width, height
+- Added improved duration format checking for certain UPnP servers
+- Added addon setting to enable displaying of photos with generic UPnP servers
+- Fixed bug in generic UPnP displaying of photo slideshow due to missing width, height
   and dates from item piclist dictionary
 - Fixed bug in generic displaying of music with Gerbera UPnP servers due to improper
   format of originaltrack information. 
