@@ -1,3 +1,17 @@
+2.2.0.8 9/12/2024
+
+- Added support for Kodi 22 Piers interim development builds
+- Added total Mezzmo record count to status display when manually syncing Mezzmo
+  database to Kodi library.  
+- Added automatic generation of actor thumb records in the Kodi art table from
+  Mezzmo. Now all Kodi actors with Mezzmo artwork will display the actor image
+  in the Kodi actor browse view. Previously the actor images only displayed in 
+  the Video Information cast view for Kodi library items.  These features allow  
+  central management of all Kodi actor artwork across multiple Kodi instances 
+  and / or Kodi versions leveraging Mezzmo's flat actor artwork structure 
+  (i.e. multiple images not required for the same actor in different movies, 
+  episodes etc..).    
+
 2.2.0.7 8/4/2024
 
 - Added support for PNG artwork with Mezzmo servers.  Requires Mezzmo v6.0.7.25 .

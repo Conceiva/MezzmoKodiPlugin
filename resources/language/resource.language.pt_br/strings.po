@@ -760,6 +760,10 @@ msgctxt "#30808"
 msgid "Kodi Additional Artwork"
 msgstr "Arte adicional Kodi"
 
+msgctxt "#30809"
+msgid " of "
+msgstr " de "
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."

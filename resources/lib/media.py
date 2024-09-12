@@ -214,6 +214,8 @@ def getDatabaseName():
         return "MyVideos121.db"
     elif installed_version == '21':
         return "MyVideos131.db"
+    elif installed_version == '22':
+        return "MyVideos133.db"
       
     return ""  
 
@@ -1289,18 +1291,23 @@ def writeActorsToDb(actors, movieId, imageSearchUrl, mtitle, db, fileId, mnative
             #xbmc.log('The current actor is: ' + str(actor), xbmc.LOGINFO)      # actor insertion debugging
             #xbmc.log('The movieId is: ' + str(movieId), xbmc.LOGINFO)          # actor insertion debugging  
             cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,))   
-            actortuple = cur.fetchone()                                         #  Get actor id from actor table
+            actortuple = cur.fetchone()                                         # Get actor id from actor table
             cur.close()
-            if not actortuple:              #  If actor not in actor table insert and fetch new actor ID
+            if not actortuple:               # If actor not in actor table insert and fetch new actor ID
                 db.execute('INSERT into ACTOR (name, art_urls) values (?, ?)', (actor, searchUrl,))
                 cur = db.execute('SELECT actor_id FROM actor WHERE name=?',(actor,)) 
                 actortuple = cur.fetchone()  #  Get actor id from actor table
                 cur.close()
-            if actortuple:                   #  Insert actor to movie link in actor link table
+            if actortuple:                   # Insert actor to movie link in actor link table
                 actornumb = actortuple[0]
-                ordernum += 1                #  Increment cast order
+                ordernum += 1                # Increment cast order
                 db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, cast_order) values  \
                 (?, ?, ?, ?)', (actornumb, movieId, media_type, ordernum,))
+                cura = db.execute('SELECT art_id FROM art WHERE media_id=? and media_type=?', (actornumb, "actor",))
+                artuple = cura.fetchone()    # Check for existing artwork
+                if not artuple: 
+                    db.execute('INSERT into ART (media_id, media_type, type, url) values (?, ?, ?, ?)',             \
+                    (actornumb, "actor", "thumb", searchUrl,))
                 if media_type == 'episode' and mnativeact == 'true':
                     db.execute('INSERT OR REPLACE into ACTOR_LINK (actor_id, media_id, media_type, role, cast_order) \
                     values (?, ?, ?, ?, ?)', (actornumb, mshowId, 'tvshow', ' ', ordernum,)) 

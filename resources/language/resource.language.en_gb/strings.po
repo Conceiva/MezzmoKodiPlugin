@@ -545,7 +545,7 @@ msgid "UPnP Server Response Logging"
 msgstr ""
 
 msgctxt "#30455"
-msgid "Mezzmo Records Processed: "
+msgid "Mezzmo Records\nProcessed:  "
 msgstr ""
 
 msgctxt "#30456"
@@ -758,6 +758,10 @@ msgstr ""
 
 msgctxt "#30808"
 msgid "Kodi Additional Artwork"
+msgstr ""
+
+msgctxt "#30809"
+msgid " of "
 msgstr ""
 
 msgctxt "#30501"

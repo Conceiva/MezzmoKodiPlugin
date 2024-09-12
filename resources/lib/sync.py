@@ -791,7 +791,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                     media.mezlogUpdate(msynclog)
                     return(offset)
                     break                 
-                msgdialogprogress.update(percent, dialogmsg + rprocessed)
+                msgdialogprogress.update(percent, dialogmsg + rprocessed + media.translate(30809) + str(TotalMatches))
 
             xbmc.log('Mezzmo offset and request count: ' + str(offset) + ' ' + str(requestedCount), xbmc.LOGDEBUG) 
             pin = media.settings('content_pin') 
