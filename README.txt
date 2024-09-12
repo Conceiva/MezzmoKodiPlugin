@@ -7,7 +7,7 @@
   Mezzmo. Now all Kodi actors with Mezzmo artwork will display the actor image
   in the Kodi actor browse view. Previously the actor images only displayed in 
   the Video Information cast view for Kodi library items.  These features allow  
-  central management of all Kodi actor artwork across multiple Kodi instances 
+  centralized management of all Kodi actor artwork across multiple Kodi instances 
   and / or Kodi versions leveraging Mezzmo's flat actor artwork structure 
   (i.e. multiple images not required for the same actor in different movies, 
   episodes etc..).    
