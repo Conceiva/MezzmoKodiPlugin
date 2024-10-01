@@ -1,3 +1,24 @@
+2.2.0.9 10/1/2024
+
+- Added full Mezzmo options to context menu items when searching videos.  Previously 
+  only a subset of options were available when searching.  Now searching and browsing
+  have the same set of context menu options.
+- Added the ability to mark music files watched and unwatched when browsing search
+  results.  Previously this was only available when browsing via GUI.  This will
+  also clear the music bookmarks when marking unwatched.  Music bookmarks and the
+  ability to resume music tracks is generally not available with native Kodi.  It is
+  fully supported with the Mezzmo Kodi addon, regardless of the music track length.  
+- Fixed issue where certain video searching context menu actions would cause the addon
+  to drop out of GUI mode.  Now all search context menu actions will return you to the 
+  same search results when the context menu action is complete. This includes all of
+  the new search context menu actions added above to match the browsing context menu.   
+- Updated the addon setting search criteria labeled album to include TV series and 
+  moviesets.  The album criteria is for music.  TV Series and movie sets are for 
+  videos.  The album search setting has always searched for both audio and video 
+  items (if selected) but the selection option was just labeled album.
+- Updated maximum search results addon setting from a slider to a spinner control
+  with specific setting limits. Thus making it easier to select whole number limits.  
+
 2.2.0.8 9/12/2024
 
 - Added support for Kodi 22 Piers interim development builds

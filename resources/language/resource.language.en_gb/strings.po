@@ -145,7 +145,7 @@ msgid "Photo"
 msgstr ""
 
 msgctxt "#30355"
-msgid "Album"
+msgid "Album / TV Series / Movie Sets"
 msgstr ""
 
 msgctxt "#30356"

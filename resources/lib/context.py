@@ -40,7 +40,8 @@ def contextMenu():                                       # Display contxt menu f
     trcount = media.settings('trcount')
     prviewct = int(media.settings('prviewct')) 
     contenturl = media.settings('contenturl')
-    icon = sys.listitem.getArt('poster')   
+    icon = sys.listitem.getArt('poster')
+    media.settings('searchsave', 'None')                # Clear saved search criteria   
 
     xbmc.executebuiltin('Dialog.Close(all, true)')
     titleinfo = getPlayCount(mtitle, mtype)              # Get info for title

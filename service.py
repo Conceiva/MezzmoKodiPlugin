@@ -158,6 +158,7 @@ while True:
         media.settings('kodiclean', 'false')  # Clear manual resync flag on addon restart
         media.settings('curr_sync','0')       # Clear sync running flag
         media.settings('movieprvw', 'false')  # Clear Mezzmo movie previews flag
+        media.settings('searchsave', 'None')  # Clear saved search criteria
         knative = media.settings('knative')   # Get initial native sync setting
         fastsync = media.settings('fastsync') # Get initial fast sync setting
 
