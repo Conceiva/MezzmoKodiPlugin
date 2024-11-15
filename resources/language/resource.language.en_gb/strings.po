@@ -764,6 +764,14 @@ msgctxt "#30809"
 msgid " of "
 msgstr ""
 
+msgctxt "#30810"
+msgid "Search Default Sort Order"
+msgstr ""
+
+msgctxt "#30811"
+msgid "Search Default Content Type"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -1033,4 +1041,12 @@ msgstr ""
 
 msgctxt "#30568"
 msgid "Adds additional Kodi artwork entries such as Clearlogo, Clearart, Banner and more which can leverage the UserPoster feature for additional artwork.  Default is disabled."
+msgstr ""
+
+msgctxt "#30569"
+msgid "Selects the sort order for Mezzmo search results.  The default setting is Default."
+msgstr ""
+
+msgctxt "#30570"
+msgid "Selects the default content type for Mezzmo search results.  The default setting is None which will use the search results content type."
 msgstr ""

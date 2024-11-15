@@ -764,6 +764,14 @@ msgctxt "#30809"
 msgid " of "
 msgstr " de "
 
+msgctxt "#30810"
+msgid "Search Default Sort Order"
+msgstr "Ordem de classificação padrão de pesquisa"
+
+msgctxt "#30811"
+msgid "Search Default Content Type"
+msgstr "Pesquisar tipo de conteúdo padrão"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -1035,3 +1043,11 @@ msgstr "Acrescenta informações adicionais, como data/hora da última reproduç
 msgctxt "#30568"
 msgid "Adds additional Kodi artwork entries such as Clearlogo, Clearart, Banner and more which can leverage the UserPoster feature for additional artwork.  Default is disabled."
 msgstr "Adiciona entradas adicionais de arte Kodi, como Clearlogo, Clearart, Banner e muito mais, que podem aproveitar o recurso UserPoster para arte adicional.  O padrão é desabilitado."
+
+msgctxt "#30569"
+msgid "Selects the sort order for Mezzmo search results.  The default setting is Default."
+msgstr "Seleciona a ordem de classificação dos resultados da pesquisa do Mezzmo.  A configuração padrão é Padrão."
+
+msgctxt "#30570"
+msgid "Selects the default content type for Mezzmo search results.  The default setting is None which will use the search results content type"
+msgstr "Seleciona o tipo de conteúdo padrão para os resultados da pesquisa Mezzmo.  A configuração padrão é Nenhum, que usará o tipo de conteúdo dos resultados da pesquisa"

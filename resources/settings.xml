@@ -1506,6 +1506,36 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="srchorder" type="string" label="30810" help="30569">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<options>
+							<option label="Default">1</option>
+							<option label="Sort Title">29</option>
+							<option label="Title">7</option>
+							<option label="Date">2</option>
+							<option label="Year">16</option>
+							<option label="None">0</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
+				<setting id="srchcontent" type="string" label="30811" help="30570">
+					<level>0</level>
+					<default>None</default>
+					<constraints>
+						<options>
+							<option label="None">None</option>
+							<option label="Movies">movies</option>
+							<option label="Music Videos">musicvideos</option>
+							<option label="Songs">songs</option>
+							<option label="TV Episodes">episodes</option>
+							<option label="Videos">videos</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="search_video" type="boolean" label="30352" help="">
 					<level>0</level>
 					<default>true</default>
@@ -1628,7 +1658,7 @@
                                                         <option>100 Log</option>
                                                         <option>250 Log</option>
                                                         <option>500 Log</option>
-                                                        <option>1000 Log</option>                                                                                                               <option>50 LastPlayed</option>
+                                                        <option>1000 Log</option>                                                                                                       <option>50 LastPlayed</option>
                                                         <option>100 LastPlayed</option>
                                                         <option>250 LastPlayed</option>
                                                         <option>500 LastPlayed</option>

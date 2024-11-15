@@ -1,3 +1,20 @@
+2.2.1.0 11/14/2024
+
+- Added automatic playcount adjustment, during the background sync process, for newly 
+  discovered in process PVR recordings to reset initial playcount to 1 if > 1.  This 
+  is due to playcount getting incremented as the playback progress % reaches the 
+  playcount value while the recording is still occurring.  This fix will set the 
+  proper playcount in both Mezzmo and Kodi.  This feature is enabled with the Mezzmo
+  Maximum Playcount setting when it is not set to Off.
+- Added passing Mezzmo keywords to Kodi tags when browsing your video library in GUI
+  mode when running with Kodi version 20 and higer.  Keywords are already passed as 
+  tags via the background sync process for Kodi native mode. 
+- Added an option setting select the default Mezzmo server search results sort order.  
+  The default sort order is by Default \ Label.
+- Added an option setting select the default Mezzmo server search results content
+  type.  The default content type is None which means it will be determined by the 
+  Mezzmo search results.  
+
 2.2.0.9 10/1/2024
 
 - Added full Mezzmo options to context menu items when searching videos.  Previously 

@@ -789,6 +789,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                         vinfo.setTagLine(tagline_text)
                         if writer_text is not None: vinfo.setWriters(writer_text.split(','))
                         if artist_text is not None: vinfo.setArtists(artist_text.split(','))
+                        if tags_text is not None: vinfo.setTags(tags_text.split(','))
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
@@ -1026,7 +1027,9 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     sstudio = media.settings('singlestudio')            # Checks for single studio setting
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled
     enhdesc = media.settings('enhdesc')                 # Enhanced description setting
-    kodiart = media.settings('kodiart')                 # Additional Kodi artwork 
+    kodiart = media.settings('kodiart')                 # Additional Kodi artwork
+    srchorder = int(media.settings('srchorder'))        # Default search result sort order (integer)
+    srchcontent = media.settings('srchcontent')         # Default content type for search results
     
     try:
         while True:
@@ -1466,6 +1469,7 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                         vinfo.setTagLine(tagline_text)
                         if writer_text is not None: vinfo.setWriters(writer_text.split(','))
                         if artist_text is not None: vinfo.setArtists(artist_text.split(','))
+                        if tags_text is not None: vinfo.setTags(tags_text.split(','))
                         vinfo.setRating(rating_valf)
                         vinfo.setIMDBNumber(imdb_text)
                         vinfo.setMediaType(categories_text)
@@ -1653,11 +1657,14 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_VIDEO_YEAR)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_GENRE)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DURATION)
+    if srchcontent != 'None':                      # Set default content type for search results
+        contentType = srchcontent
     setViewMode(contentType)
+    #xbmc.log('Search order value is: ' + str(srchorder) + ' ' + searchcontrol2, xbmc.LOGINFO) 
     if searchcontrol2 == 'movieset':               # Sort moviesets by year
         xbmc.executebuiltin('Container.SetSortMethod(16)')
-    else:                                          # Sort everything else by title
-        xbmc.executebuiltin('Container.SetSortMethod(7)')
+    else:                                          # Sort everything else by sort order setting
+        xbmc.executebuiltin('Container.SetSortMethod(%d)' % (srchorder))
     xbmcplugin.endOfDirectory(addon_handle)
     
     #xbmc.executebuiltin("Dialog.Close(busydialog)")

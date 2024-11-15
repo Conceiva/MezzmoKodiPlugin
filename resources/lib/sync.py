@@ -704,6 +704,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                     playcount_text, description_text)
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
                 mezzmocounts += 1
+                if playcount > 0 and last_played_text != '0' and maxsetting != 'Off':   # New discovery play counter
+                    playcount = updatePlaycount(date_added_text, last_played_text, playcount, syncurl, itemid, mtitle)
                 if (tvcheckval[1] == 1 or size == 100000000000) and validf == 1 and clean == 1:   #  Update live channel
                     media.syncCount(dbsync, mtitle, "livec")
                     #xbmc.log('Mezzmo livec: ' + mtitle, xbmc.LOGINFO)       
@@ -800,7 +802,31 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
         printsyncexception()
         pass
 
-        
+
+def updatePlaycount(datime, lptime, playcount, syncurl, itemid, mtitle):  # Check for new discovery playcount values
+
+    try:
+        xbmc.log('Mezzmo times are: ' + datime + '   ' + lptime, xbmc.LOGDEBUG)
+
+        FMT = '%Y-%m-%d %H:%M:%S'
+
+        td = datetime.datetime.strptime(lptime, FMT) - datetime.datetime.strptime(datime, FMT)
+        tdint = int(td.total_seconds())
+        orgplaycount = playcount
+        if tdint < 3601 and playcount > 1:
+            setPlaycount(syncurl, itemid, '1', mtitle)
+            playcount = 1
+            msynclog = 'Mezzmo new discovery playcount needs adjusted ' + str(orgplaycount) + ' ' + str(tdint)
+            media.mezlogUpdate(msynclog)
+        return playcount
+
+    except Exception as e:
+        printsyncexception()    
+        msynclog = 'Mezzmo new discovery playcount update error.'
+        xbmc.log(msynclog, xbmc.LOGINFO)
+        media.mezlogUpdate(msynclog, 'yes')
+   
+       
 def syncLogging(counts, mezzmorecs):
 
         nsyncount = counts[0]
