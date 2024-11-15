@@ -7,7 +7,7 @@
   proper playcount in both Mezzmo and Kodi.  This feature is enabled with the Mezzmo
   Maximum Playcount setting when it is not set to Off.
 - Added passing Mezzmo keywords to Kodi tags when browsing your video library in GUI
-  mode when running with Kodi version 20 and higer.  Keywords are already passed as 
+  mode when running with Kodi version 20 and higher.  Keywords are already passed as 
   tags via the background sync process for Kodi native mode. 
 - Added an option setting select the default Mezzmo server search results sort order.  
   The default sort order is by Default \ Label.
