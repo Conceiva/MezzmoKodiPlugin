@@ -7,6 +7,8 @@ An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich meta
 
 <a href="https://github.com/jbinkley60/MezzmoTrailerChecker">Mezzmo Trailer Checker</a>  A tool to help Mezzmo manage You Tube and local movie trailers.
 
+<a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Ecosystem">Mezzmo Ecosystem</a> Wiki page which highlights all tools, channels and accessories for Mezzmo.
+
 See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki">Wiki</a> for complete details for realizing the ultimate Kodi experience.
 
 
@@ -24,6 +26,7 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 - Kodi 22 interim development support 
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
+- <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Last-Played-Media">Last Played Media</a> feature for quick access to recently played media
 - Automatic backup of resume points every 30 seconds while media is playing
 - Full data <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Data-Export">exporting</a> of Kodi video database tables and Mezzmo addon data
 - Shows media in the sort order from the server
