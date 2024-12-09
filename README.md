@@ -1,11 +1,13 @@
 # MezzmoKodiPlugin for Kodi 18 and below
 An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.
 
-<a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/Kodi-19+">Kodi 19+ link</a> 
+<a href="https://github.com/Conceiva/MezzmoKodiPlugin/tree/Kodi-19+">Kodi 19+ link</a>   Use this link for Kodi 19 and higher
 
 <a href="https://github.com/jbinkley60/MezzmoArtworkChecker">Mezzmo Artwork Checker</a>  A tool to help manage Mezzmo actor artwork across the Poster and UserPoster folders.
 
 <a href="https://github.com/jbinkley60/MezzmoTrailerChecker">Mezzmo Trailer Checker</a>  A tool to help Mezzmo manage You Tube and local movie trailers.
+
+<a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Ecosystem">Mezzmo Ecosystem</a> Wiki page which highlights all tools, channels and accessories for Mezzmo.
 
 See Mezzmo Kodi Addon <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki">Wiki</a> for complete details for realizing the ultimate Kodi experience.
 
@@ -21,6 +23,7 @@ With the Mezzmo Kodi addon there is full integration into Kodi and <a href="http
 
 <b>Features: </b>
 - Kodi 18 and 19-21+ versions with almost 100% feature parity
+- Kodi 22 interim development support 
 - Play and resume videos with 0-30 sec rewind / <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Mezzmo-Kodi-Addon-Settings#timers--servers">lookback option</a>
 - Share <a href="https://github.com/Conceiva/MezzmoKodiPlugin/wiki/How-it-works-%3F#resume-point-sharing">resume points</a> between other devices through the Mezzmo server
 - Automatic backup of resume points every 30 seconds while media is playing
