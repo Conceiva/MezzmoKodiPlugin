@@ -181,11 +181,6 @@
 					<default>false</default>
 					<control type="toggle"/>
 				</setting>
-				<setting id="perflog" type="boolean" label="30378" help="30520">
-					<level>0</level>
-					<default>true</default>
-					<control type="toggle"/>
-				</setting>
 				<setting id="cconfirm" type="boolean" label="30475" help="30545">
 					<level>0</level>
 					<default>true</default>
@@ -385,6 +380,22 @@
 		</category>
 		<category id="view" label="30300" help="">
 			<group id="1">
+				<setting id="lastvpl" type="string" label="30812" help="30571">
+					<level>0</level>
+					<default>10</default>
+					<constraints>
+						<options>
+							<option>0</option>
+							<option>5</option>
+                                                        <option>10</option>
+                                                        <option>15</option>
+                                                        <option>20</option>
+                                                        <option>25</option>
+                                                        <option>30</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
 				<setting id="mbackdrop" type="string" label="30806" help="30542">
 					<level>0</level>
 					<default>Mezzmo</default>
@@ -1646,6 +1657,11 @@
 				<setting id="reduceslog" type="boolean" label="30496" help="30558">
 					<level>0</level>
 					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="perflog" type="boolean" label="30378" help="30520">
+					<level>0</level>
+					<default>true</default>
 					<control type="toggle"/>
 				</setting>
 				<setting id="maxplayc" type="string" label="30804" help="30564">

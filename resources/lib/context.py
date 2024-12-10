@@ -32,7 +32,8 @@ def contextMenu():                                       # Display contxt menu f
     menuitem11 = addon.getLocalizedString(30470)
     menuitem12 = addon.getLocalizedString(30481)
     menuitem14 = addon.getLocalizedString(30495)        # Show TV Episodes
-    menuitem15 = addon.getLocalizedString(30498)           
+    menuitem15 = addon.getLocalizedString(30498)
+    menuitem16 = addon.getLocalizedString(30812)	# Last Played           
     minfo = sys.listitem.getVideoInfoTag()
     mtitle = minfo.getTitle()
     mtype = minfo.getMediaType()
@@ -41,7 +42,8 @@ def contextMenu():                                       # Display contxt menu f
     prviewct = int(media.settings('prviewct')) 
     contenturl = media.settings('contenturl')
     icon = sys.listitem.getArt('poster')
-    media.settings('searchsave', 'None')                # Clear saved search criteria   
+    media.settings('searchsave', 'None')                # Clear saved search criteria
+    lastvpl = int(media.settings('lastvpl'))            # Last played setting
 
     xbmc.executebuiltin('Dialog.Close(all, true)')
     titleinfo = getPlayCount(mtitle, mtype)              # Get info for title
@@ -113,7 +115,10 @@ def contextMenu():                                       # Display contxt menu f
         cselect.append(menuitem4)
 
     if bcontext:                                         # If bookmark exists
-        cselect.append(menuitem7)             
+        cselect.append(menuitem7)
+
+    if lastvpl > 0:                                      # If last played value > 0
+        cselect.append(menuitem16)                     
 
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
@@ -198,7 +203,10 @@ def contextMenu():                                       # Display contxt menu f
         utilities.selectKeywords(mtype, menuitem11, 'native', contenturl)
     elif (cselect[vcontext]) == menuitem15:              # Clear Kodi cache  
         deleteTexturesCache(contenturl, 'yes')  
-        xbmcgui.Dialog().notification(media.translate(30435), media.translate(30499), addon_icon, 3000)   
+        xbmcgui.Dialog().notification(media.translate(30435), media.translate(30499), addon_icon, 3000)
+    elif (cselect[vcontext]) == menuitem16:              # Display last played video items
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=lastvpl;source=native;count=' + str(lastvpl)))       
 
 
 def getPlayCount(mtitle, mtype):                         # Get playcount for selected listitem

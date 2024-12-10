@@ -619,11 +619,13 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     menuitem12 = addon.getLocalizedString(30481)
     menuitem13 = addon.getLocalizedString(30494)                     # Play movie from mezzmo
     menuitem14 = addon.getLocalizedString(30495)                     # Show TV Episodes
-    menuitem15 = addon.getLocalizedString(30498)       
+    menuitem15 = addon.getLocalizedString(30498)  
+    menuitem16 = addon.getLocalizedString(30812)	             # Last Played        
     trcount = media.settings('trcount')
     prviewct = int(media.settings('prviewct'))    
     mplaycount = int(playcount)
     currpos = int(bmposition)
+    lastvpl = int(media.settings('lastvpl'))                        # Last played setting
     if mtype == 'movie' or mtype == 'musicvideo' or mtype == 'episode' :  # Check for collection tag
         collection = checkGuiTags(taglist, mtitle)
     else:
@@ -680,7 +682,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
         cselect.append(menuitem4)
 
     if currpos > 0 and 'trailer' not in trtype.lower():      # If bookmark exists
-        cselect.append(menuitem7)          
+        cselect.append(menuitem7)
+
+    if lastvpl > 0 and 'trailer' not in trtype.lower():      # If last played value > 0
+        cselect.append(menuitem16)              
 
     if tcontext[0] > 0 and int(trcount) > 0:             # If trailers for movie and enabled
         cselect.append(menuitem1)
@@ -766,6 +771,10 @@ def guiContext(mtitle, vurl, vseason, vepisode, playcount, mseries, mtype, conte
     elif (cselect[vcontext]) == menuitem15:
         deleteTexturesCache(contenturl, 'yes')  
         xbmcgui.Dialog().notification(media.translate(30435), media.translate(30499), addon_icon, 3000)
+    elif (cselect[vcontext]) == menuitem16:              # Display last played video items
+        xbmc.executebuiltin('RunAddon(%s, %s)' % ("plugin.video.mezzmo", "contentdirectory=" + contenturl + \
+        ';mode=lastvpl;source=browse;count=' + str(lastvpl)))   
+
 
 def trPlayMovie(title, itemurl, icon, mplot):                      # Display trailer movie
 

@@ -250,12 +250,12 @@ def listServers(force):
 def build_url(query):
     return base_url + '?' + urllib.parse.urlencode(query)
 
-def handleBrowse(content, contenturl, objectID, parentID):
+def handleBrowse(content, contenturl, objectID, parentID, reqcount = 0):
     contentType = 'movies'
     itemsleft = -1
     pitemsleft = -1
     global brtime, patime
-    srtime = 0 
+    srtime = itemcount = 0 
     media.settings('contenturl', contenturl)
     koditv = media.settings('koditv')
     knative = media.settings('knative')
@@ -282,7 +282,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
     menuitem7 = addon.getLocalizedString(30384)
     menuitem8 = addon.getLocalizedString(30412)
     menuitem9 = addon.getLocalizedString(30434)
-    menuitem10 = addon.getLocalizedString(30435)    
+    menuitem10 = addon.getLocalizedString(30435)
+    menuitem11 = addon.getLocalizedString(30464)    
     autostart = media.settings('autostart')
     sync.deleteTexturesCache(contenturl)                # Call function to delete textures cache if user enabled.  
     #xbmc.log('Kodi version: ' + installed_version, xbmc.LOGINFO)
@@ -299,6 +300,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
             result = browseresponse.find('Result')
             NumberReturned = browseresponse.find('NumberReturned').text
             TotalMatches = browseresponse.find('TotalMatches').text
+
+            xbmc.log('Mezzmo items: ' + NumberReturned + ' ' + objectID, xbmc.LOGDEBUG)
             
             if int(NumberReturned) == 0:
                 dialog_text = media.translate(30421) + '\n' + xbmc.getInfoLabel("ListItem.Label")
@@ -308,6 +311,21 @@ def handleBrowse(content, contenturl, objectID, parentID):
                 
             if itemsleft == -1:
                 itemsleft = int(TotalMatches)
+
+            if searchcontrol != 'browse' and reqcount > 0:
+                itemurl = build_url({'mode': 'home'})
+                li = xbmcgui.ListItem(menuitem11, offscreen=True)
+                mediaClass_text = 'video'
+                if installed_version == '19':              #  Kodi 19 format
+                    khinfo = {
+                            'plot': media.translate(30572),
+                    }
+                    li.setInfo(mediaClass_text, khinfo)
+                else:                                                 # Kodi 20+ format   
+                    khfinfo = li.getVideoInfoTag()
+                    khfinfo.setPlot(media.translate(30572)) 
+                li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
+                xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
             
             #elems = xml.etree.ElementTree.fromstring(result.text.encode('utf-8'))
             elems = xml.etree.ElementTree.fromstring(result.text)
@@ -943,6 +961,7 @@ def handleBrowse(content, contenturl, objectID, parentID):
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
                 if validf == 1: 
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                    itemcount += 1         #  Increment item counter
                 else:
                     dialog_text = "Video file:  " + title + " is invalid. Check Mezzmo video properties for this file."
                     xbmcgui.Dialog().ok("Mezzmo", dialog_text)
@@ -980,6 +999,11 @@ def handleBrowse(content, contenturl, objectID, parentID):
             if itemsleft < 1000:
                 requestedCount = itemsleft
 
+            if reqcount > 0 and itemcount >= reqcount:  # Max count reached for last played
+                dbfile.commit()
+                dbfile.close()             #  Final commit writes and close Kodi database
+                break      
+
             pin = media.settings('content_pin')
             brtime2 = time.time()                       #  Additional browse begin time
             content = browse.Browse(contenturl, objectID, 'BrowseDirectChildren', offset, requestedCount, pin)        
@@ -990,6 +1014,8 @@ def handleBrowse(content, contenturl, objectID, parentID):
     setViewMode(contentType)
     if contentType == 'top' or contentType == 'folders':
         contentType = ''
+    if reqcount > 0:
+        xbmc.executebuiltin('Container.SetSortMethod(0)')
     xbmcplugin.setContent(addon_handle, contentType)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_UNSORTED)
     xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_DATE)
@@ -1892,6 +1918,22 @@ elif mode[0] == 'collection':
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
         handleSearch(content, scontenturl, '0', searchCriteria, 1000)        
+    else:
+        downServer()
+
+elif mode[0] == 'lastvpl':
+    plcount = args.get('count', '')
+    count = plcount[0]
+    plurl = args.get('contentdirectory', '')
+    url = plurl[0]
+    scontrol = args.get('source', 'browse')
+    searchcontrol = scontrol[0]
+    pin = media.settings('content_pin')
+    xbmc.executebuiltin('Dialog.Close(all, true)')
+    #xbmc.log('Mezzmo last played count: ' + str(count), xbmc.LOGINFO)
+    content = browse.Browse(url, 'lastplayed', 'BrowseDirectChildren', 0, count, pin)
+    if len(content) > 0:                                  #  Check for server response
+        handleBrowse(content, url, 'lastplayed', '0', int(count))      
     else:
         downServer()
 

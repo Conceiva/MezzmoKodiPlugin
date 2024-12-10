@@ -772,6 +772,10 @@ msgctxt "#30811"
 msgid "Search Default Content Type"
 msgstr "Pesquisar tipo de conteúdo padrão"
 
+msgctxt "#30812"
+msgid "Last Played"
+msgstr "Jogado pela última vez"
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr "Defina o atraso do marcador de 0 a 30 segundos atrás da posição de reprodução atual."
@@ -1051,3 +1055,11 @@ msgstr "Seleciona a ordem de classificação dos resultados da pesquisa do Mezzm
 msgctxt "#30570"
 msgid "Selects the default content type for Mezzmo search results.  The default setting is None which will use the search results content type"
 msgstr "Seleciona o tipo de conteúdo padrão para os resultados da pesquisa Mezzmo.  A configuração padrão é Nenhum, que usará o tipo de conteúdo dos resultados da pesquisa"
+
+msgctxt "#30571"
+msgid "Enables video item context menu for quick recall of last played video media items. The default setting is 10.  0 disables this context menu option."
+msgstr "Ativa o menu de contexto do item de vídeo para recuperação rápida dos últimos itens de mídia de vídeo reproduzidos. A configuração padrão é 10. 0 desativa esta opção do menu de contexto."
+
+msgctxt "#30572"
+msgid "Return to Kodi library home screen"
+msgstr "Retornar à tela inicial da biblioteca Kodi"

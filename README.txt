@@ -1,3 +1,15 @@
+2.2.1.1 12/10/2024
+
+- Improved the automatic playcount adjustment for newly discovered media introduced in
+  v2.2.1.0.  In addition to checking for improper playcounts for media which has a last
+  played value, checking will also occur for situations where new media has a low 
+  playcount value but no last played time.  For those situations the playcount value
+  will be set to 0.
+- Added new Last Played Media feature for quick access to the most recently watched 
+  media.  See:  https://github.com/Conceiva/MezzmoKodiPlugin/wiki/Last-Played-Media
+- Moved the Performance Logging Enabled addon setting from the Content Control tab to
+  the Diagnostics addon tab settings section
+
 2.2.1.0 11/14/2024
 
 - Added automatic playcount adjustment, during the background sync process, for newly 

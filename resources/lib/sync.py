@@ -704,7 +704,8 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                     playcount_text, description_text)
                 tvcheckval = media.tvChecker(season_text, episode_text, koditv, mtitle, categories) # Check if Ok to add
                 mezzmocounts += 1
-                if playcount > 0 and last_played_text != '0' and maxsetting != 'Off':   # New discovery play counter
+                #if playcount > 0 and last_played_text != '0' and maxsetting != 'Off':   # New discovery play counter
+                if playcount > 0 and maxsetting != 'Off':               # New discovery play counter
                     playcount = updatePlaycount(date_added_text, last_played_text, playcount, syncurl, itemid, mtitle)
                 if (tvcheckval[1] == 1 or size == 100000000000) and validf == 1 and clean == 1:   #  Update live channel
                     media.syncCount(dbsync, mtitle, "livec")
@@ -806,18 +807,29 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
 def updatePlaycount(datime, lptime, playcount, syncurl, itemid, mtitle):  # Check for new discovery playcount values
 
     try:
-        xbmc.log('Mezzmo times are: ' + datime + '   ' + lptime, xbmc.LOGDEBUG)
+        xbmc.log('Mezzmo times are: ' + datime + '   ' + lptime + '   '  + str(len(lptime)) + '  ' + itemid, xbmc.LOGDEBUG)
 
         FMT = '%Y-%m-%d %H:%M:%S'
 
-        td = datetime.datetime.strptime(lptime, FMT) - datetime.datetime.strptime(datime, FMT)
-        tdint = int(td.total_seconds())
+        if len(lptime) > 0 and lptime != '0':                             # Get time delta when played
+            td = datetime.datetime.strptime(lptime, FMT) - datetime.datetime.strptime(datime, FMT)
+        else:                                                             # Else use current time
+            currtime = datetime.datetime.now().strftime(FMT)              # Get current time as string
+            currtimed = datetime.datetime.strptime(currtime, FMT)         # Convert to datetime with format
+            disctime = datetime.datetime.strptime(datime, FMT)            # Convert date added to datetme format
+            td = currtimed - disctime                                     # Calculate difference
+        tdint = int(td.total_seconds())                                   # Convert to int
+        xbmc.log('Mezzmo time delta is: ' + str(tdint), xbmc.LOGDEBUG)
         orgplaycount = playcount
-        if tdint < 3601 and playcount > 1:
-            setPlaycount(syncurl, itemid, '1', mtitle)
-            playcount = 1
-            msynclog = 'Mezzmo new discovery playcount needs adjusted ' + str(orgplaycount) + ' ' + str(tdint)
+        if tdint < 7201 and playcount > 1:
+            if len(lptime) > 0 and lptime == '0':
+                playcount = 0
+            else:
+                playcount = 1
+            msynclog = 'Mezzmo new discovery playcount needs adjusted ' + str(orgplaycount) + ' '   \
+            + str(tdint) + ' ' + str(playcount)
             media.mezlogUpdate(msynclog)
+            setPlaycount(syncurl, itemid, str(playcount), mtitle)
         return playcount
 
     except Exception as e:
