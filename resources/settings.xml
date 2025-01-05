@@ -1693,6 +1693,18 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="hidewatched" type="string" label="30813" help="30573">
+					<level>0</level>
+					<default>Off</default>
+					<constraints>
+						<options>
+							<option label="Off">Off</option>
+							<option label="Log Only">Log</option>
+							<option label="GUI and Log">Both</option>
+						</options>
+					</constraints>
+					<control type="spinner" format="string"/>
+				</setting>
                                 <setting id="exportdata" type="action" label="30427" help="30533">
 	                                 <level>0</level>
 	                                 <data>RunScript(plugin.video.mezzmo,export)</data>

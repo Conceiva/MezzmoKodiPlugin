@@ -68,6 +68,58 @@ def deleteTexturesCache(contenturl, force = ''):    # do not cache texture image
         db.close()
 
 
+def checkHideWatched():                                 # Check Hide Watched setting  
+
+    try:
+        hidewatch = media.settings('hidewatched')
+        if hidewatch == 'Off':                          # Hide watched checking is disabled
+            return                    
+        config_file = os.path.join(xbmcvfs.translatePath("special://profile"), 'guisettings.xml')
+        if not os.path.isfile(config_file):
+            mgenlog = "Mezzmo guisettings.xml file not found"
+            media.mgenlogUpdate(mgenlog)
+            return
+
+        hwfound = 0
+        with open(config_file, mode='r', encoding='utf-8-sig') as xml_txt:                 
+            tree = ET.fromstring((xml_txt.read().replace('&',' ').strip().encode('utf-8')), ET.XMLParser(encoding='utf-8'))
+
+            hwmovies = hwtvshows = hwmusicv = None
+            videos = tree.find('myvideos')
+            if videos != None:
+                hwmovies = videos.find('watchmodemovies')
+                hwtvshows = videos.find('watchmodetvshows')
+                hwmusicv = videos.find('watchmodemusicvideos')
+
+            if hwmovies != None and hwmovies.text != '0':
+                mgenlog = "Mezzmo Hide Watched Movies is enabled."
+                media.mgenlogUpdate(mgenlog)
+                hwfound += 1
+ 
+            if hwtvshows != None and hwtvshows.text != '0':
+                mgenlog = "Mezzmo Hide Watched TV Shows is enabled."
+                media.mgenlogUpdate(mgenlog)
+                hwfound += 1
+
+            if hwmusicv != None and hwmusicv.text != '0':
+               mgenlog = "Mezzmo Hide Watched Music Videos is enabled."
+               media.mgenlogUpdate(mgenlog)
+               hwfound += 1
+
+            if videos == None:
+                mgenlog = "Mezzmo Hide Watched Checking.  There is a format problem with the guisettings.xml file."
+                media.mgenlogUpdate(mgenlog) 
+            elif hwfound == 0:
+                mgenlog = "Mezzmo Hide Watched Checking complete.  Nothing set to hide watched."
+                media.mgenlogUpdate(mgenlog)            
+            elif hwfound > 0 and (hidewatch == 'Both'):           
+                icon = xbmcaddon.Addon().getAddonInfo("path") + '/resources/icon.png'
+                xbmcgui.Dialog().notification(media.translate(30813), media.translate(30814), icon, 5000) 
+
+    except Exception as e:
+        printsyncexception()
+
+
 def dbClose():		 # Close database and commit any pending writes on abort
     try:
         from sqlite3 import dbapi2 as sqlite
@@ -571,7 +623,7 @@ def syncContent(content, syncurl, objectId, syncpin, syncoffset, maxrecords, cle
                         categories_text = 'video'
                         contentType = 'videos'
                 else:
-                    movieset = album_text = ''
+                    movieset = ''
                     categories_text = 'video'
                     contentType = 'videos'
 

@@ -776,6 +776,18 @@ msgctxt "#30812"
 msgid "Last Played"
 msgstr ""
 
+msgctxt "#30813"
+msgid "Hide Watched Monitoring"
+msgstr ""
+
+msgctxt "#30814"
+msgid "Mezzmo Hide Watched Checking Enabled.  Check General Logs for details."
+msgstr ""]
+
+msgctxt "#30815"
+msgid "Modify search criteria"
+msgstr ""
+
 msgctxt "#30501"
 msgid "Set bookmark delay 0-30 secs behind current playback position."
 msgstr ""
@@ -1013,11 +1025,11 @@ msgid "When enabled reduces the amount of addon general log entries in the Kodi 
 msgstr ""
 
 msgctxt "#30560"
-msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Preview trailer volume is different than the main movie.  Default is 100 percent."
+msgid "Adjusts Mezzmo Preview trailer playback volume.  This can be used when the Mezzmo Preview trailer volume is different than the main movie.  This option wil have no effect if trailer audio codec is in passthrough mode.  Default is 100 percent."
 msgstr ""
 
 msgctxt "#30561"
-msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Preview movie volume is different than the trailer volume.  Default is 100 percent."
+msgid "Adjusts Mezzmo Preview movie playback volume.  This can be used when the Mezzmo Preview movie volume is different than the trailer volume.  This option wil have no effect if movie audio codec is in passthrough mode.  Default is 100 percent."
 msgstr ""
 
 msgctxt "#30562"
@@ -1062,3 +1074,8 @@ msgstr ""
 msgctxt "#30572"
 msgid "Return to Kodi library home screen"
 msgstr ""
+
+msgctxt "#30573"
+msgid "Monitors Hide Watched setting druing hourly background sync process.  Options are log to general logs or log and notify via GUI.  Default is Off."
+msgstr ""
+

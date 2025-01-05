@@ -538,7 +538,7 @@ def handleBrowse(content, contenturl, objectID, parentID, reqcount = 0):
                 if tags != None:
                     tags_text = tags.text
                     taglist = str(tags_text).replace(',', '$')
-                    
+                  
                 categories_text = 'movie'
                 categories = item.find('.//{urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/}categories')
                 if categories != None and categories.text != None:
@@ -570,10 +570,12 @@ def handleBrowse(content, contenturl, objectID, parentID, reqcount = 0):
                         contentType = 'videos'
                         showtitle = title
                 else:
-                    movieset = album_text = trtype = ''
+                    movieset = trtype = ''
                     categories_text = 'video'
                     contentType = 'videos'
                     showtitle = title
+
+                xbmc.log('Mezzmo album_text: ' + str(album_text), xbmc.LOGDEBUG)
 
                 if 'tvtrailer' in trtype and imageSearchUrl != None and actors != None  \
                 and actors.text == 'Unknown Artist':                     # TV trailer cast search
@@ -1046,7 +1048,7 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
     menuitem4 = addon.getLocalizedString(30373)
     menuitem9 = addon.getLocalizedString(30434)
     menuitem10 = addon.getLocalizedString(30464)
-    menuitem11 = addon.getLocalizedString(30465)
+    menuitem11 = addon.getLocalizedString(30465)        # New search
     menuitem12 = addon.getLocalizedString(30435)  
     kodichange = media.settings('kodichange')           # Checks for change detection user setting
     kodiactor = media.settings('kodiactor')             # Checks for actor info setting
@@ -1094,20 +1096,56 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                     itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'native', \
                     'objectID': objectID})
                     li = xbmcgui.ListItem(menuitem10)
+                    mediaClass_text = 'video'
+                    if installed_version == '19':                         #  Kodi 19 format
+                        khinfo = {
+                                'plot': media.translate(30572),
+                        }
+                        li.setInfo(mediaClass_text, khinfo)
+                    else:                                                 # Kodi 20+ format   
+                        khfinfo = li.getVideoInfoTag()
+                        khfinfo.setPlot(media.translate(30572))
                     li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
                     li = xbmcgui.ListItem(menuitem11)
+                    mediaClass_text = 'video'
+                    if installed_version == '19':                         #  Kodi 19 format
+                        khinfo = {
+                            'plot': media.translate(30815),
+                        }
+                        li.setInfo(mediaClass_text, khinfo)
+                    else:                                                 # Kodi 20+ format   
+                        khfinfo = li.getVideoInfoTag()
+                        khfinfo.setPlot(media.translate(30815)) 
                     li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
                 elif searchcontrol == 'native' and (searchcontrol2 == 'movieset' or searchcontrol2 == 'collection'):
                     itemurl = build_url({'mode': 'home'})
                     li = xbmcgui.ListItem(menuitem10)
+                    mediaClass_text = 'video'
+                    if installed_version == '19':                         #  Kodi 19 format
+                        khinfo = {
+                                'plot': media.translate(30572),
+                        }
+                        li.setInfo(mediaClass_text, khinfo)
+                    else:                                                 # Kodi 20+ format   
+                        khfinfo = li.getVideoInfoTag()
+                        khfinfo.setPlot(media.translate(30572)) 
                     li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
                 elif searchcontrol2 != 'movieset' and searchcontrol2 != 'collection':
                     itemurl2 = build_url({'mode': 'newsearch', 'contentdirectory': contenturl, 'source': 'browse', \
                     'objectID': objectID})
                     li = xbmcgui.ListItem(menuitem11)
+                    mediaClass_text = 'video'
+                    if installed_version == '19':                         #  Kodi 19 format
+                        khinfo = {
+                            'plot': media.translate(30815),
+                        }
+                        li.setInfo(mediaClass_text, khinfo)
+                    else:                                                 # Kodi 20+ format   
+                        khfinfo = li.getVideoInfoTag()
+                        khfinfo.setPlot(media.translate(30815)) 
                     li.setArt({'thumb': addon_icon, 'poster': addon_icon, 'icon': addon_icon, 'fanart': addon_fanart})
                     xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl2, listitem=li, isFolder=False)
                 searchmenu += 1
@@ -1278,7 +1316,7 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                         contentType = 'videos'
                         showtitle = title
                 else:
-                    movieset = album_text = trtype = ''
+                    movieset = trtype = ''
                     categories_text = 'video'
                     contentType = 'videos'
                     showtitle = title
@@ -1812,8 +1850,7 @@ if mode[0] == 'manual':                          #  Manually add Mezzmo server I
         mgenlog = media.translate(30451) + serverurl
         #xbmc.log(mgenlog, xbmc.LOGINFO)
         media.mgenlogUpdate(mgenlog)
-        #notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
-        notify = xbmcgui.Dialog().notification(dialog_text, mgenlog, addon_icon, 5000)
+        notify = xbmcgui.Dialog().notification(media.translate(30447), mgenlog, addon_icon, 5000)
     listServers(False)
     
 if mode[0] == 'serverlist':
@@ -1893,7 +1930,8 @@ elif mode[0] == 'movieset':
     searchcontrol2 = mode[0]   
     searchCriteria = "upnp:album=&quot;" + smovieset + "&quot;"
     upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
-    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"
+    xbmc.log('Mezzmo movieset search criteria: ' + searchCriteria, xbmc.LOGDEBUG)      
     pin = media.settings('content_pin')
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
@@ -1912,7 +1950,8 @@ elif mode[0] == 'collection':
     searchcontrol2 = mode[0]    
     searchCriteria = "keywords=&quot;" + scollection + "&quot;"
     upnpClass = "upnp:class derivedfrom &quot;object.item.videoItem&quot;"
-    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"    
+    searchCriteria = "(" + searchCriteria + ") and (" + upnpClass + ")"
+    xbmc.log('Mezzmo collection search criteria: ' + searchCriteria, xbmc.LOGDEBUG)         
     pin = media.settings('content_pin')
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)

@@ -1,3 +1,15 @@
+2.2.1.2 1/5/2025
+
+- Added feature to check for the Hide Watched Kodi setting being enabled.  The addon
+  setting allows for logging and user notification via the Kodi GUI.
+- Fixed an old bug which was causing the album information not to display properly when
+  browsing music in GUI mode.
+- Updated a few addon setting help messages to provide better clarity on how to use the
+  setting options.
+- Fixed bug which was causing exception error when displaying notification of a new 
+  Mezzmo or UPnP server being manually added.
+- Minor user friendliness enhancements 
+
 2.2.1.1 12/10/2024
 
 - Improved the automatic playcount adjustment for newly discovered media introduced in

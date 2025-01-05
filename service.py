@@ -240,6 +240,7 @@ while True:
                 xbmc.log(msynclog, xbmc.LOGINFO)
                 media.mezlogUpdate(msynclog)
             count = 20                      # Reset hourly counter
+            sync.checkHideWatched()         # Check Hide Watched setting
 
     elif not xbmc.Player().isPlaying() and int(fastsync) > 0 and fscount >= (int(fastsync) * 60):      
         syncpin = media.settings('content_pin')
