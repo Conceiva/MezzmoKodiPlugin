@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.2.1.2" provider-name="Conceiva">
+<addon  id="plugin.video.mezzmo" name="Mezzmo" version="2.2.1.3" provider-name="jbinkley60">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>    
@@ -24,9 +24,9 @@
 
   <extension point="xbmc.addon.repository" name="Mezzmo Repository">
     <dir minversion="19.0.0">
-      <info>https://raw.githubusercontent.com/Conceiva/MezzmoKodiPlugin/manifests/kodi-19.xml.gz</info>
-      <checksum>https://raw.githubusercontent.com/Conceiva/MezzmoKodiPlugin/manifests/kodi-19.xml.gz.sha256</checksum>
-      <datadir>https://github.com/Conceiva/MezzmoKodiPlugin/releases/download</datadir>
+      <info>https://raw.githubusercontent.com/jbinkley60/MezzmoKodiPlugin/manifests/kodi-19.xml.gz</info>
+      <checksum>https://raw.githubusercontent.com/jbinkley60/MezzmoKodiPlugin/manifests/kodi-19.xml.gz.sha256</checksum>
+      <datadir>https://github.com/jbinkley60/MezzmoKodiPlugin/releases/download</datadir>
       <hashes>sha256</hashes>
     </dir>
   </extension>

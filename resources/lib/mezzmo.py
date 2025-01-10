@@ -1029,7 +1029,7 @@ def handleBrowse(content, contenturl, objectID, parentID, reqcount = 0):
     xbmcplugin.endOfDirectory(addon_handle)
 
 
-def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
+def handleSearch(content, contenturl, objectID, term, reqcount = 1000, albumsrch = ''):
     global searchcontrol, searchcontrol2
     contentType = 'movies'
     itemsleft = -1
@@ -1675,9 +1675,11 @@ def handleSearch(content, contenturl, objectID, term, reqcount = 1000):
                     contentType = 'files'
                     itemurl = build_url({'mode': 'picture', 'itemurl': itemurl})
 
-                if validf == 1:  
-                    xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
-                    itemcount += 1         #  Increment item counter
+                if validf == 1:            # If valid  listitem
+                    xbmc.log("Mezzmo movieset / TV Series search info: " + albumsrch + '  ' + album_text, xbmc.LOGDEBUG)
+                    if len(albumsrch) == 0 or albumsrch == album_text:    # Exact match for moviesets and TV episodes
+                        xbmcplugin.addDirectoryItem(handle=addon_handle, url=itemurl, listitem=li, isFolder=False)
+                        itemcount += 1         #  Increment item counter
 
             xbmc.log('Mezzmo search item count: ' + str(itemcount) + ' ' + str(reqcount), xbmc.LOGDEBUG)            
             itemsleft = itemsleft - int(NumberReturned) - 1
@@ -1936,7 +1938,7 @@ elif mode[0] == 'movieset':
     xbmc.executebuiltin('Dialog.Close(all, true)')
     content = browse.Search(scontenturl, '0', searchCriteria, 0, 1000, pin)
     if len(content) > 0:                                  #  Check for server response
-        handleSearch(content, scontenturl, '0', searchCriteria, 1000)
+        handleSearch(content, scontenturl, '0', searchCriteria, 1000, smovieset)
     else:
         downServer() 
 

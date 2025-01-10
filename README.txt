@@ -1,3 +1,10 @@
+2.2.1.3 1/10/2025
+
+- Fixed a bug where Mezzmo Show TV Episodes could display additional TV Episodes or movies
+  due to the Mezzmo server returning Like vs. an equal query results. The Mezzmo Kodi addon
+  will now filter the Like results to an exact match on the TV Series.
+- Updated GitHub repo location from Conceiva to jbinkley60  
+
 2.2.1.2 1/5/2025
 
 - Added feature to check for the Hide Watched Kodi setting being enabled.  The addon
