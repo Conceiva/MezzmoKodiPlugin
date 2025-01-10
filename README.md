@@ -1,4 +1,8 @@
 # MezzmoKodiPlugin for Kodi 19 and higher
+
+
+<b>Important Notice January 10, 2025 .  This repository is being moved.  The new location is now located <a href="https://github.com/jbinkley60/MezzmoKodiPlugin/tree/Kodi-19%2B">here</a>. </b>
+
 An addon for Kodi (XBMC) to browse/search Mezzmo media server and view rich metadata, posters and backdrops for your media library.
 
 <a href="https://github.com/jbinkley60/MezzmoKodiPlugin/tree/master">Kodi 18 link</a>
