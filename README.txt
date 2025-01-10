@@ -1,3 +1,7 @@
+1.2.0.7 1/10/2025
+
+- Updated GitHub repo location from Conceiva to jbinkley60 
+
 1.2.0.6 6/14/2024
 
 - Removed Mezzmo Unknown Actor entry, when a video entry does not have any actors,
